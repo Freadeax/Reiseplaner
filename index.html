@@ -22,6 +22,8 @@ v1.6: Plan B bei schlechtem Wetter (Indoor-Ideen passend zu Datum/Katalogregeln)
 (nur über http/https, Netz zuerst), App-Icon und Manifest für den Homescreen. Browser-Klicktest im Repo.
 v1.7: Packliste aus dem Plan (Mitbringsel der geplanten Unternehmungen). Spartipps: keine Unterkunft ohne Sauna
 empfehlen, wenn Sauna in der Unterkunft geplant ist; kein „frei mit PLUS“ ohne bestätigte Gästekarte.
+v1.8: Verleih über 5 Tage nicht mehr gedeckelt (hochgerechnet), Skipass/Kurs ab Tag 4 als Schätzung markiert
+und als offene Kosten benannt.
 Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell und bezahlte/offene Beträge.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,7 +214,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.7</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.8</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -424,6 +426,11 @@ function openCosts(t){const out=[];
  if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
  if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
  if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
+ const pl=placeOf(t);
+ if(pl){const c=cost(t);
+  if(c.gearDays>5)out.push('Verleih über 5 Tage: Tarif beim Verleih erfragen');
+  if(c.kursDays.length>3)out.push('Kurs über 3 Tage: Preis bei der Skischule erfragen');
+  if(c.passDays.size>3&&!(pl.cardPass&&t.cardConfirmed===true))out.push('Skipass über 3 Tage: Mehrtagestarif prüfen');}
  return out;
 }
 function costNotice(t){return '<div class="note"><b>Vorläufige Planung · kein bestätigter Gesamtpreis</b><p class="small">'+esc(openCosts(t).join(' · '))+'. Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></div>';}
@@ -452,14 +459,15 @@ function cost(t){
   items.forEach(it=>{if(actOf(t,it.act).pass)passDays.add(it.day)});
   const card=!!(st&&t.cardConfirmed===true);
   const topUsed=new Set(passDays);
-  if(pl&&kursDays.length){const k=kursDays.length, price=k<=3?pl.kurs[k]:pl.kurs[3]+35*(k-3);add('schnee','Gruppenkurs · '+k+(k>1?' Tage':' Tag'),pl.school+' · '+price+' € p. P.',price*P,pl.kursSrc)}
+  if(pl&&kursDays.length){const k=kursDays.length, price=k<=3?pl.kurs[k]:pl.kurs[3]+35*(k-3);add('schnee','Gruppenkurs · '+k+(k>1?' Tage':' Tag'),pl.school+' · '+price+' € p. P.'+(k>3?' · ab Tag 4 mit 35 € / Tag geschätzt':''),price*P,k>3?'est':pl.kursSrc)}
   const gearDays=new Set(items.filter(it=>actOf(t,it.act).gear).map(i=>i.day)).size;
-  if(gearDays){const g=Math.min(5,gearDays);let r=(RENT_SET[g]+RENT_HELM[g])*P;const on=pl&&pl.onlineRent&&t.online!==false;if(on)r*=0.9;add('schnee','Verleih Set + Helm · '+gearDays+(gearDays>1?' Tage':' Tag'),(RENT_SET[g]+RENT_HELM[g])+' € p. P.'+(on?' · −10 % online':'')+(pl&&pl.onlineRent?'':' · Preise wie Iseler angenommen'),r,pl&&pl.onlineRent?'ok':'est')}
+  /* Tariftabelle reicht bis 5 Tage; darüber mit dem Zuwachs von Tag 4 auf 5 hochgerechnet und als Schätzung markiert. */
+  if(gearDays){const g=Math.min(5,gearDays),more=gearDays-g,pp=RENT_SET[g]+RENT_HELM[g]+more*((RENT_SET[5]-RENT_SET[4])+(RENT_HELM[5]-RENT_HELM[4]));let r=pp*P;const on=pl&&pl.onlineRent&&t.online!==false;if(on)r*=0.9;add('schnee','Verleih Set + Helm · '+gearDays+(gearDays>1?' Tage':' Tag'),pp+' € p. P.'+(more?' · ab Tag 6 hochgerechnet':'')+(on?' · −10 % online':'')+(pl&&pl.onlineRent?'':' · Preise wie Iseler angenommen'),r,pl&&pl.onlineRent&&!more?'ok':'est')}
   let saved=0;
   if(pl&&passDays.size){const n=passDays.size;
     if(pl.cardPass&&card){saved=pl.passDay*P*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'in '+pl.card+' enthalten'+(st.card==='?'?' (beim Gastgeber bestätigen!)':''),0,'plus')}
     else if(pl.cardPass){add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'Unterkunft ohne Gästekarte: '+dec(pl.passDay,2)+' € p. P. / Tag',pl.passDay*P*n,'est')}
-    else{const tb=pl.passTable,pp=n<=3?tb[n]:tb[3]/3*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),dec(pp,2)+' € p. P. ('+pl.passSrc+')',pp*P,'ok')}
+    else{const tb=pl.passTable,pp=n<=3?tb[n]:tb[3]/3*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),dec(pp,2)+' € p. P. ('+pl.passSrc+(n>3?', ab Tag 4 hochgerechnet':'')+')',pp*P,n>3?'est':'ok')}
   }
   /* Unternehmungen */
   items.forEach(it=>{const a=actOf(t,it.act);if(a.kurs)return;
@@ -477,7 +485,7 @@ function cost(t){
   if(num(t.puffer,0)>0) add('puffer','Puffer '+num(t.puffer,0)+' %','für Unvorhergesehenes',sub*num(t.puffer,0)/100,'ok');
   const total=lines.reduce((s,l)=>s+l.c,0), byCat={};
   lines.forEach(l=>byCat[l.cat]=(byCat[l.cat]||0)+l.c);
-  return {lines,total,byCat,saved,P,N,kursDays,passDays};
+  return {lines,total,byCat,saved,P,N,kursDays,passDays,gearDays};
 }
 /* Plan-Check */
 function checks(t){

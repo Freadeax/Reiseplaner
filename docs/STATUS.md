@@ -14,6 +14,10 @@
   - Neuer Reiter „Mappe“: druckbare Zusammenfassung (Eckdaten, Tagesplan je Tag, Warnungen aus dem Plan-Check, Planwerte nach Kategorie, offene Kosten, Buchungsstand als Text ☐/☑). Druck-CSS blendet Navigation, Dock und Bedienelemente aus und erzwingt helle Farben.
   - Kalenderexport (`.ics`, RFC 5545: CRLF, Maskierung, Faltung nach 75 Byte): Reise als ganztägiger Termin, jeder Programmpunkt mit grobem Zeitfenster (Vormittag 9–12, Mittag 12–14, Nachmittag 14–18, Abend 18–22 Uhr, ohne Zeitzone) und `STATUS:TENTATIVE`. Punkte nach dem letzten Reisetag werden gezählt, nicht exportiert. Nur bei festem Datum.
   - „Als Text teilen“: Web-Share, sonst Zwischenablage, sonst Textfeld zum Markieren. Notizen (mögliche Buchungsnummern) nur nach Häkchen in Mappe und Text.
+- Stand 1.8 (Claude): Fehlerbehebung Kosten bei langen Schneesport-Aufenthalten, kein Speicherfeld.
+  - Verleih wurde über 5 Tage still auf den 5-Tage-Tarif gedeckelt (8 Tage zu zweit: 286 € statt hochgerechnet 442 €) und als „Angabe“ markiert. Jetzt Hochrechnung mit dem Zuwachs von Tag 4 auf 5, Quelle „Richtwert“, Hinweis in der Zeile und unter „Noch offen“.
+  - Skipass aus Tariftabelle (Balderschwang, Tannheimer Tal) ab Tag 4 war linear hochgerechnet, aber als „Angabe“ markiert. Jetzt „Richtwert“ mit Hinweis. Gleiches für den Gruppenkurs ab Tag 4 (35 €/Tag sind eine Annahme).
+  - Die Tarife selbst wurden nicht neu recherchiert.
 - Stand 1.7 (Claude): weiterhin kein neues Speicherfeld.
   - Packliste aus dem Plan: Die Checkliste erhält eine Gruppe „Packliste: für eure Unternehmungen“ mit den `bring`-Angaben der geplanten Katalogideen (ohne Dubletten zur Grundliste, mit Angabe wofür; Punkte nach dem letzten Reisetag zählen nicht). Abhaken nutzt das bestehende `check`-Objekt.
   - Fehlerbehebung Spartipps: „Günstigste passende Unterkunft“ empfahl in Oberjoch eine Unterkunft ohne Sauna, obwohl „Sauna in der Unterkunft“ geplant war (danach Plan-Check-Konflikt). Jetzt werden Sauna- und Küchenbedarf beachtet. Der Tipp „Wonnemar-Bad“ verspricht „frei“ nur noch bei bestätigter Gästekarte. Ein Test geht alle Orte, Unterkünfte und Sauna-/Küchen-Ideen durch; Gegentest gegen den alten Code schlug wie erwartet fehl.
@@ -38,11 +42,11 @@ Am 13.10.2026 zusätzlich ausgeführt (Claude, Stand 1.5): ein Klicktest in **he
 - Es fehlt ein echtes Angebotsmodell mit Preisbasis, Gebühren, Belegung, Gültigkeit, Quelle und Buchungsstatus.
 - Bezahlte Beträge, Kautionen und noch offene Zahlungen werden nicht sauber getrennt.
 - Strecken außerhalb des Beispielstarts Hattenhofen müssen manuell eingetragen werden.
-- Kurs- und Verleihtarife für längere Reisen sowie genaue Zeitkonflikte brauchen weitere Regeln.
+- Kurs-, Verleih- und Skipasstarife über 3 bzw. 5 Tage sind nur hochgerechnet (als Richtwert markiert); echte Mehrtagestarife fehlen. Genaue Zeitkonflikte brauchen weitere Regeln.
 - Der öffentliche Katalog enthält Schätzwerte und ältere Angaben. Keine Buchungsentscheidung allein anhand dieser Werte treffen.
 
 ## Übergabe
 
-Letzte hier vorbereitete App-Version: 1.7 (dazu Plan B, Offline-Start, Packliste aus dem Plan, korrigierte Spartipps). GitHub-CI (Node- und Chromium-Job) war für 1.6 grün. Offen: Import der `.ics` in iOS-Kalender und Google Kalender testen, Druck aus Safari, „Zum Home-Bildschirm“ und Offline-Start auf einem echten iPhone (Hosting über https nötig, z. B. GitHub Pages). Nächster technischer Schritt: reproduzierbarer Browser-Klicktest auf Desktop und Mobilansicht, anschließend Angebots- und Zahlungsmodell mit Migration der vorhandenen `rp-trips`-Daten. Bestehende Daten niemals still überschreiben. Die vorhandene HTML-Datei bleibt bis zu einer geprüften Migration die maßgebliche App-Quelle.
+Letzte hier vorbereitete App-Version: 1.8 (dazu Plan B, Offline-Start, Packliste aus dem Plan, korrigierte Spartipps und Langzeit-Tarife). GitHub-CI (Node- und Chromium-Job) war für 1.6 grün. Offen: Import der `.ics` in iOS-Kalender und Google Kalender testen, Druck aus Safari, „Zum Home-Bildschirm“ und Offline-Start auf einem echten iPhone (Hosting über https nötig, z. B. GitHub Pages). Nächster technischer Schritt: reproduzierbarer Browser-Klicktest auf Desktop und Mobilansicht, anschließend Angebots- und Zahlungsmodell mit Migration der vorhandenen `rp-trips`-Daten. Bestehende Daten niemals still überschreiben. Die vorhandene HTML-Datei bleibt bis zu einer geprüften Migration die maßgebliche App-Quelle.
 
 Zusammenarbeit: Philipp, Claude und ChatGPT arbeiten gegebenenfalls parallel. Die Regeln für nur einen `main`-Branch, eigene Pushes, Konfliktprüfung und asynchrone Übergaben stehen in `docs/COLLABORATION.md`. Der am 13.10.2026 erneut hochgeladene HTML-Anhang war bytegleich mit `index.html`; daraus entstand keine App-Änderung.

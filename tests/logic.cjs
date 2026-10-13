@@ -76,3 +76,31 @@ assert.equal(a.Store.saveLocal(),true);
 assert.equal(writes,1);
 console.log('Speicherfehler: Rohdaten bleiben erhalten, Schreibsperre und explizites Zurücksetzen geprüft.');
 console.log('Grundlogik, Export, Import, Konflikte und ungültige Daten geprüft.');
+
+/* Lange Schneesport-Aufenthalte: keine stille Deckelung, Hochrechnungen als Schätzung markiert */
+const longTrip = (place, stay, act, n) => {
+  const tr = a.newTrip({ catalog: 'allgaeu', place, stayId: stay, dateMode: 'fix', start: '2027-01-10', end: '2027-01-' + (10 + n + 1), persons: 2 });
+  tr.items = [...Array(n)].map((_, i) => ({ uid: 'u' + i, act, day: i + 1, slot: 'morgen' }));
+  return tr;
+};
+const gearLine = tr => a.cost(tr).lines.find(l => l.t.startsWith('Verleih'));
+const g5 = gearLine(longTrip('balder', a.STAYS.find(s => s.place === 'balder').id, 'bs-ueben', 5));
+const g8 = gearLine(longTrip('balder', a.STAYS.find(s => s.place === 'balder').id, 'bs-ueben', 8));
+assert.equal(g5.c, (123 + 20) * 2);
+assert.equal(g8.c, (123 + 20 + 3 * (22 + 4)) * 2, '8 Verleihtage dürfen nicht wie 5 kosten');
+assert.equal(g8.src, 'est');
+assert(g8.s.includes('hochgerechnet'));
+const bal = longTrip('balder', a.STAYS.find(s => s.place === 'balder').id, 'bs-ueben', 6);
+const pass6 = a.cost(bal).lines.find(l => l.t.startsWith('Skipass'));
+assert.equal(pass6.src, 'est');
+assert(Math.abs(pass6.c - 135 / 3 * 6 * 2) < 0.01);
+assert(a.openCosts(bal).some(x => x.includes('Skipass über 3 Tage')));
+assert(a.openCosts(bal).some(x => x.includes('Verleih über 5 Tage')));
+const bal3 = longTrip('balder', a.STAYS.find(s => s.place === 'balder').id, 'bs-ueben', 3);
+assert.equal(a.cost(bal3).lines.find(l => l.t.startsWith('Skipass')).src, 'ok');
+assert(!a.openCosts(bal3).some(x => /über (3|5) Tage/.test(x)));
+const kurs5 = longTrip('balder', a.STAYS.find(s => s.place === 'balder').id, 'bs-kurs', 5);
+const kl = a.cost(kurs5).lines.find(l => l.t.startsWith('Gruppenkurs'));
+assert.equal(kl.src, 'est');
+assert(a.openCosts(kurs5).some(x => x.includes('Kurs über 3 Tage')));
+console.log('Lange Schneesport-Aufenthalte: Verleih, Skipass und Kurs ehrlich hochgerechnet und markiert.');
