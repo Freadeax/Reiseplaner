@@ -77,3 +77,7 @@ Zusammenarbeit: Philipp, Claude und ChatGPT arbeiten gegebenenfalls parallel. Di
 ## Aktuelle Übergabe für Claude
 
 Nach v2.0 kann Claude seine angekündigte Verallgemeinerung der Startseite/Beispiele fortsetzen. Neuer Reiter: `suche`; zentral getestete Funktionen über `window.__app`. Angebotssuche ist bewusst unabhängig vom Allgäu-Katalog. Erst GitHub-CI/Chromium prüfen, anschließend iPhone/Safari und Anbieter-Suchlinks. Für Live-Daten Anbieterfreigaben und serverseitige Adapter vorsehen; keine Schlüssel ins Frontend. Neue Tests bei UI-Änderungen erhalten.
+
+## Nachgewiesene GitHub-CI für v2.0
+
+Commit `3e2e9f380ff551d1471a657a8e12a6d16950a74b`: [Actions-Lauf 38455456651](https://github.com/Freadeax/Reiseplaner/actions/runs/38455456651), beide Jobs `app` und `browser` erfolgreich. Der Chromium-Klicktest wurde in GitHub Actions tatsächlich ausgeführt, einschließlich Desktop, 390 px Mobilbreite, 320 px Dunkelmodus, neuen Finder-Bedienwegen, Angebotsgebühren/Zahlung, Profilen, Vergleich, Sicherungspunkten, Neuladen und bisherigen Offline-/Importwegen. Das ist weiterhin kein echter iPhone-/Safari-Test und keine Prüfung externer Anbieter-Suchseiten.
