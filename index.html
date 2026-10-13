@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta name="theme-color" content="#1E4D59"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Reiseplaner"></head><body>
 <title>Reiseplaner</title>
 <!-- Entwicklungsstand 1.4 · 13.10.2026
 Grundlage: bereitgestellte Reiseplaner(1).html. Bestehender Speicherschlüssel rp-trips bleibt erhalten.
@@ -18,6 +18,8 @@ Lokaler Browser-Speicher ist keine Gerätesynchronisation. Bestehende Claude-DB-
 v1.4: beschädigter lokaler Speicher wird nicht überschrieben; Rohdaten-Download und bewusstes Zurücksetzen.
 v1.5: Unterwegs-Ansicht (heute/morgen), laufende Reise nicht mehr als „vorbei“, Reisemappe mit Druck/PDF,
 Kalenderexport (.ics, grobe Zeitfenster, vorläufig) und Text zum Teilen. Kein neues Speicherfeld.
+v1.6: Plan B bei schlechtem Wetter (Indoor-Ideen passend zu Datum/Katalogregeln), Offline-Start per Service Worker
+(nur über http/https, Netz zuerst), App-Icon und Manifest für den Homescreen. Browser-Klicktest im Repo.
 Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell und bezahlte/offene Beträge.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -208,7 +210,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.5</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.6</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -641,6 +643,22 @@ function tripText(t,opts){
   if(o.notes&&String(t.notes||'').trim())L.push('','Notizen:',String(t.notes).trim());
   return L.join('\n');
 }
+/* Schlechtwetter: Indoor-Ideen aus dem Katalog, die an diesem Tag nicht schon geplant sind
+   und laut Katalogregeln (Wochentag, Sonderöffnungszeiten, Silvester-Termine) zum Datum passen. */
+function fitsDay(a,d,slot){
+  if(!d)return false;
+  if(a.onlyDate&&d.md!==a.onlyDate)return false;
+  if(a.dow&&d.date&&!a.dow.includes(d.date.getUTCDay()))return false;
+  if((a.rules||[]).some(r=>d.md===r.date&&r.bad.includes(slot||a.slot)))return false;
+  return true;
+}
+function rainIdeas(t,i,max){
+  const d=daysOf(t)[i];if(!d)return [];
+  const st=stayOf(t),planned=new Set(dayItems(t,i).map(it=>it.act));
+  return actsFor(t).filter(a=>a.indoor&&!planned.has(a.id)&&fitsDay(a,d)&&!(a.needSauna&&st&&!st.sauna)&&!(a.kitchen&&st&&!st.kitchen))
+    .sort((a,b)=>(a.warn?1:0)-(b.warn?1:0)||(num(a.km,0)-num(b.km,0)))
+    .slice(0,max||3);
+}
 function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'Reise'}
 
 /* ================= Speicher ================= */
@@ -916,10 +934,15 @@ function dayList(t,d,last){
   return '<ul class="plain">'+fixed.map(x=>'<li><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
     return '<li><span class="eyebrow">'+esc(SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(a.hours?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(a.hours)+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
 }
+function rainBlock(t,i){
+  const ideas=rainIdeas(t,i,3);if(!ideas.length)return '';
+  return '<details class="panel"><summary><b>Plan B bei schlechtem Wetter</b> <small class="muted">'+ideas.length+' Ideen drinnen</small></summary><ul class="plain">'+ideas.map(a=>'<li>'+esc(a.t)+' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>'+(a.hours?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(a.hours)+'</small>':'')+(a.warn?'<br><small class="muted">! '+esc(a.warn)+'</small>':'')+' <button type="button" class="lnk noprint" data-act="rain-plan" data-val="'+esc(a.id)+'|'+i+'">Einplanen</button></li>').join('')+'</ul><p class="small muted">Nur Ideen aus dem Katalog mit Merkmal „drinnen“. Öffnung und Wetter selbst prüfen.</p></details>';
+}
 function todayBlock(t){
   const ph=tripPhase(t);if(!ph||ph.phase!=='unterwegs')return '';
   const days=daysOf(t),d=days[ph.day],next=days[ph.day+1],last=days.length-1;
   return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+'</div>'+
+   rainBlock(t,ph.day)+
    (next?'<h3>Morgen · '+esc(next.label)+'</h3><div class="panel">'+dayList(t,next,last)+'</div>':'')+
    '<div class="row"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-plan">Ganzer Tagesplan</button><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-mappe">Reisemappe</button></div></section>';
 }
@@ -938,7 +961,7 @@ function tMappe(t){
    '<dt>Anreise</dt><dd>'+esc(({auto:'Auto',bahn:'Bahn'})[t.travel]||'Ticket')+(t.origin?' ab '+esc(t.origin):'')+'</dd>'+
    '<dt>Unterkunft</dt><dd>'+(st?esc(st.name)+(st.ort?', '+esc(st.ort):'')+' · '+(num(t.stayQuote,0)>0?'Angebot '+eur(t.stayQuote):'nur Planwert'):'noch offen')+'</dd>'+
    '<dt>Status</dt><dd>'+esc(STATUS[t.status]||'')+'</dd></dl></section>'+
-   '<section class="block mappe"><h3>Tagesplan</h3><div class="mdays">'+days.map(d=>'<div class="mday"><h4>'+esc(d.label)+(d.i===0?' · Anreise':d.i===last&&last>0?' · Abreise':'')+'</h4>'+dayList(t,d,last)+'</div>').join('')+'</div>'+
+   '<section class="block mappe"><h3>Tagesplan</h3><div class="mdays">'+days.map(d=>{const rb=rainIdeas(t,d.i,2);return '<div class="mday"><h4>'+esc(d.label)+(d.i===0?' · Anreise':d.i===last&&last>0?' · Abreise':'')+'</h4>'+dayList(t,d,last)+(rb.length?'<p class="small muted">Plan B drinnen: '+esc(rb.map(a=>a.t).join(' · '))+'</p>':'')+'</div>'}).join('')+'</div>'+
    '<p class="small muted">Zeitfenster sind grob. Öffnungszeiten aus dem Katalog sind nicht für eure Daten geprüft.</p></section>'+
    (warn.length?'<section class="block mappe"><h3>Hinweise aus dem Plan-Check</h3><ul class="plain">'+warn.map(x=>'<li>! '+esc(x[1])+'</li>').join('')+'</ul></section>':'')+
    '<section class="block mappe"><h3>Kosten · Planwerte</h3><div class="tbl-wrap"><table><tbody>'+keys.map(k=>'<tr><td>'+esc(COSTCAT[k][0])+'</td><td class="r">'+eur(c.byCat[k])+'</td></tr>').join('')+
@@ -1057,6 +1080,7 @@ document.addEventListener('click',async e=>{
   if(!t) return;
   switch(act){
    case 'backup-trip': downloadBackup([t]);return;
+   case 'rain-plan':{const [id,d]=val.split('|');sheetAct(t,id,+d);return}
    case 'mappe-print': try{window.print()}catch(err){alertMsg('Drucken wird hier nicht unterstützt. Bitte im Browser öffnen.')}return;
    case 'mappe-ics':{const d=icsData(t);if(!d){alertMsg('Kalenderexport braucht feste Reisedaten.');return}downloadText(d.text,fileSafe(t.title)+'.ics','text/calendar;charset=utf-8');return}
    case 'mappe-share':{const txt=tripText(t,{notes:!!UI.mappeNotes});
@@ -1145,9 +1169,11 @@ function toast(b,m){alertMsg(m)}
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
+/* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
+try{if(typeof navigator!=='undefined'&&navigator.serviceWorker&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}catch(e){}
 })();
 </script>
 

@@ -12,10 +12,10 @@ Die Reihenfolge schützt zuerst Daten, Geld und Termine. Ein Punkt gilt erst nac
 
 Ergänzungen, die keine Daten gefährden; Umsetzung nach Absprache mit Philipp:
 
-- **Erledigt in 1.5:** Unterwegs-Ansicht, Reisemappe (Druck/PDF), Kalenderexport, Teilen-Text. Echte Gerätetests stehen aus.
+- **Erledigt in 1.5/1.6:** Unterwegs-Ansicht, Reisemappe (Druck/PDF), Kalenderexport, Teilen-Text, Plan B bei schlechtem Wetter (abgeleitet, ohne Speicherfeld), Offline-Start. Echte Gerätetests stehen aus.
 - **Anreisetag mit Uhrzeit:** optionale Abfahrts- und Check-in-Zeit, damit der Kalender und der Plan-Check echte Zeiten statt grober Fenster nutzen (braucht Speicherfeld, also Version + Migration).
-- **Wetterbedingte Alternativen:** pro Tag eine „Plan B“-Unternehmung (Indoor) markieren und in der Mappe mitdrucken.
+- **Indoor-Merkmal für eigene Unternehmungen:** damit auch selbst angelegte Ideen als Plan B erscheinen (Speicherfeld, also Version + Migration).
 - **Reise-Rückblick:** Nach Status „Vorbei“ tatsächliche Ausgaben gegen Planwerte stellen und als Erfahrungswert für die nächste Reise vorschlagen (hängt am Kostenmodell aus Punkt 2).
-- **Offline-Fähigkeit:** Service Worker, damit die App unterwegs ohne Netz öffnet; Daten bleiben ohnehin lokal.
+- **Hosting über https** (z. B. GitHub Pages), damit Offline-Start und Homescreen auf dem iPhone nutzbar sind. Entscheidung bei Philipp, da das Repo öffentlich ist (Daten bleiben lokal).
 
 Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und Gültigkeit. Vorlagen sind Planideen und keine buchbaren Pauschalangebote.

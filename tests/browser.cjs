@@ -1,0 +1,229 @@
+/* Klicktest in echtem Chromium (Playwright). Kein iPhone-/Safari-Test.
+   Start: npm run test:browser. Ohne installiertes Playwright wird der Test übersprungen.
+   Optional: CHROMIUM_PATH=/pfad/zu/chromium */
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
+const assert = require('assert');
+const { execSync } = require('child_process');
+
+function loadPlaywright() {
+  try { return require('playwright'); } catch (e) {}
+  try { return require(path.join(execSync('npm root -g').toString().trim(), 'playwright')); } catch (e) {}
+  return null;
+}
+const pw = loadPlaywright();
+if (!pw) { console.log('Browser-Klicktest übersprungen: Playwright nicht installiert.'); process.exit(0); }
+
+const ROOT = path.join(__dirname, '..');
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.json': 'application/json' };
+function serve() {
+  return new Promise(resolve => {
+    const srv = http.createServer((req, res) => {
+      let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+      if (p === '/') p = '/index.html';
+      const f = path.join(ROOT, path.normalize(p));
+      if (!f.startsWith(ROOT) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
+      res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream', 'cache-control': 'no-cache' });
+      fs.createReadStream(f).pipe(res);
+    });
+    srv.listen(0, '127.0.0.1', () => resolve(srv));
+  });
+}
+
+const OUT = process.env.SHOT_DIR || '';
+const errors = [];
+async function shot(p, name) { if (OUT) await p.screenshot({ path: path.join(OUT, name + '.png'), fullPage: true }); }
+async function noOverflow(p, where) {
+  const sw = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  assert(sw <= 0, where + ': horizontal ' + sw + ' px zu breit');
+}
+const viewText = p => p.textContent('#view');
+
+async function run(browser, base, name, ctxOpts, now) {
+  const ctx = await browser.newContext(Object.assign({ acceptDownloads: true, serviceWorkers: 'block' }, ctxOpts));
+  const p = await ctx.newPage();
+  p.on('pageerror', e => errors.push(name + ': ' + e.message));
+  p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(name + ' Konsole: ' + m.text()); });
+  await p.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+  await p.clock.setFixedTime(now);
+  await p.goto(base + '/index.html');
+  assert((await viewText(p)).includes('Meine Reisen'), name + ': Startansicht');
+  await noOverflow(p, name + ' Start');
+
+  /* Neue Reise mit festem Datum, ohne Katalog */
+  await p.click('[data-go="neu"]');
+  await p.fill('#draft [data-f="title"]', 'Wien Test');
+  await p.click('[data-act="d-dm"][data-val="fix"]');
+  await p.fill('#draft [data-f="start"]', '2027-05-01');
+  await p.fill('#draft [data-f="end"]', '2027-05-04');
+  await p.fill('#draft [data-f="persons"]', '3');
+  await p.click('[data-act="create"]');
+  await p.waitForSelector('text=Wien Test');
+  assert(/\/?#r-[a-z0-9]+-unterkunft$/.test(p.url()), name + ': nach Anlegen nicht im Bereich Unterkunft');
+  await p.fill('[data-f="dest"]', 'Wien');
+  await p.press('[data-f="dest"]', 'Tab');
+  await p.click('summary:has-text("Eigene Unterkunft")');
+  await p.fill('#cs-name', 'Testpension');
+  await p.fill('#cs-price', '100');
+  await p.click('[data-act="stay-add"]');
+  assert((await viewText(p)).includes('Testpension'), name + ': eigene Unterkunft fehlt');
+
+  /* Eigene Unternehmung anlegen und einplanen */
+  await p.click('.tab[data-go$="-unternehmen"]');
+  await p.click('summary:has-text("Eigene Unternehmung")');
+  await p.fill('#ca-t', 'Stephansdom');
+  await p.fill('#ca-cost', '6');
+  await p.click('[data-act="act-add"]');
+  await p.click('[data-act="plan-act"]');
+  await p.selectOption('#pl-day', '1');
+  await p.selectOption('#pl-slot', 'morgen');
+  await p.click('[data-act="plan-do"]');
+  await p.click('.tab[data-go$="-plan"]');
+  assert((await viewText(p)).includes('Stephansdom'), name + ': Punkt nicht im Tagesplan');
+  await noOverflow(p, name + ' Tagesplan');
+  /* Verschieben über das Blatt, nicht per Drag-and-drop */
+  await p.click('.item[data-act="item"]');
+  await p.selectOption('#mv-slot', 'abend');
+  await p.click('[data-act="item-move"]');
+  const slots = await p.$$eval('.dcol', cols => cols.map(c => c.textContent));
+  assert(slots[1].includes('Stephansdom'), name + ': Verschieben fehlgeschlagen');
+
+  /* Kosten: 3 Personen × 6 € = 18 € */
+  await p.click('.tab[data-go$="-kosten"]');
+  assert((await viewText(p)).includes('18 €'), name + ': Kosten der eigenen Unternehmung fehlen');
+  assert((await viewText(p)).includes('300 €'), name + ': Unterkunft 3 Nächte × 100 € fehlt');
+  await p.fill('#xc-t', 'Parken');
+  await p.fill('#xc-c', '25');
+  await p.click('[data-act="xc-add"]');
+  assert((await viewText(p)).includes('Parken'), name + ': eigener Kostenposten fehlt');
+  await p.click('[data-act="puffer"][data-val="10"]');
+  assert((await viewText(p)).includes('Puffer 10 %'), name + ': Puffer fehlt');
+  await noOverflow(p, name + ' Kosten');
+
+  /* Checkliste */
+  await p.click('.tab[data-go$="-check"]');
+  await p.fill('#cc-t', 'Reisepass prüfen');
+  await p.click('[data-act="cc-add"]');
+  const box = p.locator('label:has-text("Reisepass prüfen") input');
+  await box.check();
+  assert(await box.isChecked(), name + ': Checkliste nicht abgehakt');
+
+  /* Notizen und Mappe */
+  await p.click('.tab[data-go$="-notiz"]');
+  await p.fill('[data-f="notes"]', 'Buchung ABC-123');
+  await p.click('.tab[data-go$="-mappe"]');
+  assert(!(await viewText(p)).includes('ABC-123'), name + ': Notizen ohne Häkchen in der Mappe');
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="mappe-ics"]')]);
+  const ics = fs.readFileSync(await dl.path(), 'utf8');
+  assert(ics.includes('DTSTART;VALUE=DATE:20270501') && ics.includes('DTEND;VALUE=DATE:20270505'), name + ': ICS-Zeitraum');
+  assert(ics.includes('SUMMARY:Stephansdom') && ics.includes('DTSTART:20270502T180000'), name + ': ICS-Termin');
+  await noOverflow(p, name + ' Mappe');
+
+  /* Eckdaten ändern: neue Daten setzen das Unterkunftsangebot zurück */
+  await p.click('[data-act="edit-trip"]');
+  await p.fill('#editform [data-f="end"]', '2027-05-06');
+  await p.click('[data-act="edit-save"]');
+  assert((await viewText(p)).includes('5 Nächte'), name + ': Eckdaten nicht übernommen');
+
+  /* Silvester-Vorlage, Unterwegs-Ansicht und Angebot wechseln */
+  await p.click('[data-go="reisen"] >> nth=0');
+  await p.click('[data-go="neu"]');
+  await p.click('[data-act="tpl-silvester"]');
+  await p.waitForSelector('text=Heute ·');
+  assert((await viewText(p)).includes('unterwegs · Tag 3 von 5'), name + ': Phase fehlt');
+  await shot(p, name + '-heute');
+  await p.click('summary:has-text("Plan B")');
+  const idea = await p.getAttribute('[data-act="rain-plan"] >> nth=0', 'data-val');
+  assert(idea && idea.endsWith('|2'), name + ': Plan B fehlt für heute');
+  const before = await p.evaluate(() => Object.values(JSON.parse(localStorage.getItem('rp-trips'))).find(x => x.title === 'Silvester im Schnee').items.length);
+  await p.click('[data-act="rain-plan"] >> nth=0');
+  assert.equal(await p.inputValue('#pl-day'), '2', name + ': Plan B nicht auf heute vorbelegt');
+  await p.click('[data-act="plan-do"]');
+  const after = await p.evaluate(() => Object.values(JSON.parse(localStorage.getItem('rp-trips'))).find(x => x.title === 'Silvester im Schnee').items.length);
+  assert.equal(after, before + 1, name + ': Plan B nicht eingeplant');
+  await p.click('.tab[data-go$="-angebote"]');
+  await p.click('[data-act="pkg-ask"] >> nth=0');
+  await p.click('[data-act="pkg-apply"]');
+  assert(/-plan$/.test(p.url()), name + ': Angebot nicht übernommen');
+  for (const tab of ['ueber', 'angebote', 'unterkunft', 'unternehmen', 'plan', 'kosten', 'check', 'notiz', 'mappe']) {
+    await p.click('.tab[data-go$="-' + tab + '"]');
+    await noOverflow(p, name + ' Reiter ' + tab);
+  }
+
+  /* Übersicht: laufende Reise nicht als vorbei */
+  await p.click('[data-go="reisen"] >> nth=0');
+  const list = await viewText(p);
+  assert(list.includes('unterwegs · Tag 3 von 5') && !list.includes('vorbei'), name + ': Status in der Übersicht');
+  assert.equal(await p.locator('.card.click').count(), 2);
+
+  /* Sicherung und Import ohne Überschreiben */
+  const [bk] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="backup-all"]')]);
+  const backupFile = await bk.path();
+  assert.equal(JSON.parse(fs.readFileSync(backupFile, 'utf8')).trips.length, 2);
+  await p.setInputFiles('#import-file', { name: 'b.json', mimeType: 'application/json', buffer: fs.readFileSync(backupFile) });
+  await p.click('[data-act="import-skip"]');
+  assert.equal(await p.locator('.card.click').count(), 2, name + ': Import hat dupliziert');
+  await p.setInputFiles('#import-file', { name: 'b.json', mimeType: 'application/json', buffer: fs.readFileSync(backupFile) });
+  await p.click('[data-act="import-copy"]');
+  assert.equal(await p.locator('.card.click').count(), 4, name + ': Import als Kopie');
+
+  /* Duplizieren und Löschen mit Rückfrage */
+  await p.click('.card.click >> nth=0');
+  await p.click('[data-act="del"]');
+  await p.click('[data-act="del-yes"]');
+  assert.equal(await p.locator('.card.click').count(), 3, name + ': Löschen');
+
+  /* Speicher bleibt nach Neuladen erhalten */
+  await p.reload();
+  assert.equal(await p.locator('.card.click').count(), 3, name + ': Daten nach Neuladen');
+
+  /* Beschädigter Speicher wird nicht überschrieben */
+  await p.evaluate(() => localStorage.setItem('rp-trips', '{kaputt'));
+  await p.reload();
+  assert((await viewText(p)).includes('Rohdaten sichern'), name + ': Rettungshinweis fehlt');
+  await p.click('[data-go="neu"]').catch(() => {});
+  assert.equal(await p.evaluate(() => localStorage.getItem('rp-trips')), '{kaputt', name + ': Rohdaten überschrieben');
+  await ctx.close();
+}
+
+async function offline(browser, base) {
+  if (!fs.existsSync(path.join(ROOT, 'sw.js'))) return;
+  const ctx = await browser.newContext();
+  const p = await ctx.newPage();
+  p.on('pageerror', e => errors.push('offline: ' + e.message));
+  await p.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+  await p.goto(base + '/index.html');
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.reload();
+  await p.waitForFunction(() => navigator.serviceWorker.controller !== null);
+  await ctx.setOffline(true);
+  await p.reload();
+  assert((await viewText(p)).includes('Meine Reisen'), 'offline: App startet ohne Netz nicht');
+  /* Reisedaten bleiben ohne Netz bearbeitbar und gehen nicht verloren */
+  await p.click('[data-go="neu"]');
+  await p.click('[data-act="tpl-silvester"]');
+  await p.reload();
+  assert((await viewText(p)).includes('Silvester im Schnee'), 'offline: Reise nach Neuladen weg');
+  await ctx.close();
+  console.log('Offline-Start über Service Worker geprüft.');
+}
+
+(async () => {
+  const srv = await serve();
+  const base = 'http://127.0.0.1:' + srv.address().port;
+  const exe = process.env.CHROMIUM_PATH || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
+  const browser = await pw.chromium.launch(exe ? { executablePath: exe } : {});
+  const now = new Date('2027-01-01T10:00:00');
+  try {
+    await run(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } }, now);
+    await run(browser, base, 'mobil', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, now);
+    await run(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' }, now);
+    await offline(browser, base);
+  } finally {
+    await browser.close();
+    srv.close();
+  }
+  if (errors.length) { console.error('JavaScript-Fehler:\n' + errors.join('\n')); process.exit(1); }
+  console.log('Browser-Klicktest (Chromium: Desktop, Mobilbreite, 320 px dunkel) bestanden.');
+})().catch(e => { console.error(e); process.exit(1); });

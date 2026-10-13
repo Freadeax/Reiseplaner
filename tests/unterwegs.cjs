@@ -79,3 +79,23 @@ assert(a.tMappe(a.newTrip()).includes('disabled'));
 assert.equal(JSON.stringify(t), before);
 assert.equal(a.todayBlock(a.newTrip()), '');
 console.log('Unterwegs-Phase, Kalenderexport, Reisemappe und Teilen-Text geprüft.');
+
+/* Plan B bei schlechtem Wetter: nur drinnen, nicht doppelt, Katalogregeln zum Datum beachtet */
+const r = a.silvesterTemplate(); // Oberjoch, 30.12.2026–03.01.2027
+const ideas = [0, 1, 2, 3, 4].map(i => a.rainIdeas(r, i, 10));
+ideas.forEach((list, i) => list.forEach(x => {
+  assert(x.indoor, x.t + ' ist nicht drinnen');
+  assert(!r.items.some(it => it.day === i && it.act === x.id), x.t + ' ist an Tag ' + i + ' schon geplant');
+}));
+/* Wonnemar ist Silvester abends zu, Standard-Zeitfenster Nachmittag bleibt erlaubt; Schneeschuh nur donnerstags */
+assert(a.fitsDay(a.ACTS['oj-wbad'], a.daysOf(r)[1], 'abend') === false);
+assert(a.fitsDay(a.ACTS['oj-wbad'], a.daysOf(r)[1], 'nachm') === true);
+assert(a.fitsDay(a.ACTS['oj-schneeschuh'], a.daysOf(r)[1]) === true);  // 31.12.2026 ist ein Donnerstag
+assert(a.fitsDay(a.ACTS['oj-schneeschuh'], a.daysOf(r)[2]) === false);
+/* Hinweise wie „vorübergehend geschlossen“ stehen hinten */
+const all = a.rainIdeas(r, 2, 10);
+const firstWarn = all.findIndex(x => x.warn);
+if (firstWarn >= 0) assert(all.slice(firstWarn).every(x => x.warn));
+assert.deepEqual(a.rainIdeas(r, 99), []);
+assert.deepEqual(a.rainIdeas(a.newTrip(), 0), []);
+console.log('Plan B bei schlechtem Wetter geprüft.');

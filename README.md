@@ -12,7 +12,7 @@ Die App besteht derzeit aus einer Datei. `index.html` im normalen Browser öffne
 python3 -m http.server 8000
 ```
 
-Dann `http://localhost:8000` im Browser öffnen. Eine Dateivorschau innerhalb der ChatGPT-iPhone-App kann die interaktive Oberfläche nicht zuverlässig ausführen. Der HTML-Anhang in ChatGPT ist daher kein App-Link.
+Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, merkt sich die App ihre Dateien und startet danach auch ohne Netz. Auf dem iPhone lässt sie sich über „Zum Home-Bildschirm“ wie eine App ablegen. Als Datei geöffnet gibt es keinen Offline-Start. Eine Dateivorschau innerhalb der ChatGPT-iPhone-App kann die interaktive Oberfläche nicht zuverlässig ausführen. Der HTML-Anhang in ChatGPT ist daher kein App-Link.
 
 ## Was bereits geht
 
@@ -25,6 +25,8 @@ Dann `http://localhost:8000` im Browser öffnen. Eine Dateivorschau innerhalb de
 - Heller und dunkler Modus je nach Geräteeinstellung
 - Unterwegs-Ansicht: Während einer Reise mit festem Datum zeigt der Überblick, was heute und morgen geplant ist
 - Reisemappe: kompakte Zusammenfassung zum Drucken oder Speichern als PDF, Kalenderdatei (`.ics`) für den Tagesplan und Kurzfassung als Text zum Teilen. Notizen werden nur auf ausdrücklichen Wunsch aufgenommen
+- Plan B bei schlechtem Wetter: Indoor-Ideen aus dem Katalog, die zum Datum passen, zum Beispiel unter Beachtung von Wochentag und Feiertagsöffnung
+- Offline-Start und App-Icon (Service Worker, Manifest)
 
 ## Wichtige Grenzen
 
@@ -40,6 +42,7 @@ Node.js ab Version 20 genügt; es gibt keine Laufzeit-Abhängigkeiten:
 
 ```bash
 npm test
+npm run test:browser   # Klicktest in Chromium, braucht Playwright; ohne Playwright übersprungen
 ```
 
 Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatte, Kosten, Sicherungsdateien, beschädigten Browser-Speicher, Reisephasen, Kalenderexport und den Aufbau der Startansicht ab.
@@ -49,7 +52,8 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | Pfad | Inhalt |
 | --- | --- |
 | `index.html` | Aktuelle App, einschließlich CSS und JavaScript |
-| `tests/` | Logik- und Startprüfungen |
+| `tests/` | Logik-, Start- und Browser-Klickprüfungen |
+| `sw.js`, `manifest.webmanifest`, `*.png` | Offline-Start und App-Icon |
 | `docs/STATUS.md` | Bestätigter Stand und bekannte Grenzen |
 | `docs/ROADMAP.md` | Nächste Entwicklungsschritte |
 | `docs/COLLABORATION.md` | Abstimmung und sicheres Arbeiten zu dritt auf `main` |
