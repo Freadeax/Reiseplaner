@@ -1,5 +1,16 @@
 # Projektstand · 13.10.2026
 
+## v2.1 · Allgemeiner statt Silvester-zentriert (Claude, 13.10.2026)
+
+Auf ChatGPTs v2.0 `3e2e9f3` aufgebaut; Finder, Angebotsmodell und Sicherung v2 unverändert. Kein Speicherformat-Eingriff.
+
+- Startseite und „Neue Reise“: „Mit einer Vorlage starten“ mit Wochenende, Städtereise, Tagesausflug, Sommerurlaub, Winterurlaub (Ideen-Katalog) und dem Silvester-Beispiel als eine Option unter mehreren. Vorlagen füllen nur Reiseart, Dauer, Anreiseart bzw. Katalog. Kein Budget, keine Unterkunft, kein Programm, keine Preise.
+- Fehlerbehebung Kostenkennzeichnung: Katalog-Unterkünfte trugen bei jeder Reise „(Silvester +15 %, geschätzt)“, auch im Februar oder Mai. Die Planwerte sind tatsächlich Jahreswechsel-Schätzungen. Jetzt steht „Jahreswechsel: Inserat +15 %, geschätzt“ nur, wenn die Reise 24.12.–06.01. berührt. Sonst steht „Schätzwert für den Jahreswechsel, für eure Daten nicht geprüft“ bzw. „Reisedaten noch offen“. Beträge unverändert, keine neuen Preise.
+- Texte allgemeiner: „Genuss & Feiern“ statt „Genuss & Silvester“, Plan-Check „gilt nur am 31.12.“ statt „für Silvester gedacht“, Angebotshinweis zu datumsgebundenen Punkten allgemein.
+- Tests: neu `tests/vorlagen.cjs` (Zeitraumerkennung inkl. Grenzen 23.12./06.01., Kennzeichnung, Vorlagen ohne erfundene Werte und gültig exportierbar, Datumsmeldung). `tests/browser.cjs` klickt Städtereise- und Winter-Vorlage.
+
+Ausgeführt: `npm test` und `npm run test:browser` (Chromium, 1280/390/320 px dunkel, Offline-Neustart) grün, zuvor auch auf unverändertem v2.0 grün. Kein iPhone-/Safari-Test.
+
 ## v2.0 · Reisefinder (ChatGPT, 13.10.2026)
 
 Auf Claudes v1.9 / `0a75f9a1aded40f05b25cb564b584055deadd4da` aufgebaut. Seine Änderungen 1.7–1.9 sind erhalten. Zusätzlicher Browser-Teststand `a730c53224a5f24598c77175b7b45666a9d67ada` (neutrale Formularreisen, simuliertes Datum 02.05.2027) wurde ebenfalls integriert. Abstimmung: Issues #1 und #2; Claude pausiert `index.html` bis zum Push dieses Arbeitspakets.
@@ -81,3 +92,7 @@ Nach v2.0 kann Claude seine angekündigte Verallgemeinerung der Startseite/Beisp
 ## Nachgewiesene GitHub-CI für v2.0
 
 Commit `3e2e9f380ff551d1471a657a8e12a6d16950a74b`: [Actions-Lauf 38455456651](https://github.com/Freadeax/Reiseplaner/actions/runs/38455456651), beide Jobs `app` und `browser` erfolgreich. Der Chromium-Klicktest wurde in GitHub Actions tatsächlich ausgeführt, einschließlich Desktop, 390 px Mobilbreite, 320 px Dunkelmodus, neuen Finder-Bedienwegen, Angebotsgebühren/Zahlung, Profilen, Vergleich, Sicherungspunkten, Neuladen und bisherigen Offline-/Importwegen. Das ist weiterhin kein echter iPhone-/Safari-Test und keine Prüfung externer Anbieter-Suchseiten.
+
+## Aktuelle Übergabe für ChatGPT (Claude, nach v2.1)
+
+v2.1 baut auf `e830697` auf. Finder (`suche`), Angebotsmodell und Sicherung v2 sind unverändert. Neue Funktionen über `window.__app`: `holidayStay`, `planBasis`, `TEMPLATES`. Neue Klick-Aktion `data-act="tpl"` mit `data-val` als Vorlagen-ID; `tpl-silvester` funktioniert weiter. Wer Startseite oder „Neue Reise“ ändert, bitte `tests/vorlagen.cjs` und den Vorlagen-Abschnitt in `tests/browser.cjs` erhalten. Offene Produktfrage an Philipp: Sollen Katalog-Planwerte außerhalb des Jahreswechsels künftig eigene, recherchierte Saisonwerte bekommen? Bis dahin werden sie nur ehrlich gekennzeichnet.

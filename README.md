@@ -16,7 +16,7 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 
 ## Was bereits geht
 
-- Reisen mit festem, flexiblem oder offenem Zeitraum anlegen und bearbeiten
+- Reisen mit festem, flexiblem oder offenem Zeitraum anlegen und bearbeiten, leer oder mit einer Vorlage (Wochenende, Städtereise, Tagesausflug, Sommer-, Winterurlaub; Silvester als ausgefülltes Beispiel)
 - Beispielkatalog für vier Winterregionen mit Unterkünften und Aktivitäten
 - Tagesplan, Kostenübersicht, Pack- und Buchungscheckliste
 - Eigene Unterkunft, Aktivität und Kostenposten ergänzen

@@ -218,7 +218,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.0</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.1</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -234,9 +234,9 @@ const TYPES={winter:'Winter & Schnee',stadt:'Städtetrip',strand:'Bade- & Sommer
 const STATUS={idee:'Idee',planung:'In Planung',gebucht:'Gebucht',vorbei:'Vorbei'};
 const SLOTS=[['morgen','Vormittag'],['mittag','Mittag'],['nachm','Nachmittag'],['abend','Abend']];
 const SLOTNAME=Object.fromEntries(SLOTS);
-const CAT={schnee:'Schneesport',wellness:'Wellness',ausflug:'Ausflüge',genuss:'Genuss & Silvester',eigen:'Eigene'};
+const CAT={schnee:'Schneesport',wellness:'Wellness',ausflug:'Ausflüge',genuss:'Genuss & Feiern',eigen:'Eigene'};
 const CATCOL={schnee:'var(--c1)',wellness:'var(--c4)',ausflug:'var(--c5)',genuss:'var(--c6)',eigen:'var(--c7)'};
-const COSTCAT={unterkunft:['Unterkunft','var(--c1)'],anreise:['Anreise','var(--c2)'],schnee:['Schneesport','var(--c3)'],wellness:['Wellness','var(--c4)'],ausflug:['Ausflüge','var(--c5)'],genuss:['Genuss & Silvester','var(--c6)'],essen:['Essen','var(--c7)'],gebuehren:['Kurtaxe & Gebühren','var(--c2)'],eigen:['Eigene Posten','var(--c7)'],puffer:['Puffer','var(--c7)']};
+const COSTCAT={unterkunft:['Unterkunft','var(--c1)'],anreise:['Anreise','var(--c2)'],schnee:['Schneesport','var(--c3)'],wellness:['Wellness','var(--c4)'],ausflug:['Ausflüge','var(--c5)'],genuss:['Genuss & Feiern','var(--c6)'],essen:['Essen','var(--c7)'],gebuehren:['Kurtaxe & Gebühren','var(--c2)'],eigen:['Eigene Posten','var(--c7)'],puffer:['Puffer','var(--c7)']};
 const FOOD={selbst:['Selbst kochen',20,'Einkauf, Snacks, 1× essen gehen'],gemischt:['Gemischt',30,'Frühstück selbst, abends oft auswärts'],auswaerts:['Meist auswärts',45,'Mittag und Abend im Gasthof']};
 const RENT_SET={1:28,2:53,3:78,4:101,5:123}, RENT_HELM={1:4,2:8,3:12,4:16,5:20};
 const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
@@ -449,7 +449,7 @@ function cost(t){
     const offer=activeOffer(t);
     if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est');}
     else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok');
-    else{const pn=num(st.plan!=null?st.plan:st.priceNight,0);add('unterkunft',st.name,(st.ab?st.ab+' · ':'')+'Planwert '+eur(pn)+' / Nacht × '+N+(st.custom?'':' (Silvester +15 %, geschätzt)'),pn*N,st.custom?'ok':'est')}
+    else{const pn=num(st.plan!=null?st.plan:st.priceNight,0);add('unterkunft',st.name,(st.ab?st.ab+' · ':'')+'Planwert '+eur(pn)+' / Nacht × '+N+(st.custom?'':' ('+planBasis(t)+')'),pn*N,st.custom?'ok':'est')}
   }
   /* Anreise */
   if(t.travel==='auto'){
@@ -503,7 +503,7 @@ function checks(t){
   const items=sortedItems(t);
   items.forEach(it=>{const a=actOf(t,it.act), d=days[it.day];if(!a)return;
     if(!d){out.push(['warn',a.t+' liegt nach dem letzten Reisetag','plan']);return}
-    if(a.onlyDate&&d.md&&d.md!==a.onlyDate) out.push(['warn',a.t+' ist für Silvester gedacht, steht aber am '+d.label,'plan']);
+    if(a.onlyDate&&d.md&&d.md!==a.onlyDate) out.push(['warn',a.t+' gilt nur am '+mdText(a.onlyDate)+', steht aber am '+d.label,'plan']);
     if(a.dow&&d.date&&!a.dow.includes(d.date.getUTCDay())) out.push(['warn',a.t+' gibt es nur '+a.dow.map(x=>({0:'sonntags',1:'montags',2:'dienstags',3:'mittwochs',4:'donnerstags',5:'freitags',6:'samstags'})[x]).join('/')+', nicht am '+d.label,'plan']);
     (a.rules||[]).forEach(r=>{if(d.md===r.date&&r.bad.includes(it.slot))out.push(['warn',a.t+' am '+d.label+': '+r.msg,'plan'])});
     if(a.kitchen&&st&&!st.kitchen) out.push(['warn',a.t+' braucht eine Küche, '+st.name+' hat keine','plan']);
@@ -595,6 +595,26 @@ function importTrips(raw,conflictMode){
 function downloadBackup(trips){
   downloadText(JSON.stringify(backupData(trips),null,2),'Reiseplaner-Sicherung-'+new Date().toISOString().slice(0,10)+'.json','application/json');
 }
+/* Katalog-Planwerte der Unterkünfte sind Schätzungen für den Jahreswechsel (Inserat +15 %).
+   true: Reise berührt 24.12.–06.01., false: sicher außerhalb, null: Zeitraum noch unbekannt. */
+function holidayStay(t){
+  const inWin=md=>md>='12-24'||md<='01-06';
+  if(t.dateMode==='fix'){const days=daysOf(t);if(days.length&&days[0].date)return days.some(d=>inWin(d.md))}
+  if(t.dateMode==='flex'&&/^\d{4}-\d{2}$/.test(t.month||'')){const m=t.month.slice(5,7);return m==='12'||m==='01'?null:false}
+  return null;
+}
+function planBasis(t){const h=holidayStay(t);return h===true?'Jahreswechsel: Inserat +15 %, geschätzt':h===false?'Schätzwert für den Jahreswechsel, für eure Daten nicht geprüft':'Schätzwert für den Jahreswechsel, Reisedaten noch offen'}
+const mdText=md=>md?md.slice(3,5)+'.'+md.slice(0,2)+'.':'';
+/* Startvorlagen: nur Struktur, keine erfundenen Preise oder Angebote. */
+const TEMPLATES=[
+  {id:'wochenende',name:'Wochenende',sub:'2 Nächte, Ziel offen',make:()=>newTrip({title:'Wochenende',type:'wochenende',nights:2,budget:0})},
+  {id:'stadt',name:'Städtereise',sub:'3 Nächte, mit der Bahn',make:()=>newTrip({title:'Städtereise',type:'stadt',nights:3,travel:'bahn',budget:0})},
+  {id:'tag',name:'Tagesausflug',sub:'ohne Übernachtung',make:()=>newTrip({title:'Tagesausflug',type:'tag',nights:0,budget:0})},
+  {id:'strand',name:'Sommerurlaub',sub:'7 Nächte, Ziel offen',make:()=>newTrip({title:'Sommerurlaub',type:'strand',nights:7,budget:0})},
+  {id:'winter',name:'Winterurlaub',sub:'Ideen-Katalog Allgäu & Tirol',make:()=>newTrip({title:'Winterurlaub',type:'winter',nights:4,catalog:'allgaeu',budget:0})},
+  {id:'silvester',name:'Beispiel: Silvester im Schnee',sub:'komplett ausgefülltes Beispiel',make:()=>silvesterTemplate()}
+];
+function tplButtons(){return '<div class="opts">'+TEMPLATES.map(x=>'<button type="button" class="opt" data-act="tpl" data-val="'+x.id+'">'+esc(x.name)+'<small>'+esc(x.sub)+'</small></button>').join('')+'</div>'}
 function silvesterTemplate(){
   const t=newTrip({title:'Silvester im Schnee',type:'winter',status:'planung',dateMode:'fix',start:'2026-12-30',end:'2027-01-03',budget:1500,catalog:'allgaeu',
     notes:'Ziel: Wellness + Schnee, Anfängerkurs optional. Budget maximal 1.500 € zu zweit, Wunsch eher darunter.\nHeimkehr am 3.1. mit Erholungszeit; genaue Uhrzeit noch offen.'});
@@ -762,8 +782,8 @@ function vReisen(){
     '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+'</button>'};
   return (Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
    '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
-   '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button>'+(list.some(t=>t.title==='Silvester im Schnee')?'':'<button type="button" class="btn ghost" data-act="tpl-silvester">Vorlage: Silvester im Schnee 26/27</button>')+'</div></section>'+
-   '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit der Silvester-Vorlage.</span></div>')+'</section>'+
+   '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
+   '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
    '<section class="block"><h2>So funktioniert’s</h2><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></section>';
 }
@@ -788,7 +808,7 @@ function tripForm(t,prefix){
 function vNeu(){
   const t=UI.draft;
   return '<section class="block"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><h1>Neue Reise</h1><p class="lead muted">Alles lässt sich später ändern.</p></section>'+
-  '<section class="block"><div class="panel" id="draft">'+tripForm(t,'d-')+'<div class="row"><button type="button" class="btn" data-act="create">Reise anlegen</button><button type="button" class="btn ghost" data-act="tpl-silvester">Stattdessen Silvester-Vorlage</button></div></div></section>';
+  '<section class="block"><div class="panel" id="draft">'+tripForm(t,'d-')+'<div class="row"><button type="button" class="btn" data-act="create">Reise anlegen</button></div><details><summary class="small"><b>Oder mit einer Vorlage starten</b></summary>'+tplButtons()+'</details></div></section>';
 }
 function tripHead(t){
   const ph=tripPhase(t);
@@ -826,7 +846,7 @@ function tAngebote(t){
   if(UI.pkgfocus) list=list.filter(x=>x.p.focus.includes(UI.pkgfocus));
   list.sort((a,b)=>a.tot-b.tot);
   const b=num(t.budget,0);
-  return '<section class="block"><h2>Angebote</h2><p class="lead muted">Geschätzte Wintervorlagen, keine buchbaren Angebote. Übernehmen ersetzt den Tagesplan. Silvester wird auf den 31.12. gelegt; außerhalb eures Zeitraums entfällt es. Saison und freie Tage selbst prüfen.</p>'+
+  return '<section class="block"><h2>Angebote</h2><p class="lead muted">Geschätzte Wintervorlagen, keine buchbaren Angebote. Übernehmen ersetzt den Tagesplan. Datumsgebundene Punkte (z. B. Silvester am 31.12.) landen auf ihrem Datum und entfallen außerhalb eures Zeitraums. Saison und freie Tage selbst prüfen.</p>'+
   '<div class="row">'+chipb('pkgf','alle','Alle',UI.pkgf==='alle')+chipb('pkgf','mit','Mit Ski-/Snowboardkurs',UI.pkgf==='mit')+chipb('pkgf','ohne','Ohne Kurs',UI.pkgf==='ohne')+'</div>'+
   '<div class="row">'+chipb('pkgfocus','','Jeder Schwerpunkt',!UI.pkgfocus)+Object.keys(FOCUS).map(k=>chipb('pkgfocus',k,FOCUS[k],UI.pkgfocus===k)).join('')+'</div>'+
   (list.length?'<div class="grid wide">'+list.map(x=>{const p=x.p,pl=PLACES[p.place],st=STAYS.find(s=>s.id===p.stay),active=t.packageId===p.id;
@@ -864,7 +884,7 @@ function tUnterkunft(t){
   const f=UI.sflt; if(f.sauna)stays=stays.filter(s=>s.sauna);if(f.card)stays=stays.filter(s=>s.card===true);if(f.kitchen)stays=stays.filter(s=>s.kitchen);
   stays.sort((a,b)=>num(a.plan!=null?a.plan:a.priceNight,0)-num(b.plan!=null?b.plan:b.priceNight,0));
   html+='<section class="block"><h2>'+(t.catalog==='allgaeu'?'2 · ':'')+'Unterkunft</h2>'+
-   (t.catalog==='allgaeu'&&!pl?'<p class="muted">Erst einen Ort wählen.</p>':'<p class="lead muted small">Planwerte sind Inseratspreise +15 % für Silvester (geschätzt). Sobald ihr ein Angebot habt, tragt den echten Preis unten ein.</p><div class="row">'+chipb('sflt','sauna','Mit Sauna',f.sauna)+chipb('sflt','card','Gästekarte sicher',f.card)+chipb('sflt','kitchen','Mit Küche',f.kitchen)+'</div>'+
+   (t.catalog==='allgaeu'&&!pl?'<p class="muted">Erst einen Ort wählen.</p>':'<p class="lead muted small">Katalog-Planwerte sind Inseratspreise +15 %, geschätzt für den Jahreswechsel. '+(holidayStay(t)===true?'Euer Zeitraum liegt in dieser Zeit.':'Für eure Reisedaten sind sie nicht geprüft und können deutlich abweichen.')+' Sobald ihr ein Angebot habt, tragt den echten Preis unten ein.</p><div class="row">'+chipb('sflt','sauna','Mit Sauna',f.sauna)+chipb('sflt','card','Gästekarte sicher',f.card)+chipb('sflt','kitchen','Mit Küche',f.kitchen)+'</div>'+
    (stays.length?'<div class="grid">'+stays.map(s=>stayCard(t,s)).join('')+'</div>':'<div class="empty">Keine Unterkunft passt zu den Filtern.</div>')+
    (pl?'<div class="row">'+pl.portal.map(x=>lk(x[1],x[0])).join('')+'</div>':''))+
    '<details class="panel"><summary><b>+ Eigene Unterkunft eintragen</b></summary><div class="form" id="cs-form"><label class="fld"><span>Name</span><input type="text" id="cs-name"></label><label class="fld"><span>Ort</span><input type="text" id="cs-ort"></label><label class="fld"><span>Preis pro Nacht (€)</span><input type="number" min="0" id="cs-price"></label><label class="fld"><span>Link</span><input type="url" id="cs-url" placeholder="https://"></label></div><div class="row"><label class="small"><input type="checkbox" id="cs-sauna"> Sauna</label><label class="small"><input type="checkbox" id="cs-kitchen" checked> Küche</label><label class="small"><input type="checkbox" id="cs-bf"> Frühstück</label><label class="small"><input type="checkbox" id="cs-card"> Gästekarte</label></div><button type="button" class="btn sm" data-act="stay-add">Hinzufügen</button></details></section>';
@@ -1109,7 +1129,7 @@ document.addEventListener('click',async e=>{
     if(k==='dateMode'&&val==='fix'&&!o.start){const n=new Date();o.start=iso(new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()+30)));o.end=iso(new Date(pd(o.start).getTime()+864e5*Math.max(o.type==='tag'?0:1,num(o.nights,3))))}
     const host=pm[1]==='d'?$('#draft'):$('#editform');if(pm[1]==='d'){render()}else host.innerHTML=tripForm(o,'e-');return}
   if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>=pd(d.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
-  if(act==='tpl-silvester'){const s=silvesterTemplate();save(s,true);UI.draft=null;go('r-'+s.id+'-ueber');return}
+  if(act==='tpl-silvester'||act==='tpl'){const x=TEMPLATES.find(y=>y.id===(act==='tpl'?val:'silvester'));if(!x)return;const s=x.make();s.id=uid('t');save(s,true);UI.draft=null;go('r-'+s.id+'-'+(x.id==='silvester'?'ueber':s.catalog==='allgaeu'?'angebote':'unterkunft'));return}
   if(!t) return;
   switch(act){
    case 'backup-trip': downloadBackup([t]);return;
@@ -1342,7 +1362,7 @@ document.addEventListener('click',e=>{
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

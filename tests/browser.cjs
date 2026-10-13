@@ -242,6 +242,21 @@ async function run(browser, base, name, ctxOpts, now) {
   const dayView = await viewText(p);
   assert(dayView.includes('0 Nächte') && !dayView.includes('Unterkunft fehlt') && !dayView.includes('Noch keine Unterkunft'), name + ': Tagesausflug');
 
+  /* Startvorlagen: neutrale Vorlage und Winter-Katalogvorlage, keine Silvester-Pflicht */
+  await p.click('[data-go="reisen"] >> nth=0');
+  await p.click('summary:has-text("Mit einer Vorlage starten")');
+  assert.equal(await p.locator('[data-act="tpl"]').count() >= 5, true, name + ': zu wenige Vorlagen');
+  await p.click('[data-act="tpl"][data-val="stadt"]');
+  assert(/-unterkunft$/.test(p.url()), name + ': Städtereise-Vorlage nicht bei der Unterkunft');
+  await p.click('.tab[data-go$="-ueber"]');
+  const tplView = await viewText(p);
+  assert(tplView.includes('Städtereise') && tplView.includes('3 Nächte'), name + ': Städtereise-Vorlage');
+  await p.click('[data-go="reisen"] >> nth=0');
+  await p.click('summary:has-text("Mit einer Vorlage starten")');
+  await p.click('[data-act="tpl"][data-val="winter"]');
+  assert(/-angebote$/.test(p.url()), name + ': Winter-Vorlage nicht bei den Angeboten');
+  await noOverflow(p, name + ' Vorlage Winter');
+
   /* Beschädigter Speicher wird nicht überschrieben */
   await p.evaluate(() => localStorage.setItem('rp-trips', '{kaputt'));
   await p.reload();
