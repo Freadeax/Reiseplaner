@@ -180,6 +180,18 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.reload();
   assert.equal(await p.locator('.card.click').count(), 3, name + ': Daten nach Neuladen');
 
+  /* Tagesausflug: Anreise = Abreise, keine Unterkunftspflicht */
+  await p.click('[data-go="neu"]');
+  await p.fill('#draft [data-f="title"]', 'Bodensee');
+  await p.click('[data-act="d-type"][data-val="tag"]');
+  await p.click('[data-act="d-dm"][data-val="fix"]');
+  await p.fill('#draft [data-f="start"]', '2027-06-05');
+  await p.fill('#draft [data-f="end"]', '2027-06-05');
+  await p.click('[data-act="create"]');
+  await p.click('.tab[data-go$="-ueber"]');
+  const dayView = await viewText(p);
+  assert(dayView.includes('0 Nächte') && !dayView.includes('Unterkunft fehlt') && !dayView.includes('Noch keine Unterkunft'), name + ': Tagesausflug');
+
   /* Beschädigter Speicher wird nicht überschrieben */
   await p.evaluate(() => localStorage.setItem('rp-trips', '{kaputt'));
   await p.reload();

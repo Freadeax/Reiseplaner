@@ -104,3 +104,26 @@ const kl = a.cost(kurs5).lines.find(l => l.t.startsWith('Gruppenkurs'));
 assert.equal(kl.src, 'est');
 assert(a.openCosts(kurs5).some(x => x.includes('Kurs über 3 Tage')));
 console.log('Lange Schneesport-Aufenthalte: Verleih, Skipass und Kurs ehrlich hochgerechnet und markiert.');
+
+/* Tagesausflug: Anreise = Abreise ist gültig, ohne Übernachtung keine Unterkunftspflicht */
+const day = a.newTrip({ type: 'tag', dateMode: 'fix', start: '2027-06-05', end: '2027-06-05', nights: 0, travel: 'bahn', ticket: 40 });
+assert.equal(a.nightsOf(day), 0);
+assert.equal(a.daysOf(day).length, 1);
+assert(!a.openCosts(day).some(x => x.includes('Unterkunft')));
+assert(!a.checks(day).some(x => x[1].includes('Unterkunft')));
+assert(!a.checklist(day)[0][1].some(x => x[0] === 'stay'));
+const dc = a.cost(day);
+assert.equal(dc.lines.find(l => l.cat === 'essen').c, 20 * 1 * 2, 'Essen für genau einen Tag');
+assert.equal(dc.byCat.unterkunft || 0, 0);
+assert.equal(a.validateBackup(a.backupData([day])).length, 1);
+assert.throws(() => a.validateBackup(a.backupData([{ ...day, end: '2027-06-04' }])));
+/* Typwahl setzt die Dauer */
+const dr = a.newTrip({ dateMode: 'open' });
+assert.equal(a.nightsOf(dr), 3);
+a.applyType(dr, 'tag'); assert.equal(dr.nights, 0);
+a.applyType(dr, 'wochenende'); assert.equal(dr.nights, 2);
+const fx = a.newTrip({ dateMode: 'fix', start: '2027-06-05', end: '2027-06-08' });
+a.applyType(fx, 'tag'); assert.equal(fx.end, '2027-06-05');
+a.applyType(fx, 'stadt'); assert.equal(fx.end, '2027-06-08');
+const keep = a.newTrip({ type: 'stadt', nights: 5 }); a.applyType(keep, 'strand'); assert.equal(keep.nights, 5, 'Dauer bleibt bei Wechsel zwischen Mehrtagesarten');
+console.log('Tagesausflug mit 0 Nächten und Dauer bei Typwahl geprüft.');

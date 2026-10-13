@@ -24,6 +24,8 @@ v1.7: Packliste aus dem Plan (Mitbringsel der geplanten Unternehmungen). Spartip
 empfehlen, wenn Sauna in der Unterkunft geplant ist; kein „frei mit PLUS“ ohne bestätigte Gästekarte.
 v1.8: Verleih über 5 Tage nicht mehr gedeckelt (hochgerechnet), Skipass/Kurs ab Tag 4 als Schätzung markiert
 und als offene Kosten benannt.
+v1.9: Tagesausflug mit festem Datum (Anreise = Abreise, 0 Nächte); Reiseart „Tagesausflug“ setzt 0 Nächte;
+ohne Übernachtung keine Unterkunftspflicht in Plan-Check, offenen Kosten und Checkliste.
 Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell und bezahlte/offene Beträge.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -214,7 +216,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.8</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.9</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -393,7 +395,7 @@ const opt=(act,val,label,sub,on,extra)=>'<button type="button" class="opt" data-
 const chipb=(act,val,label,on)=>'<button type="button" class="chipbtn" data-act="'+act+'" data-val="'+esc(val)+'" aria-pressed="'+(on?'true':'false')+'">'+label+'</button>';
 
 /* ================= Reise-Logik ================= */
-function nightsOf(t){if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b&&b>a)return Math.round((b-a)/864e5)}return Math.max(0,Math.round(num(t.nights,3)))}
+function nightsOf(t){if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b&&b>=a)return Math.round((b-a)/864e5)}return Math.max(0,Math.round(num(t.nights,3)))}
 function daysOf(t){
   const n=nightsOf(t)+1, out=[], a=pd(t.start);
   for(let i=0;i<n;i++){
@@ -421,7 +423,7 @@ function sortedItems(t){const so={morgen:0,mittag:1,nachm:2,abend:3};return (t.i
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
 function resetStay(t){t.stayQuote=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
 function openCosts(t){const out=[];
- if(!stayOf(t))out.push('Unterkunft fehlt');
+ if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt')}
  else {if(!(num(t.stayQuote,0)>0))out.push('Konkretes Unterkunftsangebot fehlt');out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
  if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
  if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
@@ -433,7 +435,7 @@ function openCosts(t){const out=[];
   if(c.passDays.size>3&&!(pl.cardPass&&t.cardConfirmed===true))out.push('Skipass über 3 Tage: Mehrtagestarif prüfen');}
  return out;
 }
-function costNotice(t){return '<div class="note"><b>Vorläufige Planung · kein bestätigter Gesamtpreis</b><p class="small">'+esc(openCosts(t).join(' · '))+'. Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></div>';}
+function costNotice(t){return '<div class="note"><b>Vorläufige Planung · kein bestätigter Gesamtpreis</b><p class="small">'+(openCosts(t).length?esc(openCosts(t).join(' · '))+'. ':'')+'Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></div>';}
 /* Kosten */
 function cost(t){
   const P=Math.max(1,Math.round(num(t.persons,2))), N=nightsOf(t), pl=placeOf(t), st=stayOf(t), lines=[];
@@ -490,7 +492,7 @@ function cost(t){
 /* Plan-Check */
 function checks(t){
   const out=[], st=stayOf(t), days=daysOf(t), c=cost(t);
-  if(!st) out.push(['warn','Noch keine Unterkunft gewählt','unterkunft']);
+  if(!st){if(nightsOf(t)>0)out.push(['warn','Noch keine Unterkunft gewählt','unterkunft'])}
   else if(st.card==='?'&&!t.cardConfirmed) out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
   if(st&&st.card&&!t.cardConfirmed)out.push(['warn','Gästekarte für diesen Aufenthalt unbestätigt: keine Rabatte eingerechnet','unterkunft']);
   out.push(['info','Zeitfenster sind grob: Fahrtzeiten, Check-in und genaue Termine noch prüfen','plan']);
@@ -517,7 +519,7 @@ function checks(t){
 function checklist(t){
   const st=stayOf(t), groups=[], book=[];
   if(st) book.push(['stay','Unterkunft anfragen & buchen: '+st.name,'Datum, Gästekarte, Sauna, Endreinigung klären']);
-  else book.push(['stay','Unterkunft auswählen und anfragen','']);
+  else if(nightsOf(t)>0) book.push(['stay','Unterkunft auswählen und anfragen','']);
   const seen=new Set();
   sortedItems(t).forEach(it=>{const a=actOf(t,it.act);if(!a||!a.book||seen.has(a.id))return;seen.add(a.id);book.push(['b-'+a.id,(a.kurs?'Kurs buchen: ':'Reservieren: ')+a.t,a.ort||''])});
   if(sortedItems(t).some(it=>actOf(t,it.act)&&actOf(t,it.act).gear)) book.push(['rent','Verleih reservieren','Schuhgröße, Körpergröße und Gewicht bereithalten']);
@@ -544,6 +546,13 @@ function applyPkg(t,p){
 }
 function pkgTotal(t,p){return cost(applyPkg(clone(t),p)).total}
 
+/* Reiseart wählen: Tagesausflug ohne Übernachtung; beim Wechsel weg vom Tagesausflug wieder eine sinnvolle Dauer. */
+function applyType(o,type){
+  const was=o.type;o.type=type;
+  if(type==='tag'){o.nights=0;if(o.dateMode==='fix'&&pd(o.start))o.end=o.start}
+  else if(was==='tag'&&!(num(o.nights,0)>0)){o.nights=type==='wochenende'?2:3;if(o.dateMode==='fix'&&pd(o.start))o.end=iso(new Date(pd(o.start).getTime()+864e5*o.nights))}
+  return o;
+}
 /* Neue Reise */
 function newTrip(o){
   return Object.assign({id:uid('t'),title:'Neue Reise',type:'stadt',status:'idee',dateMode:'open',start:'',end:'',month:'',nights:3,persons:2,budget:800,origin:'73110 Hattenhofen',dest:'',travel:'auto',km:0,verb:7.5,preis:2.15,ticket:0,catalog:'none',place:'',stayId:'',stayQuote:null,customStays:[],items:[],customActs:[],food:'selbst',puffer:0,online:true,check:{},customChecks:[],extraCosts:[],notes:'',packageId:'',created:new Date().toISOString().slice(0,10)},o||{});
@@ -561,7 +570,7 @@ function validateBackup(raw){
   const seen=new Set();
   for(const t of raw.trips){
     if(!t||typeof t!=='object'||Array.isArray(t)||typeof t.id!=='string'||!/^t[a-z0-9]+$/i.test(t.id)||seen.has(t.id)||typeof t.title!=='string'||t.title.length>80||!Array.isArray(t.items)||t.items.length>5000||!Array.isArray(t.customStays)||!Array.isArray(t.customActs)||!Array.isArray(t.extraCosts)||!Array.isArray(t.customChecks))throw new Error('Ungültige oder doppelte Reisedaten in der Sicherung.');
-    if(t.start&&pd(t.start)===null||t.end&&pd(t.end)===null||t.dateMode==='fix'&&(!pd(t.start)||!pd(t.end)||pd(t.end)<=pd(t.start)))throw new Error('Ungültiges Reisedatum in der Sicherung.');
+    if(t.start&&pd(t.start)===null||t.end&&pd(t.end)===null||t.dateMode==='fix'&&(!pd(t.start)||!pd(t.end)||pd(t.end)<pd(t.start)))throw new Error('Ungültiges Reisedatum in der Sicherung.');
     if(!Number.isFinite(+t.persons)||+t.persons<1||+t.persons>20||!Number.isFinite(+t.budget)||+t.budget<0||+t.budget>1e9)throw new Error('Ungültige Personen- oder Budgetangabe in der Sicherung.');
     for(const key of ['km','routeKm','verb','preis','ticket','stayQuote'])if(t[key]!=null&&(!Number.isFinite(+t[key])||+t[key]<0||+t[key]>1e9))throw new Error('Ungültige Kostenangabe in der Sicherung.');
     seen.add(t.id);
@@ -594,7 +603,7 @@ function todayUTC(now){now=now||new Date();return new Date(Date.UTC(now.getFullY
 /* Phase einer Reise mit festem Datum: vor | unterwegs | nach. Ohne gültige Daten null. */
 function tripPhase(t,now){
   if(t.dateMode!=='fix')return null;
-  const a=pd(t.start),b=pd(t.end);if(!a||!b||b<=a)return null;
+  const a=pd(t.start),b=pd(t.end);if(!a||!b||b<a)return null;
   const d=todayUTC(now);
   if(d<a)return {phase:'vor',days:Math.round((a-d)/864e5)};
   if(d>b)return {phase:'nach',days:Math.round((d-b)/864e5)};
@@ -604,6 +613,7 @@ function phaseText(ph){
   if(!ph)return '';
   if(ph.phase==='vor')return 'noch '+ph.days+(ph.days===1?' Tag':' Tage');
   if(ph.phase==='nach')return 'vorbei';
+  if(ph.of===1)return 'heute ist es so weit';
   if(ph.day===0)return 'heute geht’s los · Tag 1 von '+ph.of;
   if(ph.day===ph.of-1)return 'Abreisetag · Tag '+ph.of+' von '+ph.of;
   return 'unterwegs · Tag '+(ph.day+1)+' von '+ph.of;
@@ -621,7 +631,7 @@ function icsFold(line){
 }
 function icsData(t,now){
   const a=pd(t.start),b=pd(t.end);
-  if(t.dateMode!=='fix'||!a||!b||b<=a)return null;
+  if(t.dateMode!=='fix'||!a||!b||b<a)return null;
   const days=daysOf(t),pl=placeOf(t),st=stayOf(t),where=pl?pl.name:(t.dest||'');
   const stamp=(now||new Date()).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
   const dt=d=>iso(d).replace(/-/g,'');
@@ -798,7 +808,7 @@ function tUeber(t){
    '<div class="card"><span class="eyebrow">Unterkunft</span><h3>'+esc(st?st.name:'Noch keine')+'</h3><p class="small muted">'+esc(st?(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):''):'Im Bereich Ort & Unterkunft wählen')+'</p><div class="foot">'+(st&&st.url?lk(st.url,'Inserat'):'')+'<button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
    '<div class="card"><span class="eyebrow">Angebot</span><h3>'+esc(pk?pk.name:'Frei geplant')+'</h3><p class="small muted">'+esc(pk?pk.pitch:'Pakete als Startpunkt im Bereich Angebote')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-angebote">Angebote</button></div></div>'+
   '</div></section>'+
-  '<section class="block"><h2>Nächste Schritte</h2>'+(open.length?'<div class="checks-list">'+open.slice(0,5).map(i=>'<label class="chk info"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>').join('')+'</div>':'<p class="muted">Alles gebucht.</p>')+'</section>'+
+  '<section class="block"><h2>Nächste Schritte</h2>'+(open.length?'<div class="checks-list">'+open.slice(0,5).map(i=>'<label class="chk info"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>').join('')+'</div>':'<p class="muted">Keine offenen Buchungen.</p>')+'</section>'+
   '<section class="block"><h2>Reise verwalten</h2><div class="row"><button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button>'+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
 }
 function tAngebote(t){
@@ -980,7 +990,7 @@ function tMappe(t){
    '<p class="small muted">Zeitfenster sind grob. Öffnungszeiten aus dem Katalog sind nicht für eure Daten geprüft.</p></section>'+
    (warn.length?'<section class="block mappe"><h3>Hinweise aus dem Plan-Check</h3><ul class="plain">'+warn.map(x=>'<li>! '+esc(x[1])+'</li>').join('')+'</ul></section>':'')+
    '<section class="block mappe"><h3>Kosten · Planwerte</h3><div class="tbl-wrap"><table><tbody>'+keys.map(k=>'<tr><td>'+esc(COSTCAT[k][0])+'</td><td class="r">'+eur(c.byCat[k])+'</td></tr>').join('')+
-   '<tr class="total"><td>Gesamt</td><td class="r">'+eur(c.total)+'</td></tr></tbody></table></div><p class="small">≈ '+eur(c.total/c.P)+' pro Person'+(num(t.budget,0)?' · Budget '+eur(t.budget):'')+'. Kein bestätigter Gesamtpreis.</p><p class="small muted">Noch offen: '+esc(openCosts(t).join(' · '))+'</p></section>'+
+   '<tr class="total"><td>Gesamt</td><td class="r">'+eur(c.total)+'</td></tr></tbody></table></div><p class="small">≈ '+eur(c.total/c.P)+' pro Person'+(num(t.budget,0)?' · Budget '+eur(t.budget):'')+'. Kein bestätigter Gesamtpreis.</p>'+(openCosts(t).length?'<p class="small muted">Noch offen: '+esc(openCosts(t).join(' · '))+'</p>':'')+'</section>'+
    '<section class="block mappe"><h3>Buchungen & Anfragen</h3><ul class="plain">'+book.map(i=>{const done=!!(t.check&&t.check[i[0]]);return '<li>'+(done?'☑ erledigt: ':'☐ offen: ')+esc(i[1])+'</li>'}).join('')+'</ul></section>'+
    (UI.mappeNotes&&String(t.notes||'').trim()?'<section class="block mappe"><h3>Notizen</h3><div class="copybox">'+esc(t.notes)+'</div></section>':'');
 }
@@ -1087,10 +1097,10 @@ document.addEventListener('click',async e=>{
   if(act==='sheet-bg'||act==='sheet-x'){closeSheet();return}
   /* Entwurf / Eckdaten-Formular */
   const pm=act.match(/^(d|e)-(type|dm|travel|catalog)$/);
-  if(pm){const o=pm[1]==='d'?UI.draft:UI.edit;const k={type:'type',dm:'dateMode',travel:'travel',catalog:'catalog'}[pm[2]];o[k]=val;
-    if(k==='dateMode'&&val==='fix'&&!o.start){const n=new Date();o.start=iso(new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()+30)));o.end=iso(new Date(pd(o.start).getTime()+864e5*Math.max(1,num(o.nights,3))))}
+  if(pm){const o=pm[1]==='d'?UI.draft:UI.edit;const k={type:'type',dm:'dateMode',travel:'travel',catalog:'catalog'}[pm[2]];if(k==='type')applyType(o,val);else o[k]=val;
+    if(k==='dateMode'&&val==='fix'&&!o.start){const n=new Date();o.start=iso(new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()+30)));o.end=iso(new Date(pd(o.start).getTime()+864e5*Math.max(o.type==='tag'?0:1,num(o.nights,3))))}
     const host=pm[1]==='d'?$('#draft'):$('#editform');if(pm[1]==='d'){render()}else host.innerHTML=tripForm(o,'e-');return}
-  if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>pd(d.start))){alertMsg('Bitte Anreise vor Abreise wählen.');return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
+  if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>=pd(d.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
   if(act==='tpl-silvester'){const s=silvesterTemplate();save(s,true);UI.draft=null;go('r-'+s.id+'-ueber');return}
   if(!t) return;
   switch(act){
@@ -1102,7 +1112,7 @@ document.addEventListener('click',async e=>{
      try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
      try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
    case 'edit-trip': sheetEdit(t);return;
-   case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>pd(o.start))){alertMsg('Bitte Anreise vor Abreise wählen.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;}Object.assign(t,o);save(t);closeSheet();render();return}
+   case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>=pd(o.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;}Object.assign(t,o);save(t);closeSheet();render();return}
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
@@ -1184,7 +1194,7 @@ function toast(b,m){alertMsg(m)}
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={applyType,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

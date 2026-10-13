@@ -27,7 +27,7 @@ assert.equal(a.phaseText(a.tripPhase(t, at('2027-01-01'))), 'unterwegs · Tag 3 
 assert(a.phaseText(a.tripPhase(t, at('2027-01-03'))).startsWith('Abreisetag'));
 assert.equal(a.tripPhase(t, at('2027-01-04')).phase, 'nach');
 assert.equal(a.tripPhase(a.newTrip({ dateMode: 'open' }), at('2026-12-30')), null);
-assert.equal(a.tripPhase(a.newTrip({ dateMode: 'fix', start: '2026-12-30', end: '2026-12-30' }), at('2026-12-30')), null);
+assert.equal(a.tripPhase(a.newTrip({ dateMode: 'fix', start: '2026-12-30', end: '2026-12-29' }), at('2026-12-30')), null);
 
 /* Kalender: ganztägige Reise mit exklusivem Ende, Programmpunkte vorläufig, CRLF, gefaltete Zeilen */
 const ics = a.icsData(t, new Date('2026-10-13T08:00:00Z'));
@@ -133,3 +133,11 @@ for (const pl of Object.keys(a.PLACES)) {
 const wb = a.newTrip({ catalog: 'allgaeu', place: 'oberjoch', stayId: 'oj-haug', items: [{ uid: '1', act: 'oj-wsauna', day: 1, slot: 'nachm' }] });
 assert(!a.savingTips(wb).some(x => x.t.includes('frei')), 'Gratis-Versprechen ohne bestätigte Gästekarte');
 console.log('Spartipps ohne Sauna-/Küchenkonflikt und ohne unbestätigte Gratis-Versprechen geprüft.');
+
+/* Tagesausflug: Phase und Kalender */
+const tag = a.newTrip({ type: 'tag', title: 'Bodensee', dateMode: 'fix', start: '2027-06-05', end: '2027-06-05', nights: 0 });
+assert.equal(a.phaseText(a.tripPhase(tag, at('2027-06-05'))), 'heute ist es so weit');
+assert.equal(a.tripPhase(tag, at('2027-06-06')).phase, 'nach');
+const ti = a.icsData(tag);
+assert(ti.text.includes('DTSTART;VALUE=DATE:20270605\r\n') && ti.text.includes('DTEND;VALUE=DATE:20270606\r\n'));
+console.log('Tagesausflug in Unterwegs-Ansicht und Kalender geprüft.');
