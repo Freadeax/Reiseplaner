@@ -1,6 +1,24 @@
 # Projektstand · 13.10.2026
 
-## Bestätigt am aktuellen Quelltext
+## v2.0 · Reisefinder (ChatGPT, 13.10.2026)
+
+Auf Claudes v1.9 / `0a75f9a1aded40f05b25cb564b584055deadd4da` aufgebaut. Seine Änderungen 1.7–1.9 sind erhalten. Zusätzlicher Browser-Teststand `a730c53224a5f24598c77175b7b45666a9d67ada` (neutrale Formularreisen, simuliertes Datum 02.05.2027) wurde ebenfalls integriert. Abstimmung: Issues #1 und #2; Claude pausiert `index.html` bis zum Push dieses Arbeitspakets.
+
+Implementiert:
+- Neuer regionsunabhängiger Reiter `suche`, kombinierbare Muss-/Wunschfilter, persönliche Sortierung, Anbieterwahl, Merkliste und bis zu vier Vergleichsspalten.
+- Vorbereitete Anbieter-Suchlinks für Booking/Airbnb/FeWo-direkt; Startseiten für CHECK24/Holidu. Keine Live-Abfrage. Externe URL-Parameter sind nicht auf den Zielseiten klickgeprüft.
+- Eigene Suchprofile je Reise und drei veränderbare Suchstrategien. Keine realen Beispielangebote vorgetäuscht.
+- Angebotsmodell mit Daten, Belegung, Preisbasis, Tarif, Gebühren inklusive/zusätzlich/offen, Quelle, Prüfdatum, optionalem Gültigkeitsdatum und Verfügbarkeit laut manueller Erfassung.
+- An Auswahl gebundene Kosten, Angebotsvergleich über dieselbe Kostenfunktion, keine zweite Kurtaxe bei im Angebot erfasster Kurtaxe. Unbekannte Gebühren bleiben offen. Frühstücksstatus des aktiven Angebots wirkt auf Verpflegungsschätzung.
+- Erfasste externe Buchung, Unterkunft bezahlt/offen und Kaution separat. Gebuchte Angebote werden geschützt. Kein vollständiges Zahlungsbuch für andere Reiseposten.
+- JSON-Sicherung v2, v1-Import mit nicht mutierender Aufwärtsmigration; neue Reiseerweiterungen tragen `schemaVersion: 2`, Suchmodell `version: 1`. Ältere Programme akzeptieren v2-Exporte nicht. `rp-trips` bleibt der Speicherort.
+- Fünf lokale Sicherungspunkte vor Änderungen, Download und anschließender kontrollierter Import. Beschädigte Hauptdaten bleiben geschützt. Erkannte Fremdänderungen blockieren Speichern; eigene Änderungen bleiben exportierbar. Browser-Speicher hat keine atomare Compare-and-swap-Operation und ist keine konfliktfeste Cloud-Datenbank.
+
+Ausgeführt: `npm test` inklusive `tests/search.cjs` erfolgreich; `node --check tests/browser.cjs` erfolgreich. Neue Prüfungen decken Preisbasis, offene Gebühren, Muss/Wunsch, Quelle, Datenbindung, Buchungsschutz, unverändernden Vergleich, Bezahlung/Kaution, v1/v2-Import, Sicherungspunkte und Fremdänderungen ab. Alle Claudes Logiktests 1.7–1.9 bestehen ebenfalls.
+
+`tests/browser.cjs` um den Finder erweitert. In dieser Umgebung nicht im Browser ausgeführt; bereitgestelltes Browser-Control fehlt. GitHub-CI führt das vorhandene Chromium-Skript nach Push aus; Ergebnis muss am konkreten Commit geprüft werden. Kein echter iPhone-/Safari-Test, keine verifizierten Unterkunftspreise. Hinweise zur Anbieterintegration in `PROVIDER_INTEGRATION.md`.
+
+## Bestätigt an früheren Versionen
 
 - Statische, buildlose HTML/CSS/JavaScript-App in `index.html`.
 - Sechs Reisearten, acht Bereiche, vier beispielhafte Winterorte und lokale Speicherung.
@@ -43,14 +61,19 @@ Am 13.10.2026 zusätzlich ausgeführt (Claude, Stand 1.5): ein Klicktest in **he
 
 - ChatGPT-Dateivorschau auf iPhone zeigt möglicherweise nur den statischen Rahmen; die App benötigt eine reguläre Browser-Umgebung.
 - Browser-Speicher synchronisiert nicht geräteübergreifend; die optionale Claude-Anbindung ist Altdaten-Kompatibilität, kein tragfähiges Mehrgeräte-Konzept.
-- Es fehlt ein echtes Angebotsmodell mit Preisbasis, Gebühren, Belegung, Gültigkeit, Quelle und Buchungsstatus.
-- Bezahlte Beträge, Kautionen und noch offene Zahlungen werden nicht sauber getrennt.
+- Live-Anbieterzugänge und automatisch normalisierte Angebotsantworten fehlen. Das manuelle konkrete Angebotsmodell ist in v2.0 implementiert.
+- Zahlungen und Kautionen sind für konkrete Unterkunftsangebote getrennt; ein Zahlungsbuch für andere Reiseposten fehlt.
 - Strecken außerhalb des Beispielstarts Hattenhofen müssen manuell eingetragen werden.
 - Kurs-, Verleih- und Skipasstarife über 3 bzw. 5 Tage sind nur hochgerechnet (als Richtwert markiert); echte Mehrtagestarife fehlen. Genaue Zeitkonflikte brauchen weitere Regeln.
 - Der öffentliche Katalog enthält Schätzwerte und ältere Angaben. Keine Buchungsentscheidung allein anhand dieser Werte treffen.
 
 ## Übergabe
 
-Letzte hier vorbereitete App-Version: 1.9 (dazu Plan B, Offline-Start, Packliste aus dem Plan, korrigierte Spartipps, Langzeit-Tarife und Tagesausflüge). GitHub-CI (Node- und Chromium-Job) war für 1.6 grün. Offen: Import der `.ics` in iOS-Kalender und Google Kalender testen, Druck aus Safari, „Zum Home-Bildschirm“ und Offline-Start auf einem echten iPhone (Hosting über https nötig, z. B. GitHub Pages). Nächster technischer Schritt: reproduzierbarer Browser-Klicktest auf Desktop und Mobilansicht, anschließend Angebots- und Zahlungsmodell mit Migration der vorhandenen `rp-trips`-Daten. Bestehende Daten niemals still überschreiben. Die vorhandene HTML-Datei bleibt bis zu einer geprüften Migration die maßgebliche App-Quelle.
+Letzte frühere App-Version: 1.9 (dazu Plan B, Offline-Start, Packliste aus dem Plan, korrigierte Spartipps, Langzeit-Tarife und Tagesausflüge). GitHub-CI (Node- und Chromium-Job) war für 1.6 grün. Offen: Import der `.ics` in iOS-Kalender und Google Kalender testen, Druck aus Safari, „Zum Home-Bildschirm“ und Offline-Start auf einem echten iPhone (Hosting über https nötig, z. B. GitHub Pages). Nächster technischer Schritt: reproduzierbarer Browser-Klicktest auf Desktop und Mobilansicht, anschließend Angebots- und Zahlungsmodell mit Migration der vorhandenen `rp-trips`-Daten. Bestehende Daten niemals still überschreiben. Die vorhandene HTML-Datei bleibt bis zu einer geprüften Migration die maßgebliche App-Quelle.
 
 Zusammenarbeit: Philipp, Claude und ChatGPT arbeiten gegebenenfalls parallel. Die Regeln für nur einen `main`-Branch, eigene Pushes, Konfliktprüfung und asynchrone Übergaben stehen in `docs/COLLABORATION.md`. Der am 13.10.2026 erneut hochgeladene HTML-Anhang war bytegleich mit `index.html`; daraus entstand keine App-Änderung.
+
+
+## Aktuelle Übergabe für Claude
+
+Nach v2.0 kann Claude seine angekündigte Verallgemeinerung der Startseite/Beispiele fortsetzen. Neuer Reiter: `suche`; zentral getestete Funktionen über `window.__app`. Angebotssuche ist bewusst unabhängig vom Allgäu-Katalog. Erst GitHub-CI/Chromium prüfen, anschließend iPhone/Safari und Anbieter-Suchlinks. Für Live-Daten Anbieterfreigaben und serverseitige Adapter vorsehen; keine Schlüssel ins Frontend. Neue Tests bei UI-Änderungen erhalten.

@@ -19,3 +19,12 @@ Ergänzungen, die keine Daten gefährden; Umsetzung nach Absprache mit Philipp:
 - **Hosting über https** (z. B. GitHub Pages), damit Offline-Start und Homescreen auf dem iPhone nutzbar sind. Entscheidung bei Philipp, da das Repo öffentlich ist (Daten bleiben lokal).
 
 Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und Gültigkeit. Vorlagen sind Planideen und keine buchbaren Pauschalangebote.
+
+
+## Fortschritt v2.0
+
+- Allgemeiner Finder mit Muss-/Wunschfiltern, individuellen Profilen, manuellen Angeboten, Merk-/Vergleichsliste implementiert. Regionsunabhängige Suche; der ältere Katalog bleibt beispielhaft.
+- Konkretes Unterkunftsmodell, Preisbasis und Gebühren sowie Unterkunftszahlungen/Kaution implementiert. Zahlungsbuch anderer Reiseposten und echtes Szenariomodell bleiben offen.
+- Sicherung v2 + v1-Migration, lokale Sicherungspunkte und Schutz vor erkannten Fremdänderungen implementiert. Keine Cloud-Synchronisation.
+- Nächste Schritte: neuen Chromium-Klicktest am Push prüfen; iPhone/Safari; Suchlinkparameter direkt beim Anbieter prüfen; Claudes angekündigte allgemeine Startseite/Beispiele.
+- Live-Suche erst mit Anbieterzugängen, serverseitiger Normalisierung und Datenzugriffskonzept; Details in PROVIDER_INTEGRATION.md.

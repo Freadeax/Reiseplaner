@@ -1,4 +1,6 @@
-<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta name="theme-color" content="#1E4D59"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Reiseplaner"></head><body>
+<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>
+.finder-hero{background:var(--spruce-soft);padding:24px;border:1px solid var(--line);border-radius:var(--r)}.criteria{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:16px 0}.profile-chip{display:inline-flex;gap:4px}.tbl td{max-width:260px;overflow-wrap:anywhere}.finder-hero .badge{white-space:normal}input,select,textarea{max-width:100%}.sheet .form{margin-bottom:12px}
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta name="theme-color" content="#1E4D59"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Reiseplaner"></head><body>
 <title>Reiseplaner</title>
 <!-- Entwicklungsstand 1.4 · 13.10.2026
 Grundlage: bereitgestellte Reiseplaner(1).html. Bestehender Speicherschlüssel rp-trips bleibt erhalten.
@@ -216,7 +218,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.9</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.0</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -410,7 +412,7 @@ function rangeText(t){
   return 'Datum noch offen · '+nightsOf(t)+' Nächte geplant';
 }
 const placeOf=t=>t.catalog==='allgaeu'?PLACES[t.place]||null:null;
-function stayOf(t){if(!t.stayId)return null;return STAYS.find(s=>s.id===t.stayId)||(t.customStays||[]).find(s=>s.id===t.stayId)||null}
+function stayOf(t){if(!t.stayId)return null;const st=STAYS.find(s=>s.id===t.stayId)||(t.customStays||[]).find(s=>s.id===t.stayId)||null;const o=activeOffer(t);return o&&st?Object.assign({},st,{name:o.name,ort:o.location,breakfast:o.features.breakfast==='yes',sauna:o.features.sauna==='yes',kitchen:o.features.kitchen==='yes',url:o.url}):st}
 function actOf(t,id){return ACTS[id]||(t.customActs||[]).find(a=>a.id===id)||null}
 function actsFor(t){
   const out=[];
@@ -421,10 +423,10 @@ function actsFor(t){
 function sortedItems(t){const so={morgen:0,mittag:1,nachm:2,abend:3};return (t.items||[]).slice().sort((a,b)=>a.day-b.day||so[a.slot]-so[b.slot])}
 
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
-function resetStay(t){t.stayQuote=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
-function openCosts(t){const out=[];
- if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt')}
- else {if(!(num(t.stayQuote,0)>0))out.push('Konkretes Unterkunftsangebot fehlt');out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
+function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
+function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offerAmounts(o).unknown.map(k=>k+' offen'));if(!offerCurrent(o,t))out.push('Ausgewähltes Angebot passt nicht mehr zu Daten/Personen oder ist abgelaufen');if(o.availability!=='available')out.push('Verfügbarkeit des Angebots unbestätigt');}
+ if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt');}
+ else if(!o){if(!(num(t.stayQuote,0)>0))out.push('Konkretes Unterkunftsangebot fehlt');out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
  if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
  if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
  if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
@@ -444,7 +446,9 @@ function cost(t){
   const items=sortedItems(t).filter(it=>it.day<=maxDay&&actOf(t,it.act));
   /* Unterkunft */
   if(st){
-    if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok');
+    const offer=activeOffer(t);
+    if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est');}
+    else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok');
     else{const pn=num(st.plan!=null?st.plan:st.priceNight,0);add('unterkunft',st.name,(st.ab?st.ab+' · ':'')+'Planwert '+eur(pn)+' / Nacht × '+N+(st.custom?'':' (Silvester +15 %, geschätzt)'),pn*N,st.custom?'ok':'est')}
   }
   /* Anreise */
@@ -454,7 +458,7 @@ function cost(t){
     const l=km*num(t.verb,7.5)/100;
     add('anreise','Sprit · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' € · inkl. Fahrten vor Ort',l*num(t.preis,2.15));
   } else if(num(t.ticket,0)>0) add('anreise',t.travel==='bahn'?'Bahn-Tickets':'Flug / Ticket','eure Eingabe',num(t.ticket,0),'ok');
-  if(pl) add('gebuehren','Kurbeitrag','≈ '+dec(pl.taxe,2)+' € p. P. / Nacht',pl.taxe*P*N);
+  if(pl&&!(activeOffer(t)&&activeOffer(t).fees.tax.state!=='unknown')) add('gebuehren','Kurbeitrag','≈ '+dec(pl.taxe,2)+' € p. P. / Nacht',pl.taxe*P*N);
   /* Schneesport */
   const kursIt=items.filter(it=>actOf(t,it.act).kurs), kursDays=[...new Set(kursIt.map(i=>i.day))];
   const passDays=new Set(); kursDays.slice(1).forEach(d=>passDays.add(d));
@@ -558,14 +562,15 @@ function newTrip(o){
   return Object.assign({id:uid('t'),title:'Neue Reise',type:'stadt',status:'idee',dateMode:'open',start:'',end:'',month:'',nights:3,persons:2,budget:800,origin:'73110 Hattenhofen',dest:'',travel:'auto',km:0,verb:7.5,preis:2.15,ticket:0,catalog:'none',place:'',stayId:'',stayQuote:null,customStays:[],items:[],customActs:[],food:'selbst',puffer:0,online:true,check:{},customChecks:[],extraCosts:[],notes:'',packageId:'',created:new Date().toISOString().slice(0,10)},o||{});
 }
 /* Dateisicherung: nur Daten, kein ausführbarer Code. Importe überschreiben nie bestehende Reisen. */
-const BACKUP_FORMAT='reiseplaner-backup', BACKUP_VERSION=1;
+const BACKUP_FORMAT='reiseplaner-backup', BACKUP_VERSION=2;
 function downloadText(content,name,type){
   const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(clone)}}
+function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(t=>migrateTrip(t))}}
 function validateBackup(raw){
-  if(!raw||raw.format!==BACKUP_FORMAT||raw.version!==BACKUP_VERSION||!Array.isArray(raw.trips))throw new Error('Keine unterstützte Reiseplaner-Sicherung.');
+  if(!raw||raw.format!==BACKUP_FORMAT||![1,BACKUP_VERSION].includes(raw.version)||!Array.isArray(raw.trips))throw new Error('Keine unterstützte Reiseplaner-Sicherung.');
+  const inspect=(x)=>{if(x&&typeof x==='object'){for(const k of Object.keys(x)){if(['__proto__','prototype','constructor'].includes(k))throw new Error('Unzulässiges Datenfeld in der Sicherung.');inspect(x[k]);}}};inspect(raw);
   if(raw.trips.length>500)throw new Error('Die Sicherung enthält zu viele Reisen.');
   const seen=new Set();
   for(const t of raw.trips){
@@ -573,9 +578,9 @@ function validateBackup(raw){
     if(t.start&&pd(t.start)===null||t.end&&pd(t.end)===null||t.dateMode==='fix'&&(!pd(t.start)||!pd(t.end)||pd(t.end)<pd(t.start)))throw new Error('Ungültiges Reisedatum in der Sicherung.');
     if(!Number.isFinite(+t.persons)||+t.persons<1||+t.persons>20||!Number.isFinite(+t.budget)||+t.budget<0||+t.budget>1e9)throw new Error('Ungültige Personen- oder Budgetangabe in der Sicherung.');
     for(const key of ['km','routeKm','verb','preis','ticket','stayQuote'])if(t[key]!=null&&(!Number.isFinite(+t[key])||+t[key]<0||+t[key]>1e9))throw new Error('Ungültige Kostenangabe in der Sicherung.');
-    seen.add(t.id);
+    validateExtras(t);seen.add(t.id);
   }
-  return raw.trips;
+  return raw.trips.map(migrateTrip);
 }
 function importTrips(raw,conflictMode){
   const trips=validateBackup(raw), added=[];
@@ -689,26 +694,29 @@ function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/
 const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},corruptRaw:null,
   loadLocal(){
     let raw;
-    try{raw=localStorage.getItem('rp-trips');const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');this.trips=s;this.corruptRaw=null}
+    try{raw=localStorage.getItem('rp-trips');const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');Object.values(s).forEach(t=>{if(t&&typeof t==='object')validateExtras(t);});this.trips=s;this.lastRaw=raw;this.corruptRaw=null}
     catch(e){this.trips={};this.localError=true;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
   },
   saveLocal(){
     if(this.corruptRaw!==null){this.localError=true;setSync('storage-error');return false}
-    try{localStorage.setItem('rp-trips',JSON.stringify(this.trips));this.localError=false;return true}
+    try{const raw=JSON.stringify(this.trips),previous=localStorage.getItem('rp-trips');
+      if(this.lastRaw!==undefined&&previous!==this.lastRaw){this.localError=true;this.conflict=true;setSync('storage-error');alertMsg('Eine andere Ansicht hat neuere Daten gespeichert. Eigene Änderungen als Datei sichern und neu laden.');return false;}
+      if(previous&&previous!==raw){try{let h=JSON.parse(localStorage.getItem('rp-history')||'[]');if(!Array.isArray(h))throw new Error('Sicherungspunkte ungültig');h.unshift({at:new Date().toISOString(),raw:previous});localStorage.setItem('rp-history',JSON.stringify(h.slice(0,5)));this.historyError=false;}catch(e){this.historyError=true;}}
+      localStorage.setItem('rp-trips',raw);this.lastRaw=raw;this.conflict=false;this.localError=false;return true}
     catch(e){this.localError=true;setSync('storage-error');return false}
   },
   resetCorrupt(){
     if(this.corruptRaw===null)return false;
-    try{localStorage.removeItem('rp-trips');this.corruptRaw=null;this.trips={};this.localError=false;setSync('local');return true}
+    try{localStorage.removeItem('rp-trips');this.corruptRaw=null;this.trips={};this.lastRaw=null;this.localError=false;setSync('local');return true}
     catch(e){this.localError=true;setSync('storage-error');return false}
   },
   list(){return Object.values(this.trips).sort((a,b)=>(a.start||a.month||'9999').localeCompare(b.start||b.month||'9999'))},
   get(id){return this.trips[id]||null},
-  put(t,now){t.updated=Date.now();this.trips[t.id]=t;this.saveLocal();if(this.mode!=='db')return;clearTimeout(this.timers[t.id]);this.timers[t.id]=setTimeout(()=>this.flush(t.id),now?0:700)},
+  put(t,now){t.updated=Date.now();this.trips[t.id]=t;if(!this.saveLocal())return;if(this.mode!=='db')return;clearTimeout(this.timers[t.id]);this.timers[t.id]=setTimeout(()=>this.flush(t.id),now?0:700)},
   async flush(id){if(this.busy[id]){this.again[id]=true;return}const t=this.trips[id];if(!t||!this.db)return;this.busy[id]=true;setSync('saving');
     try{await this.db.doc('trips/'+id).set(clone(t));this.synced[id]=true;setSync('on')}catch(e){setSync(e&&e.code==='invalid_argument'?'ro':'err')}
     this.busy[id]=false;if(this.again[id]){this.again[id]=false;this.flush(id)}},
-  async remove(id){delete this.trips[id];this.saveLocal();if(this.db){try{await this.db.doc('trips/'+id).delete()}catch(e){}}},
+  async remove(id){delete this.trips[id];if(!this.saveLocal())return;if(this.db){try{await this.db.doc('trips/'+id).delete()}catch(e){}}},
   async connect(){
     let db=null;try{db=(window.claude&&typeof window.claude.use==='function')?await window.claude.use('db'):null}catch(e){db=null}
     if(!db){setSync('local');return}
@@ -724,14 +732,14 @@ const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},
     },()=>{this.mode='local';setSync('local')})}catch(e){this.mode='local';setSync('local')}
   }
 };
-function setSync(s){if(Store.localError)s='storage-error';const el=$('#sync');if(!el)return;const txt={'storage-error':'Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen',on:'Gespeichert',saving:'Speichert …',local:'Nur in diesem Browser',err:'Speichern fehlgeschlagen, lokal gesichert',ro:'Nur Lesen'}[s]||'';el.className='sync'+(s==='on'||s==='saving'?' on':'');el.querySelector('span').textContent=txt}
+function setSync(s){if(Store.conflict)s='conflict';else if(Store.localError)s='storage-error';const el=$('#sync');if(!el)return;const txt={'conflict':'Neuere Daten in anderer Ansicht – Änderungen sichern und neu laden','storage-error':'Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen',on:'Gespeichert',saving:'Speichert …',local:'Nur in diesem Browser',err:'Speichern fehlgeschlagen, lokal gesichert',ro:'Nur Lesen'}[s]||'';el.className='sync'+(s==='on'||s==='saving'?' on':'');el.querySelector('span').textContent=txt}
 let deferred=false;
 function remoteChanged(){if(UI.pending&&UI.view==='reisen'){const h=UI.pending;const id=h.split('-')[1];if(Store.get(id)){UI.pending=null;go(h,true);return}}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){deferred=true;return}render()}
 document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
 
 /* ================= Zustand & Routing ================= */
 const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
-const TABS=[['ueber','Überblick'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
+const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
 function go(h,keepScroll){
   h=(h||'').replace(/^#/,'');
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
@@ -921,7 +929,7 @@ function tKosten(t){
    order.filter(k=>groups[k]).map(k=>'<tr class="grp"><td>'+COSTCAT[k][0]+'</td><td></td><td class="r">'+eur(c.byCat[k])+'</td></tr>'+groups[k].map(l=>'<tr><td>'+esc(l.t)+'<small>'+esc(l.s)+'</small></td><td>'+srcBadge(l.src)+'</td><td class="r">'+eur(l.c)+'</td></tr>').join('')).join('')+
    '<tr class="total"><td>Gesamt</td><td></td><td class="r">'+eur(c.total)+'</td></tr><tr><td>pro Person</td><td></td><td class="r">'+eur(c.total/c.P)+'</td></tr></tbody></table></div>'+
    (c.saved?'<p class="small" style="color:var(--ok)">Gästekarte spart beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  '<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
+  offerFinance(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
   '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Übernehmen</button></div>').join('')+'</div>':'<p class="muted">Schon sehr sparsam geplant.</p>')+'</section>';
 }
 function savingTips(t){
@@ -996,7 +1004,7 @@ function tMappe(t){
 }
 function vReise(){
   const t=cur(); if(!t) return vReisen();
-  const body={ueber:tUeber,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
+  const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
   return tripHead(t)+costNotice(t)+body(t);
 }
 function render(){
@@ -1188,13 +1196,153 @@ document.addEventListener('input',e=>{
   if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+window.addEventListener('storage',e=>{if(e.key==='rp-trips'){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
 window.addEventListener('hashchange',()=>go(location.hash,true));
 function alertMsg(m){let n=$('#msg');if(!n){n=document.createElement('div');n.id='msg';n.setAttribute('role','alert');n.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;max-width:90vw';document.body.appendChild(n)}n.textContent=m;n.hidden=false;clearTimeout(n._t);n._t=setTimeout(()=>{n.hidden=true},2600)}
 function toast(b,m){alertMsg(m)}
 
+/* Suchzentrale v2: reine Anbieteradapter, nachvollziehbare Angebote, Profile. */
+const PROVIDERS=[
+ {id:'booking',name:'Booking.com',home:'https://www.booking.com/',mode:'search'},
+ {id:'check24',name:'CHECK24',home:'https://hotel.check24.de/',mode:'portal'},
+ {id:'fewo',name:'FeWo-direkt',home:'https://www.fewo-direkt.de/',mode:'search'},
+ {id:'airbnb',name:'Airbnb',home:'https://www.airbnb.de/',mode:'search'},
+ {id:'holidu',name:'Holidu',home:'https://www.holidu.de/',mode:'portal'},
+ {id:'direkt',name:'Direkt beim Gastgeber',home:'',mode:'manual'}
+];
+const FEATURES={sauna:'Sauna / Wellness',kitchen:'Küche',breakfast:'Frühstück inklusive',cancel:'Kostenlos stornierbar',quiet:'Ruhige Lage',accessible:'Barrierefrei',parking:'Parkplatz'};
+const FEES={tax:'Kurtaxe',cleaning:'Endreinigung',parking:'Parkgebühr',wellness:'Wellnessgebühr',mandatory:'Weitere Pflichtzuschläge'};
+function searchDefaults(t){return {version:1,destination:t.dest||(placeOf(t)||{}).name||'',maxPrice:'',maxDrive:'',minRating:'',type:'',provider:'',sort:'match',onlyFavorites:false,onlyCurrent:false,must:[],wish:['sauna','quiet'],providers:['booking','check24','fewo','airbnb']};}
+function searchState(t){return Object.assign(searchDefaults(t),t.search||{});}
+function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2)throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
+function safeOfferUrl(value){return /^https:\/\/[^\s<>"']+$/i.test(String(value||''))?String(value):'';}
+function providerUrl(p,t,q){
+ const dest=q.destination.trim();if(!dest)return p.home;
+ const dates=t.dateMode==='fix'&&pd(t.start)&&pd(t.end)&&pd(t.end)>pd(t.start);
+ const params=(obj)=>Object.entries(obj).filter(([,v])=>v!==''&&v!=null).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+ if(p.id==='booking')return 'https://www.booking.com/searchresults.de.html?'+params({ss:dest,checkin:dates?t.start:'',checkout:dates?t.end:'',group_adults:t.persons,no_rooms:1,group_children:0});
+ if(p.id==='airbnb')return 'https://www.airbnb.de/s/'+encodeURIComponent(dest)+'/homes?'+params({checkin:dates?t.start:'',checkout:dates?t.end:'',adults:t.persons});
+ if(p.id==='fewo')return 'https://www.fewo-direkt.de/search?'+params({destination:dest,startDate:dates?t.start:'',endDate:dates?t.end:'',adults:t.persons});
+ return p.home;
+}
+function offerAmounts(o){
+ const n=(pd(o.end)-pd(o.start))/864e5,p=Number(o.persons),b=Number(o.price);
+ const base=b*(o.basis==='night'?n:o.basis==='personNight'?n*p:o.basis==='person'?p:1);
+ let total=base,unknown=[];Object.entries(FEES).forEach(([k,label])=>{const fee=(o.fees||{})[k];if(!fee||fee.state==='unknown')unknown.push(label);else if(fee.state==='extra')total+=Number(fee.amount);});
+ return {base,total,unknown,nights:n};
+}
+function offerCurrent(o,t,now){return o.start===t.start&&o.end===t.end&&+o.persons===+t.persons&&t.dateMode==='fix'&&(!o.validUntil||o.validUntil>=(now||new Date().toISOString().slice(0,10)));}
+function offerEvaluation(o,t,q){
+ const amounts=offerAmounts(o),failed=[],unknown=[];let points=0,possible=q.wish.length;
+ q.must.forEach(k=>{if((o.features||{})[k]==='no')failed.push(FEATURES[k]);else if((o.features||{})[k]!=='yes')unknown.push(FEATURES[k]);});
+ q.wish.forEach(k=>{if((o.features||{})[k]==='yes')points++;});
+ if(q.maxPrice!==''){if(amounts.unknown.length)unknown.push('Vollständiger Preis');if(amounts.total>+q.maxPrice)failed.push('Unterkunftsbudget');}
+ if(q.maxDrive!==''){if(o.drive==null)unknown.push('Fahrzeit');else if(o.drive>+q.maxDrive)failed.push('Fahrzeit');}
+ if(q.minRating!==''){if(o.rating==null)unknown.push('Bewertung');else if(o.rating<+q.minRating)failed.push('Bewertung');}
+ if(q.type&&o.type!==q.type)failed.push('Unterkunftsart');if(q.provider&&o.provider!==q.provider)failed.push('Anbieter');
+ if(q.destination.trim()&&!String(o.location).toLocaleLowerCase('de').includes(q.destination.trim().toLocaleLowerCase('de')))failed.push('Suchort');
+ if(o.availability==='unavailable')failed.push('Nicht verfügbar');
+ if(q.onlyCurrent&&(!offerCurrent(o,t)||o.availability!=='available'))failed.push('Zeitraum / Verfügbarkeit');
+ if(q.onlyFavorites&&!o.favorite)failed.push('Merkliste');
+ return {amounts,failed,unknown,points,possible,match:failed.length===0&&unknown.length===0};
+}
+function filteredOffers(t,q){return (t.offers||[]).map(o=>({o,e:offerEvaluation(o,t,q)})).filter(x=>x.e.match).sort((a,b)=>q.sort==='price'?a.e.amounts.total-b.e.amounts.total:q.sort==='drive'?(a.o.drive==null?Infinity:a.o.drive)-(b.o.drive==null?Infinity:b.o.drive):q.sort==='rating'?(b.o.rating==null?-1:b.o.rating)-(a.o.rating==null?-1:a.o.rating):b.e.points-a.e.points||a.e.amounts.unknown.length-b.e.amounts.unknown.length||a.e.amounts.total-b.e.amounts.total);}
+function validateOffer(o){
+ if(!o||typeof o!=='object'||!/^o[a-z0-9]+$/i.test(o.id)||typeof o.name!=='string'||!o.name.trim()||o.name.length>160||typeof o.location!=='string'||!o.location.trim()||o.location.length>160||!PROVIDERS.some(p=>p.id===o.provider)||!['hotel','fewo','pension','other'].includes(o.type))throw new Error('Angebotsname, Ort, Anbieter und Unterkunftsart prüfen.');
+ if(!pd(o.start)||!pd(o.end)||pd(o.end)<=pd(o.start)||!Number.isInteger(+o.persons)||+o.persons<1||+o.persons>20)throw new Error('Angebotszeitraum und Personen prüfen.');
+ if(!['stay','night','person','personNight'].includes(o.basis)||o.price==null||o.price===''||!Number.isFinite(+o.price)||+o.price<0||+o.price>1e7)throw new Error('Preis und Preisbasis prüfen.');
+ if(!safeOfferUrl(o.url)||!pd(o.checkedAt)||o.validUntil&&!pd(o.validUntil)||o.validUntil&&o.validUntil<o.checkedAt)throw new Error('HTTPS-Quelle, Prüfdatum und Gültigkeit prüfen.');
+ if(!['unknown','available','unavailable'].includes(o.availability)||typeof o.terms!=='string'||o.terms.length>4000)throw new Error('Verfügbarkeit oder Bedingungen ungültig.');
+ for(const k of Object.keys(FEATURES))if(!['yes','no','unknown'].includes((o.features||{})[k]))throw new Error('Angebotsmerkmale ungültig.');
+ for(const k of Object.keys(FEES)){const f=(o.fees||{})[k];if(!f||!['included','extra','unknown'].includes(f.state)||f.state==='extra'&&(!Number.isFinite(+f.amount)||f.amount==null||f.amount===''||+f.amount<0||+f.amount>1e7))throw new Error('Gebühren prüfen: '+FEES[k]);}
+ for(const k of ['paid','deposit'])if(o[k]==null||!Number.isFinite(+o[k])||+o[k]<0||+o[k]>1e9)throw new Error('Zahlungswerte prüfen.');
+ if(o.drive!=null&&(!Number.isFinite(+o.drive)||+o.drive<0||+o.drive>10000)||o.rating!=null&&(!Number.isFinite(+o.rating)||+o.rating<0||+o.rating>10))throw new Error('Fahrzeit oder Bewertung prüfen.');
+ if(+o.paid>offerAmounts(o).total)throw new Error('Bezahlt übersteigt die erfassten Kosten.');
+ return o;
+}
+function validateSearch(s){
+ if(!s||s.version!==1||typeof s.destination!=='string'||s.destination.length>160||!Array.isArray(s.must)||!Array.isArray(s.wish)||[...s.must,...s.wish].some(k=>!FEATURES[k])||!Array.isArray(s.providers)||s.providers.some(id=>!PROVIDERS.some(p=>p.id===id)))throw new Error('Suchprofil ungültig.');
+ for(const k of ['maxPrice','maxDrive','minRating'])if(s[k]!==''&&(!Number.isFinite(+s[k])||+s[k]<0||+s[k]>1e9||k==='minRating'&&+s[k]>10))throw new Error('Suchfilter ungültig.');
+ if(!['match','price','drive','rating'].includes(s.sort)||!['','hotel','fewo','pension','other'].includes(s.type)||s.provider&&!PROVIDERS.some(p=>p.id===s.provider))throw new Error('Sortierung oder Anbieter ungültig.');
+ return s;
+}
+function validateExtras(t){
+ if(t.schemaVersion!=null&&t.schemaVersion!==2)throw new Error('Unbekannte Reiseversion.');
+ if(t.search)validateSearch(t.search);
+ if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
+ if(t.searchProfiles!=null){if(!Array.isArray(t.searchProfiles)||t.searchProfiles.length>30)throw new Error('Zu viele Profile.');t.searchProfiles.forEach(p=>{if(!p||typeof p.name!=='string'||p.name.length>80||!/^p[a-z0-9]+$/i.test(p.id))throw new Error('Profil ungültig.');validateSearch(p.filters)});}
+}
+function activeOffer(t){const o=(t.offers||[]).find(o=>o.id===t.activeOfferId);return o&&o.stayId===t.stayId?o:null;}
+function filterInput(k,label,value,type,extra){return '<label class="fld"><span>'+label+'</span><input data-search="'+k+'" type="'+(type||'text')+'" value="'+esc(value)+'" '+(extra||'')+'></label>';}
+function optionList(options,value){return options.map(([id,label])=>'<option value="'+esc(id)+'"'+(String(value)===String(id)?' selected':'')+'>'+esc(label)+'</option>').join('');}
+function searchSelect(k,label,opts,value){return '<label class="fld"><span>'+label+'</span><select data-search="'+k+'">'+optionList(opts,value)+'</select></label>';}
+function tSuche(t){
+ const q=searchState(t),all=t.offers||[],matches=filteredOffers(t,q),comp=all.filter(o=>o.compare),today=new Date().toISOString().slice(0,10);
+ return '<section class="block finder-hero"><span class="eyebrow">Euer persönlicher Reisefinder</span><h2>Ein Wunsch. Viele Möglichkeiten.</h2><p class="lead">Sucht passend zu euch, sammelt konkrete Angebote und entscheidet mit einem gemeinsamen Vergleich.</p><div class="row"><span class="badge">'+esc(rangeText(t))+'</span><span class="badge">'+t.persons+' Personen</span><span class="badge">Reisebudget '+eur(t.budget)+'</span></div></section>'+
+ '<section class="block"><div class="between"><h2>1 · Was muss eure Unterkunft können?</h2><button class="btn ghost sm" data-search-act="reset">Filter zurücksetzen</button></div><div class="panel"><div class="form">'+filterInput('destination','Ort / Region (enthält)',q.destination)+filterInput('maxPrice','Unterkunft: maximal gesamt (€)',q.maxPrice,'number','min="0"')+filterInput('maxDrive','Fahrzeit einfach: maximal Minuten',q.maxDrive,'number','min="0"')+filterInput('minRating','Bewertung mindestens (0–10)',q.minRating,'number','min="0" max="10" step="0.1"')+searchSelect('type','Unterkunftsart',[['','Alle'],['hotel','Hotel'],['fewo','Ferienwohnung'],['pension','Pension'],['other','Andere']],q.type)+searchSelect('provider','Angebote dieses Anbieters',[['','Alle'],...PROVIDERS.map(p=>[p.id,p.name])],q.provider)+searchSelect('sort','Sortieren nach',[['match','Persönlicher Passung'],['price','Bekannten Kosten'],['drive','Fahrzeit'],['rating','Bewertung']],q.sort)+'</div><p class="small muted">Muss = nur bestätigte Merkmale. Wunsch = verbessert die Passung. Unbekannte Merkmale erfüllen kein Muss. Filter gelten für eure erfassten Angebote; auf Anbieter-Websites bitte erneut einstellen.</p><div class="criteria">'+Object.entries(FEATURES).map(([k,label])=>'<label class="fld"><span>'+label+'</span><select data-criterion="'+k+'">'+optionList([['any','Egal'],['wish','Wunsch'],['must','Muss']],q.must.includes(k)?'must':q.wish.includes(k)?'wish':'any')+'</select></label>').join('')+'</div><div class="row"><label><input type="checkbox" data-search="onlyFavorites"'+(q.onlyFavorites?' checked':'')+'> Nur Merkliste</label><label><input type="checkbox" data-search="onlyCurrent"'+(q.onlyCurrent?' checked':'')+'> Nur passender Zeitraum & erfasste Verfügbarkeit</label></div></div></section>'+
+ '<section class="block"><h2>2 · Auf euren Lieblingsseiten suchen</h2><p class="small muted">Suchlinks öffnen den Anbieter. Es werden hier keine Live-Preise oder Verfügbarkeiten abgerufen. CHECK24 und Holidu öffnen die Startseite; dort Ort, Datum und Belegung selbst einstellen. Linkparameter können sich ändern: alle Suchdaten auf der Zielseite kontrollieren.</p><div class="row">'+PROVIDERS.filter(p=>p.mode!=='manual').map(p=>'<label><input type="checkbox" data-provider="'+p.id+'"'+(q.providers.includes(p.id)?' checked':'')+'> '+p.name+'</label>').join('')+'</div><div class="grid">'+PROVIDERS.filter(p=>q.providers.includes(p.id)).map(p=>'<article class="card"><span class="eyebrow">'+(p.mode==='portal'?'Anbieter-Startseite':'Vorbereiteter Suchlink')+'</span><h3>'+p.name+'</h3><p class="small">'+esc(q.destination||'Ort noch offen')+' · '+t.persons+' Personen</p><a class="btn ghost" target="_blank" rel="noopener noreferrer" href="'+esc(providerUrl(p,t,q))+'">Beim Anbieter öffnen ↗</a></article>').join('')+'</div><details class="panel"><summary>Suchauftrag zum Kopieren</summary><textarea readonly rows="6">'+esc(searchBrief(t,q))+'</textarea></details></section>'+
+ '<section class="block"><h2>3 · Eure individuellen Suchprofile</h2><div class="row"><button class="btn ghost sm" data-search-act="preset" data-value="wellness">Wellness & Ruhe</button><button class="btn ghost sm" data-search-act="preset" data-value="budget">FeWo & Ausflüge</button><button class="btn ghost sm" data-search-act="preset" data-value="flex">Flexibel & Komfort</button></div><div class="form"><label class="fld"><span>Name für euren aktuellen Filter</span><input id="profile-name" maxlength="80" placeholder="Zum Beispiel: Bianca & Philipp – Winter"></label><button class="btn" data-search-act="profile-save">Profil speichern</button></div><div class="row">'+(t.searchProfiles||[]).map(p=>'<span class="profile-chip"><button class="btn ghost sm" data-search-act="profile-load" data-value="'+p.id+'">'+esc(p.name)+'</button><button class="btn ghost sm" aria-label="Profil '+esc(p.name)+' löschen" data-search-act="profile-delete" data-value="'+p.id+'">✕</button></span>').join('')+'</div></section>'+
+ '<section class="block"><div class="between"><h2>4 · Konkrete Angebote sammeln</h2><button class="btn" data-search-act="offer-new">+ Angebot erfassen</button></div><p class="small muted">'+matches.length+' passende von '+all.length+' erfassten Angeboten. Preisangaben beziehen sich auf die im Angebot gespeicherten Personen und Daten. „Verfügbar“ und „geprüft“ stammen aus eurer Erfassung, nicht aus einer Live-Abfrage.</p>'+(matches.length?'<div class="grid wide">'+matches.map(x=>offerCard(t,x.o,x.e,today)).join('')+'</div>':'<div class="empty"><b>'+ (all.length?'Kein Angebot erfüllt alle Filter.':'Eure Vergleichsliste ist noch leer.')+'</b><span>Erfasst ein Angebot vom Anbieter oder prüft die Muss-Kriterien. Die Vorgaben werden nicht automatisch gelockert.</span></div>')+(all.length&&!matches.length?'<details class="panel"><summary>Warum passen die Angebote nicht?</summary>'+all.map(o=>{const e=offerEvaluation(o,t,q);return '<p><b>'+esc(o.name)+'</b>: '+esc([...e.failed,...e.unknown.map(s=>s+' unbekannt')].join(' · '))+'</p>'}).join('')+'</details>':'')+'</section>'+
+ '<section class="block"><h2>5 · Direkt vergleichen</h2><p class="small muted">Markiert bis zu vier Angebote. Unterschiedliche Zeiträume und Belegungen sind ausdrücklich gekennzeichnet. Bekannte Unterkunftskosten allein sind kein Gesamtpreis der Reise.</p>'+comparisonTable(t,comp)+'</section>'+
+ '<section class="block"><h2>Eine kreative Abkürzung</h2><div class="grid"><article class="card"><h3>FeWo + Thermentag</h3><p>Küche nutzen, einen besonderen Wellness-Tag einplanen. Zusätzliche Fahrt, Eintritt und Parken als eigene Posten erfassen.</p></article><article class="card"><h3>Nachbarort statt Hotspot</h3><p>Im Nachbarort wohnen und gezielt ausfliegen. Preisvorteile erst nach Fahrtkosten, Maut und Parkplatz vergleichen.</p></article><article class="card"><h3>Ruhe als Programmpunkt</h3><p>Ein Highlight, freie Nachmittage und ein Plan B für Regen. Schneesport bleibt optional; Schnee ist nicht garantiert.</p></article></div></section>'+
+ '<section class="block"><h2>Eure Daten gehören euch</h2><p>Suchprofile, Angebote, Merkliste und Zahlungsangaben sind in der Reise-Sicherung enthalten. Lokale Sicherungspunkte helfen bei Änderungen, ersetzen aber keine heruntergeladene Sicherung.</p><div class="row"><button class="btn" data-search-act="backup">Alle Reisen als Datei sichern</button><button class="btn ghost" data-search-act="history">Lokale Sicherungspunkte</button></div><p class="small muted">Keine automatische Synchronisation zwischen Geräten. Eine Sicherungsdatei kann private Notizen und Angebotslinks enthalten.</p>'+(Store.historyError?'<p role="alert">Lokale Sicherungspunkte konnten nicht gespeichert werden. Bitte eine Datei herunterladen.</p>':'')+'</section>';
+}
+function applyOffer(t,o){
+ validateOffer(o);if(!offerCurrent(o,t)||o.availability==='unavailable')throw new Error('Zeitraum, Personen, Gültigkeit oder Verfügbarkeit passen nicht.');
+ const old=activeOffer(t);if((t.check&&t.check.stay||old&&old.booked)&&t.activeOfferId!==o.id)throw new Error('Gebuchte Unterkunft zuerst prüfen.');
+ resetStay(t);const sid=o.stayId||uid('s');o.stayId=sid;t.customStays=t.customStays||[];
+ const stay={id:sid,custom:true,name:o.name,ort:o.location,priceNight:offerAmounts(o).base/offerAmounts(o).nights,sauna:o.features.sauna==='yes',kitchen:o.features.kitchen==='yes',breakfast:o.features.breakfast==='yes',card:false,url:o.url};
+ const i=t.customStays.findIndex(s=>s.id===sid);if(i<0)t.customStays.push(stay);else t.customStays[i]=stay;t.stayId=sid;t.stayQuote=null;t.activeOfferId=o.id;
+ return t;
+}
+function offerForecast(t,o){if(!offerCurrent(o,t)||o.availability==='unavailable')return null;const x=clone(t);x.check={};x.activeOfferId=null;x.offers=[clone(o)];const y=x.offers[0];applyOffer(x,y);const c=cost(x);return {total:c.total,open:openCosts(x),remaining:Math.max(0,c.total-Number(o.paid)),deposit:Number(o.deposit)};}
+function offerFinance(t){const o=activeOffer(t);if(!o)return '';const a=offerAmounts(o);return '<section class="block"><h2>Unterkunft: Buchung & Zahlungen</h2><p>'+esc(o.name)+' · '+(o.booked?'Extern gebucht laut Erfassung':'Keine Buchung erfasst')+'</p><dl class="facts"><dt>Bekannte Kosten</dt><dd>'+eur(a.total)+'</dd><dt>Bezahlt</dt><dd>'+eur(o.paid)+'</dd><dt>Noch zu zahlen</dt><dd>'+eur(Math.max(0,a.total-o.paid))+(a.unknown.length?' + offene Gebühren':'')+'</dd><dt>Kaution separat</dt><dd>'+eur(o.deposit)+'</dd></dl><p class="small muted">Bezahlte Beträge bleiben Reisekosten. Zahlungen anderer Reiseposten sind hier noch nicht erfasst. Kaution ist zusätzlicher Geldbedarf, keine Reiseausgabe.</p><button class="btn ghost sm" data-search-act="offer-edit" data-value="'+o.id+'">Zahlungen / Tarif bearbeiten</button></section>';}
+function searchBrief(t,q){return 'Ort / Region: '+q.destination+'\nZeitraum: '+rangeText(t)+' · '+t.persons+' Personen\nReisebudget: '+eur(t.budget)+'; Unterkunftslimit: '+(q.maxPrice===''?'offen':eur(+q.maxPrice))+'\nMuss: '+(q.must.map(k=>FEATURES[k]).join(', ')||'keine')+'\nWünsche: '+(q.wish.map(k=>FEATURES[k]).join(', ')||'keine')+'\nFahrzeit maximal: '+(q.maxDrive===''?'offen':q.maxDrive+' Minuten')+'\nBitte Gesamtpreis, Gebühren, Stornierung, Tarif, genaue Belegung, Quelle und Verfügbarkeit prüfen.';}
+function offerCard(t,o,e){const a=e.amounts,current=offerCurrent(o,t),forecast=offerForecast(t,o);return '<article class="card"><div class="between"><span class="eyebrow">'+esc((PROVIDERS.find(p=>p.id===o.provider)||{}).name)+'</span><span class="badge">'+(o.booked?'Buchung erfasst':o.favorite?'♥ Merkliste':'Angebot erfasst')+'</span></div><h3>'+esc(o.name)+'</h3><p>'+esc(o.location)+'</p><p class="small">'+esc(o.start)+' – '+esc(o.end)+' · '+o.persons+' Personen</p><div class="price num">'+eur(a.total)+'</div><p class="small">'+(a.unknown.length?'Bekannte Kosten · offen: '+esc(a.unknown.join(', ')):'Erfasster Unterkunfts-Gesamtpreis')+'</p>'+ (forecast?'<p class="small"><b>Reise mit diesem Angebot: ≈ '+eur(forecast.total)+'</b> · Planwert'+(forecast.total>t.budget?' über Budget':' · offene Kosten prüfen')+'</p>':'')+'<p class="small">'+e.points+'/'+e.possible+' Wünsche erfüllt · '+(current?'Zeitraum / Belegung passen':'Anderer Zeitraum, andere Belegung oder Gültigkeit abgelaufen')+'</p><p class="small muted">Geprüft laut Erfassung: '+esc(o.checkedAt)+' · '+({unknown:'Verfügbarkeit unbestätigt',available:'Verfügbarkeit als gegeben erfasst',unavailable:'Nicht verfügbar'}[o.availability])+'</p><div class="row"><a class="btn ghost sm" href="'+esc(safeOfferUrl(o.url))+'" target="_blank" rel="noopener noreferrer">Quelle ↗</a><button class="btn ghost sm" data-search-act="offer-edit" data-value="'+o.id+'">Details / Bearbeiten</button><button class="btn ghost sm" data-search-act="favorite" data-value="'+o.id+'">'+(o.favorite?'♥ Gemerkt':'♡ Merken')+'</button><button class="btn ghost sm" data-search-act="compare" data-value="'+o.id+'">'+(o.compare?'✓ Im Vergleich':'+ Vergleichen')+'</button><button class="btn ghost sm" data-search-act="offer-use" data-value="'+o.id+'">Für Planung auswählen</button></div></article>';}
+function comparisonTable(t,offers){if(!offers.length)return '<div class="empty">Noch kein Angebot zum Vergleich markiert.</div>';const rows=[['Zeitraum',o=>o.start+' – '+o.end+' · '+o.persons+' Personen'],['Passend zur Reise',o=>offerCurrent(o,t)?'Ja':'Nein / abgelaufen'],['Bekannte Kosten',o=>eur(offerAmounts(o).total)],['Reise mit diesem Angebot',o=>{const f=offerForecast(t,o);return f?'≈ '+eur(f.total)+' (Planwert)':'Nicht vergleichbar';}],['Offene Gebühren',o=>offerAmounts(o).unknown.join(', ')||'Keine laut Erfassung'],['Sauna / Wellness',o=>featureLabel(o,'sauna')],['Küche',o=>featureLabel(o,'kitchen')],['Frühstück',o=>featureLabel(o,'breakfast')],['Stornierung',o=>featureLabel(o,'cancel')],['Fahrzeit einfach',o=>o.drive==null?'Unbekannt':o.drive+' Minuten'],['Bewertung',o=>o.rating==null?'Unbekannt':o.rating+'/10'],['Bereits bezahlt',o=>eur(o.paid)],['Noch zu zahlen',o=>eur(Math.max(0,offerAmounts(o).total-o.paid))+(offerAmounts(o).unknown.length?' + offene Gebühren':'')],['Kaution separat',o=>eur(o.deposit)],['Prüfdatum',o=>o.checkedAt],['Bedingungen',o=>o.terms||'Nicht erfasst']];return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kriterium</th>'+offers.map(o=>'<th>'+esc(o.name)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(([label,fn])=>'<tr><th>'+label+'</th>'+offers.map(o=>'<td>'+esc(fn(o))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
+function featureLabel(o,k){return {yes:'Ja, laut Erfassung',no:'Nein',unknown:'Unbekannt'}[(o.features||{})[k]]||'Unbekannt';}
+function offerSheet(t,id){
+ const old=(t.offers||[]).find(o=>o.id===id);UI.offerDraft=clone(old||{id:uid('o'),name:'',location:searchState(t).destination,provider:'booking',type:'hotel',start:t.start,end:t.end,persons:t.persons,price:'',basis:'stay',url:'',checkedAt:new Date().toISOString().slice(0,10),validUntil:'',availability:'unknown',features:Object.fromEntries(Object.keys(FEATURES).map(k=>[k,'unknown'])),fees:Object.fromEntries(Object.keys(FEES).map(k=>[k,{state:'unknown',amount:''}])),terms:'',drive:null,rating:null,paid:0,deposit:0,booked:false});
+ const o=UI.offerDraft,inp=(k,label,type,extra)=>'<label class="fld"><span>'+label+'</span><input data-offer="'+k+'" type="'+(type||'text')+'" value="'+esc(o[k]==null?'':o[k])+'" '+(extra||'')+'></label>',sel=(k,label,opts)=>'<label class="fld"><span>'+label+'</span><select data-offer="'+k+'">'+optionList(opts,o[k])+'</select></label>';
+ openSheet('<h2>'+(old?'Angebot bearbeiten':'Konkretes Angebot erfassen')+'</h2><p class="small">Übernehmt den tatsächlich angezeigten Tarif. Gebühren nur als inklusive markieren, wenn der Anbieter das bestätigt. Zusätzliche Gebühren immer als Gesamtbetrag für alle Personen und den Aufenthalt.</p><div class="form">'+inp('name','Unterkunft / Tarif','text','maxlength="160"')+inp('location','Ort / Region','text','maxlength="160"')+sel('provider','Quelle / Anbieter',PROVIDERS.map(p=>[p.id,p.name]))+sel('type','Art',[['hotel','Hotel'],['fewo','Ferienwohnung'],['pension','Pension'],['other','Andere']])+inp('start','Anreise','date')+inp('end','Abreise','date')+inp('persons','Personen','number','min="1" max="20"')+inp('price','Preis (€)','number','min="0" step="0.01"')+sel('basis','Preisbasis',[['stay','Gesamter Aufenthalt'],['night','Pro Nacht / Unterkunft'],['person','Pro Person / Aufenthalt'],['personNight','Pro Person / Nacht']])+inp('url','Konkreter Angebotslink (HTTPS)','url')+inp('checkedAt','Beim Anbieter geprüft am','date')+inp('validUntil','Gültig bis (optional)','date')+sel('availability','Verfügbarkeit laut Anbieter',[['unknown','Unbestätigt'],['available','Als verfügbar angezeigt'],['unavailable','Nicht verfügbar']])+inp('drive','Fahrzeit einfach (Minuten, optional)','number','min="0"')+inp('rating','Bewertung (auf 0–10 umgerechnet)','number','min="0" max="10" step="0.1"')+'</div><h3>Merkmale des gewählten Tarifs</h3><div class="criteria">'+Object.entries(FEATURES).map(([k,label])=>'<label class="fld"><span>'+label+'</span><select data-offer-feature="'+k+'">'+optionList([['unknown','Unbekannt'],['yes','Bestätigt ja'],['no','Nein']],o.features[k])+'</select></label>').join('')+'</div><h3>Gebühren ohne Doppelzählung</h3>'+Object.entries(FEES).map(([k,label])=>'<div class="form"><label class="fld"><span>'+label+'</span><select data-offer-fee="'+k+'">'+optionList([['unknown','Noch offen'],['included','Inklusive / entfällt'],['extra','Zusätzlich']],o.fees[k].state)+'</select></label><label class="fld"><span>Zusätzlicher Gesamtbetrag (€)</span><input type="number" min="0" step="0.01" data-offer-amount="'+k+'" value="'+esc(o.fees[k].amount)+'"></label></div>').join('')+'<label class="fld"><span>Tarif, Leistungen, Stornofrist, Einschränkungen</span><textarea data-offer="terms" maxlength="4000" rows="4">'+esc(o.terms)+'</textarea></label><h3>Buchung & Zahlungen</h3><p class="small">Hier dokumentiert ihr eine bereits extern erfolgte Buchung. Die App bucht und bezahlt nichts. Kautionen zählen separat zum Geldbedarf.</p><div class="form">'+inp('paid','Bereits bezahlt (€)','number','min="0" step="0.01"')+inp('deposit','Zusätzlicher Kautionsbedarf (€)','number','min="0" step="0.01"')+'</div><label><input type="checkbox" data-offer="booked"'+(o.booked?' checked':'')+'> Extern gebucht</label><div class="row"><button class="btn" data-search-act="offer-save">Angebot speichern</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button>'+(old?'<button class="btn ghost" data-search-act="offer-delete" data-value="'+o.id+'">Entfernen …</button>':'')+'</div><p id="offer-error" role="alert"></p>');
+}
+function historySheet(){let history;try{history=JSON.parse(localStorage.getItem('rp-history')||'[]');if(!Array.isArray(history))throw new Error('Ungültige Sicherungspunkte');}catch(e){alertMsg('Sicherungspunkte konnten nicht gelesen werden.');return;}UI.history=history;openSheet('<h2>Lokale Sicherungspunkte</h2><p>Die letzten fünf vorherigen Speicherstände dieses Browsers. Ladet einen Stand herunter und importiert ihn danach mit der vorhandenen Konfliktprüfung. Es wird nichts direkt überschrieben.</p>'+history.map((h,i)=>'<p>'+esc(h.at)+' <button class="btn ghost sm" data-search-act="history-download" data-value="'+i+'">Als Datei herunterladen</button></p>').join('')+(history.length?'':'<p>Noch keine Sicherungspunkte vorhanden.</p>'));}
+document.addEventListener('change',e=>{
+ const el=e.target,t=cur();if(!t||Store.corruptRaw!==null)return;
+ if(el.hasAttribute('data-search')||el.hasAttribute('data-criterion')||el.hasAttribute('data-provider')){const q=searchState(t),k=el.getAttribute('data-search');if(k){q[k]=el.type==='checkbox'?el.checked:el.value;}const c=el.getAttribute('data-criterion');if(c){q.must=q.must.filter(k=>k!==c);q.wish=q.wish.filter(k=>k!==c);if(el.value==='must')q.must.push(c);if(el.value==='wish')q.wish.push(c);}const p=el.getAttribute('data-provider');if(p)q.providers=el.checked?[...new Set([...q.providers,p])]:q.providers.filter(id=>id!==p);try{validateSearch(q);t.search=q;t.schemaVersion=2;save(t);render();}catch(err){alertMsg(err.message);}return;}
+ const o=UI.offerDraft;if(!o)return;
+ const k=el.getAttribute('data-offer');if(k){o[k]=el.type==='checkbox'?el.checked:['persons','price','drive','rating','paid','deposit'].includes(k)?(el.value===''?null:Number(el.value)):el.value;}
+ const f=el.getAttribute('data-offer-feature');if(f)o.features[f]=el.value;
+ const fee=el.getAttribute('data-offer-fee');if(fee)o.fees[fee].state=el.value;
+ const amt=el.getAttribute('data-offer-amount');if(amt)o.fees[amt].amount=el.value===''?null:Number(el.value);
+});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-search-act]');if(!b)return;e.preventDefault();const act=b.getAttribute('data-search-act'),id=b.getAttribute('data-value'),t=cur();if(!t||Store.corruptRaw!==null)return;
+ try{
+ if(act==='backup'){downloadBackup(Store.list());return;}
+ if(act==='history'){historySheet();return;}
+ if(act==='history-download'){const h=UI.history[+id];if(h)downloadText(JSON.stringify(backupData(Object.values(JSON.parse(h.raw))),null,2),'Reiseplaner-Sicherungspunkt.json','application/json');return;}
+ if(act==='offer-new'||act==='offer-edit'){offerSheet(t,id);return;}
+ if(act==='offer-save'){const o=validateOffer(UI.offerDraft);t.offers=t.offers||[];const i=t.offers.findIndex(x=>x.id===o.id);if(i<0){if(t.offers.length>=200)throw new Error('Maximal 200 Angebote je Reise.');t.offers.push(clone(o));}else t.offers[i]=clone(o);t.schemaVersion=2;closeSheet();}
+ if(act==='reset')t.search=searchDefaults(t);
+ if(act==='preset'){const q=searchDefaults(t);if(id==='wellness'){q.must=['sauna'];q.wish=['quiet','breakfast'];q.type='hotel';}if(id==='budget'){q.must=['kitchen'];q.wish=['parking','quiet'];q.type='fewo';}if(id==='flex'){q.must=['cancel'];q.wish=['sauna','breakfast'];}t.search=q;}
+ if(act==='profile-save'){const name=($('#profile-name').value||'').trim();if(!name)throw new Error('Bitte einen Profilnamen eingeben.');t.searchProfiles=t.searchProfiles||[];if(t.searchProfiles.length>=30)throw new Error('Maximal 30 Profile.');t.searchProfiles.push({id:uid('p'),name,filters:clone(searchState(t))});}
+ if(act==='profile-load'){const p=(t.searchProfiles||[]).find(x=>x.id===id);if(p)t.search=clone(p.filters);}
+ if(act==='profile-delete')t.searchProfiles=(t.searchProfiles||[]).filter(p=>p.id!==id);
+ const o=(t.offers||[]).find(x=>x.id===id);
+ if(act==='favorite'&&o)o.favorite=!o.favorite;
+ if(act==='compare'&&o){if(!o.compare&&(t.offers||[]).filter(x=>x.compare).length>=4)throw new Error('Vergleicht maximal vier Angebote gleichzeitig.');o.compare=!o.compare;}
+ if(act==='offer-delete'&&o){if(o.booked||t.activeOfferId===o.id)throw new Error('Gebuchte oder ausgewählte Angebote bleiben geschützt. Zuerst Buchungsstatus prüfen bzw. eine andere Unterkunft auswählen.');openSheet('<h2>Angebot entfernen?</h2><p>'+esc(o.name)+' wird aus dieser Reise entfernt.</p><button class="btn" data-search-act="offer-delete-yes" data-value="'+o.id+'">Ja, entfernen</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button>');return;}
+ if(act==='offer-delete-yes'&&o){if(o.booked||t.activeOfferId===o.id)throw new Error('Dieses Angebot ist geschützt.');t.offers=t.offers.filter(x=>x.id!==id);closeSheet();}
+ if(act==='offer-use'&&o){if(t.check&&t.check.stay&&t.activeOfferId!==o.id)throw new Error('Eine gebuchte Unterkunft ist markiert. Erst Buchungsstand im Bereich Unterkunft prüfen.');if(!offerCurrent(o,t)||o.availability==='unavailable')throw new Error('Zeitraum, Personen, Gültigkeit oder Verfügbarkeit passen nicht.');openSheet('<h2>Für die Planung auswählen?</h2><p>'+esc(o.name)+' · '+eur(offerAmounts(o).total)+' bekannte Unterkunftskosten. '+esc(offerAmounts(o).unknown.join(', '))+'</p><p>Das ersetzt die Unterkunft in eurer Kostenplanung. Es wird keine Buchung ausgelöst.</p><button class="btn" data-search-act="offer-use-yes" data-value="'+o.id+'">Unterkunft auswählen</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button>');return;}
+ if(act==='offer-use-yes'&&o){if(!offerCurrent(o,t)||o.availability==='unavailable'||t.check&&t.check.stay&&t.activeOfferId!==o.id)throw new Error('Auswahl nicht mehr zulässig.');applyOffer(t,o);closeSheet();}
+ t.schemaVersion=2;save(t);render();
+ }catch(err){const box=$('#offer-error');if(box)box.textContent=err.message;else alertMsg(err.message);}
+});
+
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={applyType,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
@@ -1203,3 +1351,4 @@ try{if(typeof navigator!=='undefined'&&navigator.serviceWorker&&typeof location!
 </script>
 
 </body></html>
+

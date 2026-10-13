@@ -165,7 +165,45 @@ async function run(browser, base, name, ctxOpts, now) {
     await noOverflow(p, name + ' Reiter ' + tab);
   }
 
-  /* Übersicht: laufende Reisen nicht als vorbei */
+  /* Suchzentrale: Anbieterlinks, Muss/Wunsch, Profile, Angebot, Vergleich und Zahlungen. */
+  await p.click('.tab[data-go$="-suche"]');
+  assert((await viewText(p)).includes('Airbnb') && (await viewText(p)).includes('CHECK24'), name + ': Anbieter fehlen');
+  await p.fill('[data-search="destination"]', 'Oberjoch');
+  await p.press('[data-search="destination"]', 'Tab');
+  const booking = await p.getAttribute('a[href*="booking.com/searchresults"]', 'href');
+  assert(booking.includes('checkin=2027-05-01') && booking.includes('group_adults=2'), name + ': Anbieterparameter');
+  await p.fill('#profile-name', 'Unser Profil');
+  await p.click('[data-search-act="profile-save"]');
+  assert((await viewText(p)).includes('Unser Profil'), name + ': Profil nicht gespeichert');
+  await p.click('[data-search-act="offer-new"]');
+  for (const [field, value] of [['name','Finder Testhotel'], ['location','Oberjoch'], ['price','480'], ['url','https://www.booking.com/test'], ['paid','100'], ['deposit','150']]) {
+    await p.fill('[data-offer="' + field + '"]', value);
+  }
+  await p.selectOption('[data-offer="availability"]', 'available');
+  await p.selectOption('[data-offer-feature="sauna"]', 'yes');
+  for (const fee of ['tax','cleaning','parking','wellness','mandatory']) await p.selectOption('[data-offer-fee="' + fee + '"]', fee === 'cleaning' ? 'extra' : 'included');
+  await p.fill('[data-offer-amount="cleaning"]', '40');
+  await p.click('[data-search-act="offer-save"]');
+  assert((await viewText(p)).includes('Finder Testhotel') && (await viewText(p)).includes('520 €'), name + ': Angebotsbetrag');
+  await p.click('[data-search-act="favorite"]');
+  await p.click('[data-search-act="compare"]');
+  assert((await viewText(p)).includes('420 €'), name + ': Restzahlung im Vergleich');
+  await noOverflow(p, name + ' Suchzentrale und Vergleich');
+  await p.selectOption('[data-criterion="kitchen"]', 'must');
+  assert((await viewText(p)).includes('Kein Angebot erfüllt alle Filter'), name + ': unbekannte Küche erfüllt Muss');
+  await p.selectOption('[data-criterion="kitchen"]', 'any');
+  await p.click('[data-search-act="offer-use"]');
+  await p.click('[data-search-act="offer-use-yes"]');
+  await p.click('.tab[data-go$="-kosten"]');
+  assert((await viewText(p)).includes('Unterkunft: Buchung & Zahlungen') && (await viewText(p)).includes('420 €'), name + ': Zahlungsansicht fehlt');
+  await p.click('.tab[data-go$="-suche"]');
+  await p.click('[data-search-act="history"]');
+  assert((await p.textContent('.sheet')).includes('Als Datei herunterladen'), name + ': Sicherungspunkte fehlen');
+  await p.click('[data-act="sheet-x"]');
+  await p.reload();
+  assert((await viewText(p)).includes('Finder Testhotel') && (await viewText(p)).includes('Unser Profil'), name + ': Finder nach Neuladen verloren');
+
+  /* Übersicht: laufende Reise nicht als vorbei */
   await p.click('[data-go="reisen"] >> nth=0');
   const list = await viewText(p);
   assert(list.includes('unterwegs · Tag 2 von 6') && list.includes('unterwegs · Tag 2 von 5') && !list.includes('vorbei'), name + ': Status in der Übersicht');
@@ -254,3 +292,4 @@ async function offline(browser, base) {
   if (errors.length) { console.error('JavaScript-Fehler:\n' + errors.join('\n')); process.exit(1); }
   console.log('Browser-Klicktest (Chromium: Desktop, Mobilbreite, 320 px dunkel) bestanden.');
 })().catch(e => { console.error(e); process.exit(1); });
+

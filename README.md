@@ -29,12 +29,28 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 - Offline-Start und App-Icon (Service Worker, Manifest)
 - Packliste ergänzt sich aus den geplanten Unternehmungen (z. B. Bademantel für die Sauna, Grödel für die Klamm)
 
+## Reisefinder (v2.0)
+
+In jeder Reise gibt es den Reiter **Reisefinder**:
+
+1. Ort, Unterkunftslimit, Fahrzeit, Bewertung und Unterkunftsart eingeben; Merkmale als **Muss**, **Wunsch** oder **Egal** markieren.
+2. Booking, Airbnb und FeWo-direkt über vorbereitete Suchlinks öffnen; CHECK24 und Holidu über ihre Startseiten. Suchdaten dort kontrollieren. Die App ruft keine Live-Angebote ab.
+3. Eigene Filter benennen und speichern, oder Wellness/Ruhe, FeWo/Ausflüge und Flexibel/Komfort als Startpunkt verwenden.
+4. Tatsächlich gefundene Angebote mit Zeitraum, Personen, Preisbasis, Quelle, Prüfdatum, Gebühren, Verfügbarkeit und Tarifbedingungen erfassen.
+5. Angebote merken, bis zu vier vergleichen und eine Unterkunft bewusst in die Kostenplanung übernehmen. Das löst keine Buchung aus.
+
+Unbekannte Merkmale erfüllen kein Muss. Offene Pflichtgebühren erfüllen kein Preislimit. Angebot und Bezahlung sind getrennt: bereits bezahlte Beträge bleiben Reisekosten, Kautionen stehen separat. Der Vergleich verwendet dieselbe Kostenfunktion wie der Planer; die restlichen Reiseausgaben bleiben Planwerte.
+
+**Sicherung:** Format v2 enthält auch Angebote und Profile; v1-Dateien werden beim Import aufwärts migriert. Alte Programme können v2-Dateien nicht importieren. Fünf lokale vorherige Speicherstände können als Sicherungsdatei heruntergeladen und kontrolliert importiert werden. Bei einem erkannten neueren Stand aus einer anderen Browseransicht wird das Schreiben blockiert; offene eigene Änderungen exportieren und neu laden. Das ist keine atomare Mehrbenutzersynchronisation. Browser löschen/Zurücksetzen kann auch diese lokalen Kopien entfernen.
+
+Anbieterzugänge, Quellen und nächste Integrationsschritte: [docs/PROVIDER_INTEGRATION.md](docs/PROVIDER_INTEGRATION.md).
+
 ## Wichtige Grenzen
 
 - Reisekosten sind zunächst **Planwerte**, kein bestätigter Gesamtpreis. Fehlende Pflichtkosten werden als offen angezeigt.
 - Die Daten liegen im Browser-Speicher des jeweiligen Geräts. Es gibt **keine automatische Synchronisation** zwischen PC und Handy. Nutze den Export für Sicherungen und den manuellen Transfer.
 - Der ältere optionale `window.claude`-Speicherpfad ist eine Altfunktion und kein zugesagter Cloud-Dienst.
-- Browser-Klicktests und ein echter iPhone-Test stehen noch aus. Die vorhandenen Node-Prüfungen ersetzen sie nicht.
+- Frühere Browserprüfungen sind im Status dokumentiert. Für den neuen Finder ist der Klicktest erweitert; sein aktuelles CI-Ergebnis steht bei GitHub Actions. Ein echter iPhone-/Safari-Test steht aus.
 - Keine Buchung, Zahlung oder Anbieteranfrage wird durch die App ausgelöst.
 
 ## Prüfen
@@ -61,3 +77,4 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | `AGENTS.md` | Arbeitsregeln für künftige Coding-KIs |
 
 Beiträge und Fehlerberichte sind willkommen. Bitte keine privaten Reisepläne, Buchungsnummern oder exportierten Sicherungsdateien ins öffentliche Repository stellen. Eine Open-Source-Lizenz wurde noch nicht festgelegt.
+
