@@ -20,6 +20,8 @@ v1.5: Unterwegs-Ansicht (heute/morgen), laufende Reise nicht mehr als „vorbei�
 Kalenderexport (.ics, grobe Zeitfenster, vorläufig) und Text zum Teilen. Kein neues Speicherfeld.
 v1.6: Plan B bei schlechtem Wetter (Indoor-Ideen passend zu Datum/Katalogregeln), Offline-Start per Service Worker
 (nur über http/https, Netz zuerst), App-Icon und Manifest für den Homescreen. Browser-Klicktest im Repo.
+v1.7: Packliste aus dem Plan (Mitbringsel der geplanten Unternehmungen). Spartipps: keine Unterkunft ohne Sauna
+empfehlen, wenn Sauna in der Unterkunft geplant ist; kein „frei mit PLUS“ ohne bestätigte Gästekarte.
 Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell und bezahlte/offene Beträge.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,7 +212,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.6</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.7</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -515,6 +517,10 @@ function checklist(t){
   groups.push(['Buchen & Anfragen',book]);
   const pack=PACK[t.type]||PACK.standard;
   Object.keys(pack).forEach(g=>groups.push(['Packliste: '+g,pack[g].map(x=>['p-'+x,x,''])]));
+  const have=new Set([].concat(...Object.values(pack))),need={},maxDay=daysOf(t).length-1;
+  sortedItems(t).forEach(it=>{const a=actOf(t,it.act);if(!a||it.day>maxDay)return;(a.bring||[]).forEach(x=>{if(have.has(x))return;(need[x]=need[x]||new Set()).add(a.t)})});
+  const extra=Object.keys(need);
+  if(extra.length) groups.push(['Packliste: für eure Unternehmungen',extra.map(x=>['p-'+x,x,'für: '+[...need[x]].join(', ')])]);
   if(t.type==='winter') groups.push(['Kurz vorher',[['snow','Schneebericht und Straßenlage checken','ab 3 Tage vorher'],['open','Öffnungszeiten über die Feiertage prüfen','']]]);
   groups.push(['Eigene Punkte',(t.customChecks||[]).map(c=>['c-'+c.id,c.t,'',c.id])]);
   return groups;
@@ -903,13 +909,14 @@ function tKosten(t){
 function savingTips(t){
   const base=cost(t).total, out=[], st=stayOf(t), pl=placeOf(t);
   const tryT=(label,fn)=>{const c=clone(t);if(fn(c)===false)return;const s=base-cost(c).total;if(s>=5)out.push({t:label,save:s,fn})};
-  if(pl){const cheapest=STAYS.filter(s=>s.place===t.place&&(s.kitchen||!(t.items||[]).some(i=>actOf(t,i.act)&&actOf(t,i.act).kitchen))).sort((a,b)=>a.plan-b.plan)[0];
+  const needs=k=>(t.items||[]).some(i=>actOf(t,i.act)&&actOf(t,i.act)[k]);
+  if(pl){const cheapest=STAYS.filter(s=>s.place===t.place&&(s.kitchen||!needs('kitchen'))&&(s.sauna||!needs('needSauna'))).sort((a,b)=>a.plan-b.plan)[0];
     if(cheapest&&st&&cheapest.id!==st.id&&!num(t.stayQuote,0)) tryT('Günstigste passende Unterkunft: '+cheapest.name,c=>{resetStay(c);c.stayId=cheapest.id})}
   const kurs=sortedItems(t).filter(i=>actOf(t,i.act)&&actOf(t,i.act).kurs);
   if(kurs.length>=2) tryT('Nur 1 Kurstag statt '+kurs.length+' (Rest als Übungstag)',c=>{const last=kurs[kurs.length-1];c.items=c.items.filter(i=>i.uid!==last.uid);const ue=Object.values(ACTS).find(a=>a.pass&&a.place===t.place);if(ue&&!c.items.some(i=>i.act===ue.id))c.items.push({uid:uid('i'),act:ue.id,day:last.day,slot:'morgen'})});
   const swap=(from,to,label)=>{if((t.items||[]).some(i=>i.act===from)&&ACTS[to])tryT(label,c=>{c.items.forEach(i=>{if(i.act===from)i.act=to})})};
   swap('oj-kristall','oj-wsauna','Wonnemar-Sauna statt Kristall-Therme');
-  swap('oj-wsauna','oj-wbad','Wonnemar-Bad (mit PLUS frei) statt Saunawelt');
+  swap('oj-wsauna','oj-wbad','Wonnemar-Bad'+(st&&t.cardConfirmed===true?' (mit bestätigter Gästekarte frei)':'')+' statt Saunawelt');
   if(!st||st.kitchen){swap('silv-menu','silv-raclette','Raclette in der Wohnung statt Silvestermenü');swap('silv-huette','silv-raclette','Raclette in der Wohnung statt Hütten-Silvester')}
   if(t.food!=='selbst'&&(!st||st.kitchen)) tryT('Mehr selbst kochen statt auswärts essen',c=>{c.food='selbst'});
   if(pl&&pl.onlineRent&&t.online===false) tryT('Verleih online buchen (−10 %)',c=>{c.online=true});

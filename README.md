@@ -27,6 +27,7 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 - Reisemappe: kompakte Zusammenfassung zum Drucken oder Speichern als PDF, Kalenderdatei (`.ics`) für den Tagesplan und Kurzfassung als Text zum Teilen. Notizen werden nur auf ausdrücklichen Wunsch aufgenommen
 - Plan B bei schlechtem Wetter: Indoor-Ideen aus dem Katalog, die zum Datum passen, zum Beispiel unter Beachtung von Wochentag und Feiertagsöffnung
 - Offline-Start und App-Icon (Service Worker, Manifest)
+- Packliste ergänzt sich aus den geplanten Unternehmungen (z. B. Bademantel für die Sauna, Grödel für die Klamm)
 
 ## Wichtige Grenzen
 

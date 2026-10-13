@@ -146,6 +146,8 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="pkg-ask"] >> nth=0');
   await p.click('[data-act="pkg-apply"]');
   assert(/-plan$/.test(p.url()), name + ': Angebot nicht übernommen');
+  await p.click('.tab[data-go$="-check"]');
+  assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packliste aus dem Plan fehlt');
   for (const tab of ['ueber', 'angebote', 'unterkunft', 'unternehmen', 'plan', 'kosten', 'check', 'notiz', 'mappe']) {
     await p.click('.tab[data-go$="-' + tab + '"]');
     await noOverflow(p, name + ' Reiter ' + tab);

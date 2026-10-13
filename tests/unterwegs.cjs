@@ -99,3 +99,37 @@ if (firstWarn >= 0) assert(all.slice(firstWarn).every(x => x.warn));
 assert.deepEqual(a.rainIdeas(r, 99), []);
 assert.deepEqual(a.rainIdeas(a.newTrip(), 0), []);
 console.log('Plan B bei schlechtem Wetter geprüft.');
+
+/* Packliste aus dem Plan: Mitbringsel der geplanten Unternehmungen, ohne Dubletten zur Grundliste */
+const pk = a.silvesterTemplate();
+pk.items = [{ uid: 'a', act: 'oj-wsauna', day: 1, slot: 'nachm' }, { uid: 'b', act: 'oj-klamm', day: 2, slot: 'morgen' }, { uid: 'c', act: 'oj-klamm', day: 3, slot: 'morgen' }, { uid: 'd', act: 'oj-rodeln', day: 40, slot: 'nachm' }];
+const grp = a.checklist(pk).find(g => g[0] === 'Packliste: für eure Unternehmungen');
+assert(grp, 'Gruppe fehlt');
+const texts = grp[1].map(i => i[1]);
+assert(texts.includes('Bademantel, 2 Handtücher') && texts.includes('Grödel oder Spikes'));
+assert(!texts.includes('Schlappen'), 'Schlappen stehen schon in der Winter-Grundliste');
+assert(!texts.includes('Wasserdichte Handschuhe'), 'Punkt nach dem letzten Reisetag zählt nicht');
+assert.equal(texts.filter(x => x === 'Grödel oder Spikes').length, 1);
+assert(grp[1].find(i => i[1] === 'Grödel oder Spikes')[2].includes('Breitachklamm'));
+pk.items = [];
+assert(!a.checklist(pk).some(g => g[0] === 'Packliste: für eure Unternehmungen'));
+console.log('Packliste aus dem Plan geprüft.');
+
+/* Spartipps empfehlen keine Unterkunft, die dem Plan widerspricht (Sauna/Küche) */
+for (const pl of Object.keys(a.PLACES)) {
+  const needSauna = Object.values(a.ACTS).filter(x => x.needSauna && (x.place === '*' || x.place.split('|').includes(pl)));
+  const kitchen = Object.values(a.ACTS).filter(x => x.kitchen && (x.place === '*' || x.place.split('|').includes(pl)));
+  for (const st of a.STAYS.filter(s => s.place === pl)) {
+    for (const act of needSauna.concat(kitchen)) {
+      const tt = a.newTrip({ catalog: 'allgaeu', place: pl, stayId: st.id, dateMode: 'fix', start: '2026-12-30', end: '2027-01-03', items: [{ uid: '1', act: act.id, day: 1, slot: 'abend' }] });
+      const conflictsBefore = a.checks(tt).filter(x => /Sauna|Küche/.test(x[1])).length;
+      a.savingTips(tt).forEach(tip => {
+        const c = JSON.parse(JSON.stringify(tt)); tip.fn(c);
+        assert(a.checks(c).filter(x => /Sauna|Küche/.test(x[1])).length <= conflictsBefore, pl + '/' + st.id + ': Tipp „' + tip.t + '“ erzeugt Konflikt');
+      });
+    }
+  }
+}
+const wb = a.newTrip({ catalog: 'allgaeu', place: 'oberjoch', stayId: 'oj-haug', items: [{ uid: '1', act: 'oj-wsauna', day: 1, slot: 'nachm' }] });
+assert(!a.savingTips(wb).some(x => x.t.includes('frei')), 'Gratis-Versprechen ohne bestätigte Gästekarte');
+console.log('Spartipps ohne Sauna-/Küchenkonflikt und ohne unbestätigte Gratis-Versprechen geprüft.');
