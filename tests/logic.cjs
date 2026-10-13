@@ -3,7 +3,7 @@ const vm = require('vm');
 const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-code = code.replace("go(location.hash||'reisen',true);", '').replace('Store.connect();', '');
+code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 const context = {
   window: { addEventListener() {} },
   document: { addEventListener() {}, querySelector() { return null; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild() {} } },
@@ -60,4 +60,19 @@ assert.throws(() => a.validateBackup({ ...copy, version: 99 }));
 assert.throws(() => a.validateBackup({ ...copy, trips: [sample, sample] }));
 assert.throws(() => a.validateBackup({ ...copy, trips: [{ ...sample, budget: -1 }] }));
 assert.throws(() => a.validateBackup({ ...copy, trips: [{ ...sample, start: '2026-02-30' }] }));
-console.log('21 Prüfungen erfolgreich: Grundlogik, Export, Import, Konflikte und ungültige Daten.');
+let stored='{beschädigt', writes=0;
+context.localStorage.getItem=()=>stored;
+context.localStorage.setItem=(_key,value)=>{writes++;stored=value};
+context.localStorage.removeItem=()=>{stored=null};
+a.Store.loadLocal();
+assert.equal(a.Store.corruptRaw,'{beschädigt');
+assert.equal(a.Store.saveLocal(),false);
+assert.equal(stored,'{beschädigt');
+assert.equal(writes,0); // Kein neuer Schreibzugriff auf die beschädigten Rohdaten.
+assert.equal(a.Store.resetCorrupt(),true);
+assert.equal(a.Store.corruptRaw,null);
+assert.equal(stored,null);
+assert.equal(a.Store.saveLocal(),true);
+assert.equal(writes,1);
+console.log('Speicherfehler: Rohdaten bleiben erhalten, Schreibsperre und explizites Zurücksetzen geprüft.');
+console.log('Grundlogik, Export, Import, Konflikte und ungültige Daten geprüft.');

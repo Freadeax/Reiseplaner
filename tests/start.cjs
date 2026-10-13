@@ -5,3 +5,7 @@ const ctx={window:{addEventListener(){},scrollTo(){}},location:{hash:''},history
 vm.createContext(ctx);vm.runInContext(s,ctx);
 if(!els['#view'].innerHTML.includes('Meine Reisen'))throw new Error('Startansicht leer');
 console.log('Startansicht mit',els['#view'].innerHTML.length,'Zeichen aufgebaut');
+ctx.localStorage.getItem=()=>'{kaputt';
+ctx.window.__app.Store.loadLocal();
+ctx.window.__app.render();
+if(!els['#view'].innerHTML.includes('Rohdaten sichern')||!els['#view'].innerHTML.includes('nicht überschrieben'))throw new Error('Hinweis zur Datenrettung fehlt');

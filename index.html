@@ -1,13 +1,13 @@
 <!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Reiseplaner</title>
-<!-- Entwicklungsstand 1.3 · 13.10.2026
+<!-- Entwicklungsstand 1.4 · 13.10.2026
 Grundlage: bereitgestellte Reiseplaner(1).html. Bestehender Speicherschlüssel rp-trips bleibt erhalten.
 Neu: explizite Gästekartenbestätigung, gemeinsames Top-Leistungs-Tageslimit,
 volle Reisedauer, datumsgebundenes Silvester, manuelle Strecke, offene Kosten,
 Zurücksetzen unterkunftsgebundener Angaben, Speicherfehleranzeige, Eingabeprüfungen.
 Manueller JSON-Export für einzelne/alle Reisen und Import mit Prüfung/Vorschau;
 bei ID-Konflikt nur überspringen oder zusätzliche Kopie, nie überschreiben.
-21 Logikprüfungen und Startansicht in Node erfolgreich. Kein Browser-/iPhone-Test: Browserbinary nicht verfügbar.
+Logik- und Startansicht-Prüfungen in Node erfolgreich. Kein Browser-/iPhone-Test: Browserbinary nicht verfügbar.
 Dateivorschau der ChatGPT-iPhone-App zeigt die Kopfzeile, führt die interaktive Oberfläche offenbar nicht zuverlässig aus.
 Statische Lade-/Fehlermeldung hinzugefügt. Privates Hosting vorbereitet, Veröffentlichung wegen Netzwerkproxy-Fehler offen.
 Keine Anbieterrecherche durchgeführt. Katalogangaben bleiben unbestätigt.
@@ -15,7 +15,8 @@ Offen: konkrete Angebote mit Gebühren/Preisbasen; Import bestehender Altdateien
 Zahlungen und Kaution; genaue Termine und Reisezeiten; vollständige Quellennachweise;
 Saisonprüfung der Vorlagen; Tarife bei >5 Verleihtagen; gemeinsame Nutzung mit Zugriffsschutz.
 Lokaler Browser-Speicher ist keine Gerätesynchronisation. Bestehende Claude-DB-Anbindung unverändert.
-Nächster Schritt: konkretes Angebots-/Kostenmodell und Sicht auf bezahlte/offene Beträge.
+v1.4: beschädigter lokaler Speicher wird nicht überschrieben; Rohdaten-Download und bewusstes Zurücksetzen.
+Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell und bezahlte/offene Beträge.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -192,7 +193,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.3</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.4</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -519,6 +520,10 @@ function newTrip(o){
 }
 /* Dateisicherung: nur Daten, kein ausführbarer Code. Importe überschreiben nie bestehende Reisen. */
 const BACKUP_FORMAT='reiseplaner-backup', BACKUP_VERSION=1;
+function downloadText(content,name,type){
+  const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
 function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(clone)}}
 function validateBackup(raw){
   if(!raw||raw.format!==BACKUP_FORMAT||raw.version!==BACKUP_VERSION||!Array.isArray(raw.trips))throw new Error('Keine unterstützte Reiseplaner-Sicherung.');
@@ -544,8 +549,7 @@ function importTrips(raw,conflictMode){
   return added;
 }
 function downloadBackup(trips){
-  const blob=new Blob([JSON.stringify(backupData(trips),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='Reiseplaner-Sicherung-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  downloadText(JSON.stringify(backupData(trips),null,2),'Reiseplaner-Sicherung-'+new Date().toISOString().slice(0,10)+'.json','application/json');
 }
 function silvesterTemplate(){
   const t=newTrip({title:'Silvester im Schnee',type:'winter',status:'planung',dateMode:'fix',start:'2026-12-30',end:'2027-01-03',budget:1500,catalog:'allgaeu',
@@ -554,9 +558,22 @@ function silvesterTemplate(){
 }
 
 /* ================= Speicher ================= */
-const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},
-  loadLocal(){try{const s=JSON.parse(localStorage.getItem('rp-trips')||'{}');if(s&&typeof s==='object'&&!Array.isArray(s))this.trips=s;else throw new Error('Ungültige gespeicherte Reisen')}catch(e){this.localError=true;setSync('storage-error');}},
-  saveLocal(){try{localStorage.setItem('rp-trips',JSON.stringify(this.trips));this.localError=false;}catch(e){this.localError=true;setSync('storage-error');}},
+const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},corruptRaw:null,
+  loadLocal(){
+    let raw;
+    try{raw=localStorage.getItem('rp-trips');const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');this.trips=s;this.corruptRaw=null}
+    catch(e){this.trips={};this.localError=true;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
+  },
+  saveLocal(){
+    if(this.corruptRaw!==null){this.localError=true;setSync('storage-error');return false}
+    try{localStorage.setItem('rp-trips',JSON.stringify(this.trips));this.localError=false;return true}
+    catch(e){this.localError=true;setSync('storage-error');return false}
+  },
+  resetCorrupt(){
+    if(this.corruptRaw===null)return false;
+    try{localStorage.removeItem('rp-trips');this.corruptRaw=null;this.trips={};this.localError=false;setSync('local');return true}
+    catch(e){this.localError=true;setSync('storage-error');return false}
+  },
   list(){return Object.values(this.trips).sort((a,b)=>(a.start||a.month||'9999').localeCompare(b.start||b.month||'9999'))},
   get(id){return this.trips[id]||null},
   put(t,now){t.updated=Date.now();this.trips[t.id]=t;this.saveLocal();if(this.mode!=='db')return;clearTimeout(this.timers[t.id]);this.timers[t.id]=setTimeout(()=>this.flush(t.id),now?0:700)},
@@ -607,7 +624,8 @@ function vReisen(){
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
     (cd!=null?'<p class="small"><b>'+(cd>0?'noch '+cd+' Tage':cd===0?'heute geht’s los':'vorbei')+'</b></p>':'')+
     '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+'</button>'};
-  return '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
+  return (Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
+   '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button>'+(list.some(t=>t.title==='Silvester im Schnee')?'':'<button type="button" class="btn ghost" data-act="tpl-silvester">Vorlage: Silvester im Schnee 26/27</button>')+'</div></section>'+
    '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit der Silvester-Vorlage.</span></div>')+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
@@ -888,6 +906,13 @@ document.addEventListener('click',async e=>{
   const g=e.target.closest('[data-go]'); if(g){e.preventDefault();UI.confirm=null;go(g.getAttribute('data-go'));return}
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.getAttribute('data-act'), val=b.getAttribute('data-val'), t=cur();
+  if(act==='corrupt-download'&&Store.corruptRaw!==null){downloadText(Store.corruptRaw,'Reiseplaner-Rohdaten-'+new Date().toISOString().slice(0,10)+'.txt','text/plain;charset=utf-8');return}
+  if(act==='corrupt-confirm'&&Store.corruptRaw!==null){UI.confirm='corrupt-reset';render();return}
+  if(act==='corrupt-cancel'){UI.confirm=null;render();return}
+  if(act==='corrupt-reset'&&UI.confirm==='corrupt-reset'){
+    if(Store.resetCorrupt()){UI.confirm=null;render();alertMsg('Lokaler Speicher zurückgesetzt.')}else alertMsg('Zurücksetzen fehlgeschlagen. Die Rohdaten bleiben erhalten.');return;
+  }
+  if(Store.corruptRaw!==null){alertMsg('Änderungen gesperrt: Bitte zuerst die Rohdaten sichern.');return}
   if(act==='backup-all'){downloadBackup(Store.list());return}
   if(act==='import-open'){$('#import-file').click();return}
   if(act==='import-skip'||act==='import-copy'){
@@ -959,6 +984,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('change',e=>{
   const el=e.target, t=cur();
+  if(Store.corruptRaw!==null)return;
   if(el.id==='import-file'){
     const file=el.files&&el.files[0];el.value='';if(!file)return;
     if(file.size>5*1024*1024){alertMsg('Sicherung ist zu groß (maximal 5 MB).');return}
@@ -973,6 +999,7 @@ document.addEventListener('change',e=>{
   if(t){setField(t,f,el.value);save(t);if(f!=='notes')render()}
 });
 document.addEventListener('input',e=>{
+  if(Store.corruptRaw!==null)return;
   const el=e.target, f=el.getAttribute('data-f'), t=cur(); if(!f) return;
   if(el.closest('#draft')){setField(UI.draft,f,el.value);return}
   if(el.closest('#editform')){setField(UI.edit,f,el.value);return}
@@ -989,7 +1016,7 @@ function toast(b,m){alertMsg(m)}
 Store.loadLocal();
 window.__app={backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
-Store.connect();
+if(Store.corruptRaw===null)Store.connect();
 })();
 </script>
 

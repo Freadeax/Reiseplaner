@@ -21,6 +21,7 @@ Dann `http://localhost:8000` im Browser öffnen. Eine Dateivorschau innerhalb de
 - Tagesplan, Kostenübersicht, Pack- und Buchungscheckliste
 - Eigene Unterkunft, Aktivität und Kostenposten ergänzen
 - Einzelne oder alle Reisen als JSON-Datei sichern und ohne stilles Überschreiben wieder importieren
+- Bei beschädigten lokalen Speicherdaten wird das Schreiben gesperrt; Rohdaten lassen sich vor einem bewussten Zurücksetzen herunterladen
 - Heller und dunkler Modus je nach Geräteeinstellung
 
 ## Wichtige Grenzen
@@ -39,7 +40,7 @@ Node.js ab Version 20 genügt; es gibt keine Laufzeit-Abhängigkeiten:
 npm test
 ```
 
-Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatte, Kosten, Sicherungsdateien und den Aufbau der Startansicht ab.
+Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatte, Kosten, Sicherungsdateien, beschädigten Browser-Speicher und den Aufbau der Startansicht ab.
 
 ## Projektstruktur
 
