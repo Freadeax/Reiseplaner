@@ -49,6 +49,7 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | `tests/` | Logik- und Startprüfungen |
 | `docs/STATUS.md` | Bestätigter Stand und bekannte Grenzen |
 | `docs/ROADMAP.md` | Nächste Entwicklungsschritte |
+| `docs/COLLABORATION.md` | Abstimmung und sicheres Arbeiten zu dritt auf `main` |
 | `AGENTS.md` | Arbeitsregeln für künftige Coding-KIs |
 
 Beiträge und Fehlerberichte sind willkommen. Bitte keine privaten Reisepläne, Buchungsnummern oder exportierten Sicherungsdateien ins öffentliche Repository stellen. Eine Open-Source-Lizenz wurde noch nicht festgelegt.
