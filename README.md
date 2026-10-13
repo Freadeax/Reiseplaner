@@ -23,6 +23,8 @@ Dann `http://localhost:8000` im Browser öffnen. Eine Dateivorschau innerhalb de
 - Einzelne oder alle Reisen als JSON-Datei sichern und ohne stilles Überschreiben wieder importieren
 - Bei beschädigten lokalen Speicherdaten wird das Schreiben gesperrt; Rohdaten lassen sich vor einem bewussten Zurücksetzen herunterladen
 - Heller und dunkler Modus je nach Geräteeinstellung
+- Unterwegs-Ansicht: Während einer Reise mit festem Datum zeigt der Überblick, was heute und morgen geplant ist
+- Reisemappe: kompakte Zusammenfassung zum Drucken oder Speichern als PDF, Kalenderdatei (`.ics`) für den Tagesplan und Kurzfassung als Text zum Teilen. Notizen werden nur auf ausdrücklichen Wunsch aufgenommen
 
 ## Wichtige Grenzen
 
@@ -40,7 +42,7 @@ Node.js ab Version 20 genügt; es gibt keine Laufzeit-Abhängigkeiten:
 npm test
 ```
 
-Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatte, Kosten, Sicherungsdateien, beschädigten Browser-Speicher und den Aufbau der Startansicht ab.
+Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatte, Kosten, Sicherungsdateien, beschädigten Browser-Speicher, Reisephasen, Kalenderexport und den Aufbau der Startansicht ab.
 
 ## Projektstruktur
 

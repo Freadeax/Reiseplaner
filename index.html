@@ -16,6 +16,8 @@ Zahlungen und Kaution; genaue Termine und Reisezeiten; vollständige Quellennach
 Saisonprüfung der Vorlagen; Tarife bei >5 Verleihtagen; gemeinsame Nutzung mit Zugriffsschutz.
 Lokaler Browser-Speicher ist keine Gerätesynchronisation. Bestehende Claude-DB-Anbindung unverändert.
 v1.4: beschädigter lokaler Speicher wird nicht überschrieben; Rohdaten-Download und bewusstes Zurücksetzen.
+v1.5: Unterwegs-Ansicht (heute/morgen), laufende Reise nicht mehr als „vorbei“, Reisemappe mit Druck/PDF,
+Kalenderexport (.ics, grobe Zeitfenster, vorläufig) und Text zum Teilen. Kein neues Speicherfeld.
 Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell und bezahlte/offene Beträge.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,12 +190,25 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .dock .sum{font-family:var(--f-display);font-weight:700;font-size:1.4rem;white-space:nowrap}
 .dock .nm{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
 .dock .bar{flex:1}
+.facts{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0}
+.facts dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.facts dd{margin:0}
+.mdays{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.mday{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+@media print{
+  :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--bg:#fff;--surface:#fff;--surface-2:#f1f1f1;--surface-3:#e4e4e4;--ink:#000;--muted:#444;--line:#bbb;--spruce:#1E4D59;--spruce-soft:#eef3f5;--ok:#2C7A4B;--warn:#7a5210;--bad:#B8352B;--blue:#000;color-scheme:light}
+  body{background:#fff;color:#000;font-size:12pt}
+  .top,.tabs,.dock,#sheet-root,#msg,.noprint,.lnk{display:none!important}
+  .wrap{max-width:none;padding:0}
+  section.block{padding-block:10px}
+  .mday,.facts,tr{break-inside:avoid}
+}
 .empty{border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
 </style>
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.4</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.5</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -386,7 +401,6 @@ function rangeText(t){
   if(t.dateMode==='flex'){const m=t.month?MONTHS[+t.month.slice(5,7)-1]+' '+t.month.slice(0,4):'Zeitraum offen';return m+' · '+nightsOf(t)+' Nächte (flexibel)'}
   return 'Datum noch offen · '+nightsOf(t)+' Nächte geplant';
 }
-function countdown(t){if(t.dateMode!=='fix')return null;const a=pd(t.start);if(!a)return null;const now=new Date();const today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());return Math.round((a-today)/864e5)}
 const placeOf=t=>t.catalog==='allgaeu'?PLACES[t.place]||null:null;
 function stayOf(t){if(!t.stayId)return null;return STAYS.find(s=>s.id===t.stayId)||(t.customStays||[]).find(s=>s.id===t.stayId)||null}
 function actOf(t,id){return ACTS[id]||(t.customActs||[]).find(a=>a.id===id)||null}
@@ -557,6 +571,78 @@ function silvesterTemplate(){
   return applyPkg(t,PKGS.find(p=>p.id==='oj-spar'));
 }
 
+/* ================= Unterwegs, Kalender & Reisemappe =================
+   Reine Ableitungen aus einer Reise. Kein neues Speicherfeld, rp-trips bleibt unverändert. */
+const SLOTTIME={morgen:['0900','1200'],mittag:['1200','1400'],nachm:['1400','1800'],abend:['1800','2200']};
+function todayUTC(now){now=now||new Date();return new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))}
+/* Phase einer Reise mit festem Datum: vor | unterwegs | nach. Ohne gültige Daten null. */
+function tripPhase(t,now){
+  if(t.dateMode!=='fix')return null;
+  const a=pd(t.start),b=pd(t.end);if(!a||!b||b<=a)return null;
+  const d=todayUTC(now);
+  if(d<a)return {phase:'vor',days:Math.round((a-d)/864e5)};
+  if(d>b)return {phase:'nach',days:Math.round((d-b)/864e5)};
+  return {phase:'unterwegs',day:Math.round((d-a)/864e5),of:daysOf(t).length};
+}
+function phaseText(ph){
+  if(!ph)return '';
+  if(ph.phase==='vor')return 'noch '+ph.days+(ph.days===1?' Tag':' Tage');
+  if(ph.phase==='nach')return 'vorbei';
+  if(ph.day===0)return 'heute geht’s los · Tag 1 von '+ph.of;
+  if(ph.day===ph.of-1)return 'Abreisetag · Tag '+ph.of+' von '+ph.of;
+  return 'unterwegs · Tag '+(ph.day+1)+' von '+ph.of;
+}
+function dayItems(t,i){return sortedItems(t).filter(it=>it.day===i&&actOf(t,it.act))}
+function actUrl(a){const u=a.link||(a.links&&a.links[0]&&a.links[0][1])||'';return /^https?:\/\//.test(u)?u:''}
+
+/* iCalendar (RFC 5545): Zeilenende CRLF, Sonderzeichen maskiert, Zeilen nach 75 Byte gefaltet. */
+function icsEsc(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
+function icsFold(line){
+  const out=[];let cur='',len=0;
+  for(const ch of line){const cp=ch.codePointAt(0),n=cp<0x80?1:cp<0x800?2:cp<0x10000?3:4;
+    if(len+n>(out.length?74:75)){out.push(cur);cur='';len=0}cur+=ch;len+=n}
+  out.push(cur);return out.join('\r\n ');
+}
+function icsData(t,now){
+  const a=pd(t.start),b=pd(t.end);
+  if(t.dateMode!=='fix'||!a||!b||b<=a)return null;
+  const days=daysOf(t),pl=placeOf(t),st=stayOf(t),where=pl?pl.name:(t.dest||'');
+  const stamp=(now||new Date()).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const dt=d=>iso(d).replace(/-/g,'');
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Reiseplaner//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:'+icsEsc(t.title)];
+  let events=0,skipped=0;
+  const ev=(id,props)=>{events++;L.push('BEGIN:VEVENT','UID:'+id+'@reiseplaner','DTSTAMP:'+stamp);props.filter(Boolean).forEach(p=>L.push(p));L.push('END:VEVENT')};
+  ev(t.id+'-reise',['DTSTART;VALUE=DATE:'+dt(a),'DTEND;VALUE=DATE:'+dt(new Date(b.getTime()+864e5)),'SUMMARY:'+icsEsc(t.title),
+    where?'LOCATION:'+icsEsc(where):'','DESCRIPTION:'+icsEsc('Unterkunft: '+(st?st.name:'noch offen')+'\nAus dem Reiseplaner exportiert. Planstand, keine Buchungsbestätigung.'),'TRANSP:TRANSPARENT']);
+  sortedItems(t).forEach(it=>{const x=actOf(t,it.act),d=days[it.day];if(!x)return;if(!d||!d.date){skipped++;return}
+    const w=SLOTTIME[it.slot]||SLOTTIME.nachm,u=actUrl(x);
+    ev(t.id+'-'+it.uid,['DTSTART:'+dt(d.date)+'T'+w[0]+'00','DTEND:'+dt(d.date)+'T'+w[1]+'00','SUMMARY:'+icsEsc(x.t),
+      (x.ort||where)?'LOCATION:'+icsEsc(x.ort||where):'',
+      'DESCRIPTION:'+icsEsc('Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.'+(x.dur?'\nDauer: '+x.dur:'')+(x.hours?'\nLaut Katalog (unbestätigt): '+x.hours:'')),
+      u?'URL:'+u:'','STATUS:TENTATIVE','TRANSP:TRANSPARENT'])});
+  L.push('END:VCALENDAR');
+  return {text:L.map(icsFold).join('\r\n')+'\r\n',events,skipped};
+}
+/* Kurzfassung als Text, z. B. für Messenger. Notizen nur auf ausdrücklichen Wunsch (Buchungsnummern). */
+function tripText(t,opts){
+  const o=opts||{},days=daysOf(t),pl=placeOf(t),st=stayOf(t),c=cost(t),L=[];
+  L.push(t.title,rangeText(t)+' · '+c.P+(c.P===1?' Person':' Personen'));
+  L.push('Ziel: '+(pl?pl.name:(t.dest||'noch offen')));
+  L.push('Unterkunft: '+(st?st.name+(st.ort?' ('+st.ort+')':''):'noch offen'));
+  L.push('','Tagesplan:');
+  let any=false;
+  days.forEach(d=>{const its=dayItems(t,d.i);if(!its.length)return;any=true;
+    L.push('• '+d.label+': '+its.map(it=>SLOTNAME[it.slot]+' '+actOf(t,it.act).t).join(' · '))});
+  if(!any)L.push('• noch nichts eingeplant');
+  const late=sortedItems(t).filter(it=>it.day>=days.length&&actOf(t,it.act)).length;
+  if(late)L.push('• '+late+' Punkt(e) liegen nach dem letzten Reisetag');
+  L.push('','Kosten (Planwert, kein bestätigter Preis): ≈ '+eur(c.total)+' gesamt · ≈ '+eur(c.total/c.P)+' pro Person');
+  const oc=openCosts(t);if(oc.length)L.push('Noch offen: '+oc.join(' · '));
+  if(o.notes&&String(t.notes||'').trim())L.push('','Notizen:',String(t.notes).trim());
+  return L.join('\n');
+}
+function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'Reise'}
+
 /* ================= Speicher ================= */
 const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},corruptRaw:null,
   loadLocal(){
@@ -603,7 +689,7 @@ document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout
 
 /* ================= Zustand & Routing ================= */
 const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
-const TABS=[['ueber','Überblick'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen']];
+const TABS=[['ueber','Überblick'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
 function go(h,keepScroll){
   h=(h||'').replace(/^#/,'');
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
@@ -619,10 +705,10 @@ function save(t,now){Store.put(t,now)}
 /* ================= Ansichten ================= */
 function vReisen(){
   const list=Store.list();
-  const card=t=>{const c=cost(t),cd=countdown(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
+  const card=t=>{const c=cost(t),ph=tripPhase(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
     return '<button type="button" class="card click" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3><p class="small muted">'+esc(rangeText(t))+'</p>'+
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
-    (cd!=null?'<p class="small"><b>'+(cd>0?'noch '+cd+' Tage':cd===0?'heute geht’s los':'vorbei')+'</b></p>':'')+
+    (ph?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
     '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+'</button>'};
   return (Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
    '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
@@ -655,10 +741,10 @@ function vNeu(){
   '<section class="block"><div class="panel" id="draft">'+tripForm(t,'d-')+'<div class="row"><button type="button" class="btn" data-act="create">Reise anlegen</button><button type="button" class="btn ghost" data-act="tpl-silvester">Stattdessen Silvester-Vorlage</button></div></div></section>';
 }
 function tripHead(t){
-  const c=cost(t),cd=countdown(t),b=num(t.budget,0);
-  return '<section class="block"><div class="between"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
+  const ph=tripPhase(t);
+  return '<section class="block'+(UI.tab==='mappe'?' noprint':'')+'"><div class="between noprint"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
-  (cd!=null&&cd>0?'<p class="muted">Noch <b>'+cd+' Tage</b> bis zur Abreise</p>':'')+'</section>'+
+  (ph&&ph.phase==='vor'?'<p class="muted">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p><b>'+esc(phaseText(ph))+'</b></p>':'')+'</section>'+
   '<nav class="tabs" aria-label="Bereiche">'+TABS.map(x=>{let n='';if(x[0]==='plan')n=(t.items||[]).length;if(x[0]==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
     return '<button type="button" class="tab" data-go="r-'+t.id+'-'+x[0]+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</nav>';
 }
@@ -669,7 +755,7 @@ function stackBar(c){
 function tUeber(t){
   const c=cost(t), b=num(t.budget,0), pl=placeOf(t), st=stayOf(t), ch=checks(t), pk=PKGS.find(p=>p.id===t.packageId);
   const open=[];checklist(t)[0][1].forEach(i=>{if(!(t.check&&t.check[i[0]]))open.push(i)});
-  return '<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
+  return todayBlock(t)+'<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
   '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+'</small></div>'+
   '<div class="kpi"><small>Dauer</small><b class="num">'+c.N+' Nächte</b><small>'+c.P+' Personen</small></div>'+
   '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
@@ -821,9 +907,48 @@ function tCheck(t){
 function tNotiz(t){
   return '<section class="block"><h2>Notizen</h2><p class="muted small">Ideen, Kontakte, Buchungsnummern. Wird automatisch gespeichert.</p><textarea data-f="notes" aria-label="Notizen">'+esc(t.notes)+'</textarea></section>';
 }
+/* Unterwegs: was heute und morgen ansteht, ohne Wischen durch den ganzen Plan */
+function dayList(t,d,last){
+  const its=dayItems(t,d.i),fixed=[];
+  if(d.i===0)fixed.push('Anreise ab '+(t.origin||'Start'));
+  if(d.i===last&&last>0)fixed.push('Packen & Abreise');
+  if(!its.length&&!fixed.length)return '<p class="muted small">Nichts eingeplant.</p>';
+  return '<ul class="plain">'+fixed.map(x=>'<li><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
+    return '<li><span class="eyebrow">'+esc(SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(a.hours?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(a.hours)+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
+}
+function todayBlock(t){
+  const ph=tripPhase(t);if(!ph||ph.phase!=='unterwegs')return '';
+  const days=daysOf(t),d=days[ph.day],next=days[ph.day+1],last=days.length-1;
+  return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+'</div>'+
+   (next?'<h3>Morgen · '+esc(next.label)+'</h3><div class="panel">'+dayList(t,next,last)+'</div>':'')+
+   '<div class="row"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-plan">Ganzer Tagesplan</button><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-mappe">Reisemappe</button></div></section>';
+}
+/* Reisemappe: druckbare Zusammenfassung, Kalenderdatei und Text zum Teilen */
+function tMappe(t){
+  const days=daysOf(t),pl=placeOf(t),st=stayOf(t),c=cost(t),ics=icsData(t),book=checklist(t)[0][1],warn=checks(t).filter(x=>x[0]==='warn'),last=days.length-1;
+  const keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
+  return '<section class="block noprint"><h2>Reisemappe</h2><p class="lead muted small">Alles Wichtige kompakt: zum Drucken oder Speichern als PDF, als Kalenderdatei oder als Text für den Messenger. Daten verlassen das Gerät nur, wenn ihr Datei oder Text selbst weitergebt.</p>'+
+   '<div class="row"><button type="button" class="btn sm" data-act="mappe-print">Drucken / PDF</button>'+
+   '<button type="button" class="btn ghost sm" data-act="mappe-ics"'+(ics?'':' disabled')+'>Kalender (.ics)</button>'+
+   '<button type="button" class="btn ghost sm" data-act="mappe-share">Als Text teilen</button></div>'+
+   (ics?'<p class="small muted">Kalender: '+ics.events+' Einträge. Zeitfenster sind grob (Vormittag 9–12, Mittag 12–14, Nachmittag 14–18, Abend 18–22 Uhr) und als vorläufig markiert.'+(ics.skipped?' '+ics.skipped+' Punkt(e) nach dem letzten Reisetag werden nicht exportiert.':'')+'</p>':'<p class="small muted">Kalenderexport nur mit festem An- und Abreisedatum möglich. Unter „Eckdaten“ einstellen.</p>')+
+   '<label class="small"><input type="checkbox" data-act="mappe-notes"'+(UI.mappeNotes?' checked':'')+'> Notizen in Mappe und Text aufnehmen (können Buchungsnummern enthalten)</label></section>'+
+   '<section class="block mappe"><span class="eyebrow">Reisemappe · Stand '+esc(fmtLong(todayUTC()))+'</span><h2>'+esc(t.title)+'</h2>'+
+   '<dl class="facts"><dt>Zeitraum</dt><dd>'+esc(rangeText(t))+'</dd><dt>Personen</dt><dd>'+c.P+'</dd><dt>Ziel</dt><dd>'+esc(pl?pl.name+' · '+pl.region:(t.dest||'noch offen'))+'</dd>'+
+   '<dt>Anreise</dt><dd>'+esc(({auto:'Auto',bahn:'Bahn'})[t.travel]||'Ticket')+(t.origin?' ab '+esc(t.origin):'')+'</dd>'+
+   '<dt>Unterkunft</dt><dd>'+(st?esc(st.name)+(st.ort?', '+esc(st.ort):'')+' · '+(num(t.stayQuote,0)>0?'Angebot '+eur(t.stayQuote):'nur Planwert'):'noch offen')+'</dd>'+
+   '<dt>Status</dt><dd>'+esc(STATUS[t.status]||'')+'</dd></dl></section>'+
+   '<section class="block mappe"><h3>Tagesplan</h3><div class="mdays">'+days.map(d=>'<div class="mday"><h4>'+esc(d.label)+(d.i===0?' · Anreise':d.i===last&&last>0?' · Abreise':'')+'</h4>'+dayList(t,d,last)+'</div>').join('')+'</div>'+
+   '<p class="small muted">Zeitfenster sind grob. Öffnungszeiten aus dem Katalog sind nicht für eure Daten geprüft.</p></section>'+
+   (warn.length?'<section class="block mappe"><h3>Hinweise aus dem Plan-Check</h3><ul class="plain">'+warn.map(x=>'<li>! '+esc(x[1])+'</li>').join('')+'</ul></section>':'')+
+   '<section class="block mappe"><h3>Kosten · Planwerte</h3><div class="tbl-wrap"><table><tbody>'+keys.map(k=>'<tr><td>'+esc(COSTCAT[k][0])+'</td><td class="r">'+eur(c.byCat[k])+'</td></tr>').join('')+
+   '<tr class="total"><td>Gesamt</td><td class="r">'+eur(c.total)+'</td></tr></tbody></table></div><p class="small">≈ '+eur(c.total/c.P)+' pro Person'+(num(t.budget,0)?' · Budget '+eur(t.budget):'')+'. Kein bestätigter Gesamtpreis.</p><p class="small muted">Noch offen: '+esc(openCosts(t).join(' · '))+'</p></section>'+
+   '<section class="block mappe"><h3>Buchungen & Anfragen</h3><ul class="plain">'+book.map(i=>{const done=!!(t.check&&t.check[i[0]]);return '<li>'+(done?'☑ erledigt: ':'☐ offen: ')+esc(i[1])+'</li>'}).join('')+'</ul></section>'+
+   (UI.mappeNotes&&String(t.notes||'').trim()?'<section class="block mappe"><h3>Notizen</h3><div class="copybox">'+esc(t.notes)+'</div></section>':'');
+}
 function vReise(){
   const t=cur(); if(!t) return vReisen();
-  const body={ueber:tUeber,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz}[UI.tab]||tUeber;
+  const body={ueber:tUeber,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
   return tripHead(t)+costNotice(t)+body(t);
 }
 function render(){
@@ -919,7 +1044,7 @@ document.addEventListener('click',async e=>{
     const added=importTrips(backupData(UI.importDraft),act==='import-skip'?'skip':'copy');UI.importDraft=null;closeSheet();render();alertMsg(added.length+' Reisen importiert. Bestehende Reisen blieben unverändert.');return;
   }
   const invalid=[...document.querySelectorAll('input[type=number]')].find(x=>x.value!==''&&!x.checkValidity());if(invalid){invalid.reportValidity();return;}
-  if(act==='check'||act==='online'||act==='card-confirm') return; /* über change */
+  if(act==='check'||act==='online'||act==='card-confirm'||act==='mappe-notes') return; /* über change */
   if(act==='sheet-bg'&&e.target!==b) return;
   if(act==='sheet-bg'||act==='sheet-x'){closeSheet();return}
   /* Entwurf / Eckdaten-Formular */
@@ -932,6 +1057,11 @@ document.addEventListener('click',async e=>{
   if(!t) return;
   switch(act){
    case 'backup-trip': downloadBackup([t]);return;
+   case 'mappe-print': try{window.print()}catch(err){alertMsg('Drucken wird hier nicht unterstützt. Bitte im Browser öffnen.')}return;
+   case 'mappe-ics':{const d=icsData(t);if(!d){alertMsg('Kalenderexport braucht feste Reisedaten.');return}downloadText(d.text,fileSafe(t.title)+'.ics','text/calendar;charset=utf-8');return}
+   case 'mappe-share':{const txt=tripText(t,{notes:!!UI.mappeNotes});
+     try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
+     try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
    case 'edit-trip': sheetEdit(t);return;
    case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>pd(o.start))){alertMsg('Bitte Anreise vor Abreise wählen.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;}Object.assign(t,o);save(t);closeSheet();render();return}
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
@@ -992,6 +1122,7 @@ document.addEventListener('change',e=>{
   }
   if(el.matches('[data-act="check"]')&&t){t.check=t.check||{};if(el.checked)t.check[el.getAttribute('data-val')]=true;else delete t.check[el.getAttribute('data-val')];save(t);render();return}
   if(el.matches('[data-act="card-confirm"]')&&t){t.cardConfirmed=el.checked;save(t);render();return}
+  if(el.matches('[data-act="mappe-notes"]')){UI.mappeNotes=el.checked;render();return}
   if(el.matches('[data-act="online"]')&&t){t.online=el.checked;save(t);render();return}
   const f=el.getAttribute('data-f'); if(!f) return;
   if(el.closest('#draft')){setField(UI.draft,f,el.value);if(['start','end','nights'].includes(f))render();return}
@@ -1014,7 +1145,7 @@ function toast(b,m){alertMsg(m)}
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 })();

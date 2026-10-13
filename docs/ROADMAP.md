@@ -8,4 +8,14 @@ Die Reihenfolge schützt zuerst Daten, Geld und Termine. Ein Punkt gilt erst nac
 4. **Allgemeiner Finder:** Kombinierbare Filter, Kandidatenvergleich und andere Regionen; unbekannte Merkmale nicht als Treffer darstellen.
 5. **Gemeinsame Nutzung:** Erst mit Benutzerkonten, serverseitiger Zugriffskontrolle, konfliktfester Synchronisation und Datenmigration. Browser-Speicher allein reicht dafür nicht.
 
+## Ideen außerhalb der Reihenfolge (Claude, 13.10.2026)
+
+Ergänzungen, die keine Daten gefährden; Umsetzung nach Absprache mit Philipp:
+
+- **Erledigt in 1.5:** Unterwegs-Ansicht, Reisemappe (Druck/PDF), Kalenderexport, Teilen-Text. Echte Gerätetests stehen aus.
+- **Anreisetag mit Uhrzeit:** optionale Abfahrts- und Check-in-Zeit, damit der Kalender und der Plan-Check echte Zeiten statt grober Fenster nutzen (braucht Speicherfeld, also Version + Migration).
+- **Wetterbedingte Alternativen:** pro Tag eine „Plan B“-Unternehmung (Indoor) markieren und in der Mappe mitdrucken.
+- **Reise-Rückblick:** Nach Status „Vorbei“ tatsächliche Ausgaben gegen Planwerte stellen und als Erfahrungswert für die nächste Reise vorschlagen (hängt am Kostenmodell aus Punkt 2).
+- **Offline-Fähigkeit:** Service Worker, damit die App unterwegs ohne Netz öffnet; Daten bleiben ohnehin lokal.
+
 Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und Gültigkeit. Vorlagen sind Planideen und keine buchbaren Pauschalangebote.
