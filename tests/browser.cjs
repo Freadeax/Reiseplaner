@@ -126,26 +126,38 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="edit-save"]');
   assert((await viewText(p)).includes('5 Nächte'), name + ': Eckdaten nicht übernommen');
 
-  /* Silvester-Vorlage, Unterwegs-Ansicht und Angebot wechseln */
+  /* Unterwegs-Ansicht: simuliertes Datum 02.05.2027 liegt in der Reise */
+  await p.click('.tab[data-go$="-ueber"]');
+  const today = await viewText(p);
+  assert(today.includes('unterwegs · Tag 2 von 6') && today.includes('Heute ·'), name + ': Phase/Heute fehlt');
+  assert(/Heute ·[\s\S]*Stephansdom[\s\S]*Morgen ·/.test(today), name + ': heutiger Punkt fehlt im Heute-Block');
+
+  /* Reise mit Ideen-Katalog: Angebot übernehmen, Plan B, Packliste aus dem Plan */
   await p.click('[data-go="reisen"] >> nth=0');
   await p.click('[data-go="neu"]');
-  await p.click('[data-act="tpl-silvester"]');
-  await p.waitForSelector('text=Heute ·');
-  assert((await viewText(p)).includes('unterwegs · Tag 3 von 5'), name + ': Phase fehlt');
-  await shot(p, name + '-heute');
-  await p.click('summary:has-text("Plan B")');
-  const idea = await p.getAttribute('[data-act="rain-plan"] >> nth=0', 'data-val');
-  assert(idea && idea.endsWith('|2'), name + ': Plan B fehlt für heute');
-  const before = await p.evaluate(() => Object.values(JSON.parse(localStorage.getItem('rp-trips'))).find(x => x.title === 'Silvester im Schnee').items.length);
-  await p.click('[data-act="rain-plan"] >> nth=0');
-  assert.equal(await p.inputValue('#pl-day'), '2', name + ': Plan B nicht auf heute vorbelegt');
-  await p.click('[data-act="plan-do"]');
-  const after = await p.evaluate(() => Object.values(JSON.parse(localStorage.getItem('rp-trips'))).find(x => x.title === 'Silvester im Schnee').items.length);
-  assert.equal(after, before + 1, name + ': Plan B nicht eingeplant');
-  await p.click('.tab[data-go$="-angebote"]');
+  await p.fill('#draft [data-f="title"]', 'Katalogreise');
+  await p.click('[data-act="d-type"][data-val="winter"]');
+  await p.click('[data-act="d-catalog"][data-val="allgaeu"]');
+  await p.click('[data-act="d-dm"][data-val="fix"]');
+  await p.fill('#draft [data-f="start"]', '2027-05-01');
+  await p.fill('#draft [data-f="end"]', '2027-05-05');
+  await p.click('[data-act="create"]');
+  assert(/-angebote$/.test(p.url()), name + ': Katalogreise nicht bei den Angeboten');
   await p.click('[data-act="pkg-ask"] >> nth=0');
   await p.click('[data-act="pkg-apply"]');
   assert(/-plan$/.test(p.url()), name + ': Angebot nicht übernommen');
+  await p.click('.tab[data-go$="-ueber"]');
+  assert((await viewText(p)).includes('unterwegs · Tag 2 von 5'), name + ': Phase der Katalogreise');
+  await shot(p, name + '-heute');
+  await p.click('summary:has-text("Plan B")');
+  const idea = await p.getAttribute('[data-act="rain-plan"] >> nth=0', 'data-val');
+  assert(idea && idea.endsWith('|1'), name + ': Plan B fehlt für heute');
+  const count = () => p.evaluate(() => Object.values(JSON.parse(localStorage.getItem('rp-trips'))).find(x => x.title === 'Katalogreise').items.length);
+  const before = await count();
+  await p.click('[data-act="rain-plan"] >> nth=0');
+  assert.equal(await p.inputValue('#pl-day'), '1', name + ': Plan B nicht auf heute vorbelegt');
+  await p.click('[data-act="plan-do"]');
+  assert.equal(await count(), before + 1, name + ': Plan B nicht eingeplant');
   await p.click('.tab[data-go$="-check"]');
   assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packliste aus dem Plan fehlt');
   for (const tab of ['ueber', 'angebote', 'unterkunft', 'unternehmen', 'plan', 'kosten', 'check', 'notiz', 'mappe']) {
@@ -153,10 +165,10 @@ async function run(browser, base, name, ctxOpts, now) {
     await noOverflow(p, name + ' Reiter ' + tab);
   }
 
-  /* Übersicht: laufende Reise nicht als vorbei */
+  /* Übersicht: laufende Reisen nicht als vorbei */
   await p.click('[data-go="reisen"] >> nth=0');
   const list = await viewText(p);
-  assert(list.includes('unterwegs · Tag 3 von 5') && !list.includes('vorbei'), name + ': Status in der Übersicht');
+  assert(list.includes('unterwegs · Tag 2 von 6') && list.includes('unterwegs · Tag 2 von 5') && !list.includes('vorbei'), name + ': Status in der Übersicht');
   assert.equal(await p.locator('.card.click').count(), 2);
 
   /* Sicherung und Import ohne Überschreiben */
@@ -216,9 +228,10 @@ async function offline(browser, base) {
   assert((await viewText(p)).includes('Meine Reisen'), 'offline: App startet ohne Netz nicht');
   /* Reisedaten bleiben ohne Netz bearbeitbar und gehen nicht verloren */
   await p.click('[data-go="neu"]');
-  await p.click('[data-act="tpl-silvester"]');
+  await p.fill('#draft [data-f="title"]', 'Offline angelegt');
+  await p.click('[data-act="create"]');
   await p.reload();
-  assert((await viewText(p)).includes('Silvester im Schnee'), 'offline: Reise nach Neuladen weg');
+  assert((await viewText(p)).includes('Offline angelegt'), 'offline: Reise nach Neuladen weg');
   await ctx.close();
   console.log('Offline-Start über Service Worker geprüft.');
 }
@@ -228,7 +241,7 @@ async function offline(browser, base) {
   const base = 'http://127.0.0.1:' + srv.address().port;
   const exe = process.env.CHROMIUM_PATH || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
   const browser = await pw.chromium.launch(exe ? { executablePath: exe } : {});
-  const now = new Date('2027-01-01T10:00:00');
+  const now = new Date('2027-05-02T10:00:00');
   try {
     await run(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } }, now);
     await run(browser, base, 'mobil', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, now);
