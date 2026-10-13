@@ -1,0 +1,996 @@
+<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Reiseplaner</title>
+<!-- Entwicklungsstand 1.3 · 13.10.2026
+Grundlage: bereitgestellte Reiseplaner(1).html. Bestehender Speicherschlüssel rp-trips bleibt erhalten.
+Neu: explizite Gästekartenbestätigung, gemeinsames Top-Leistungs-Tageslimit,
+volle Reisedauer, datumsgebundenes Silvester, manuelle Strecke, offene Kosten,
+Zurücksetzen unterkunftsgebundener Angaben, Speicherfehleranzeige, Eingabeprüfungen.
+Manueller JSON-Export für einzelne/alle Reisen und Import mit Prüfung/Vorschau;
+bei ID-Konflikt nur überspringen oder zusätzliche Kopie, nie überschreiben.
+21 Logikprüfungen und Startansicht in Node erfolgreich. Kein Browser-/iPhone-Test: Browserbinary nicht verfügbar.
+Dateivorschau der ChatGPT-iPhone-App zeigt die Kopfzeile, führt die interaktive Oberfläche offenbar nicht zuverlässig aus.
+Statische Lade-/Fehlermeldung hinzugefügt. Privates Hosting vorbereitet, Veröffentlichung wegen Netzwerkproxy-Fehler offen.
+Keine Anbieterrecherche durchgeführt. Katalogangaben bleiben unbestätigt.
+Offen: konkrete Angebote mit Gebühren/Preisbasen; Import bestehender Altdateien ohne Sicherungsformat;
+Zahlungen und Kaution; genaue Termine und Reisezeiten; vollständige Quellennachweise;
+Saisonprüfung der Vorlagen; Tarife bei >5 Verleihtagen; gemeinsame Nutzung mit Zugriffsschutz.
+Lokaler Browser-Speicher ist keine Gerätesynchronisation. Bestehende Claude-DB-Anbindung unverändert.
+Nächster Schritt: konkretes Angebots-/Kostenmodell und Sicht auf bezahlte/offene Beträge.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: App mit Kopfleiste. Reise-Bereiche als Wegweiser-Reiter. Raster für Unterkünfte, Unternehmungen und Tagesplan. Details öffnen als Blatt von unten. */
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --surface-2:#E8EEF2; --surface-3:#DCE5EB;
+  --ink:#13212B; --muted:#566977; --line:#D5DEE4;
+  --spruce:#1E4D59; --spruce-soft:#DAE9ED;
+  --sign:#F2C230; --sign-ink:#17140A;
+  --ok:#2C7A4B; --warn:#A8701A; --bad:#B8352B; --blue:#2460C4;
+  --c1:#1E4D59; --c2:#4C8A9A; --c3:#C9A227; --c4:#7A6FB0; --c5:#3E8E5E; --c6:#C26A3D; --c7:#8A97A3;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D151B; --surface:#15212A; --surface-2:#1C2B35; --surface-3:#243641;
+  --ink:#E5ECF1; --muted:#93A5B2; --line:#283946;
+  --spruce:#8CC2CF; --spruce-soft:#1C3640;
+  --sign:#E9B925; --sign-ink:#120F05;
+  --ok:#5CC487; --warn:#E3A847; --bad:#F0736A; --blue:#79A6F2;
+  --c1:#8CC2CF; --c2:#5FA3B5; --c3:#E0B93A; --c4:#A79BE0; --c5:#5CC487; --c6:#E8925F; --c7:#7E8D99; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D151B; --surface:#15212A; --surface-2:#1C2B35; --surface-3:#243641;
+  --ink:#E5ECF1; --muted:#93A5B2; --line:#283946;
+  --spruce:#8CC2CF; --spruce-soft:#1C3640;
+  --sign:#E9B925; --sign-ink:#120F05;
+  --ok:#5CC487; --warn:#E3A847; --bad:#F0736A; --blue:#79A6F2;
+  --c1:#8CC2CF; --c2:#5FA3B5; --c3:#E0B93A; --c4:#A79BE0; --c5:#5CC487; --c6:#E8925F; --c7:#7E8D99; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:12px 110px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.05;margin:0}
+h1{font-size:clamp(2.2rem,7vw,3.4rem);font-weight:700}
+h2{font-size:1.7rem;font-weight:700}
+h3{font-size:1.2rem;font-weight:600}
+h4{font-size:1.02rem;font-weight:600;letter-spacing:.02em}
+p{margin:0}
+a{color:var(--blue)}
+button,input,select,textarea{font:inherit;color:inherit}
+.muted{color:var(--muted)}
+.small{font-size:.87rem}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono);font-size:.78rem}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{max-width:62ch}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+section.block{display:flex;flex-direction:column;gap:14px;padding-block:20px;border-top:1px solid var(--line)}
+section.block:first-child{border-top:0;padding-top:4px}
+:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Kopf */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:4px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.brand{display:flex;align-items:baseline;gap:10px;cursor:pointer;background:none;border:0;padding:0}
+.brand b{font-family:var(--f-display);font-size:1.5rem;font-weight:700;letter-spacing:.01em}
+.sync{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block}
+.sync.on i{background:var(--ok)}
+
+/* Buttons */
+.btn{cursor:pointer;border:0;border-radius:8px;background:var(--spruce);color:var(--bg);padding:10px 16px;font-weight:600;min-height:44px;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--spruce);border:1px solid var(--spruce)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.9rem}
+.btn.warn{background:var(--bad);color:#fff}
+.btn.sign{background:var(--sign);color:var(--sign-ink)}
+.btn[disabled]{opacity:.5;cursor:default}
+.lnk{display:inline-flex;align-items:center;min-height:36px;padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--spruce);text-decoration:none;font-weight:600;font-size:.88rem;background:var(--surface)}
+.lnk:hover{border-color:var(--spruce)}
+.chipbtn{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 13px;font-weight:600;font-size:.9rem;min-height:38px}
+.chipbtn[aria-pressed="true"]{background:var(--spruce);border-color:var(--spruce);color:var(--bg)}
+.opt{cursor:pointer;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;font-weight:600;font-size:.96rem;line-height:1.25;min-height:44px}
+.opt small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.opt[aria-pressed="true"]{border-color:var(--spruce);background:var(--spruce-soft);box-shadow:inset 0 0 0 2px var(--spruce)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Reiter als Wegweiser */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-inline:-16px;padding-inline:16px;scrollbar-width:thin;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-top:6px}
+.tab{flex:none;cursor:pointer;border:0;background:var(--surface-2);color:var(--ink);font-family:var(--f-display);font-weight:600;font-size:1rem;letter-spacing:.03em;text-transform:uppercase;padding:8px 24px 8px 12px;clip-path:polygon(0 0,calc(100% - 13px) 0,100% 50%,calc(100% - 13px) 100%,0 100%)}
+.tab[aria-current="page"]{background:var(--sign);color:var(--sign-ink)}
+.tab .n{font-family:var(--f-mono);font-size:.68rem;margin-left:4px;opacity:.75}
+
+/* Karten & Raster */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card.sel{border-color:var(--spruce);box-shadow:inset 0 0 0 2px var(--spruce)}
+.card.click{cursor:pointer;text-align:left}
+.card.click:hover{border-color:var(--spruce)}
+.card .foot{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.price{font-family:var(--f-display);font-weight:700;font-size:1.5rem;line-height:1}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.note{background:var(--spruce-soft);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:.94rem}
+.badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.badge.ok{color:var(--ok)}.badge.est{color:var(--warn)}.badge.plus{color:var(--blue)}.badge.bad{color:var(--bad)}
+.badge.cat{background:transparent;border:1px solid currentColor}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-family:var(--f-display);font-size:1.6rem;font-weight:700;line-height:1.1}
+.kpi small{color:var(--muted);font-size:.82rem}
+.sbar{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--surface-2)}
+.sbar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.bar.warn i{background:var(--warn)}.bar.bad i{background:var(--bad)}
+
+/* Checks */
+.checks-list{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:.93rem}
+.chk b{flex:none;font-family:var(--f-mono);font-size:.7rem;padding:2px 6px;border-radius:4px;margin-top:2px}
+.chk.warn b{background:var(--warn);color:var(--bg)}.chk.info b{background:var(--surface-3)}.chk.ok b{background:var(--ok);color:var(--bg)}
+
+/* Tagesplan-Raster */
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory}
+.dcol{scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
+.dhead{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dhead b{font-family:var(--f-display);font-size:1.35rem;font-weight:700}
+.dslot{padding:8px 10px;border-bottom:1px dashed var(--line);display:flex;flex-direction:column;gap:6px;min-height:64px}
+.dslot:last-child{border-bottom:0}
+.dslot .lbl{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.item{cursor:pointer;text-align:left;border:1px solid var(--line);border-left:4px solid var(--c7);border-radius:6px;background:var(--bg);padding:6px 8px;font-size:.88rem;line-height:1.25;display:flex;flex-direction:column;gap:2px}
+.item small{color:var(--muted);font-size:.76rem}
+.item.fixed{cursor:default;border-left-color:var(--sign);background:var(--surface-2)}
+.item.warn{outline:2px solid var(--warn);outline-offset:-1px}
+.add{cursor:pointer;border:1px dashed var(--line);background:transparent;border-radius:6px;padding:4px;color:var(--muted);font-size:.8rem}
+.add:hover{border-color:var(--spruce);color:var(--spruce)}
+
+/* Tabelle */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-weight:500;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.r,th.r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--muted);font-size:.78rem}
+tr.grp td{background:var(--surface-2);font-weight:700}
+tr.total td{font-family:var(--f-display);font-size:1.35rem;font-weight:700;border-bottom:0}
+
+/* Formulare */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>span{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],input[type=month],input[type=url],select,textarea{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:10px;width:100%;font-size:1rem;min-height:44px}
+textarea{min-height:160px;resize:vertical;line-height:1.5}
+.copybox{font-family:var(--f-body);font-size:.9rem;white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;user-select:text}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+
+/* Blatt */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,18,24,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:720px;max-height:88vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+.sheet .x{align-self:flex-end;cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-family:var(--f-mono);font-size:.75rem}
+@media (min-width:760px){.sheet-bg{align-items:center}.sheet{border-radius:16px;max-height:84vh}}
+
+/* Dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding:9px 16px calc(9px + env(safe-area-inset-bottom,0px))}
+.dock .in{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.dock .sum{font-family:var(--f-display);font-weight:700;font-size:1.4rem;white-space:nowrap}
+.dock .nm{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+.dock .bar{flex:1}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v1.3</span></button>
+    <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
+  </header>
+  <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
+</div>
+<div class="dock" id="dock" hidden role="status" aria-live="polite"><div class="in"><span class="nm" id="dock-nm"></span><span class="sum num" id="dock-sum"></span><div class="bar" id="dock-bar"><i></i></div></div></div>
+<div id="sheet-root"></div>
+
+<script>
+(function(){
+"use strict";
+/* ================= Grundlagen ================= */
+const TYPES={winter:'Winter & Schnee',stadt:'Städtetrip',strand:'Bade- & Sommerurlaub',wochenende:'Wochenende',tag:'Tagesausflug',rund:'Rundreise'};
+const STATUS={idee:'Idee',planung:'In Planung',gebucht:'Gebucht',vorbei:'Vorbei'};
+const SLOTS=[['morgen','Vormittag'],['mittag','Mittag'],['nachm','Nachmittag'],['abend','Abend']];
+const SLOTNAME=Object.fromEntries(SLOTS);
+const CAT={schnee:'Schneesport',wellness:'Wellness',ausflug:'Ausflüge',genuss:'Genuss & Silvester',eigen:'Eigene'};
+const CATCOL={schnee:'var(--c1)',wellness:'var(--c4)',ausflug:'var(--c5)',genuss:'var(--c6)',eigen:'var(--c7)'};
+const COSTCAT={unterkunft:['Unterkunft','var(--c1)'],anreise:['Anreise','var(--c2)'],schnee:['Schneesport','var(--c3)'],wellness:['Wellness','var(--c4)'],ausflug:['Ausflüge','var(--c5)'],genuss:['Genuss & Silvester','var(--c6)'],essen:['Essen','var(--c7)'],gebuehren:['Kurtaxe & Gebühren','var(--c2)'],eigen:['Eigene Posten','var(--c7)'],puffer:['Puffer','var(--c7)']};
+const FOOD={selbst:['Selbst kochen',20,'Einkauf, Snacks, 1× essen gehen'],gemischt:['Gemischt',30,'Frühstück selbst, abends oft auswärts'],auswaerts:['Meist auswärts',45,'Mittag und Abend im Gasthof']};
+const RENT_SET={1:28,2:53,3:78,4:101,5:123}, RENT_HELM={1:4,2:8,3:12,4:16,5:20};
+const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+/* ================= Katalog: Allgäu & Tirol Winter ================= */
+const PLACES={
+ oberjoch:{name:'Oberjoch / Bad Hindelang',region:'Allgäu · Bayern',km:195,min:120,time:'ca. 2 Std.',local:40,taxe:3,
+   card:'Bad Hindelang PLUS',cardPass:true,passDay:52.5,passSrc:'Tageskarte 25/26',onlineRent:true,
+   kurs:{1:60,2:115,3:150},kursSrc:'ok',school:'Skischule Iseler',
+   short:'Höchster Skiort im Allgäu. Skipass, Rodelbahn-Gondel und Erlebnisbad in der Gästekarte.',
+   pros:['Skipass in der Gästekarte','Skischule mit eigenem Übungsgelände','Tirol 5 Minuten entfernt'],cons:['Kleines Dorf, wenig Abendprogramm','Karte nur bei PLUS-Partnern'],
+   route:'A8 → Ulm, A7 bis Oy-Mittelberg, B310 über Wertach (nicht über die kurvige Jochstraße)',map:'Oberjoch, Bad Hindelang',
+   portal:[['Unterkunftssuche Bad Hindelang','https://www.badhindelang.de/buchen'],['FeWos Oberjoch (Holidu)','https://www.holidu.de/ferienwohnungen-orte/deutschland/oberjoch']]},
+ oberstaufen:{name:'Oberstaufen / Steibis',region:'Allgäu · Bayern',km:180,min:115,time:'ca. 1 Std. 55',local:40,taxe:3,
+   card:'Oberstaufen PLUS',cardPass:true,passDay:44,passSrc:'Hochgrat 25/26',onlineRent:false,
+   kurs:{1:65,2:125,3:170},kursSrc:'est',school:'Skischule Steibis',
+   short:'Wellness-Ort mit Aquaria. Skipass in der Gästekarte, aber nur eine Top-Leistung pro Tag.',
+   pros:['Viele Wellnesshäuser, Aquaria mit Solebad','Lebendiger Ort'],cons:['Tiefer gelegen, Schnee unsicherer','Skipass oder Bad pro Tag'],
+   route:'A8 → Ulm, A7 bis Dreieck Allgäu, B19 → Immenstadt, B308 → Oberstaufen',map:'Steibis, Oberstaufen',
+   portal:[['Oberstaufen Tourismus','https://www.oberstaufen.de/'],['Lifte Imberg & Hündle','https://www.huendle-imberg.de/winter/imberg/']]},
+ balder:{name:'Balderschwang',region:'Allgäu · Bayern',km:200,min:140,time:'ca. 2 Std. 20',local:30,taxe:3,
+   card:'',cardPass:false,passTable:{1:49,2:94,3:135},passSrc:'26/27 (3 Tage geschätzt)',onlineRent:false,
+   kurs:{1:60,2:110,3:150},kursSrc:'est',school:'Schneesportschule Balderschwang',
+   short:'Ruhiges Bergdorf am Riedbergpass. Günstiger Skipass, viel Natur, Hütten in der Nähe.',
+   pros:['Skipass 49 € / Tag','Sehr ruhig','Ferienwohnungen mit Sauna günstig'],cons:['Anfahrt über steilen Riedbergpass','Kaum Restaurants'],
+   route:'A8 → Ulm, A7 bis Dreieck Allgäu, B19 → Fischen, über Obermaiselstein und den Riedbergpass (Ketten dabei)',map:'Balderschwang',
+   portal:[['FeWos Balderschwang (Airbnb)','https://www.airbnb.de/balderschwang-germany/stays/apartments']]},
+ tannheim:{name:'Tannheimer Tal',region:'Tirol · Österreich',km:210,min:135,time:'ca. 2 Std. 15',local:40,taxe:3,
+   card:'',cardPass:false,passTable:{1:54,2:103,3:146},passSrc:'26/27',onlineRent:false,
+   kurs:{1:65,2:125,3:170},kursSrc:'est',school:'Skischulen in Grän und Tannheim',
+   short:'Weites Hochtal mit Seen und Loipen. Appartements mit Sauna, Skipass 54 € / Tag.',
+   pros:['Haldensee, Vilsalpsee, Loipen','Appartements mit Sauna'],cons:['Skipass kostet extra','Gruppenkurspreise nicht online'],
+   route:'A8 → Ulm, A7 bis Oy-Mittelberg, B310 über Wertach und Oberjoch nach Grän (Bundesstraße, keine Vignette)',map:'Tannheim, Tirol',
+   portal:[['FeWos Tannheimer Tal (Liste)','https://www.alpen-guide.de/urlaub/tannheimertal/ferienwohnung'],['Tannheimer Tal Tourismus','https://www.tannheimertal.com/']]}
+};
+/* Unterkünfte: ab = Inseratspreis, plan = Planwert Silvester pro Nacht (Inserat +15 %, geschätzt) */
+const STAYS=[
+ {id:'oj-holidu',place:'oberjoch',name:'FeWo direkt am Skilift',ort:'Oberjoch',info:'66 m², moderne Ausstattung, Dorfladen nebenan',ab:'ab 129 € / Nacht (Wohnung)',plan:148,card:true,sauna:false,kitchen:true,breakfast:false,url:'https://www.holidu.de/d/52796337',map:'Oberjoch Bad Hindelang'},
+ {id:'oj-fuegen',place:'oberjoch',name:'Fügenschuh’s Ferienwohnung 2',ort:'Bad Oberdorf',info:'61 m², bis 4 Gäste, Skibus nach Oberjoch',ab:'Preis erst nach Datum',plan:110,planEst:true,card:true,sauna:false,kitchen:true,breakfast:false,url:'https://www.traum-ferienwohnungen.de/98418/',map:'Bad Oberdorf, Bad Hindelang'},
+ {id:'oj-haug',place:'oberjoch',name:'Haus Haug',ort:'Bad Hindelang',info:'Ferienwohnung, Lage an der Loipe',ab:'ab 29 € p. P. / Nacht',plan:67,card:'?',sauna:false,kitchen:true,breakfast:false,url:'https://www.schneehoehen.de/hotel/FERATEL-f1522ede-7a4e-4bbf-9efd-96c084f50b40',map:'Oberer Buigenweg 11, 87541 Bad Hindelang'},
+ {id:'oj-berktold',place:'oberjoch',name:'Haus Berktold',ort:'Bad Hindelang',info:'3 Ferienwohnungen, zentrale Lage',ab:'ab 42,50 € p. P. / Nacht',plan:98,card:'?',sauna:false,kitchen:true,breakfast:false,url:'https://www.schneehoehen.de/hotel/FERATEL-4f72048e-78d3-4a71-aa9a-d53fd57fa76a',map:'Gerberweg 2, 87541 Bad Hindelang'},
+ {id:'oj-schwanden',place:'oberjoch',name:'Schwandenhof Ferienwohnungen',ort:'Bad Hindelang',info:'5 Wohnungen, Brötchenservice, Skiraum, ≈ 4 km zum Lift',ab:'ab 95 € / Nacht (Wohnung)',plan:109,card:'?',sauna:false,kitchen:true,breakfast:false,url:'https://www.schneehoehen.de/hotel/FERATEL-9868dc68-77d3-4055-b507-9605749d40ee',map:'Schwandenhof Bad Hindelang'},
+ {id:'oj-bergbuddies',place:'oberjoch',name:'BergBuddies Smarthotel',ort:'Oberjoch, Paßstraße 36',info:'Komfortstube, Sauna Cube, Hot Tub, 2 Gehminuten zum Lift, Frühstück',ab:'Komfortstube ab 94,90 € p. P.',plan:218,card:true,sauna:true,kitchen:false,breakfast:true,url:'https://www.schneehoehen.de/hotel/FERATEL-52193f5f-f7ec-434a-bd7e-ee0f1712186b',map:'BergBuddies Oberjoch'},
+ {id:'os-holidu',place:'oberstaufen',name:'All-Inkl.-FeWo mit Sauna & Whirlpool',ort:'Oberstaufen',info:'49 m², Sauna, Whirlpool, beheizter Pool, direkt am Skilift',ab:'ab 101 € / Nacht (Wohnung)',plan:116,card:true,sauna:true,kitchen:true,breakfast:false,url:'https://www.holidu.de/d/46825651',map:'Oberstaufen'},
+ {id:'os-schoen',place:'oberstaufen',name:'Ferienwohnung „Schön Hier“',ort:'Steibis',info:'42 m², 150 m zum Lift, Sauna gegen Gebühr',ab:'Preis erst nach Datum',plan:95,planEst:true,card:true,sauna:true,kitchen:true,breakfast:false,url:'https://www.traum-ferienwohnungen.de/ferienwohnung/275444/',map:'Steibis, Oberstaufen'},
+ {id:'bs-waeldle',place:'balder',name:'Haus im Wäldle',ort:'Balderschwang, Wäldle 91',info:'2 Ferienwohnungen, Sauna, an der Loipe, Brötchenservice',ab:'ab 23,20 € p. P. / Nacht',plan:53,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://www.schneehoehen.de/hotel/FERATEL-14ef3676-b1da-4578-8e0d-7871a63e4977',map:'Wäldle 91, 87538 Balderschwang'},
+ {id:'bs-alpenroesle',place:'balder',name:'Alpenrösle Ferienwohnungen',ort:'Balderschwang, Oberberg 4',info:'48–62 m², Sauna, Dampfbad, Massagen',ab:'ab 95 € / Nacht (Wohnung)',plan:109,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://www.schneehoehen.de/hotel/FERATEL-09bd43f5-c771-42a3-b850-0c8e0c5173b3',map:'Oberberg 4, 87538 Balderschwang'},
+ {id:'tt-rosemarie',place:'tannheim',name:'Haus Rosemarie',ort:'Nesselwängle-Haller',info:'Appartements mit Sauna, am Haldensee',ab:'ab 76 € / Nacht',plan:87,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://booking.alpen-guide.de/app/de/detail/6-72364',map:'Haus Rosemarie Nesselwängle'},
+ {id:'tt-braito',place:'tannheim',name:'Gästehaus Apart Braito',ort:'Grän-Haldensee',info:'Appartement mit Sauna',ab:'ab 97 € / Nacht',plan:112,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://booking.alpen-guide.de/app/de/detail/6-72312',map:'Apart Braito Grän'},
+ {id:'tt-bilgeri',place:'tannheim',name:'Haus Bilgeri Appartements',ort:'Tannheim',info:'Appartements mit Sauna',ab:'ab 114 € / Nacht',plan:131,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://booking.alpen-guide.de/app/de/detail/6-72044',map:'Haus Bilgeri Tannheim'}
+];
+/* Unternehmungen */
+const L=(l,u)=>[l,u];
+const ACTS={};
+function A(id,place,cat,t,o){ACTS[id]=Object.assign({id,place,cat,t,src:'est',slot:'nachm',dur:'',ort:'',s:'',steps:[],tips:[],bring:[],links:[],map:''},o)}
+const WONNE_RULES=[{date:'12-31',bad:['abend'],msg:'Silvester nur 10–17 Uhr geöffnet'},{date:'01-01',bad:['morgen'],msg:'Neujahr erst ab 12 Uhr geöffnet'}];
+const KURS=(place,school,addr,link,map,src)=>({kurs:true,gear:true,book:true,slot:'morgen',dur:'3 Std.',ort:school,src,hours:'vormittags, täglich',s:'Gruppe mit max. 6–8 Personen, Ski oder Snowboard zum gleichen Preis',
+  steps:['Rund 45 Minuten vor Kursbeginn an der Skischule sein'+(addr?' ('+addr+')':''),'Ausrüstung im Verleih abholen: Ski bzw. Board, Schuhe, Helm','Kurs in der Gruppe, Anfänger starten auf dem Übungsgelände','Danach Mittagspause, nachmittags frei'],
+  tips:['Anfänger brauchen am 1. Kurstag meist keinen Skipass','Kurstage möglichst am Stück buchen','Früh buchen, Weihnachtsferien sind gefragt'],bring:['Skihose, Jacke, Handschuhe, Mütze','Skibrille','Sonnencreme'],links:link,map});
+A('oj-kurs','oberjoch','schnee','Gruppenkurs Ski oder Snowboard',Object.assign(KURS('oberjoch','Skischule Iseler','Passstraße 22, direkt an der Piste',[L('Kurs online buchen','https://www.skischule-iseler.de/angebote.html'),L('Preise','https://www.skischule-iseler.de/preise.html')],'Skischule Iseler Oberjoch','ok'),{hours:'10–13 Uhr, täglich'}));
+A('oj-ueben','oberjoch','schnee','Übungstag ohne Lehrer',{gear:true,pass:true,slot:'morgen',dur:'halber Tag',ort:'Anfängerpisten Oberjoch',src:'plus',s:'Gelerntes festigen, Skipass über die Gästekarte',steps:['Ausrüstung einen Tag länger behalten','Auf der Übungswiese warmfahren','Leichte Pisten mit den Übungen aus dem Kurs','Mittags Schluss, nachmittags Wellness'],tips:['Nach dem Kurs am besten direkt am nächsten Tag üben'],links:[L('Bergbahnen Oberjoch','https://www.bergbahnen-hindelang-oberjoch.de/')],map:'Iselerbahn Oberjoch'});
+A('oj-privat','oberjoch','schnee','Privatstunde in der anderen Sportart',{gear:true,book:true,grp:85,slot:'mittag',dur:'1 Std.',ort:'Skischule Iseler',src:'ok',s:'Snowboard bzw. Ski zu zweit mit Lehrer testen',steps:['Termin bei der Skischule anfragen','1 Stunde zu zweit: 75 € + 10 € für die zweite Person','Danach wisst ihr, was euch mehr liegt'],tips:['Einzelstunden buchbar 08:45–09:45 und 12:00–14:00 Uhr'],links:[L('Skischule Iseler','https://www.skischule-iseler.de/privat.html')],map:'Skischule Iseler Oberjoch'});
+A('oj-langlauf','oberjoch','schnee','Langlauf ausprobieren',{pp:15,slot:'morgen',dur:'2–3 Std.',ort:'Loipen rund um Oberjoch',s:'Ohne Kurs, ohne Lift, sanfter Einstieg in den Wintersport',steps:['Langlaufski leihen (≈ 15 € p. P., geschätzt)','Auf einer flachen Loipe starten','Kurze Etappen mit Pausen'],tips:['Über 100 km gespurte Loipen','Ist anstrengender als es aussieht, Wasser mitnehmen'],links:[L('Skischule Iseler: Langlauf','https://www.skischule-iseler.de/langlauf.html')],map:'Loipe Oberjoch'});
+A('oj-schneeschuh','oberjoch','schnee','Geführte Schneeschuh-Tour',{pp:40,ppKurs:35,book:true,slot:'nachm',dur:'2 Std.',ort:'Skischule Iseler',src:'ok',dow:[4],hours:'donnerstags 14–16 Uhr',s:'Mit Guide durch den Winterwald, Material inklusive',steps:['Bei der Skischule anmelden','14:00 Treffpunkt Skischule Iseler','2 Stunden Tour, Schneeschuhe und Stöcke inklusive'],tips:['Kursteilnehmer zahlen 35 € statt 40 €','Läuft nur donnerstags, 31.12.2026 ist ein Donnerstag'],bring:['Wasserdichte Winterschuhe','Thermoskanne'],links:[L('Schneeschuh-Infos','https://www.skischule-iseler.de/schneeschuhe.html')],map:'Skischule Iseler Oberjoch'});
+A('oj-rodeln','oberjoch','ausflug','Rodeln an der Hornbahn',{pp:15,cardPp:5,slot:'nachm',dur:'2–3 Std.',ort:'Hornbahn Bad Hindelang',src:'plus',km:16,s:'Gondel hoch, drei Rodelbahnen runter',steps:['Schlitten leihen (5 € p. P. bei der Skischule)','Mit der Hornbahn hochfahren, mit PLUS frei','Abfahrt über eine der Rodelbahnen','Oben Panorama-Winterweg anhängen'],tips:['Ohne Gästekarte kostet die Bahn extra (geschätzt)'],bring:['Wasserdichte Handschuhe'],links:[L('Bergbahnen','https://www.bergbahnen-hindelang-oberjoch.de/')],map:'Hornbahn Bad Hindelang'});
+A('oj-panorama','oberjoch','ausflug','Panorama-Winterweg',{pp:10,cardPp:0,slot:'morgen',dur:'1–2 Std.',ort:'Hornbahn-Bergstation',src:'plus',km:16,s:'Flacher, geräumter Weg mit Blick ins Ostrachtal',steps:['Mit der Hornbahn hoch','Winterweg in eurem Tempo','Einkehr an der Bergstation'],links:[L('Bergbahnen','https://www.bergbahnen-hindelang-oberjoch.de/')],map:'Hornbahn Bergstation Bad Hindelang'});
+A('oj-plus','oberjoch','ausflug','PLUS-Erlebnis mit Guide',{pp:0,slot:'morgen',dur:'je nach Angebot',ort:'Bad Hindelang',src:'plus',book:true,s:'Geführte Schneeschuhwanderung, Skitour oder Slalom aus dem Gästekarten-Programm',steps:['Programm der Woche auf der PLUS-Seite ansehen','Platz reservieren','Mit Gästekarte teilnehmen'],tips:['Termine wechseln wöchentlich'],links:[L('PLUS-Erlebnisse','https://www.badhindelang.de/bad-hindelang-plus/exklusive-erlebnisse/erlebnisse')]});
+A('oj-tannheim','oberjoch','ausflug','Winterwanderung Haldensee',{pp:0,slot:'morgen',dur:'2 Std.',ort:'Tannheimer Tal (AT), 10 Min.',km:30,s:'Flache Seerunde in Tirol, ohne Autobahn und Vignette',steps:['Über Oberjoch nach Grän fahren','Parken am Haldensee','Runde um den See, Einkehr am Ufer'],links:[L('Tannheimer Tal','https://www.tannheimertal.com/')],map:'Haldensee Tirol'});
+A('oj-hinterstein','oberjoch','ausflug','Spaziergang Hintersteiner Tal',{pp:0,slot:'nachm',dur:'2 Std.',ort:'Hinterstein, 20 Min.',km:20,s:'Stilles Seitental, im Ort das Kutschenmuseum',steps:['Nach Hinterstein fahren','Talweg spazieren','Rückweg mit Einkehr'],map:'Hinterstein Bad Hindelang'});
+A('oj-ort','oberjoch','genuss','Kaffee & Kuchen in Bad Hindelang',{pp:9,indoor:true,slot:'nachm',dur:'1,5 Std.',ort:'Ortskern Bad Hindelang',km:16,s:'Bummel durchs Dorf mit dem Dreikugelhaus von 1671',steps:['Ortskern ansehen','In ein Café einkehren'],map:'Dreikugelhaus Bad Hindelang'});
+A('oj-fuessen','oberjoch','ausflug','Füssen & Neuschwanstein von außen',{pp:8,slot:'nachm',dur:'halber Tag',ort:'Füssen, ≈ 45 Min.',km:90,s:'Altstadt, Lechfall und Blick auf die Königsschlösser',steps:['Nach Füssen fahren','Altstadt und Lechfall','Optional zum Aussichtspunkt bei Schwangau'],map:'Altstadt Füssen'});
+A('oj-klamm','oberjoch','ausflug','Breitachklamm im Eis',{pp:7.5,grp:5,slot:'morgen',dur:'2 Std.',ort:'Oberstdorf, ≈ 40 Min.',km:76,src:'ok',hours:'täglich 9–16 Uhr, wetterabhängig',s:'Eisvorhänge in der tiefsten Felsschlucht Mitteleuropas',steps:['Parken P1 Tiefenbach (5 €)','Eintritt 7,50 € p. P.','Durch die Klamm und zurück, ≈ 2 Std.'],tips:['Fackelwanderung dienstags und freitags 19 Uhr, 1.1.2027 ist ein Freitag','Bei Tauwetter kurzfristig gesperrt'],bring:['Grödel oder Spikes','Wasserfeste Jacke'],links:[L('Breitachklamm','https://www.breitachklamm.com/')],map:'Breitachklamm Oberstdorf'});
+A('oj-wbad','oberjoch','wellness','Wonnemar: Erlebnisbad',{pp:22.9,cardPp:0,indoor:true,slot:'nachm',dur:'3–4 Std.',ort:'Sonthofen, ≈ 25 Min.',km:50,src:'plus',rules:WONNE_RULES,hours:'10–21 Uhr · Silvester 10–17 · Neujahr 12–22',s:'Wellenbecken, Thermalbereich, mit PLUS-Karte frei',steps:['Gästekarte an der Kasse zeigen','Bad, Wellenbecken, Whirlpool'],tips:['Saunawelt ist nicht inklusive, siehe „Wonnemar: Saunawelt“'],bring:['Badesachen','Handtuch (Leihe 5 €)'],links:[L('Eintrittspreise','https://www.wonnemar.de/sonthofen/wonnemar/eintrittspreise/')],map:'Wonnemar Sonthofen'});
+A('oj-wsauna','oberjoch','wellness','Wonnemar: Saunawelt',{pp:27.9,indoor:true,slot:'nachm',dur:'4 Std.',ort:'Sonthofen, ≈ 25 Min.',km:50,src:'ok',rules:WONNE_RULES,hours:'10–21 Uhr · Silvester 10–17 · Neujahr 12–22',s:'Panorama-, Erd- und Blockhaussauna, 4 Std. 25,90 € + 2 € Ferienzuschlag',steps:['4-Stunden-Karte Saunawelt kaufen','Saunagänge mit Ruhepausen','Optional Thermalbereich +11,90 €'],tips:['Bademantel leihen 8 €','Parken 4 €, an der Kasse 1,50 € zurück'],bring:['Bademantel, 2 Handtücher','Schlappen'],links:[L('Eintrittspreise','https://www.wonnemar.de/sonthofen/wonnemar/eintrittspreise/')],map:'Wonnemar Sonthofen'});
+A('oj-kristall','oberjoch','wellness','Kristall-Therme Schwangau',{pp:36,indoor:true,slot:'nachm',dur:'4 Std.',ort:'Schwangau, ≈ 45 Min.',km:90,src:'est',warn:'Website meldet derzeit „vorübergehend geschlossen“. Vorher anrufen: 08362 92694-0',hours:'laut Plan Silvester 9–18 · Neujahr 10–22',s:'Thermalsole und Saunalandschaft, 4 Std. mit Sauna 36 € p. P.',steps:['Vorher Öffnung telefonisch prüfen','4-Stunden-Karte mit Sauna'],links:[L('Kristall-Therme','https://www.kristalltherme-schwangau.de/')],map:'Kristalltherme Schwangau'});
+/* Oberstaufen */
+A('os-kurs','oberstaufen','schnee','Gruppenkurs Ski oder Snowboard',KURS('oberstaufen','Skischule Steibis','Anfänger an den Starenliften Schindelberg',[L('Skischule Steibis','https://www.checkyeti.com/de/d/1906/14201'),L('Skischule Oberstaufen','https://www.skischule-oberstaufen.de/')],'Starenlifte Schindelberg Oberstaufen','est'));
+A('os-ueben','oberstaufen','schnee','Übungstag ohne Lehrer',{gear:true,pass:true,slot:'morgen',dur:'halber Tag',ort:'Skiarena Steibis',src:'plus',s:'Skipass über Oberstaufen PLUS, zählt als Top-Leistung des Tages',steps:['Ausrüstung einen Tag länger leihen','Leichte Pisten in Steibis'],links:[L('Imberg & Hündle','https://www.huendle-imberg.de/winter/imberg/')],map:'Imbergbahn Steibis'});
+A('os-aquaria','oberstaufen','wellness','Aquaria: Saunen & Solebad',{pp:33,cardPp:0,top:true,indoor:true,slot:'nachm',dur:'3–4 Std.',ort:'Oberstaufen',src:'plus',hours:'täglich 9–22 Uhr',s:'3 Aufgusssaunen, 34 °C Solebad draußen, Sauna nur für Erwachsene',steps:['Gästekarte zeigen (an Tagen ohne Skipass frei)','Solebad draußen, dann Saunagänge'],tips:['An Skitagen zählt der Skipass als Top-Leistung, dann zahlt ihr 33 € p. P.'],bring:['Badesachen, Bademantel'],links:[L('Aquaria','https://www.alpen-guide.de/reisefuehrer/poi/erlebnisbad-aquaria-oberstaufen')],map:'Aquaria Oberstaufen'});
+A('os-eis','oberstaufen','ausflug','Eislaufen im Ortspark',{pp:10,cardPp:6,slot:'nachm',dur:'1–2 Std.',ort:'Oberstaufen PARK',src:'plus',s:'Kunsteisplatz mit PLUS frei, samstags Eisdisco',steps:['Schlittschuhe leihen (geschätzt 6 €)','Eislaufen, danach Glühwein'],links:[L('Eislaufen','https://www.oberstaufen.de/eislaufen')],map:'Oberstaufen Park'});
+A('os-hochgrat','oberstaufen','ausflug','Hochgrat-Panoramaweg',{pp:20,cardPp:0,top:true,slot:'morgen',dur:'2–3 Std.',ort:'Hochgratbahn',src:'plus',km:15,s:'Mit der Gondel hoch, Winterweg mit Weitblick',steps:['Hochgratbahn hoch (mit PLUS frei, zählt als Top-Leistung)','Winter-Panoramaweg','Einkehr oben'],links:[L('Hochgratbahn','http://hochgrat.de/')],map:'Hochgratbahn Oberstaufen'});
+A('os-alpsee','oberstaufen','ausflug','Spaziergang Großer Alpsee',{pp:0,slot:'morgen',dur:'2 Std.',ort:'bei Immenstadt, 15 Min.',km:30,s:'Winterspaziergang am größten Natursee des Allgäus',steps:['Nach Bühl am Alpsee fahren','Uferweg spazieren'],map:'Großer Alpsee Bühl'});
+A('os-langlauf','oberstaufen','schnee','Flutlicht-Langlauf',{pp:15,slot:'nachm',dur:'2 Std.',ort:'Loipe Kalzhofer, Oberstaufen',s:'Langlauf ohne Kurs, abends auf beleuchteter Loipe',steps:['Langlaufski leihen (geschätzt 15 € p. P.)','Flache Runden auf der Flutlichtloipe'],links:[L('Langlauf Oberstaufen','https://www.oberstaufen.de/langlaufen')],map:'Kalzhofer Loipe Oberstaufen'});
+A('os-wsauna','oberstaufen','wellness','Wonnemar: Saunawelt',Object.assign({},ACTS['oj-wsauna'],{id:'os-wsauna',place:'oberstaufen',ort:'Sonthofen, ≈ 30 Min.',km:60}));
+/* Balderschwang */
+A('bs-kurs','balder','schnee','Gruppenkurs Ski oder Snowboard',KURS('balder','Schneesportschule Balderschwang','',[L('Schneesportschule','https://www.checkyeti.com/de/d/1164/8220')],'Balderschwang Skilift','est'));
+A('bs-ueben','balder','schnee','Übungstag ohne Lehrer',{gear:true,pass:true,slot:'morgen',dur:'halber Tag',ort:'Lifte Balderschwang',src:'ok',s:'Skipass 49 € / Tag',steps:['Tageskarte an der Kasse','Leichte Pisten'],links:[L('Skipass','https://www.schneehoehen.de/skigebiete/preise/balderschwang')],map:'Balderschwang Skilift'});
+A('bs-riedberg','balder','ausflug','Winterwanderung Riedberger Horn',{pp:0,slot:'morgen',dur:'2–3 Std.',ort:'Riedbergpass, 10 Min.',km:10,s:'Aussichtsberg mit Einkehr in der Grasgehren-Hütte',steps:['Parken am Riedbergpass','Aufstieg mit Grödeln','Einkehr Grasgehren'],bring:['Grödel','Stirnlampe für den Rückweg'],map:'Grasgehren Riedbergpass'});
+A('bs-langlauf','balder','schnee','Langlauf im Hochtal',{pp:15,slot:'morgen',dur:'2–3 Std.',ort:'Loipe Balderschwang',s:'Loipen direkt am Ort, ohne Kurs',steps:['Langlaufski leihen (geschätzt 15 € p. P.)','Flache Talloipe'],map:'Loipe Balderschwang'});
+A('bs-wsauna','balder','wellness','Wonnemar: Saunawelt',Object.assign({},ACTS['oj-wsauna'],{id:'bs-wsauna',place:'balder',ort:'Sonthofen, ≈ 35 Min.',km:70}));
+A('bs-therme','balder','wellness','Therme Oberstdorf',{pp:25,grp:10,indoor:true,slot:'nachm',dur:'3 Std.',ort:'Oberstdorf, ≈ 40 Min.',km:70,src:'ok',hours:'10–22 Uhr · Silvester 10–17',rules:[{date:'12-31',bad:['abend'],msg:'Silvester nur bis 17 Uhr'}],s:'Neue Therme seit Januar 2026, 3 Std. 25 € p. P.',steps:['3-Stunden-Karte','Parken 10 € pro Tag'],tips:['Saunapreise auf der Website prüfen'],links:[L('Therme Oberstdorf','https://www.therme-oberstdorf.de/')],map:'Therme Oberstdorf'});
+A('bs-klamm','balder','ausflug','Breitachklamm im Eis',Object.assign({},ACTS['oj-klamm'],{id:'bs-klamm',place:'balder',ort:'Oberstdorf, ≈ 35 Min.',km:60}));
+/* Tannheimer Tal */
+A('tt-kurs','tannheim','schnee','Gruppenkurs Ski oder Snowboard',KURS('tannheim','Skischule im Tal','',[L('Skischulen Tannheimer Tal','https://www.checkyeti.com/de/winter/oesterreich/tannheimer-tal/zertifizierte-skischulen-skilehrer')],'Füssener Jöchle Grän','est'));
+A('tt-ueben','tannheim','schnee','Übungstag ohne Lehrer',{gear:true,pass:true,slot:'morgen',dur:'halber Tag',ort:'Lifte im Tal',src:'ok',s:'Skipass 54 € / Tag',steps:['Tageskarte kaufen','Leichte Pisten'],links:[L('Skipass','https://www.schneehoehen.de/skigebiete/preise/tannheimer-tal')],map:'Füssener Jöchle Grän'});
+A('tt-vilsalp','tannheim','ausflug','Winterweg zum Vilsalpsee',{pp:0,slot:'morgen',dur:'2–3 Std.',ort:'Tannheim',s:'Geräumter Weg zum Bergsee im Naturschutzgebiet',steps:['Start in Tannheim','Weg zum See, Einkehr'],map:'Vilsalpsee'});
+A('tt-halden','tannheim','ausflug','Haldensee-Runde',{pp:0,slot:'nachm',dur:'1,5 Std.',ort:'Grän-Haldensee',s:'Flache Runde, ideal nach dem Kurs',steps:['Rund um den See'],map:'Haldensee'});
+A('tt-langlauf','tannheim','schnee','Langlauf im Tannheimer Tal',{pp:15,slot:'morgen',dur:'2–3 Std.',ort:'Loipen im Tal',s:'Das Tal ist ein Langlauf-Klassiker, ohne Kurs machbar',steps:['Langlaufski leihen (geschätzt 15 € p. P.)','Flache Talloipe'],links:[L('Tannheimer Tal','https://www.tannheimertal.com/')],map:'Tannheim Tirol'});
+A('tt-wsauna','tannheim','wellness','Wonnemar: Saunawelt',Object.assign({},ACTS['oj-wsauna'],{id:'tt-wsauna',place:'tannheim',ort:'Sonthofen, ≈ 40 Min.',km:80}));
+A('tt-fuessen','tannheim','ausflug','Füssen Altstadt',{pp:8,slot:'nachm',dur:'halber Tag',ort:'Füssen, ≈ 40 Min.',km:70,s:'Gassen, Cafés, Lechfall',steps:['Nach Füssen','Altstadt und Café'],map:'Altstadt Füssen'});
+/* Für alle Orte */
+A('sauna-haus','*','wellness','Sauna in der Unterkunft',{pp:0,needSauna:true,indoor:true,slot:'nachm',dur:'1–2 Std.',ort:'eure Unterkunft',s:'Entspannen ohne Fahrt',steps:['Saunazeiten beim Gastgeber erfragen','Gänge mit Pausen, danach früh essen'],bring:['Bademantel, Handtücher']});
+A('silv-raclette','*','genuss','Silvester: Raclette zu zweit',{grp:40,kitchen:true,indoor:true,slot:'abend',dur:'Abend',ort:'eure Unterkunft',onlyDate:'12-31',s:'Gemütlich, günstig, um Mitternacht raus in den Schnee',steps:['Raclette-Grill beim Gastgeber anfragen oder mitbringen','Käse, Kartoffeln, Beilagen einkaufen (≈ 40 €)','Um Mitternacht raus, Feuerwerk im Tal ansehen']});
+A('silv-menu','*','genuss','Silvestermenü im Gasthof',{pp:75,book:true,indoor:true,slot:'abend',dur:'Abend',ort:'im Ort',onlyDate:'12-31',s:'Festes Menü, Plätze im November reservieren',steps:['Im Oktober/November Gasthöfe anfragen','Tisch reservieren','Nach dem Essen zum Feuerwerk']});
+A('silv-huette','oberjoch|balder','genuss','Hütten-Silvester Grasgehren',{pp:80,book:true,slot:'abend',dur:'Abend',ort:'Riedbergpass',kmBy:{oberjoch:70,balder:20},onlyDate:'12-31',s:'Im Vorjahr gab es dort ein Silvesterbuffet, danach mit Stirnlampe aufs Riedberger Horn',steps:['Hütte für 2026 anfragen (Programm und Preis)','Anfahrt und Rückweg klären, kein Alkohol am Steuer','Stirnlampe, Grödel'],tips:['Preis geschätzt']});
+A('silv-draussen','*','genuss','Mitternacht draußen',{pp:0,slot:'abend',dur:'1 Std.',ort:'am Ort',onlyDate:'12-31',s:'Mit Thermoskanne auf eine Anhöhe, Feuerwerke im Tal ansehen',steps:['Warme Getränke in die Thermoskanne','Kurz vor Mitternacht raus']});
+A('essen-gehen','*','genuss','Abendessen im Gasthof',{pp:28,indoor:true,slot:'abend',dur:'Abend',ort:'im Ort',s:'Allgäuer bzw. Tiroler Küche',steps:['Über Silvester reservieren']});
+
+/* Angebote (Vorlagen) – Tag 0 = Anreisetag */
+const PKGS=[
+ {id:'oj-spar',place:'oberjoch',stay:'oj-fuegen',kurs:true,name:'Oberjoch Sparfuchs',focus:['guenstig','ski'],food:'selbst',pitch:'1 Kurstag, danach selbst üben. Wohnung mit PLUS-Karte, Raclette an Silvester.',
+  items:[['oj-panorama',0,'nachm'],['oj-kurs',1,'morgen'],['oj-wbad',1,'nachm'],['silv-raclette',1,'abend'],['oj-rodeln',2,'nachm'],['oj-ueben',3,'morgen'],['oj-tannheim',3,'nachm']]},
+ {id:'oj-skiwell',place:'oberjoch',stay:'oj-fuegen',kurs:true,name:'Oberjoch Ski & Wellness',focus:['ski','well'],food:'selbst',pitch:'2 Kurstage, Saunatag im Wonnemar, Rodeln an Neujahr. Skipass über die PLUS-Karte.',
+  items:[['oj-kurs',0,'morgen'],['oj-panorama',0,'nachm'],['oj-kurs',1,'morgen'],['oj-wbad',1,'nachm'],['silv-raclette',1,'abend'],['oj-rodeln',2,'nachm'],['oj-ueben',3,'morgen'],['oj-wsauna',3,'nachm']]},
+ {id:'os-well',place:'oberstaufen',stay:'os-holidu',kurs:true,name:'Oberstaufen Wellness',focus:['well','ski'],food:'selbst',pitch:'Wohnung mit eigener Sauna, 2 Kurstage, Aquaria an den Tagen ohne Skipass.',
+  items:[['os-kurs',0,'morgen'],['sauna-haus',0,'nachm'],['os-kurs',1,'morgen'],['silv-raclette',1,'abend'],['os-hochgrat',2,'morgen'],['os-aquaria',2,'nachm'],['os-eis',3,'nachm'],['os-aquaria',4,'mittag']]},
+ {id:'bs-ruhe',place:'balder',stay:'bs-waeldle',kurs:true,name:'Balderschwang Ruhe & Natur',focus:['ruhe','ski','guenstig'],food:'selbst',pitch:'Ferienwohnung mit Sauna, 2 Kurstage, Winterwandern am Riedbergpass.',
+  items:[['bs-kurs',0,'morgen'],['bs-kurs',1,'morgen'],['sauna-haus',1,'nachm'],['silv-raclette',1,'abend'],['bs-riedberg',2,'morgen'],['sauna-haus',2,'nachm'],['bs-langlauf',3,'morgen']]},
+ {id:'tt-tirol',place:'tannheim',stay:'tt-braito',kurs:true,name:'Tannheimer Tal Tirol',focus:['ruhe','well','ski'],food:'selbst',pitch:'Tiroler Appartement mit Sauna, 2 Kurstage, Seen und Loipen.',
+  items:[['tt-kurs',0,'morgen'],['tt-kurs',1,'morgen'],['sauna-haus',1,'nachm'],['silv-raclette',1,'abend'],['tt-vilsalp',2,'morgen'],['sauna-haus',2,'nachm'],['tt-halden',3,'nachm']]},
+ {id:'oj-ohne',place:'oberjoch',stay:'oj-holidu',kurs:false,name:'Winterzauber ohne Ski',focus:['guenstig','well','ruhe'],food:'selbst',pitch:'Rodeln, Schneeschuh-Tour an Silvester, Saunatag, Eisklamm. Kein Kurs, kein Verleih.',
+  items:[['oj-rodeln',0,'nachm'],['oj-tannheim',1,'morgen'],['oj-schneeschuh',1,'nachm'],['silv-raclette',1,'abend'],['oj-wsauna',2,'nachm'],['oj-klamm',3,'morgen'],['oj-ort',3,'nachm']]},
+ {id:'os-pur',place:'oberstaufen',stay:'os-holidu',kurs:false,name:'Wellness pur Oberstaufen',focus:['well','guenstig'],food:'selbst',pitch:'Eigene Sauna, jeden Tag Aquaria mit Solebad frei, Eislaufen und Gipfelweg.',
+  items:[['os-aquaria',0,'nachm'],['os-hochgrat',1,'morgen'],['sauna-haus',1,'nachm'],['silv-raclette',1,'abend'],['os-aquaria',2,'nachm'],['os-alpsee',3,'morgen'],['os-eis',3,'nachm']]},
+ {id:'tt-langlauf',place:'tannheim',stay:'tt-rosemarie',kurs:false,name:'Langlauf & Sauna in Tirol',focus:['ruhe','guenstig','well'],food:'selbst',pitch:'Langlauf statt Alpin, Seen-Wanderungen, Sauna im Haus.',
+  items:[['tt-halden',0,'nachm'],['tt-langlauf',1,'morgen'],['sauna-haus',1,'nachm'],['silv-raclette',1,'abend'],['tt-vilsalp',2,'morgen'],['tt-langlauf',3,'morgen'],['tt-fuessen',3,'nachm']]},
+ {id:'bs-huette',place:'balder',stay:'bs-alpenroesle',kurs:false,name:'Hütten & Stille Balderschwang',focus:['ruhe','well'],food:'selbst',pitch:'Sauna und Dampfbad im Haus, Hütten-Silvester, Therme Oberstdorf, Langlauf.',
+  items:[['sauna-haus',0,'nachm'],['bs-langlauf',1,'morgen'],['silv-huette',1,'abend'],['bs-therme',2,'nachm'],['bs-riedberg',3,'morgen'],['sauna-haus',3,'nachm']]}
+];
+const FOCUS={guenstig:'Günstig',ski:'Ski lernen',well:'Wellness',ruhe:'Ruhe & Natur'};
+
+/* Packlisten */
+const PACK={
+ winter:{'Kleidung':['Skiunterwäsche','Skihose & Jacke','Handschuhe, Mütze, Schal','Skibrille','Warme Schuhe'],'Wellness':['Badesachen','Bademantel & Saunatücher','Schlappen'],'Auto':['Winterreifen prüfen','Schneeketten','Eiskratzer & Frostschutz','Abends vorher volltanken'],'Sonstiges':['Sonnencreme & Lippenpflege','Grödel für vereiste Wege','Thermoskanne','Ausweis & Krankenkassenkarte']},
+ stadt:{'Kleidung':['Bequeme Schuhe','Regenjacke'],'Technik':['Powerbank','Ladekabel','Offline-Karten laden'],'Dokumente':['Tickets & Reservierungen','Ausweis']},
+ strand:{'Kleidung':['Badesachen','Sonnenhut','Sandalen'],'Pflege':['Sonnencreme','After-Sun'],'Dokumente':['Reisepass/Ausweis','Auslandskrankenversicherung']},
+ standard:{'Kleidung':['Wetterpassende Kleidung','Bequeme Schuhe'],'Sonstiges':['Ladekabel','Ausweis','Snacks für die Fahrt']}
+};
+
+/* ================= Hilfen ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur=v=>Math.round(v||0).toLocaleString('de-DE')+' €';
+const dec=(v,n)=>(+v||0).toFixed(n).replace('.',',');
+const num=(v,d)=>{const x=parseFloat(String(v).replace(',','.'));return isFinite(x)?x:d};
+const uid=p=>(p||'x')+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const lk=(u,l)=>u?'<a class="lnk" href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(l)+' ↗</a>':'';
+const mp=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const route=(a,b)=>'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(a)+'&destination='+encodeURIComponent(b)+'&travelmode=driving';
+const srcBadge=s=>s==='ok'?'<span class="badge est">Angabe · nachprüfen</span>':s==='plus'?'<span class="badge plus">Gästekarte</span>':'<span class="badge est">Richtwert</span>';
+const pd=s=>{if(!s||!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;const [y,m,d]=s.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d));return dt.toISOString().slice(0,10)===s?dt:null};
+const iso=d=>d.toISOString().slice(0,10);
+const fmtD=d=>WD[d.getUTCDay()]+' '+String(d.getUTCDate()).padStart(2,'0')+'.'+String(d.getUTCMonth()+1).padStart(2,'0')+'.';
+const fmtLong=d=>String(d.getUTCDate()).padStart(2,'0')+'.'+String(d.getUTCMonth()+1).padStart(2,'0')+'.'+d.getUTCFullYear();
+const MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const opt=(act,val,label,sub,on,extra)=>'<button type="button" class="opt" data-act="'+act+'" data-val="'+esc(val)+'" aria-pressed="'+(on?'true':'false')+'"'+(extra||'')+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</button>';
+const chipb=(act,val,label,on)=>'<button type="button" class="chipbtn" data-act="'+act+'" data-val="'+esc(val)+'" aria-pressed="'+(on?'true':'false')+'">'+label+'</button>';
+
+/* ================= Reise-Logik ================= */
+function nightsOf(t){if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b&&b>a)return Math.round((b-a)/864e5)}return Math.max(0,Math.round(num(t.nights,3)))}
+function daysOf(t){
+  const n=nightsOf(t)+1, out=[], a=pd(t.start);
+  for(let i=0;i<n;i++){
+    if(t.dateMode==='fix'&&a){const d=new Date(a.getTime()+i*864e5);out.push({i,date:d,label:fmtD(d),md:iso(d).slice(5)})}
+    else out.push({i,date:null,label:'Tag '+(i+1),md:''});
+  }
+  return out;
+}
+function rangeText(t){
+  if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b)return fmtLong(a)+' – '+fmtLong(b)+' · '+nightsOf(t)+' Nächte'}
+  if(t.dateMode==='flex'){const m=t.month?MONTHS[+t.month.slice(5,7)-1]+' '+t.month.slice(0,4):'Zeitraum offen';return m+' · '+nightsOf(t)+' Nächte (flexibel)'}
+  return 'Datum noch offen · '+nightsOf(t)+' Nächte geplant';
+}
+function countdown(t){if(t.dateMode!=='fix')return null;const a=pd(t.start);if(!a)return null;const now=new Date();const today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());return Math.round((a-today)/864e5)}
+const placeOf=t=>t.catalog==='allgaeu'?PLACES[t.place]||null:null;
+function stayOf(t){if(!t.stayId)return null;return STAYS.find(s=>s.id===t.stayId)||(t.customStays||[]).find(s=>s.id===t.stayId)||null}
+function actOf(t,id){return ACTS[id]||(t.customActs||[]).find(a=>a.id===id)||null}
+function actsFor(t){
+  const out=[];
+  if(t.catalog==='allgaeu'&&t.place) Object.values(ACTS).forEach(a=>{const ps=a.place.split('|');if(a.place==='*'||ps.includes(t.place))out.push(a)});
+  (t.customActs||[]).forEach(a=>out.push(a));
+  return out;
+}
+function sortedItems(t){const so={morgen:0,mittag:1,nachm:2,abend:3};return (t.items||[]).slice().sort((a,b)=>a.day-b.day||so[a.slot]-so[b.slot])}
+
+function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
+function resetStay(t){t.stayQuote=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
+function openCosts(t){const out=[];
+ if(!stayOf(t))out.push('Unterkunft fehlt');
+ else {if(!(num(t.stayQuote,0)>0))out.push('Konkretes Unterkunftsangebot fehlt');out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
+ if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
+ if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
+ if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
+ return out;
+}
+function costNotice(t){return '<div class="note"><b>Vorläufige Planung · kein bestätigter Gesamtpreis</b><p class="small">'+esc(openCosts(t).join(' · '))+'. Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></div>';}
+/* Kosten */
+function cost(t){
+  const P=Math.max(1,Math.round(num(t.persons,2))), N=nightsOf(t), pl=placeOf(t), st=stayOf(t), lines=[];
+  const add=(cat,label,sub,c,src)=>lines.push({cat,t:label,s:sub,c:+c||0,src:src||'est'});
+  const days=daysOf(t), maxDay=days.length-1;
+  const items=sortedItems(t).filter(it=>it.day<=maxDay&&actOf(t,it.act));
+  /* Unterkunft */
+  if(st){
+    if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok');
+    else{const pn=num(st.plan!=null?st.plan:st.priceNight,0);add('unterkunft',st.name,(st.ab?st.ab+' · ':'')+'Planwert '+eur(pn)+' / Nacht × '+N+(st.custom?'':' (Silvester +15 %, geschätzt)'),pn*N,st.custom?'ok':'est')}
+  }
+  /* Anreise */
+  if(t.travel==='auto'){
+    let km=routeKm(t)*2+(pl?pl.local:0);
+    items.forEach(it=>{const a=actOf(t,it.act);km+=(a.kmBy&&pl&&a.kmBy[t.place]!=null)?a.kmBy[t.place]:(a.km||0)});
+    const l=km*num(t.verb,7.5)/100;
+    add('anreise','Sprit · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' € · inkl. Fahrten vor Ort',l*num(t.preis,2.15));
+  } else if(num(t.ticket,0)>0) add('anreise',t.travel==='bahn'?'Bahn-Tickets':'Flug / Ticket','eure Eingabe',num(t.ticket,0),'ok');
+  if(pl) add('gebuehren','Kurbeitrag','≈ '+dec(pl.taxe,2)+' € p. P. / Nacht',pl.taxe*P*N);
+  /* Schneesport */
+  const kursIt=items.filter(it=>actOf(t,it.act).kurs), kursDays=[...new Set(kursIt.map(i=>i.day))];
+  const passDays=new Set(); kursDays.slice(1).forEach(d=>passDays.add(d));
+  items.forEach(it=>{if(actOf(t,it.act).pass)passDays.add(it.day)});
+  const card=!!(st&&t.cardConfirmed===true);
+  const topUsed=new Set(passDays);
+  if(pl&&kursDays.length){const k=kursDays.length, price=k<=3?pl.kurs[k]:pl.kurs[3]+35*(k-3);add('schnee','Gruppenkurs · '+k+(k>1?' Tage':' Tag'),pl.school+' · '+price+' € p. P.',price*P,pl.kursSrc)}
+  const gearDays=new Set(items.filter(it=>actOf(t,it.act).gear).map(i=>i.day)).size;
+  if(gearDays){const g=Math.min(5,gearDays);let r=(RENT_SET[g]+RENT_HELM[g])*P;const on=pl&&pl.onlineRent&&t.online!==false;if(on)r*=0.9;add('schnee','Verleih Set + Helm · '+gearDays+(gearDays>1?' Tage':' Tag'),(RENT_SET[g]+RENT_HELM[g])+' € p. P.'+(on?' · −10 % online':'')+(pl&&pl.onlineRent?'':' · Preise wie Iseler angenommen'),r,pl&&pl.onlineRent?'ok':'est')}
+  let saved=0;
+  if(pl&&passDays.size){const n=passDays.size;
+    if(pl.cardPass&&card){saved=pl.passDay*P*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'in '+pl.card+' enthalten'+(st.card==='?'?' (beim Gastgeber bestätigen!)':''),0,'plus')}
+    else if(pl.cardPass){add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'Unterkunft ohne Gästekarte: '+dec(pl.passDay,2)+' € p. P. / Tag',pl.passDay*P*n,'est')}
+    else{const tb=pl.passTable,pp=n<=3?tb[n]:tb[3]/3*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),dec(pp,2)+' € p. P. ('+pl.passSrc+')',pp*P,'ok')}
+  }
+  /* Unternehmungen */
+  items.forEach(it=>{const a=actOf(t,it.act);if(a.kurs)return;
+    let c;
+    if(a.custom){c=a.per==='pp'?num(a.cost,0)*P:num(a.cost,0)}
+    else{let pp=a.pp||0;if(a.cardPp!=null&&card){pp=a.cardPp;if(a.top){if(topUsed.has(it.day))pp=a.pp;else topUsed.add(it.day)}}if(a.ppKurs!=null&&kursDays.length)pp=a.ppKurs;c=pp*P+(a.grp||0)}
+    const d=days[it.day];
+    if(c>0||a.custom) add(a.custom?(a.cat||'eigen'):a.cat,a.t,(d?d.label+' · '+SLOTNAME[it.slot]:''),c,a.custom?'ok':a.src);
+  });
+  /* Essen */
+  const f=FOOD[t.food]||FOOD.selbst;let fpp=f[1]*(N+1);if(st&&st.breakfast)fpp-=7*N;
+  add('essen','Essen & Trinken · '+f[0],f[2]+' · ≈ '+f[1]+' € p. P. / Tag'+(st&&st.breakfast?' · Frühstück inklusive':''),Math.max(0,fpp)*P);
+  (t.extraCosts||[]).forEach(e=>add('eigen',e.t||'Eigener Posten',e.note||'',num(e.c,0),'ok'));
+  const sub=lines.reduce((s,l)=>s+l.c,0);
+  if(num(t.puffer,0)>0) add('puffer','Puffer '+num(t.puffer,0)+' %','für Unvorhergesehenes',sub*num(t.puffer,0)/100,'ok');
+  const total=lines.reduce((s,l)=>s+l.c,0), byCat={};
+  lines.forEach(l=>byCat[l.cat]=(byCat[l.cat]||0)+l.c);
+  return {lines,total,byCat,saved,P,N,kursDays,passDays};
+}
+/* Plan-Check */
+function checks(t){
+  const out=[], st=stayOf(t), days=daysOf(t), c=cost(t);
+  if(!st) out.push(['warn','Noch keine Unterkunft gewählt','unterkunft']);
+  else if(st.card==='?'&&!t.cardConfirmed) out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
+  if(st&&st.card&&!t.cardConfirmed)out.push(['warn','Gästekarte für diesen Aufenthalt unbestätigt: keine Rabatte eingerechnet','unterkunft']);
+  out.push(['info','Zeitfenster sind grob: Fahrtzeiten, Check-in und genaue Termine noch prüfen','plan']);
+  const items=sortedItems(t);
+  items.forEach(it=>{const a=actOf(t,it.act), d=days[it.day];if(!a)return;
+    if(!d){out.push(['warn',a.t+' liegt nach dem letzten Reisetag','plan']);return}
+    if(a.onlyDate&&d.md&&d.md!==a.onlyDate) out.push(['warn',a.t+' ist für Silvester gedacht, steht aber am '+d.label,'plan']);
+    if(a.dow&&d.date&&!a.dow.includes(d.date.getUTCDay())) out.push(['warn',a.t+' gibt es nur '+a.dow.map(x=>({0:'sonntags',1:'montags',2:'dienstags',3:'mittwochs',4:'donnerstags',5:'freitags',6:'samstags'})[x]).join('/')+', nicht am '+d.label,'plan']);
+    (a.rules||[]).forEach(r=>{if(d.md===r.date&&r.bad.includes(it.slot))out.push(['warn',a.t+' am '+d.label+': '+r.msg,'plan'])});
+    if(a.kitchen&&st&&!st.kitchen) out.push(['warn',a.t+' braucht eine Küche, '+st.name+' hat keine','plan']);
+    if(a.needSauna&&st&&!st.sauna) out.push(['warn','Sauna in der Unterkunft eingeplant, '+st.name+' hat laut Inserat keine','plan']);
+    if(a.warn) out.push(['warn',a.t+': '+a.warn,'plan']);
+  });
+  const kd=c.kursDays; for(let i=1;i<kd.length;i++) if(kd[i]-kd[i-1]>1){out.push(['info','Kurstage nicht am Stück: bei der Skischule nachfragen, ob das geht','plan']);break}
+  const ue=items.filter(it=>actOf(t,it.act)&&actOf(t,it.act).pass);
+  if(ue.length&&kd.length&&ue[0].day<kd[0]) out.push(['info','Übungstag liegt vor dem ersten Kurstag','plan']);
+  const occ={};items.forEach(it=>{const k=it.day+it.slot;occ[k]=(occ[k]||0)+1});
+  Object.keys(occ).forEach(k=>{if(occ[k]>1){const d=days[+k.match(/^\d+/)[0]];out.push(['info',(d?d.label:'')+' '+SLOTNAME[k.replace(/^\d+/,'')]+': '+occ[k]+' Dinge gleichzeitig geplant','plan'])}});
+  if(num(t.budget,0)>0&&c.total>num(t.budget,0)) out.push(['warn',eur(c.total-num(t.budget,0))+' über eurem Budget, siehe Spartipps','kosten']);
+  if(!out.length) out.push(['info','Keine erkennbaren Konflikte in den groben Zeitfenstern','plan']);
+  return out;
+}
+/* Checkliste */
+function checklist(t){
+  const st=stayOf(t), groups=[], book=[];
+  if(st) book.push(['stay','Unterkunft anfragen & buchen: '+st.name,'Datum, Gästekarte, Sauna, Endreinigung klären']);
+  else book.push(['stay','Unterkunft auswählen und anfragen','']);
+  const seen=new Set();
+  sortedItems(t).forEach(it=>{const a=actOf(t,it.act);if(!a||!a.book||seen.has(a.id))return;seen.add(a.id);book.push(['b-'+a.id,(a.kurs?'Kurs buchen: ':'Reservieren: ')+a.t,a.ort||''])});
+  if(sortedItems(t).some(it=>actOf(t,it.act)&&actOf(t,it.act).gear)) book.push(['rent','Verleih reservieren','Schuhgröße, Körpergröße und Gewicht bereithalten']);
+  if(t.travel==='bahn') book.push(['ticket','Zugtickets buchen (Sparpreise früh)','']);
+  groups.push(['Buchen & Anfragen',book]);
+  const pack=PACK[t.type]||PACK.standard;
+  Object.keys(pack).forEach(g=>groups.push(['Packliste: '+g,pack[g].map(x=>['p-'+x,x,''])]));
+  if(t.type==='winter') groups.push(['Kurz vorher',[['snow','Schneebericht und Straßenlage checken','ab 3 Tage vorher'],['open','Öffnungszeiten über die Feiertage prüfen','']]]);
+  groups.push(['Eigene Punkte',(t.customChecks||[]).map(c=>['c-'+c.id,c.t,'',c.id])]);
+  return groups;
+}
+
+/* Angebot anwenden */
+function applyPkg(t,p){
+  resetStay(t);t.routeKm=null;
+  t.catalog='allgaeu';t.place=p.place;t.stayId=p.stay;t.stayQuote=null;t.food=p.food;t.packageId=p.id;
+  const n=daysOf(t).length;
+  t.items=p.items.map(x=>{const a=ACTS[x[0]];const day=a&&a.onlyDate?daysOf(t).findIndex(d=>d.md===a.onlyDate):x[1];return {uid:uid('i'),act:x[0],day,slot:x[2]}}).filter(x=>x.day>=0&&x.day<n);
+  return t;
+}
+function pkgTotal(t,p){return cost(applyPkg(clone(t),p)).total}
+
+/* Neue Reise */
+function newTrip(o){
+  return Object.assign({id:uid('t'),title:'Neue Reise',type:'stadt',status:'idee',dateMode:'open',start:'',end:'',month:'',nights:3,persons:2,budget:800,origin:'73110 Hattenhofen',dest:'',travel:'auto',km:0,verb:7.5,preis:2.15,ticket:0,catalog:'none',place:'',stayId:'',stayQuote:null,customStays:[],items:[],customActs:[],food:'selbst',puffer:0,online:true,check:{},customChecks:[],extraCosts:[],notes:'',packageId:'',created:new Date().toISOString().slice(0,10)},o||{});
+}
+/* Dateisicherung: nur Daten, kein ausführbarer Code. Importe überschreiben nie bestehende Reisen. */
+const BACKUP_FORMAT='reiseplaner-backup', BACKUP_VERSION=1;
+function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(clone)}}
+function validateBackup(raw){
+  if(!raw||raw.format!==BACKUP_FORMAT||raw.version!==BACKUP_VERSION||!Array.isArray(raw.trips))throw new Error('Keine unterstützte Reiseplaner-Sicherung.');
+  if(raw.trips.length>500)throw new Error('Die Sicherung enthält zu viele Reisen.');
+  const seen=new Set();
+  for(const t of raw.trips){
+    if(!t||typeof t!=='object'||Array.isArray(t)||typeof t.id!=='string'||!/^t[a-z0-9]+$/i.test(t.id)||seen.has(t.id)||typeof t.title!=='string'||t.title.length>80||!Array.isArray(t.items)||t.items.length>5000||!Array.isArray(t.customStays)||!Array.isArray(t.customActs)||!Array.isArray(t.extraCosts)||!Array.isArray(t.customChecks))throw new Error('Ungültige oder doppelte Reisedaten in der Sicherung.');
+    if(t.start&&pd(t.start)===null||t.end&&pd(t.end)===null||t.dateMode==='fix'&&(!pd(t.start)||!pd(t.end)||pd(t.end)<=pd(t.start)))throw new Error('Ungültiges Reisedatum in der Sicherung.');
+    if(!Number.isFinite(+t.persons)||+t.persons<1||+t.persons>20||!Number.isFinite(+t.budget)||+t.budget<0||+t.budget>1e9)throw new Error('Ungültige Personen- oder Budgetangabe in der Sicherung.');
+    for(const key of ['km','routeKm','verb','preis','ticket','stayQuote'])if(t[key]!=null&&(!Number.isFinite(+t[key])||+t[key]<0||+t[key]>1e9))throw new Error('Ungültige Kostenangabe in der Sicherung.');
+    seen.add(t.id);
+  }
+  return raw.trips;
+}
+function importTrips(raw,conflictMode){
+  const trips=validateBackup(raw), added=[];
+  for(const original of trips){
+    if(Store.get(original.id)&&conflictMode==='skip')continue;
+    const t=clone(original);
+    if(Store.get(t.id)){t.id=uid('t');t.title=(t.title.slice(0,72)+' (Import)').slice(0,80);t.status='idee'}
+    Store.put(t,true);added.push(t.id);
+  }
+  return added;
+}
+function downloadBackup(trips){
+  const blob=new Blob([JSON.stringify(backupData(trips),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='Reiseplaner-Sicherung-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function silvesterTemplate(){
+  const t=newTrip({title:'Silvester im Schnee',type:'winter',status:'planung',dateMode:'fix',start:'2026-12-30',end:'2027-01-03',budget:1500,catalog:'allgaeu',
+    notes:'Ziel: Wellness + Schnee, Anfängerkurs optional. Budget maximal 1.500 € zu zweit, Wunsch eher darunter.\nHeimkehr am 3.1. mit Erholungszeit; genaue Uhrzeit noch offen.'});
+  return applyPkg(t,PKGS.find(p=>p.id==='oj-spar'));
+}
+
+/* ================= Speicher ================= */
+const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},
+  loadLocal(){try{const s=JSON.parse(localStorage.getItem('rp-trips')||'{}');if(s&&typeof s==='object'&&!Array.isArray(s))this.trips=s;else throw new Error('Ungültige gespeicherte Reisen')}catch(e){this.localError=true;setSync('storage-error');}},
+  saveLocal(){try{localStorage.setItem('rp-trips',JSON.stringify(this.trips));this.localError=false;}catch(e){this.localError=true;setSync('storage-error');}},
+  list(){return Object.values(this.trips).sort((a,b)=>(a.start||a.month||'9999').localeCompare(b.start||b.month||'9999'))},
+  get(id){return this.trips[id]||null},
+  put(t,now){t.updated=Date.now();this.trips[t.id]=t;this.saveLocal();if(this.mode!=='db')return;clearTimeout(this.timers[t.id]);this.timers[t.id]=setTimeout(()=>this.flush(t.id),now?0:700)},
+  async flush(id){if(this.busy[id]){this.again[id]=true;return}const t=this.trips[id];if(!t||!this.db)return;this.busy[id]=true;setSync('saving');
+    try{await this.db.doc('trips/'+id).set(clone(t));this.synced[id]=true;setSync('on')}catch(e){setSync(e&&e.code==='invalid_argument'?'ro':'err')}
+    this.busy[id]=false;if(this.again[id]){this.again[id]=false;this.flush(id)}},
+  async remove(id){delete this.trips[id];this.saveLocal();if(this.db){try{await this.db.doc('trips/'+id).delete()}catch(e){}}},
+  async connect(){
+    let db=null;try{db=(window.claude&&typeof window.claude.use==='function')?await window.claude.use('db'):null}catch(e){db=null}
+    if(!db){setSync('local');return}
+    this.db=db;this.mode='db';setSync('on');let first=true;
+    try{db.collection('trips').onSnapshot(snap=>{
+      const remote={};snap.docs.forEach(d=>{if(d.exists)remote[d.id]=d.data()});
+      let changed=false;
+      if(first){first=false;Object.keys(this.trips).forEach(id=>{if(!remote[id])this.flush(id)})}
+      Object.keys(remote).forEach(id=>{if(this.busy[id]||this.timers[id]&&this.trips[id]&&this.trips[id].updated>(remote[id].updated||0))return;
+        const r=JSON.stringify(remote[id]);if(JSON.stringify(this.trips[id])!==r){this.trips[id]=JSON.parse(r);changed=true}this.synced[id]=true});
+      Object.keys(this.trips).forEach(id=>{if(!remote[id]&&this.synced[id]){delete this.trips[id];changed=true}});
+      this.saveLocal();if(changed)remoteChanged();
+    },()=>{this.mode='local';setSync('local')})}catch(e){this.mode='local';setSync('local')}
+  }
+};
+function setSync(s){if(Store.localError)s='storage-error';const el=$('#sync');if(!el)return;const txt={'storage-error':'Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen',on:'Gespeichert',saving:'Speichert …',local:'Nur in diesem Browser',err:'Speichern fehlgeschlagen, lokal gesichert',ro:'Nur Lesen'}[s]||'';el.className='sync'+(s==='on'||s==='saving'?' on':'');el.querySelector('span').textContent=txt}
+let deferred=false;
+function remoteChanged(){if(UI.pending&&UI.view==='reisen'){const h=UI.pending;const id=h.split('-')[1];if(Store.get(id)){UI.pending=null;go(h,true);return}}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){deferred=true;return}render()}
+document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
+
+/* ================= Zustand & Routing ================= */
+const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
+const TABS=[['ueber','Überblick'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen']];
+function go(h,keepScroll){
+  h=(h||'').replace(/^#/,'');
+  if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
+  else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
+  else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
+  const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.view;
+  try{history.replaceState(null,'','#'+target)}catch(e){}
+  closeSheet();render();if(!keepScroll)try{window.scrollTo(0,0)}catch(e){}
+}
+const cur=()=>UI.view==='reise'?Store.get(UI.tid):null;
+function save(t,now){Store.put(t,now)}
+
+/* ================= Ansichten ================= */
+function vReisen(){
+  const list=Store.list();
+  const card=t=>{const c=cost(t),cd=countdown(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
+    return '<button type="button" class="card click" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3><p class="small muted">'+esc(rangeText(t))+'</p>'+
+    '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
+    (cd!=null?'<p class="small"><b>'+(cd>0?'noch '+cd+' Tage':cd===0?'heute geht’s los':'vorbei')+'</b></p>':'')+
+    '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+'</button>'};
+  return '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
+   '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button>'+(list.some(t=>t.title==='Silvester im Schnee')?'':'<button type="button" class="btn ghost" data-act="tpl-silvester">Vorlage: Silvester im Schnee 26/27</button>')+'</div></section>'+
+   '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit der Silvester-Vorlage.</span></div>')+'</section>'+
+   '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
+   '<section class="block"><h2>So funktioniert’s</h2><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></section>';
+}
+function tripForm(t,prefix){
+  const dm=t.dateMode;
+  return '<div class="stack">'+
+  '<div class="fld"><span>Name der Reise</span><input type="text" data-f="title" value="'+esc(t.title)+'" maxlength="80"></div>'+
+  '<div class="fld"><span>Art</span><div class="opts">'+Object.keys(TYPES).map(k=>opt(prefix+'type',k,TYPES[k],'',t.type===k)).join('')+'</div></div>'+
+  '<div class="fld"><span>Zeitraum</span><div class="opts">'+opt(prefix+'dm','fix','Festes Datum','von – bis',dm==='fix')+opt(prefix+'dm','flex','Nur Zeitraum','Monat + Nächte',dm==='flex')+opt(prefix+'dm','open','Noch offen','nur Dauer',dm==='open')+'</div></div>'+
+  '<div class="form">'+
+   (dm==='fix'?'<label class="fld"><span>Anreise</span><input type="date" data-f="start" value="'+esc(t.start)+'"></label><label class="fld"><span>Abreise</span><input type="date" data-f="end" value="'+esc(t.end)+'"></label>':'')+
+   (dm==='flex'?'<label class="fld"><span>Monat</span><input type="month" data-f="month" value="'+esc(t.month)+'"></label>':'')+
+   (dm!=='fix'?'<label class="fld"><span>Nächte</span><input type="number" min="0" data-f="nights" value="'+esc(t.nights)+'"></label>':'')+
+   '<label class="fld"><span>Personen</span><input type="number" min="1" max="20" data-f="persons" value="'+esc(t.persons)+'"></label>'+
+   '<label class="fld"><span>Budget gesamt (€)</span><input type="number" min="0" step="50" data-f="budget" value="'+esc(t.budget)+'"></label>'+
+   '<label class="fld"><span>Start-Ort</span><input type="text" data-f="origin" value="'+esc(t.origin)+'"></label>'+
+  '</div>'+
+  '<div class="fld"><span>Anreise mit</span><div class="opts">'+opt(prefix+'travel','auto','Auto','',t.travel==='auto')+opt(prefix+'travel','bahn','Bahn','',t.travel==='bahn')+opt(prefix+'travel','flug','Flug / Bus','',t.travel==='flug')+'</div></div>'+
+  '<div class="fld"><span>Ideen-Katalog</span><div class="opts">'+opt(prefix+'catalog','allgaeu','Allgäu & Tirol im Winter','4 Orte, 13 Unterkünfte, 30+ Ideen',t.catalog==='allgaeu')+opt(prefix+'catalog','none','Ohne Katalog','eigene Unterkünfte und Ideen eintragen',t.catalog!=='allgaeu')+'</div></div>'+
+  '</div>';
+}
+function vNeu(){
+  const t=UI.draft;
+  return '<section class="block"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><h1>Neue Reise</h1><p class="lead muted">Alles lässt sich später ändern.</p></section>'+
+  '<section class="block"><div class="panel" id="draft">'+tripForm(t,'d-')+'<div class="row"><button type="button" class="btn" data-act="create">Reise anlegen</button><button type="button" class="btn ghost" data-act="tpl-silvester">Stattdessen Silvester-Vorlage</button></div></div></section>';
+}
+function tripHead(t){
+  const c=cost(t),cd=countdown(t),b=num(t.budget,0);
+  return '<section class="block"><div class="between"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
+  '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
+  (cd!=null&&cd>0?'<p class="muted">Noch <b>'+cd+' Tage</b> bis zur Abreise</p>':'')+'</section>'+
+  '<nav class="tabs" aria-label="Bereiche">'+TABS.map(x=>{let n='';if(x[0]==='plan')n=(t.items||[]).length;if(x[0]==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
+    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+x[0]+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</nav>';
+}
+function stackBar(c){
+  const tot=c.total||1, keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
+  return '<div class="sbar" role="img" aria-label="Kosten nach Kategorie">'+keys.map(k=>'<i style="width:'+(c.byCat[k]/tot*100)+'%;background:'+COSTCAT[k][1]+'"></i>').join('')+'</div><div class="legend">'+keys.map(k=>'<span><i style="background:'+COSTCAT[k][1]+'"></i>'+COSTCAT[k][0]+' <b class="num">'+eur(c.byCat[k])+'</b></span>').join('')+'</div>';
+}
+function tUeber(t){
+  const c=cost(t), b=num(t.budget,0), pl=placeOf(t), st=stayOf(t), ch=checks(t), pk=PKGS.find(p=>p.id===t.packageId);
+  const open=[];checklist(t)[0][1].forEach(i=>{if(!(t.check&&t.check[i[0]]))open.push(i)});
+  return '<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
+  '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+'</small></div>'+
+  '<div class="kpi"><small>Dauer</small><b class="num">'+c.N+' Nächte</b><small>'+c.P+' Personen</small></div>'+
+  '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
+  stackBar(c)+(c.saved?'<p class="small" style="color:var(--ok)">Durch die Gästekarte spart ihr beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
+  '<section class="block"><h2>Plan-Check</h2><div class="checks-list">'+ch.map(x=>'<div class="chk '+x[0]+'"><b>'+(x[0]==='warn'?'!':x[0]==='ok'?'OK':'i')+'</b><span>'+esc(x[1])+'</span><button type="button" class="lnk" style="margin-left:auto" data-go="r-'+t.id+'-'+x[2]+'">Ansehen</button></div>').join('')+'</div></section>'+
+  '<section class="block"><h2>Euer Plan</h2><div class="grid">'+
+   '<div class="card"><span class="eyebrow">Ort</span><h3>'+esc(pl?pl.name:(t.dest||'Noch offen'))+'</h3><p class="small muted">'+esc(pl?pl.short:'')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
+   '<div class="card"><span class="eyebrow">Unterkunft</span><h3>'+esc(st?st.name:'Noch keine')+'</h3><p class="small muted">'+esc(st?(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):''):'Im Bereich Ort & Unterkunft wählen')+'</p><div class="foot">'+(st&&st.url?lk(st.url,'Inserat'):'')+'<button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
+   '<div class="card"><span class="eyebrow">Angebot</span><h3>'+esc(pk?pk.name:'Frei geplant')+'</h3><p class="small muted">'+esc(pk?pk.pitch:'Pakete als Startpunkt im Bereich Angebote')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-angebote">Angebote</button></div></div>'+
+  '</div></section>'+
+  '<section class="block"><h2>Nächste Schritte</h2>'+(open.length?'<div class="checks-list">'+open.slice(0,5).map(i=>'<label class="chk info"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>').join('')+'</div>':'<p class="muted">Alles gebucht.</p>')+'</section>'+
+  '<section class="block"><h2>Reise verwalten</h2><div class="row"><button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button>'+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
+}
+function tAngebote(t){
+  if(t.catalog!=='allgaeu') return '<section class="block"><div class="empty"><b>Für diese Reise gibt es noch keine fertigen Angebote</b><span>Angebote gibt es bisher für den Katalog „Allgäu & Tirol im Winter“. Plant frei über Unterkunft und Unternehmungen.</span><button type="button" class="btn ghost" data-go="r-'+t.id+'-unternehmen">Zu den Unternehmungen</button></div></section>';
+  let list=PKGS.map(p=>({p,tot:pkgTotal(t,p)}));
+  if(UI.pkgf==='mit') list=list.filter(x=>x.p.kurs); if(UI.pkgf==='ohne') list=list.filter(x=>!x.p.kurs);
+  if(UI.pkgfocus) list=list.filter(x=>x.p.focus.includes(UI.pkgfocus));
+  list.sort((a,b)=>a.tot-b.tot);
+  const b=num(t.budget,0);
+  return '<section class="block"><h2>Angebote</h2><p class="lead muted">Geschätzte Wintervorlagen, keine buchbaren Angebote. Übernehmen ersetzt den Tagesplan. Silvester wird auf den 31.12. gelegt; außerhalb eures Zeitraums entfällt es. Saison und freie Tage selbst prüfen.</p>'+
+  '<div class="row">'+chipb('pkgf','alle','Alle',UI.pkgf==='alle')+chipb('pkgf','mit','Mit Ski-/Snowboardkurs',UI.pkgf==='mit')+chipb('pkgf','ohne','Ohne Kurs',UI.pkgf==='ohne')+'</div>'+
+  '<div class="row">'+chipb('pkgfocus','','Jeder Schwerpunkt',!UI.pkgfocus)+Object.keys(FOCUS).map(k=>chipb('pkgfocus',k,FOCUS[k],UI.pkgfocus===k)).join('')+'</div>'+
+  (list.length?'<div class="grid wide">'+list.map(x=>{const p=x.p,pl=PLACES[p.place],st=STAYS.find(s=>s.id===p.stay),active=t.packageId===p.id;
+   return '<div class="card'+(active?' sel':'')+'"><div class="between"><span class="eyebrow">'+esc(pl.name)+'</span><span class="badge'+(p.kurs?' plus':' ok')+'">'+(p.kurs?'mit Kurs':'ohne Kurs')+'</span></div><h3>'+esc(p.name)+'</h3><p class="small">'+esc(p.pitch)+'</p>'+
+   '<p class="small muted">'+esc(st.name)+' · '+p.items.length+' Programmpunkte</p><div class="badges">'+p.focus.map(f=>'<span class="badge">'+FOCUS[f]+'</span>').join('')+'</div>'+
+   '<div class="foot"><span class="price num" style="color:'+(b&&x.tot>b?'var(--bad)':'var(--ok)')+'">'+eur(x.tot)+'</span>'+
+   (active?'<span class="badge ok">übernommen</span>':(UI.confirm==='pkg-'+p.id?'<button type="button" class="btn sm" data-act="pkg-apply" data-val="'+p.id+'">Ja, ersetzen</button><button type="button" class="btn ghost sm" data-act="pkg-cancel">Nein</button>':'<button type="button" class="btn sm" data-act="pkg-ask" data-val="'+p.id+'">Übernehmen</button>'))+
+   '<button type="button" class="btn ghost sm" data-act="pkg-view" data-val="'+p.id+'">Ablauf</button></div></div>'}).join('')+'</div>':'<div class="empty">Kein Angebot passt zu diesen Filtern.</div>')+'</section>';
+}
+function stayCard(t,s){
+  const sel=t.stayId===s.id, N=nightsOf(t);
+  const perks=[s.card===true?'<span class="badge plus">Gästekarte</span>':s.card==='?'?'<span class="badge est">Gästekarte erfragen</span>':'',s.sauna?'<span class="badge ok">Sauna</span>':'',s.kitchen?'<span class="badge">Küche</span>':'',s.breakfast?'<span class="badge">Frühstück</span>':''].join('');
+  const pn=num(s.plan!=null?s.plan:s.priceNight,0);
+  return '<div class="card'+(sel?' sel':'')+'"><span class="eyebrow">'+esc(s.ort||'')+'</span><h3>'+esc(s.name)+'</h3><p class="small">'+esc(s.info||'')+'</p><div class="badges">'+perks+'</div>'+
+  '<p class="small muted">'+esc(s.ab||'eigener Eintrag')+'</p><div class="between"><span class="price num">'+eur(pn*N)+'</span><span class="small muted">'+N+' Nächte · Planwert</span></div>'+
+  '<div class="foot">'+(sel?'<span class="badge ok">ausgewählt</span>':'<button type="button" class="btn sm" data-act="stay" data-val="'+esc(s.id)+'">Auswählen</button>')+(s.url?lk(s.url,'Inserat'):'')+(s.map?lk(mp(s.map),'Karte'):'')+(s.custom?'<button type="button" class="btn ghost sm" data-act="stay-del" data-val="'+esc(s.id)+'">Entfernen</button>':'')+'</div></div>';
+}
+function inquiry(t){
+  const st=stayOf(t), pl=placeOf(t), a=pd(t.start), b=pd(t.end);
+  const when=t.dateMode==='fix'&&a&&b?'vom '+fmtLong(a)+' bis '+fmtLong(b)+' ('+nightsOf(t)+' Nächte)':'für '+nightsOf(t)+' Nächte im Zeitraum '+rangeText(t);
+  return 'Hallo,\n\nwir sind '+t.persons+' Erwachsene und interessieren uns für '+(st?st.name:'Ihre Unterkunft')+' '+when+'.\n\n'+
+   '• Ist die Unterkunft in diesem Zeitraum frei?\n• Was kostet der Aufenthalt insgesamt, inklusive Endreinigung und Kurtaxe?\n'+
+   (pl&&pl.card?'• Ist die Gästekarte '+pl.card+' inklusive?\n':'')+'• Gibt es eine Sauna, und ist die Küche komplett ausgestattet?\n• Ab wann ist die Anreise am ersten Tag möglich?\n\nVielen Dank und viele Grüße';
+}
+function tUnterkunft(t){
+  const pl=placeOf(t), st=stayOf(t);
+  let html='';
+  if(t.catalog==='allgaeu'){
+    html+='<section class="block"><h2>1 · Ort wählen</h2><div class="grid">'+Object.keys(PLACES).map(k=>{const p=PLACES[k],sel=t.place===k;return '<div class="card'+(sel?' sel':'')+'"><span class="eyebrow">'+esc(p.region)+' · '+esc(p.time)+'</span><h3>'+esc(p.name)+'</h3><p class="small">'+esc(p.short)+'</p><ul class="plain small">'+p.pros.map(x=>'<li>'+esc(x)+'</li>').join('')+p.cons.map(x=>'<li class="muted">'+esc(x)+'</li>').join('')+'</ul><div class="foot">'+(sel?'<span class="badge ok">gewählt</span>':'<button type="button" class="btn sm" data-act="place" data-val="'+k+'">Diesen Ort wählen</button>')+lk(route(t.origin||'73110 Hattenhofen',p.map),'Route')+'</div></div>'}).join('')+'</div>'+
+    (UI.confirm==='place'?'<div class="note"><b>Ort wechseln?</b><p>Unternehmungen vom alten Ort werden aus dem Tagesplan entfernt.</p><div class="row"><button type="button" class="btn sm" data-act="place-yes">Ja, wechseln</button><button type="button" class="btn ghost sm" data-act="place-no">Abbrechen</button></div></div>':'')+'</section>';
+  } else {
+    html+='<section class="block"><h2>Ziel</h2><div class="form"><label class="fld"><span>Ort / Stadt</span><input type="text" data-f="dest" value="'+esc(t.dest)+'" placeholder="z. B. Wien"></label>'+(t.travel==='auto'?'<label class="fld"><span>Entfernung einfach (km)</span><input type="number" min="0" data-f="km" value="'+esc(t.km)+'"></label>':'')+'</div>'+(t.dest?'<div class="row">'+lk(route(t.origin,t.dest),'Route')+lk(mp(t.dest),'Karte')+'</div>':'')+'</section>';
+  }
+  let stays=(t.catalog==='allgaeu'&&pl?STAYS.filter(s=>s.place===t.place):[]).concat(t.customStays||[]);
+  const f=UI.sflt; if(f.sauna)stays=stays.filter(s=>s.sauna);if(f.card)stays=stays.filter(s=>s.card===true);if(f.kitchen)stays=stays.filter(s=>s.kitchen);
+  stays.sort((a,b)=>num(a.plan!=null?a.plan:a.priceNight,0)-num(b.plan!=null?b.plan:b.priceNight,0));
+  html+='<section class="block"><h2>'+(t.catalog==='allgaeu'?'2 · ':'')+'Unterkunft</h2>'+
+   (t.catalog==='allgaeu'&&!pl?'<p class="muted">Erst einen Ort wählen.</p>':'<p class="lead muted small">Planwerte sind Inseratspreise +15 % für Silvester (geschätzt). Sobald ihr ein Angebot habt, tragt den echten Preis unten ein.</p><div class="row">'+chipb('sflt','sauna','Mit Sauna',f.sauna)+chipb('sflt','card','Gästekarte sicher',f.card)+chipb('sflt','kitchen','Mit Küche',f.kitchen)+'</div>'+
+   (stays.length?'<div class="grid">'+stays.map(s=>stayCard(t,s)).join('')+'</div>':'<div class="empty">Keine Unterkunft passt zu den Filtern.</div>')+
+   (pl?'<div class="row">'+pl.portal.map(x=>lk(x[1],x[0])).join('')+'</div>':''))+
+   '<details class="panel"><summary><b>+ Eigene Unterkunft eintragen</b></summary><div class="form" id="cs-form"><label class="fld"><span>Name</span><input type="text" id="cs-name"></label><label class="fld"><span>Ort</span><input type="text" id="cs-ort"></label><label class="fld"><span>Preis pro Nacht (€)</span><input type="number" min="0" id="cs-price"></label><label class="fld"><span>Link</span><input type="url" id="cs-url" placeholder="https://"></label></div><div class="row"><label class="small"><input type="checkbox" id="cs-sauna"> Sauna</label><label class="small"><input type="checkbox" id="cs-kitchen" checked> Küche</label><label class="small"><input type="checkbox" id="cs-bf"> Frühstück</label><label class="small"><input type="checkbox" id="cs-card"> Gästekarte</label></div><button type="button" class="btn sm" data-act="stay-add">Hinzufügen</button></details></section>';
+  if(st) html+='<section class="block"><h2>3 · Anfragen & Angebot</h2><div class="panel"><div class="form"><label class="fld"><span>Angebotspreis gesamt (€), sobald bekannt</span><input type="number" min="0" data-f="stayQuote" value="'+esc(t.stayQuote||'')+'" placeholder="leer = Planwert"></label></div>'+
+   '<label class="small"><input type="checkbox" data-act="card-confirm"'+(t.cardConfirmed?' checked':'')+'> Gästekarte und Leistungen für diesen Aufenthalt beim Anbieter bestätigt</label><span class="eyebrow">Anfrage-Text zum Kopieren</span><div class="copybox" id="inq">'+esc(inquiry(t))+'</div><div class="row"><button type="button" class="btn sm" data-act="copy">Text kopieren</button>'+(st.url?lk(st.url,'Zum Inserat'):'')+'</div></div></section>';
+  return html;
+}
+function actCost(t,a){
+  const P=Math.max(1,Math.round(num(t.persons,2))), st=stayOf(t), pl=placeOf(t);
+  if(a.kurs&&pl) return {txt:pl.kurs[1]+' € p. P. (1 Tag) · 2 Tage '+pl.kurs[2]+' €',free:false};
+  if(a.custom){const c=num(a.cost,0);return {txt:c?eur(c)+(a.per==='pp'?' p. P.':' gesamt'):'kostenlos',free:!c}}
+  let pp=a.pp||0;if(a.cardPp!=null&&st&&t.cardConfirmed===true)pp=a.cardPp;if(a.ppKurs!=null&&(t.items||[]).some(it=>actOf(t,it.act)&&actOf(t,it.act).kurs))pp=a.ppKurs;
+  const c=pp*P+(a.grp||0);
+  if(a.pass){const passTxt=pl&&pl.cardPass&&st&&t.cardConfirmed===true?'Skipass inkl.':pl&&pl.passTable?'Skipass '+pl.passTable[1]+' € p. P.':'';return {txt:'Verleih + '+passTxt,free:false}}
+  return {txt:c?eur(c)+' für '+P+(a.top&&st&&t.cardConfirmed===true&&pp===0?' (an Tagen ohne Skipass)':''):'kostenlos'+(a.cardPp===0&&st&&t.cardConfirmed===true?' mit Gästekarte':''),free:!c};
+}
+function tUnternehmen(t){
+  if(t.catalog==='allgaeu'&&!t.place) return '<section class="block"><div class="empty"><b>Erst einen Ort wählen</b><button type="button" class="btn" data-go="r-'+t.id+'-unterkunft">Ort wählen</button></div></section>';
+  let list=actsFor(t);
+  const cnt={};(t.items||[]).forEach(i=>cnt[i.act]=(cnt[i.act]||0)+1);
+  if(UI.fcat!=='alle') list=list.filter(a=>(a.cat||'eigen')===UI.fcat);
+  if(UI.ffree) list=list.filter(a=>actCost(t,a).free);
+  if(UI.findoor) list=list.filter(a=>a.indoor);
+  if(UI.fcard) list=list.filter(a=>a.cardPp!=null||a.src==='plus');
+  const cats=['alle'].concat(Object.keys(CAT));
+  return '<section class="block"><h2>Unternehmungen</h2><p class="lead muted small">Antippen für Ablauf, Kosten und Links. „Einplanen“ legt sie in den Tagesplan.</p>'+
+  '<div class="row">'+cats.map(c=>chipb('fcat',c,c==='alle'?'Alle':CAT[c],UI.fcat===c)).join('')+'</div>'+
+  '<div class="row">'+chipb('ffree','1','Kostenlos',UI.ffree)+chipb('findoor','1','Bei Schlechtwetter',UI.findoor)+(t.catalog==='allgaeu'?chipb('fcard','1','Mit Gästekarte',UI.fcard):'')+'</div>'+
+  (list.length?'<div class="grid">'+list.map(a=>{const c=actCost(t,a);return '<div class="card" style="border-top:4px solid '+CATCOL[a.cat||'eigen']+'"><span class="eyebrow">'+esc(CAT[a.cat||'eigen'])+(a.ort?' · '+esc(a.ort):'')+'</span><h3>'+esc(a.t)+'</h3><p class="small">'+esc(a.s||a.note||'')+'</p>'+
+    '<div class="badges">'+(a.dur?'<span class="badge">'+esc(a.dur)+'</span>':'')+(a.indoor?'<span class="badge">drinnen</span>':'')+(a.book?'<span class="badge">buchen</span>':'')+(a.warn?'<span class="badge bad">Hinweis</span>':'')+(a.custom?'':srcBadge(a.src))+(cnt[a.id]?'<span class="badge ok">'+cnt[a.id]+'× eingeplant</span>':'')+'</div>'+
+    '<p class="small"><b>'+esc(c.txt)+'</b></p><div class="foot"><button type="button" class="btn sm" data-act="plan-act" data-val="'+esc(a.id)+'">+ Einplanen</button><button type="button" class="btn ghost sm" data-act="act-view" data-val="'+esc(a.id)+'">Details</button></div></div>'}).join('')+'</div>':'<div class="empty">Nichts passt zu den Filtern.</div>')+
+  '<details class="panel"><summary><b>+ Eigene Unternehmung anlegen</b></summary><div class="form"><label class="fld"><span>Titel</span><input type="text" id="ca-t"></label><label class="fld"><span>Kategorie</span><select id="ca-cat">'+Object.keys(CAT).map(k=>'<option value="'+k+'"'+(k==='eigen'?' selected':'')+'>'+CAT[k]+'</option>').join('')+'</select></label><label class="fld"><span>Kosten (€)</span><input type="number" min="0" id="ca-cost" value="0"></label><label class="fld"><span>Kosten gelten</span><select id="ca-per"><option value="pp">pro Person</option><option value="grp">gesamt</option></select></label><label class="fld"><span>Dauer</span><input type="text" id="ca-dur" placeholder="z. B. 2 Std."></label><label class="fld"><span>Link</span><input type="url" id="ca-link" placeholder="https://"></label></div><label class="fld"><span>Notiz</span><input type="text" id="ca-note"></label><button type="button" class="btn sm" data-act="act-add">Anlegen</button></details></section>';
+}
+function tPlan(t){
+  const days=daysOf(t), st=stayOf(t), pl=placeOf(t), warnIds=new Set();
+  const items=sortedItems(t);
+  const isWarn=(it,a,d)=>{if(!d)return true;if(a.onlyDate&&d.md&&d.md!==a.onlyDate)return true;if(a.dow&&d.date&&!a.dow.includes(d.date.getUTCDay()))return true;if((a.rules||[]).some(r=>d.md===r.date&&r.bad.includes(it.slot)))return true;if(a.kitchen&&st&&!st.kitchen)return true;if(a.needSauna&&st&&!st.sauna)return true;return false};
+  const special=d=>d.md==='12-31'?'Silvester':d.md==='01-01'?'Neujahr':d.md==='12-24'?'Heiligabend':'';
+  return '<section class="block"><div class="between"><h2>Tagesplan</h2><div class="row">'+(UI.confirm==='clear'?'<span class="small">Plan leeren?</span><button type="button" class="btn warn sm" data-act="clear-yes">Ja</button><button type="button" class="btn ghost sm" data-act="clear-no">Nein</button>':'<button type="button" class="btn ghost sm" data-act="clear">Plan leeren</button>')+'</div></div>'+
+  '<p class="lead muted small">Wischen für weitere Tage. Antippen eines Punktes zum Verschieben oder Entfernen, „+“ zum Hinzufügen. Gelb umrandet = Konflikt.</p>'+
+  '<div class="board">'+days.map(d=>{const sp=special(d);
+    return '<div class="dcol"><div class="dhead"><b>'+esc(d.label)+'</b><span class="eyebrow">'+(d.i===0?'Anreise':d.i===days.length-1?'Abreise':sp)+(d.i===0&&sp||d.i===days.length-1&&sp?' · '+sp:'')+'</span></div>'+
+    SLOTS.map(([k,lab])=>{const its=items.filter(it=>it.day===d.i&&it.slot===k);
+      let fixed='';
+      if(d.i===0&&k==='morgen') fixed='<div class="item fixed">Anreise'+(pl?' · '+esc(pl.time):'')+'<small>ab '+esc(t.origin||'')+'</small></div>';
+      if(d.i===days.length-1&&days.length>1&&k==='morgen') fixed='<div class="item fixed">Packen & Abreise<small>'+(pl?'zuhause ≈ 2–2,5 Std. später':'')+'</small></div>';
+      return '<div class="dslot"><span class="lbl">'+lab+'</span>'+fixed+its.map(it=>{const a=actOf(t,it.act);if(!a)return '';return '<button type="button" class="item'+(isWarn(it,a,d)?' warn':'')+'" style="border-left-color:'+CATCOL[a.cat||'eigen']+'" data-act="item" data-val="'+it.uid+'">'+esc(a.t)+'<small>'+esc(a.dur||'')+(a.ort?' · '+esc(a.ort):'')+'</small></button>'}).join('')+
+      '<button type="button" class="add" data-act="slot-add" data-val="'+d.i+'|'+k+'" aria-label="'+esc(d.label+' '+lab)+' hinzufügen">+</button></div>'}).join('')+'</div>'}).join('')+'</div></section>';
+}
+function tKosten(t){
+  const c=cost(t), groups={};
+  c.lines.forEach(l=>{(groups[l.cat]=groups[l.cat]||[]).push(l)});
+  const order=['unterkunft','anreise','gebuehren','schnee','wellness','ausflug','genuss','essen','eigen','puffer'];
+  const tips=savingTips(t);
+  return '<section class="block"><h2>Einstellungen</h2><div class="panel">'+
+   '<div class="fld"><span>Essen</span><div class="opts">'+Object.keys(FOOD).map(k=>opt('food',k,FOOD[k][0],'≈ '+FOOD[k][1]+' € p. P. / Tag',t.food===k)).join('')+'</div></div>'+
+   '<div class="fld"><span>Puffer</span><div class="opts">'+[0,5,10].map(p=>opt('puffer',p,p?p+' %':'Kein Puffer','',num(t.puffer,0)===p)).join('')+'</div></div>'+
+   (t.travel==='auto'?'<div class="form"><label class="fld"><span>Strecke einfach (km, manuell)</span><input type="number" min="0" data-f="routeKm" value="'+routeKm(t)+'"></label><label class="fld"><span>Verbrauch l/100 km</span><input type="text" inputmode="decimal" data-f="verb" value="'+dec(num(t.verb,7.5),1)+'"></label><label class="fld"><span>€ pro Liter</span><input type="text" inputmode="decimal" data-f="preis" value="'+dec(num(t.preis,2.15),2)+'"></label></div><p class="small muted">Strecke ab eurem Startort eintragen. Katalogstrecken gelten nur ab Hattenhofen. Kraftstoffpreis ist eine anpassbare Annahme.</p>':'<div class="form"><label class="fld"><span>Ticketkosten gesamt (€)</span><input type="number" min="0" data-f="ticket" value="'+esc(t.ticket)+'"></label></div>')+
+   (placeOf(t)&&placeOf(t).onlineRent?'<label class="small"><input type="checkbox" data-act="online"'+(t.online!==false?' checked':'')+'> Verleih online buchen (−10 %)</label>':'')+
+  '</div></section>'+
+  '<section class="block"><h2>Aufstellung</h2>'+stackBar(c)+'<div class="tbl-wrap"><table><thead><tr><th>Posten</th><th>Quelle</th><th class="r">Betrag</th></tr></thead><tbody>'+
+   order.filter(k=>groups[k]).map(k=>'<tr class="grp"><td>'+COSTCAT[k][0]+'</td><td></td><td class="r">'+eur(c.byCat[k])+'</td></tr>'+groups[k].map(l=>'<tr><td>'+esc(l.t)+'<small>'+esc(l.s)+'</small></td><td>'+srcBadge(l.src)+'</td><td class="r">'+eur(l.c)+'</td></tr>').join('')).join('')+
+   '<tr class="total"><td>Gesamt</td><td></td><td class="r">'+eur(c.total)+'</td></tr><tr><td>pro Person</td><td></td><td class="r">'+eur(c.total/c.P)+'</td></tr></tbody></table></div>'+
+   (c.saved?'<p class="small" style="color:var(--ok)">Gästekarte spart beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
+  '<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
+  '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Übernehmen</button></div>').join('')+'</div>':'<p class="muted">Schon sehr sparsam geplant.</p>')+'</section>';
+}
+function savingTips(t){
+  const base=cost(t).total, out=[], st=stayOf(t), pl=placeOf(t);
+  const tryT=(label,fn)=>{const c=clone(t);if(fn(c)===false)return;const s=base-cost(c).total;if(s>=5)out.push({t:label,save:s,fn})};
+  if(pl){const cheapest=STAYS.filter(s=>s.place===t.place&&(s.kitchen||!(t.items||[]).some(i=>actOf(t,i.act)&&actOf(t,i.act).kitchen))).sort((a,b)=>a.plan-b.plan)[0];
+    if(cheapest&&st&&cheapest.id!==st.id&&!num(t.stayQuote,0)) tryT('Günstigste passende Unterkunft: '+cheapest.name,c=>{resetStay(c);c.stayId=cheapest.id})}
+  const kurs=sortedItems(t).filter(i=>actOf(t,i.act)&&actOf(t,i.act).kurs);
+  if(kurs.length>=2) tryT('Nur 1 Kurstag statt '+kurs.length+' (Rest als Übungstag)',c=>{const last=kurs[kurs.length-1];c.items=c.items.filter(i=>i.uid!==last.uid);const ue=Object.values(ACTS).find(a=>a.pass&&a.place===t.place);if(ue&&!c.items.some(i=>i.act===ue.id))c.items.push({uid:uid('i'),act:ue.id,day:last.day,slot:'morgen'})});
+  const swap=(from,to,label)=>{if((t.items||[]).some(i=>i.act===from)&&ACTS[to])tryT(label,c=>{c.items.forEach(i=>{if(i.act===from)i.act=to})})};
+  swap('oj-kristall','oj-wsauna','Wonnemar-Sauna statt Kristall-Therme');
+  swap('oj-wsauna','oj-wbad','Wonnemar-Bad (mit PLUS frei) statt Saunawelt');
+  if(!st||st.kitchen){swap('silv-menu','silv-raclette','Raclette in der Wohnung statt Silvestermenü');swap('silv-huette','silv-raclette','Raclette in der Wohnung statt Hütten-Silvester')}
+  if(t.food!=='selbst'&&(!st||st.kitchen)) tryT('Mehr selbst kochen statt auswärts essen',c=>{c.food='selbst'});
+  if(pl&&pl.onlineRent&&t.online===false) tryT('Verleih online buchen (−10 %)',c=>{c.online=true});
+
+  return out.sort((a,b)=>b.save-a.save);
+}
+function tCheck(t){
+  const g=checklist(t); let all=0,done=0; g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));
+  return '<section class="block"><div class="between"><h2>Checkliste</h2><span class="num"><b>'+done+'</b> von '+all+'</span></div><div class="bar"><i style="width:'+(all?done/all*100:0)+'%"></i></div>'+
+  g.map(gr=>'<div class="stack"><h3>'+esc(gr[0])+'</h3><div class="checks-list">'+(gr[1].length?gr[1].map(i=>'<label class="chk '+(t.check&&t.check[i[0]]?'ok':'info')+'"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"'+(t.check&&t.check[i[0]]?' checked':'')+'> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span>'+(i[3]?'<button type="button" class="lnk" style="margin-left:auto" data-act="cc-del" data-val="'+esc(i[3])+'">Entfernen</button>':'')+'</label>').join(''):'<p class="muted small">Noch keine.</p>')+'</div></div>').join('')+
+  '<div class="row"><input type="text" id="cc-t" placeholder="Eigener Punkt" style="flex:1;min-width:200px"><button type="button" class="btn sm" data-act="cc-add">Hinzufügen</button></div></section>';
+}
+function tNotiz(t){
+  return '<section class="block"><h2>Notizen</h2><p class="muted small">Ideen, Kontakte, Buchungsnummern. Wird automatisch gespeichert.</p><textarea data-f="notes" aria-label="Notizen">'+esc(t.notes)+'</textarea></section>';
+}
+function vReise(){
+  const t=cur(); if(!t) return vReisen();
+  const body={ueber:tUeber,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz}[UI.tab]||tUeber;
+  return tripHead(t)+costNotice(t)+body(t);
+}
+function render(){
+  const v=$('#view');
+  try{
+    v.innerHTML=UI.view==='neu'?vNeu():UI.view==='reise'?vReise():vReisen();
+    renderDock();
+  }catch(err){
+    console.error('Reiseplaner: Ansicht konnte nicht aufgebaut werden',err);
+    v.innerHTML='<section class="block"><h1>Die Ansicht konnte nicht geladen werden</h1><p>Deine gespeicherten Reisen wurden nicht gelöscht. Schließe die Vorschau und öffne die App im Browser. Falls es dort genauso aussieht, sende uns diese Fehlermeldung: '+esc(err&&err.message||'Unbekannter Fehler')+'</p><button type="button" class="btn" data-go="reisen">Zur Reiseübersicht</button></section>';
+    $('#dock').hidden=true;
+  }
+}
+function renderDock(){
+  const t=cur(), d=$('#dock');
+  if(!t){d.hidden=true;return}
+  const c=cost(t), b=num(t.budget,0);
+  d.hidden=false;$('#dock-nm').textContent=t.title;$('#dock-sum').textContent=eur(c.total)+(b?' / '+eur(b):'');
+  const bar=$('#dock-bar');bar.className='bar'+(b&&c.total>b?' bad':b&&c.total>b*.92?' warn':'');bar.querySelector('i').style.width=(b?Math.min(100,c.total/b*100):0)+'%';
+}
+
+/* ================= Blätter ================= */
+function openSheet(html){$('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';const s=$('.sheet');if(s)s.focus&&s.setAttribute('tabindex','-1')}
+function closeSheet(){$('#sheet-root').innerHTML=''}
+function sheetAct(t,id,preDay,preSlot){
+  const a=actOf(t,id); if(!a) return;
+  const days=daysOf(t), c=actCost(t,a), planned=sortedItems(t).filter(i=>i.act===id);
+  const firstFree=()=>{for(const d of days){if(d.i===0&&a.slot==='morgen')continue;if(!(t.items||[]).some(i=>i.day===d.i&&i.slot===a.slot))return d.i}return 0};
+  const dDay=preDay!=null?preDay:(a.onlyDate?(days.find(d=>d.md===a.onlyDate)||{i:firstFree()}).i:firstFree());
+  const dSlot=preSlot||a.slot||'nachm';
+  openSheet('<span class="eyebrow">'+esc(CAT[a.cat||'eigen'])+(a.ort?' · '+esc(a.ort):'')+'</span><h2>'+esc(a.t)+'</h2><p>'+esc(a.s||a.note||'')+'</p>'+
+   '<div class="badges">'+(a.dur?'<span class="badge">'+esc(a.dur)+'</span>':'')+(a.indoor?'<span class="badge">drinnen</span>':'')+(a.book?'<span class="badge">vorher buchen</span>':'')+(a.custom?'':srcBadge(a.src))+'</div>'+
+   '<div class="kpis"><div class="kpi"><small>Kosten für euch</small><b class="num" style="font-size:1.2rem">'+esc(c.txt)+'</b></div>'+(a.hours?'<div class="kpi"><small>Zeiten</small><b style="font-size:1.05rem">'+esc(a.hours)+'</b></div>':'')+'</div>'+
+   (a.warn?'<div class="note" style="background:var(--surface-2)"><b style="color:var(--bad)">Hinweis</b><p>'+esc(a.warn)+'</p></div>':'')+
+   (a.steps&&a.steps.length?'<h4>Ablauf</h4><ol class="steps">'+a.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'')+
+   (a.tips&&a.tips.length?'<h4>Tipps</h4><ul class="plain">'+a.tips.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':'')+
+   (a.bring&&a.bring.length?'<h4>Mitnehmen</h4><ul class="plain">'+a.bring.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':'')+
+   '<div class="row">'+(a.links||[]).map(l=>lk(l[1],l[0])).join('')+(a.link?lk(a.link,'Link'):'')+(a.map?lk(mp(a.map),'Karte'):'')+'</div>'+
+   (planned.length?'<h4>Eingeplant</h4><div class="checks-list">'+planned.map(i=>'<div class="chk info"><span>'+esc((days[i.day]||{label:'außerhalb'}).label+' · '+SLOTNAME[i.slot])+'</span><button type="button" class="lnk" style="margin-left:auto" data-act="item-del" data-val="'+i.uid+'">Entfernen</button></div>').join('')+'</div>':'')+
+   '<div class="panel"><h4>Einplanen</h4><div class="form"><label class="fld"><span>Tag</span><select id="pl-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===dDay?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="pl-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===dSlot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div><button type="button" class="btn" data-act="plan-do" data-val="'+esc(a.id)+'">In den Tagesplan</button></div>'+
+   (a.custom?'<button type="button" class="btn ghost sm" data-act="act-del" data-val="'+esc(a.id)+'">Eigene Unternehmung löschen</button>':''));
+}
+function sheetSlot(t,day,slot){
+  const d=daysOf(t)[day]; let list=actsFor(t);
+  list.sort((a,b)=>(a.slot===slot?0:1)-(b.slot===slot?0:1));
+  openSheet('<span class="eyebrow">'+esc(d?d.label:'')+' · '+SLOTNAME[slot]+'</span><h2>Was wollt ihr machen?</h2>'+
+   (list.length?'<div class="checks-list">'+list.map(a=>'<button type="button" class="chk info" style="cursor:pointer;text-align:left" data-act="slot-pick" data-val="'+esc(a.id)+'|'+day+'|'+slot+'"><span style="border-left:4px solid '+CATCOL[a.cat||'eigen']+';padding-left:8px"><b>'+esc(a.t)+'</b><br><small class="muted">'+esc(CAT[a.cat||'eigen'])+(a.dur?' · '+esc(a.dur):'')+' · '+esc(actCost(t,a).txt)+'</small></span></button>').join('')+'</div>':'<div class="empty">Noch keine Unternehmungen. Legt im Bereich Unternehmungen eigene an.</div>'));
+}
+function sheetItem(t,u){
+  const it=(t.items||[]).find(i=>i.uid===u); if(!it) return; const a=actOf(t,it.act), days=daysOf(t);
+  openSheet('<span class="eyebrow">Im Tagesplan</span><h2>'+esc(a?a.t:'')+'</h2><div class="form"><label class="fld"><span>Tag</span><select id="mv-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===it.day?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="mv-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===it.slot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div>'+
+   '<div class="row"><button type="button" class="btn" data-act="item-move" data-val="'+u+'">Verschieben</button><button type="button" class="btn ghost" data-act="act-view" data-val="'+esc(it.act)+'">Details</button><button type="button" class="btn warn" data-act="item-del" data-val="'+u+'">Entfernen</button></div>');
+}
+function sheetPkg(t,id){
+  const p=PKGS.find(x=>x.id===id), tmp=applyPkg(clone(t),p), days=daysOf(tmp), st=STAYS.find(s=>s.id===p.stay), c=cost(tmp);
+  openSheet('<span class="eyebrow">'+esc(PLACES[p.place].name)+' · '+(p.kurs?'mit Kurs':'ohne Kurs')+'</span><h2>'+esc(p.name)+'</h2><p>'+esc(p.pitch)+'</p><p class="small"><b>Unterkunft:</b> '+esc(st.name)+' ('+esc(st.ab)+')</p>'+
+   days.map(d=>{const its=sortedItems(tmp).filter(i=>i.day===d.i);return '<div class="card"><h4>'+esc(d.label)+'</h4>'+(its.length?'<ul class="plain small">'+its.map(i=>'<li><b>'+SLOTNAME[i.slot]+':</b> '+esc(ACTS[i.act].t)+'</li>').join('')+'</ul>':'<p class="small muted">'+(d.i===days.length-1?'Abreise':'frei')+'</p>')+'</div>'}).join('')+
+   '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted">'+eur(c.total/c.P)+' p. P.</span></div>'+(t.packageId===p.id?'<span class="badge ok">übernommen</span>':'<button type="button" class="btn" data-act="pkg-apply" data-val="'+p.id+'">Übernehmen (ersetzt den aktuellen Plan)</button>'));
+}
+function sheetEdit(t){
+  UI.edit=clone(t);
+  openSheet('<h2>Eckdaten</h2><div id="editform">'+tripForm(UI.edit,'e-')+'</div><button type="button" class="btn" data-act="edit-save">Speichern</button>');
+}
+function sheetImport(){
+  const trips=UI.importDraft;if(!trips)return;
+  const conflicts=trips.filter(t=>Store.get(t.id)).length;
+  openSheet('<span class="eyebrow">Sicherung prüfen</span><h2>'+trips.length+' Reisen gefunden</h2><p class="small muted">'+trips.map(t=>esc(t.title)).join(' · ')+'</p><p>'+conflicts+' davon haben bereits dieselbe Reise-ID auf diesem Gerät. Bestehende Reisen werden nicht überschrieben.</p><div class="row"><button type="button" class="btn" data-act="import-skip">Nur neue Reisen importieren</button>'+(conflicts?'<button type="button" class="btn ghost" data-act="import-copy">Vorhandene zusätzlich als Kopie importieren</button>':'')+'<button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');
+}
+
+/* ================= Ereignisse ================= */
+function setField(obj,f,v){
+  if(['persons','nights','budget','km','routeKm','ticket','verb','preis','stayQuote'].includes(f)&&num(v,0)<0){alertMsg('Negative Werte sind nicht erlaubt.');return;}
+  if(['persons','nights'].includes(f)){obj[f]=Math.max(f==='persons'?1:0,Math.round(num(v,0)));return;}
+  if(['persons','nights','budget','km','routeKm','ticket'].includes(f)) obj[f]=Math.max(0,num(v,0));
+  else if(['verb','preis'].includes(f)) obj[f]=num(v,f==='verb'?7.5:2.15);
+  else if(f==='stayQuote') obj[f]=num(v,0)>0?num(v,0):null;
+  else obj[f]=v;
+}
+document.addEventListener('click',async e=>{
+  const g=e.target.closest('[data-go]'); if(g){e.preventDefault();UI.confirm=null;go(g.getAttribute('data-go'));return}
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.getAttribute('data-act'), val=b.getAttribute('data-val'), t=cur();
+  if(act==='backup-all'){downloadBackup(Store.list());return}
+  if(act==='import-open'){$('#import-file').click();return}
+  if(act==='import-skip'||act==='import-copy'){
+    const added=importTrips(backupData(UI.importDraft),act==='import-skip'?'skip':'copy');UI.importDraft=null;closeSheet();render();alertMsg(added.length+' Reisen importiert. Bestehende Reisen blieben unverändert.');return;
+  }
+  const invalid=[...document.querySelectorAll('input[type=number]')].find(x=>x.value!==''&&!x.checkValidity());if(invalid){invalid.reportValidity();return;}
+  if(act==='check'||act==='online'||act==='card-confirm') return; /* über change */
+  if(act==='sheet-bg'&&e.target!==b) return;
+  if(act==='sheet-bg'||act==='sheet-x'){closeSheet();return}
+  /* Entwurf / Eckdaten-Formular */
+  const pm=act.match(/^(d|e)-(type|dm|travel|catalog)$/);
+  if(pm){const o=pm[1]==='d'?UI.draft:UI.edit;const k={type:'type',dm:'dateMode',travel:'travel',catalog:'catalog'}[pm[2]];o[k]=val;
+    if(k==='dateMode'&&val==='fix'&&!o.start){const n=new Date();o.start=iso(new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()+30)));o.end=iso(new Date(pd(o.start).getTime()+864e5*Math.max(1,num(o.nights,3))))}
+    const host=pm[1]==='d'?$('#draft'):$('#editform');if(pm[1]==='d'){render()}else host.innerHTML=tripForm(o,'e-');return}
+  if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>pd(d.start))){alertMsg('Bitte Anreise vor Abreise wählen.');return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
+  if(act==='tpl-silvester'){const s=silvesterTemplate();save(s,true);UI.draft=null;go('r-'+s.id+'-ueber');return}
+  if(!t) return;
+  switch(act){
+   case 'backup-trip': downloadBackup([t]);return;
+   case 'edit-trip': sheetEdit(t);return;
+   case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>pd(o.start))){alertMsg('Bitte Anreise vor Abreise wählen.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;}Object.assign(t,o);save(t);closeSheet();render();return}
+   case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
+   case 'del': UI.confirm='del';render();return;
+   case 'del-no': UI.confirm=null;render();return;
+   case 'del-yes': UI.confirm=null;await Store.remove(t.id);go('reisen');return;
+   case 'pkgf': UI.pkgf=val;break;
+   case 'pkgfocus': UI.pkgfocus=val;break;
+   case 'pkg-ask': UI.confirm='pkg-'+val;break;
+   case 'pkg-cancel': UI.confirm=null;break;
+   case 'pkg-apply':{applyPkg(t,PKGS.find(p=>p.id===val));UI.confirm=null;save(t);closeSheet();go('r-'+t.id+'-plan');return}
+   case 'pkg-view': sheetPkg(t,val);return;
+   case 'place': if((t.items||[]).length&&t.place){UI.confirm='place';UI.pendingPlace=val}else{resetStay(t);t.routeKm=null;t.place=val;t.stayId='';t.packageId='';save(t)}break;
+   case 'place-yes':{const v=UI.pendingPlace;resetStay(t);t.routeKm=null;t.place=v;t.stayId='';t.stayQuote=null;t.packageId='';t.items=(t.items||[]).filter(i=>{const a=actOf(t,i.act);return a&&(a.custom||a.place==='*'||a.place.split('|').includes(v))});UI.confirm=null;save(t);break}
+   case 'place-no': UI.confirm=null;break;
+   case 'sflt': UI.sflt[val]=!UI.sflt[val];break;
+   case 'stay': resetStay(t);t.stayId=val;save(t);break;
+   case 'stay-add':{const n=$('#cs-name').value.trim();if(!n){alertMsg('Bitte einen Namen eintragen.');return}const s={id:uid('s'),custom:true,name:n,ort:$('#cs-ort').value.trim(),priceNight:num($('#cs-price').value,0),url:/^https?:\/\//.test($('#cs-url').value.trim())?$('#cs-url').value.trim():'',sauna:$('#cs-sauna').checked,kitchen:$('#cs-kitchen').checked,breakfast:$('#cs-bf').checked,card:$('#cs-card').checked,info:'Eigener Eintrag',map:$('#cs-ort').value.trim()?n+' '+$('#cs-ort').value.trim():''};
+     resetStay(t);t.customStays=(t.customStays||[]).concat([s]);t.stayId=s.id;save(t);break}
+   case 'stay-del': t.customStays=(t.customStays||[]).filter(s=>s.id!==val);if(t.stayId===val){resetStay(t);t.stayId='';}save(t);break;
+   case 'copy':{const txt=inquiry(t);try{await navigator.clipboard.writeText(txt);b.textContent='Kopiert ✓'}catch(err){const el=$('#inq');const r=document.createRange();r.selectNodeContents(el);const s=window.getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Markiert, jetzt kopieren'}return}
+   case 'fcat': UI.fcat=val;break;
+   case 'ffree': UI.ffree=!UI.ffree;break;
+   case 'findoor': UI.findoor=!UI.findoor;break;
+   case 'fcard': UI.fcard=!UI.fcard;break;
+   case 'act-view': sheetAct(t,val);return;
+   case 'plan-act': sheetAct(t,val);return;
+   case 'plan-do':{const day=+$('#pl-day').value,slot=$('#pl-slot').value;t.items=(t.items||[]).concat([{uid:uid('i'),act:val,day,slot}]);t.packageId='';save(t);closeSheet();render();toast(b,'Eingeplant');return}
+   case 'act-add':{const ti=$('#ca-t').value.trim();if(!ti){alertMsg('Bitte einen Titel eintragen.');return}const link=$('#ca-link').value.trim();
+     t.customActs=(t.customActs||[]).concat([{id:uid('c'),custom:true,t:ti,cat:$('#ca-cat').value,cost:num($('#ca-cost').value,0),per:$('#ca-per').value,dur:$('#ca-dur').value.trim(),link:/^https?:\/\//.test(link)?link:'',note:$('#ca-note').value.trim(),slot:'nachm'}]);save(t);break}
+   case 'act-del': t.customActs=(t.customActs||[]).filter(a=>a.id!==val);t.items=(t.items||[]).filter(i=>i.act!==val);save(t);closeSheet();break;
+   case 'slot-add':{const [d,s]=val.split('|');sheetSlot(t,+d,s);return}
+   case 'slot-pick':{const [id,d,s]=val.split('|');t.items=(t.items||[]).concat([{uid:uid('i'),act:id,day:+d,slot:s}]);t.packageId='';save(t);closeSheet();break}
+   case 'item': sheetItem(t,val);return;
+   case 'item-move':{const it=t.items.find(i=>i.uid===val);if(it){it.day=+$('#mv-day').value;it.slot=$('#mv-slot').value;t.packageId='';save(t)}closeSheet();break}
+   case 'item-del': t.items=(t.items||[]).filter(i=>i.uid!==val);t.packageId='';save(t);closeSheet();break;
+   case 'clear': UI.confirm='clear';break;
+   case 'clear-yes': t.items=[];t.packageId='';UI.confirm=null;save(t);break;
+   case 'clear-no': UI.confirm=null;break;
+   case 'food': t.food=val;save(t);break;
+   case 'puffer': t.puffer=num(val,0);save(t);break;
+   case 'tip':{const tip=savingTips(t)[+val];if(tip){tip.fn(t);save(t)}break}
+   case 'xc-add':{const ti=$('#xc-t').value.trim(),c=num($('#xc-c').value,0);if(!ti||!c){alertMsg('Bitte Bezeichnung und Betrag eintragen.');return}t.extraCosts=(t.extraCosts||[]).concat([{id:uid('k'),t:ti,c}]);save(t);break}
+   case 'xc-del': t.extraCosts=(t.extraCosts||[]).filter(x=>x.id!==val);save(t);break;
+   case 'cc-add':{const ti=$('#cc-t').value.trim();if(!ti)return;t.customChecks=(t.customChecks||[]).concat([{id:uid('k'),t:ti}]);save(t);break}
+   case 'cc-del': t.customChecks=(t.customChecks||[]).filter(x=>x.id!==val);if(t.check)delete t.check['c-'+val];save(t);break;
+   default: return;
+  }
+  render();
+});
+document.addEventListener('change',e=>{
+  const el=e.target, t=cur();
+  if(el.id==='import-file'){
+    const file=el.files&&el.files[0];el.value='';if(!file)return;
+    if(file.size>5*1024*1024){alertMsg('Sicherung ist zu groß (maximal 5 MB).');return}
+    file.text().then(txt=>{UI.importDraft=validateBackup(JSON.parse(txt));sheetImport()}).catch(err=>{UI.importDraft=null;alertMsg('Import nicht möglich: '+err.message)});return;
+  }
+  if(el.matches('[data-act="check"]')&&t){t.check=t.check||{};if(el.checked)t.check[el.getAttribute('data-val')]=true;else delete t.check[el.getAttribute('data-val')];save(t);render();return}
+  if(el.matches('[data-act="card-confirm"]')&&t){t.cardConfirmed=el.checked;save(t);render();return}
+  if(el.matches('[data-act="online"]')&&t){t.online=el.checked;save(t);render();return}
+  const f=el.getAttribute('data-f'); if(!f) return;
+  if(el.closest('#draft')){setField(UI.draft,f,el.value);if(['start','end','nights'].includes(f))render();return}
+  if(el.closest('#editform')){setField(UI.edit,f,el.value);return}
+  if(t){setField(t,f,el.value);save(t);if(f!=='notes')render()}
+});
+document.addEventListener('input',e=>{
+  const el=e.target, f=el.getAttribute('data-f'), t=cur(); if(!f) return;
+  if(el.closest('#draft')){setField(UI.draft,f,el.value);return}
+  if(el.closest('#editform')){setField(UI.edit,f,el.value);return}
+  if(!t) return;
+  setField(t,f,el.value);save(t);
+  if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+window.addEventListener('hashchange',()=>go(location.hash,true));
+function alertMsg(m){let n=$('#msg');if(!n){n=document.createElement('div');n.id='msg';n.setAttribute('role','alert');n.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;max-width:90vw';document.body.appendChild(n)}n.textContent=m;n.hidden=false;clearTimeout(n._t);n._t=setTimeout(()=>{n.hidden=true},2600)}
+function toast(b,m){alertMsg(m)}
+
+/* ================= Start ================= */
+Store.loadLocal();
+window.__app={backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+go(location.hash||'reisen',true);
+Store.connect();
+})();
+</script>
+
+</body></html>

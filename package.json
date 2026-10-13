@@ -1,0 +1,10 @@
+{
+  "name": "reiseplaner",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Reisen, Tagespläne und Kosten gemeinsam nachvollziehbar planen",
+  "scripts": {
+    "test": "node tests/logic.cjs && node tests/start.cjs"
+  },
+  "engines": { "node": ">=20" }
+}
