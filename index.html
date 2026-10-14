@@ -218,7 +218,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.2</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.3</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -460,39 +460,39 @@ function costNotice(t){return '<div class="note"><b>Vorläufige Planung · kein 
 /* Kosten */
 function cost(t){
   const P=Math.max(1,Math.round(num(t.persons,2))), N=nightsOf(t), pl=placeOf(t), st=stayOf(t), lines=[];
-  const add=(cat,label,sub,c,src)=>lines.push({cat,t:label,s:sub,c:+c||0,src:src||'est'});
+  const add=(cat,label,sub,c,src,key)=>lines.push({cat,t:label,s:sub,c:+c||0,src:src||'est',key:key||''});
   const days=daysOf(t), maxDay=days.length-1;
   const items=sortedItems(t).filter(it=>it.day<=maxDay&&actOf(t,it.act));
   /* Unterkunft */
   if(st){
     const offer=activeOffer(t);
-    if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est');}
-    else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok');
-    else{const sn=stayNight(t,st);add('unterkunft',st.name,(st.custom?'Planwert '+eur(sn.pn)+' / Nacht':sn.txt)+' · × '+N+' Nächte',sn.pn*N,sn.src)}
+    if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est','stay');}
+    else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok','stay');
+    else{const sn=stayNight(t,st);add('unterkunft',st.name,(st.custom?'Planwert '+eur(sn.pn)+' / Nacht':sn.txt)+' · × '+N+' Nächte',sn.pn*N,sn.src,'stay')}
   }
   /* Anreise */
   if(t.travel==='auto'){
     let km=routeKm(t)*2+(pl?pl.local:0);
     items.forEach(it=>{const a=actOf(t,it.act);km+=(a.kmBy&&pl&&a.kmBy[t.place]!=null)?a.kmBy[t.place]:(a.km||0)});
     const l=km*num(t.verb,7.5)/100;
-    add('anreise','Sprit · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' € · inkl. Fahrten vor Ort',l*num(t.preis,2.15));
-  } else if(num(t.ticket,0)>0) add('anreise',t.travel==='bahn'?'Bahn-Tickets':'Flug / Ticket','eure Eingabe',num(t.ticket,0),'ok');
-  if(pl&&!(activeOffer(t)&&activeOffer(t).fees.tax.state!=='unknown')) add('gebuehren','Kurbeitrag','≈ '+dec(pl.taxe,2)+' € p. P. / Nacht',pl.taxe*P*N);
+    add('anreise','Sprit · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' € · inkl. Fahrten vor Ort',l*num(t.preis,2.15),'est','anreise');
+  } else if(num(t.ticket,0)>0) add('anreise',t.travel==='bahn'?'Bahn-Tickets':'Flug / Ticket','eure Eingabe',num(t.ticket,0),'ok','anreise');
+  if(pl&&!(activeOffer(t)&&activeOffer(t).fees.tax.state!=='unknown')) add('gebuehren','Kurbeitrag','≈ '+dec(pl.taxe,2)+' € p. P. / Nacht',pl.taxe*P*N,'est','kurbeitrag');
   /* Schneesport */
   const kursIt=items.filter(it=>actOf(t,it.act).kurs), kursDays=[...new Set(kursIt.map(i=>i.day))];
   const passDays=new Set(); kursDays.slice(1).forEach(d=>passDays.add(d));
   items.forEach(it=>{if(actOf(t,it.act).pass)passDays.add(it.day)});
   const card=!!(st&&t.cardConfirmed===true);
   const topUsed=new Set(passDays);
-  if(pl&&kursDays.length){const k=kursDays.length, price=k<=3?pl.kurs[k]:pl.kurs[3]+35*(k-3);add('schnee','Gruppenkurs · '+k+(k>1?' Tage':' Tag'),pl.school+' · '+price+' € p. P.'+(k>3?' · ab Tag 4 mit 35 € / Tag geschätzt':''),price*P,k>3?'est':pl.kursSrc)}
+  if(pl&&kursDays.length){const k=kursDays.length, price=k<=3?pl.kurs[k]:pl.kurs[3]+35*(k-3);add('schnee','Gruppenkurs · '+k+(k>1?' Tage':' Tag'),pl.school+' · '+price+' € p. P.'+(k>3?' · ab Tag 4 mit 35 € / Tag geschätzt':''),price*P,k>3?'est':pl.kursSrc,'kurs')}
   const gearDays=new Set(items.filter(it=>actOf(t,it.act).gear).map(i=>i.day)).size;
   /* Tariftabelle reicht bis 5 Tage; darüber mit dem Zuwachs von Tag 4 auf 5 hochgerechnet und als Schätzung markiert. */
-  if(gearDays){const g=Math.min(5,gearDays),more=gearDays-g,pp=RENT_SET[g]+RENT_HELM[g]+more*((RENT_SET[5]-RENT_SET[4])+(RENT_HELM[5]-RENT_HELM[4]));let r=pp*P;const on=pl&&pl.onlineRent&&t.online!==false;if(on)r*=0.9;add('schnee','Verleih Set + Helm · '+gearDays+(gearDays>1?' Tage':' Tag'),pp+' € p. P.'+(more?' · ab Tag 6 hochgerechnet':'')+(on?' · −10 % online':'')+(pl&&pl.onlineRent?'':' · Preise wie Iseler angenommen'),r,pl&&pl.onlineRent&&!more?'ok':'est')}
+  if(gearDays){const g=Math.min(5,gearDays),more=gearDays-g,pp=RENT_SET[g]+RENT_HELM[g]+more*((RENT_SET[5]-RENT_SET[4])+(RENT_HELM[5]-RENT_HELM[4]));let r=pp*P;const on=pl&&pl.onlineRent&&t.online!==false;if(on)r*=0.9;add('schnee','Verleih Set + Helm · '+gearDays+(gearDays>1?' Tage':' Tag'),pp+' € p. P.'+(more?' · ab Tag 6 hochgerechnet':'')+(on?' · −10 % online':'')+(pl&&pl.onlineRent?'':' · Preise wie Iseler angenommen'),r,pl&&pl.onlineRent&&!more?'ok':'est','verleih')}
   let saved=0;
   if(pl&&passDays.size){const n=passDays.size;
-    if(pl.cardPass&&card){saved=pl.passDay*P*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'in '+pl.card+' enthalten'+(st.card==='?'?' (beim Gastgeber bestätigen!)':''),0,'plus')}
-    else if(pl.cardPass){add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'Unterkunft ohne Gästekarte: '+dec(pl.passDay,2)+' € p. P. / Tag',pl.passDay*P*n,'est')}
-    else{const tb=pl.passTable,pp=n<=3?tb[n]:tb[3]/3*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),dec(pp,2)+' € p. P. ('+pl.passSrc+(n>3?', ab Tag 4 hochgerechnet':'')+')',pp*P,n>3?'est':'ok')}
+    if(pl.cardPass&&card){saved=pl.passDay*P*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'in '+pl.card+' enthalten'+(st.card==='?'?' (beim Gastgeber bestätigen!)':''),0,'plus','skipass')}
+    else if(pl.cardPass){add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'Unterkunft ohne Gästekarte: '+dec(pl.passDay,2)+' € p. P. / Tag',pl.passDay*P*n,'est','skipass')}
+    else{const tb=pl.passTable,pp=n<=3?tb[n]:tb[3]/3*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),dec(pp,2)+' € p. P. ('+pl.passSrc+(n>3?', ab Tag 4 hochgerechnet':'')+')',pp*P,n>3?'est':'ok','skipass')}
   }
   /* Unternehmungen */
   items.forEach(it=>{const a=actOf(t,it.act);if(a.kurs)return;
@@ -500,12 +500,19 @@ function cost(t){
     if(a.custom){c=a.per==='pp'?num(a.cost,0)*P:num(a.cost,0)}
     else{let pp=a.pp||0;if(a.cardPp!=null&&card){pp=a.cardPp;if(a.top){if(topUsed.has(it.day))pp=a.pp;else topUsed.add(it.day)}}if(a.ppKurs!=null&&kursDays.length)pp=a.ppKurs;c=pp*P+(a.grp||0)}
     const d=days[it.day];
-    if(c>0||a.custom) add(a.custom?(a.cat||'eigen'):a.cat,a.t,(d?d.label+' · '+SLOTNAME[it.slot]:''),c,a.custom?'ok':a.src);
+    if(c>0||a.custom) add(a.custom?(a.cat||'eigen'):a.cat,a.t,(d?d.label+' · '+SLOTNAME[it.slot]:''),c,a.custom?'ok':a.src,'act:'+a.id);
   });
   /* Essen */
   const f=FOOD[t.food]||FOOD.selbst;let fpp=f[1]*(N+1);if(st&&st.breakfast)fpp-=7*N;
   add('essen','Essen & Trinken · '+f[0],f[2]+' · ≈ '+f[1]+' € p. P. / Tag'+(st&&st.breakfast?' · Frühstück inklusive':''),Math.max(0,fpp)*P);
-  (t.extraCosts||[]).forEach(e=>add('eigen',e.t||'Eigener Posten',e.note||'',num(e.c,0),'ok'));
+  (t.extraCosts||[]).forEach(e=>add('eigen',e.t||'Eigener Posten',e.note||'',num(e.c,0),'ok','xc:'+e.id));
+  /* Zahlungsbuch: ein erfasster Buchungsbetrag ersetzt den Planwert dieses Postens (auch für den Puffer). */
+  const lg=t.ledger&&typeof t.ledger==='object'?t.ledger:{};
+  Object.keys(lg).forEach(k=>{const le=lg[k];if(!le||le.amount==null||!Number.isFinite(+le.amount)||k==='stay')return;const hit=lines.filter(l=>l.key===k);if(!hit.length)return;
+    const planned=hit.reduce((x,l)=>x+l.c,0),label=k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t;
+    for(let i=lines.length-1;i>=0;i--)if(lines[i].key===k)lines.splice(i,1);
+    lines.push({cat:hit[0].cat,t:label,s:'laut eurer Buchung · Plan war '+eur(planned)+(hit.length>1?' ('+hit.length+' Termine)':''),c:+le.amount,src:'ok',key:k,booked:true})});
+
   const sub=lines.reduce((s,l)=>s+l.c,0);
   if(num(t.puffer,0)>0) add('puffer','Puffer '+num(t.puffer,0)+' %','für Unvorhergesehenes',sub*num(t.puffer,0)/100,'ok');
   const total=lines.reduce((s,l)=>s+l.c,0), byCat={};
@@ -536,6 +543,9 @@ function checks(t){
   const occ={};items.forEach(it=>{const k=it.day+it.slot;occ[k]=(occ[k]||0)+1});
   Object.keys(occ).forEach(k=>{if(occ[k]>1){const d=days[+k.match(/^\d+/)[0]];out.push(['info',(d?d.label:'')+' '+SLOTNAME[k.replace(/^\d+/,'')]+': '+occ[k]+' Dinge gleichzeitig geplant','plan'])}});
   if(num(t.budget,0)>0&&c.total>num(t.budget,0)) out.push(['warn',eur(c.total-num(t.budget,0))+' über eurem Budget, siehe Spartipps','kosten']);
+  if(t.ledger&&Object.keys(t.ledger).length){const fs=financeSummary(t);
+    fs.due.forEach(d=>{if(d.overdue)out.push(['warn','Zahlung überfällig: '+d.label+' · '+eur(d.open)+' seit '+fmtLong(pd(d.due)),'kosten']);else if(d.days<=14)out.push(['info','Zahlung fällig am '+fmtLong(pd(d.due))+': '+d.label+' · '+eur(d.open),'kosten'])});
+    fs.orphanPaid.forEach(r=>out.push(['warn','Zahlung von '+eur(r.paid)+' erfasst für „'+r.label+'“, der nicht mehr im Plan ist: Erstattung klären oder Eintrag entfernen','kosten']));}
   if(!out.length) out.push(['info','Keine erkennbaren Konflikte in den groben Zeitfenstern','plan']);
   return out;
 }
@@ -728,6 +738,7 @@ function icsData(t,now){
       (x.ort||where)?'LOCATION:'+icsEsc(x.ort||where):'',
       'DESCRIPTION:'+icsEsc('Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.'+(x.dur?'\nDauer: '+x.dur:'')+(x.hours?'\nLaut Katalog (unbestätigt): '+x.hours:'')),
       u?'URL:'+u:'','STATUS:TENTATIVE','TRANSP:TRANSPARENT'])});
+  Object.keys(t.ledger||{}).length&&financeSummary(t).due.forEach(d=>{const x=pd(d.due);ev(t.id+'-due-'+d.key.replace(/[^A-Za-z0-9-]/g,'-'),['DTSTART;VALUE=DATE:'+dt(x),'DTEND;VALUE=DATE:'+dt(new Date(x.getTime()+864e5)),'SUMMARY:'+icsEsc('Zahlung fällig: '+d.label+' ('+eur(d.open)+')'),'DESCRIPTION:'+icsEsc('Aus dem Zahlungsbuch der Reise „'+t.title+'“. Betrag laut eurer Erfassung.'),'TRANSP:TRANSPARENT'])});
   L.push('END:VCALENDAR');
   return {text:L.map(icsFold).join('\r\n')+'\r\n',events,skipped};
 }
@@ -764,6 +775,74 @@ function rainIdeas(t,i,max){
   return actsFor(t).filter(a=>a.indoor&&!planned.has(a.id)&&fitsDay(a,d)&&!(a.needSauna&&st&&!st.sauna)&&!(a.kitchen&&st&&!st.kitchen))
     .sort((a,b)=>(a.warn?1:0)-(b.warn?1:0)||(num(a.km,0)-num(b.km,0)))
     .slice(0,max||3);
+}
+/* ================= Zahlungsbuch (#5) =================
+   t.ledger[key] = {status:'offen'|'angefragt'|'gebucht', amount:Zahl|null, paid:Zahl, due:'JJJJ-MM-TT'|''}
+   Schlüssel wie die Kostenzeilen: anreise, kurbeitrag, kurs, verleih, skipass, act:<id>, xc:<id>.
+   Die Unterkunft läuft über das Angebotsmodell (activeOffer) und wird hier nur gelesen. */
+const LEDGER_STATUS={offen:'offen',angefragt:'angefragt',gebucht:'gebucht'};
+const LEDGER_KEY=/^(anreise|kurbeitrag|kurs|verleih|skipass|act:[A-Za-z0-9_-]{1,60}|xc:[A-Za-z0-9_-]{1,60})$/;
+function validateLedger(l){
+  if(l==null)return;
+  if(typeof l!=='object'||Array.isArray(l))throw new Error('Zahlungsbuch ungültig.');
+  const keys=Object.keys(l);if(keys.length>500)throw new Error('Zahlungsbuch zu groß.');
+  keys.forEach(k=>{const e=l[k];
+    if(!LEDGER_KEY.test(k)||!e||typeof e!=='object')throw new Error('Zahlungsbuch-Eintrag ungültig.');
+    if(!LEDGER_STATUS[e.status])throw new Error('Buchungsstatus ungültig.');
+    if(e.amount!=null&&(!Number.isFinite(+e.amount)||+e.amount<0||+e.amount>1e9))throw new Error('Buchungsbetrag ungültig.');
+    if(!Number.isFinite(+e.paid)||+e.paid<0||+e.paid>1e9)throw new Error('Bezahlter Betrag ungültig.');
+    if(e.amount!=null&&+e.paid>+e.amount)throw new Error('Bezahlt übersteigt den Buchungsbetrag.');
+    if(e.due&&!pd(e.due))throw new Error('Fälligkeitsdatum ungültig.');
+  });
+}
+/* Zeilen des Zahlungsbuchs: Plan (ohne Buchungsbeträge), gültiger Betrag, bezahlt, offen. Einträge zu entfernten Posten bleiben sichtbar. */
+function ledgerRows(t){
+  const plan=cost(Object.assign({},t,{ledger:{}})).lines,lg=t.ledger||{},rows=[],seen=new Set();
+  plan.forEach(l=>{if(!l.key||l.key==='stay'||seen.has(l.key))return;seen.add(l.key);
+    const planned=plan.filter(x=>x.key===l.key).reduce((x,y)=>x+y.c,0),e=lg[l.key]||{},amount=e.amount!=null?+e.amount:null,c=amount!=null?amount:planned,paid=num(e.paid,0);
+    rows.push({key:l.key,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,cost:c,status:e.status||'offen',paid,due:e.due||'',open:Math.max(0,c-paid),orphan:false});
+  });
+  Object.keys(lg).forEach(k=>{if(seen.has(k))return;const e=lg[k];const c=e.amount!=null?+e.amount:0;
+    rows.push({key:k,label:k.startsWith('act:')?((actOf(t,k.slice(4))||{}).t||'Entfernte Unternehmung'):k.startsWith('xc:')?'Entfernter Kostenposten':k,cat:'eigen',plan:0,amount:e.amount!=null?+e.amount:null,cost:c,status:e.status,paid:num(e.paid,0),due:e.due||'',open:Math.max(0,c-num(e.paid,0)),orphan:true})});
+  return rows;
+}
+function financeSummary(t){
+  const rows=ledgerRows(t),o=activeOffer(t),oa=o?offerAmounts(o):null,c=cost(t);
+  const stay=o?{label:o.name,cost:oa.total,paid:num(o.paid,0),booked:!!o.booked,deposit:num(o.deposit,0),unknown:oa.unknown.length}:null;
+  const live=rows.filter(r=>!r.orphan);
+  const paid=rows.reduce((x,r)=>x+r.paid,0)+(stay?stay.paid:0);
+  const booked=live.filter(r=>r.status==='gebucht').reduce((x,r)=>x+r.cost,0)+(stay&&stay.booked?stay.cost:0);
+  const today=iso(todayUTC());
+  const due=rows.filter(r=>r.due&&r.open>0.005).sort((a,b)=>a.due.localeCompare(b.due)).map(r=>Object.assign({overdue:r.due<today,days:Math.round((pd(r.due)-todayUTC())/864e5)},r));
+  return {rows,stay,total:c.total,paid,booked,open:Math.max(0,c.total-paid),deposit:stay?stay.deposit:0,due,orphanPaid:rows.filter(r=>r.orphan&&r.paid>0)};
+}
+function setLedger(t,key,field,value){
+  if(!LEDGER_KEY.test(key))throw new Error('Unbekannter Posten.');
+  const l=Object.assign({},t.ledger||{}),e=Object.assign({status:'offen',amount:null,paid:0,due:''},l[key]||{});
+  if(field==='status'){if(!LEDGER_STATUS[value])throw new Error('Buchungsstatus ungültig.');e.status=value}
+  else if(field==='amount'){e.amount=value===''||value==null?null:Math.round(num(value,-1)*100)/100;if(e.amount!=null&&e.amount<0)throw new Error('Betrag darf nicht negativ sein.')}
+  else if(field==='paid'){e.paid=value===''||value==null?0:Math.round(num(value,-1)*100)/100;if(e.paid<0)throw new Error('Betrag darf nicht negativ sein.')}
+  else if(field==='due'){if(value&&!pd(value))throw new Error('Datum ungültig.');e.due=value||''}
+  else throw new Error('Unbekanntes Feld.');
+  const row=ledgerRows(Object.assign({},t,{ledger:Object.assign({},l,{[key]:e})})).find(r=>r.key===key);
+  if(row&&e.paid>row.cost+0.005)throw new Error('Bezahlt ('+eur(e.paid)+') ist höher als der Betrag des Postens ('+eur(row.cost)+'). Bitte zuerst den gebuchten Betrag eintragen.');
+  if(e.status==='offen'&&e.amount==null&&!e.paid&&!e.due)delete l[key];else l[key]=e;
+  validateLedger(l);
+  t.ledger=l;return t;
+}
+function ledgerSection(t){
+  const f=financeSummary(t);
+  const row=r=>'<div class="panel ledger"><div class="between"><b>'+esc(r.label)+'</b><span class="small muted">Plan '+eur(r.plan)+(r.orphan?' · <b>nicht mehr im Plan</b>':'')+'</span></div>'+
+   '<div class="form"><label class="fld"><span>Status</span><select data-ledger="'+esc(r.key)+'" data-ledger-f="status">'+Object.keys(LEDGER_STATUS).map(k=>'<option value="'+k+'"'+(r.status===k?' selected':'')+'>'+LEDGER_STATUS[k]+'</option>').join('')+'</select></label>'+
+   '<label class="fld"><span>Gebuchter Betrag (€)</span><input type="number" min="0" step="0.01" inputmode="decimal" data-ledger="'+esc(r.key)+'" data-ledger-f="amount" value="'+(r.amount!=null?r.amount:'')+'" placeholder="Plan '+Math.round(r.plan)+'"></label>'+
+   '<label class="fld"><span>Bezahlt (€)</span><input type="number" min="0" step="0.01" inputmode="decimal" data-ledger="'+esc(r.key)+'" data-ledger-f="paid" value="'+(r.paid||'')+'"></label>'+
+   '<label class="fld"><span>Fällig am</span><input type="date" data-ledger="'+esc(r.key)+'" data-ledger-f="due" value="'+esc(r.due)+'"></label></div>'+
+   '<p class="small">'+(r.open>0.005?'Noch offen: <b>'+eur(r.open)+'</b>':'<b>Vollständig bezahlt</b>')+(r.due&&r.open>0.005?' · fällig '+esc(fmtLong(pd(r.due))):'')+'</p></div>';
+  const rows=f.rows;
+  return '<section class="block"><h2>Buchungen & Zahlungen</h2><p class="small muted">Je Posten Status, tatsächlich gebuchten Betrag, Bezahltes und Fälligkeit festhalten. Ein gebuchter Betrag ersetzt den Planwert in der Kostenrechnung. Buchungsnummern gehören in die Notizen. Die Unterkunft verwaltet ihr über das ausgewählte Angebot.</p>'+
+   '<div class="kpis"><div class="kpi"><small>Gebucht</small><b class="num">'+eur(f.booked)+'</b><small>Status „gebucht“'+(f.stay?' inkl. Unterkunft, falls extern gebucht':'')+'</small></div><div class="kpi"><small>Bezahlt</small><b class="num">'+eur(f.paid)+'</b><small>alle erfassten Zahlungen</small></div><div class="kpi"><small>Noch offen</small><b class="num">'+eur(f.open)+'</b><small>bis Reiseende, inkl. vor Ort</small></div>'+(f.deposit?'<div class="kpi"><small>Kaution separat</small><b class="num">'+eur(f.deposit)+'</b><small>kein Reiseaufwand</small></div>':'')+'</div>'+
+   (f.due.length?'<div class="checks-list">'+f.due.slice(0,5).map(d=>'<div class="chk '+(d.overdue?'warn':'info')+'"><b>'+(d.overdue?'!':'i')+'</b><span>'+esc(d.label)+': '+eur(d.open)+(d.overdue?' überfällig seit ':' fällig am ')+esc(fmtLong(pd(d.due)))+'</span></div>').join('')+'</div>':'')+
+   (rows.length?'<details class="panel"'+(Object.keys(t.ledger||{}).length?' open':'')+'><summary><b>Posten bearbeiten</b> <small class="muted">'+rows.length+' Posten</small></summary><div class="stack">'+rows.map(row).join('')+'</div></details>':'<p class="muted">Noch keine buchbaren Posten.</p>')+'</section>';
 }
 function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'Reise'}
 
@@ -1006,7 +1085,7 @@ function tKosten(t){
    order.filter(k=>groups[k]).map(k=>'<tr class="grp"><td>'+COSTCAT[k][0]+'</td><td></td><td class="r">'+eur(c.byCat[k])+'</td></tr>'+groups[k].map(l=>'<tr><td>'+esc(l.t)+'<small>'+esc(l.s)+'</small></td><td>'+srcBadge(l.src)+'</td><td class="r">'+eur(l.c)+'</td></tr>').join('')).join('')+
    '<tr class="total"><td>Gesamt</td><td></td><td class="r">'+eur(c.total)+'</td></tr><tr><td>pro Person</td><td></td><td class="r">'+eur(c.total/c.P)+'</td></tr></tbody></table></div>'+
    (c.saved?'<p class="small" style="color:var(--ok)">Gästekarte spart beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  offerFinance(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
+  offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
   '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Übernehmen</button></div>').join('')+'</div>':'<p class="muted">Schon sehr sparsam geplant.</p>')+'</section>';
 }
 function savingTips(t){
@@ -1076,6 +1155,10 @@ function tMappe(t){
    (warn.length?'<section class="block mappe"><h3>Hinweise aus dem Plan-Check</h3><ul class="plain">'+warn.map(x=>'<li>! '+esc(x[1])+'</li>').join('')+'</ul></section>':'')+
    '<section class="block mappe"><h3>Kosten · Planwerte</h3><div class="tbl-wrap"><table><tbody>'+keys.map(k=>'<tr><td>'+esc(COSTCAT[k][0])+'</td><td class="r">'+eur(c.byCat[k])+'</td></tr>').join('')+
    '<tr class="total"><td>Gesamt</td><td class="r">'+eur(c.total)+'</td></tr></tbody></table></div><p class="small">≈ '+eur(c.total/c.P)+' pro Person'+(num(t.budget,0)?' · Budget '+eur(t.budget):'')+'. Kein bestätigter Gesamtpreis.</p>'+(openCosts(t).length?'<p class="small muted">Noch offen: '+esc(openCosts(t).join(' · '))+'</p>':'')+'</section>'+
+   (Object.keys(t.ledger||{}).length||activeOffer(t)?(()=>{const fs=financeSummary(t);return '<section class="block mappe"><h3>Zahlungen</h3><div class="tbl-wrap"><table><thead><tr><th>Posten</th><th>Status</th><th class="r">Betrag</th><th class="r">Bezahlt</th><th class="r">Offen</th></tr></thead><tbody>'+
+     (fs.stay?'<tr><td>Unterkunft: '+esc(fs.stay.label)+'</td><td>'+(fs.stay.booked?'gebucht':'nicht gebucht')+'</td><td class="r">'+eur(fs.stay.cost)+'</td><td class="r">'+eur(fs.stay.paid)+'</td><td class="r">'+eur(Math.max(0,fs.stay.cost-fs.stay.paid))+'</td></tr>':'')+
+     fs.rows.filter(r=>r.status!=='offen'||r.paid||r.amount!=null||r.due).map(r=>'<tr><td>'+esc(r.label)+(r.due&&r.open>0.005?'<small>fällig '+esc(fmtLong(pd(r.due)))+'</small>':'')+'</td><td>'+esc(r.status)+'</td><td class="r">'+eur(r.cost)+'</td><td class="r">'+eur(r.paid)+'</td><td class="r">'+eur(r.open)+'</td></tr>').join('')+
+     '</tbody></table></div><p class="small">Bezahlt gesamt '+eur(fs.paid)+' · noch offen bis Reiseende '+eur(fs.open)+(fs.deposit?' · Kaution separat '+eur(fs.deposit):'')+'</p></section>'})():'')+
    '<section class="block mappe"><h3>Buchungen & Anfragen</h3><ul class="plain">'+book.map(i=>{const done=!!(t.check&&t.check[i[0]]);return '<li>'+(done?'☑ erledigt: ':'☐ offen: ')+esc(i[1])+'</li>'}).join('')+'</ul></section>'+
    (UI.mappeNotes&&String(t.notes||'').trim()?'<section class="block mappe"><h3>Notizen</h3><div class="copybox">'+esc(t.notes)+'</div></section>':'');
 }
@@ -1275,6 +1358,12 @@ document.addEventListener('input',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 window.addEventListener('storage',e=>{if(e.key==='rp-trips'){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
 window.addEventListener('hashchange',()=>go(location.hash,true));
+document.addEventListener('change',e=>{
+  const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-ledger'))return;
+  const t=cur();if(!t||Store.corruptRaw!==null)return;
+  try{setLedger(t,el.getAttribute('data-ledger'),el.getAttribute('data-ledger-f'),el.value);t.schemaVersion=2;save(t);render()}
+  catch(err){alertMsg(err.message);render()}
+});
 function alertMsg(m){let n=$('#msg');if(!n){n=document.createElement('div');n.id='msg';n.setAttribute('role','alert');n.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;max-width:90vw';document.body.appendChild(n)}n.textContent=m;n.hidden=false;clearTimeout(n._t);n._t=setTimeout(()=>{n.hidden=true},2600)}
 function toast(b,m){alertMsg(m)}
 
@@ -1347,6 +1436,7 @@ function validateExtras(t){
  if(t.schemaVersion!=null&&t.schemaVersion!==2)throw new Error('Unbekannte Reiseversion.');
  if(t.search)validateSearch(t.search);
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
+ validateLedger(t.ledger);
  if(t.searchProfiles!=null){if(!Array.isArray(t.searchProfiles)||t.searchProfiles.length>30)throw new Error('Zu viele Profile.');t.searchProfiles.forEach(p=>{if(!p||typeof p.name!=='string'||p.name.length>80||!/^p[a-z0-9]+$/i.test(p.id))throw new Error('Profil ungültig.');validateSearch(p.filters)});}
 }
 function activeOffer(t){const o=(t.offers||[]).find(o=>o.id===t.activeOfferId);return o&&o.stayId===t.stayId?o:null;}
@@ -1485,7 +1575,7 @@ document.addEventListener('click',async e=>{
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

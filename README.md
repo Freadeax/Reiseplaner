@@ -27,6 +27,7 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 - Reisemappe: kompakte Zusammenfassung zum Drucken oder Speichern als PDF, Kalenderdatei (`.ics`) für den Tagesplan und Kurzfassung als Text zum Teilen. Notizen werden nur auf ausdrücklichen Wunsch aufgenommen
 - Plan B bei schlechtem Wetter: Indoor-Ideen aus dem Katalog, die zum Datum passen, zum Beispiel unter Beachtung von Wochentag und Feiertagsöffnung
 - Offline-Start und App-Icon (Service Worker, Manifest)
+- Zahlungsbuch: Für jeden Posten lassen sich Buchungsstatus, tatsächlich gebuchter Betrag, Bezahltes und Fälligkeit erfassen. Überfällige Zahlungen erscheinen im Plan-Check und im Kalender
 - Katalog-Unterkünfte nutzen, wo vorhanden, Preisabfragen der Buchungsportale vom 14.10.2026 je Saison, mit Quelle und Hinweis, ob eure Daten genau abgefragt wurden. Sonst gelten gekennzeichnete Schätzwerte
 - Packliste ergänzt sich aus den geplanten Unternehmungen (z. B. Bademantel für die Sauna, Grödel für die Klamm)
 

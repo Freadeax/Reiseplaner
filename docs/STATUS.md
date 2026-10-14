@@ -1,5 +1,20 @@
 # Projektstand · 14.10.2026
 
+## v2.3 · Zahlungsbuch für alle Reiseposten (Claude, 14.10.2026, Issue #5)
+
+Begonnen auf `df924f0`, vor dem Push mit ChatGPTs `89d2478` (Preiszuordnung, #3) zusammengeführt. Die Unterkunftszahlungen bleiben bei ChatGPTs Angebotsmodell und werden nur gelesen.
+
+- **Optionales Feld `t.ledger[key]`** mit `{status: offen|angefragt|gebucht, amount: Zahl|null, paid: Zahl, due: Datum|''}`.
+  - Schlüssel entsprechen den Kostenzeilen, die jetzt ein Feld `key` tragen: `anreise`, `kurbeitrag`, `kurs`, `verleih`, `skipass`, `act:<id>`, `xc:<id>`.
+  - Das Feld ist additiv. Sicherung und `schemaVersion` bleiben 2, ältere Stände ignorieren das Feld und schreiben es beim Speichern unverändert mit.
+  - `validateLedger` läuft in `validateExtras`, also beim Import und beim Laden aus dem Browser-Speicher.
+- **Fehlerbehebung Kosten:** Bisher ließ sich für Kurs, Verleih, Skipass, Tickets oder Unternehmungen kein tatsächlich gebuchter Preis erfassen, sie blieben Schätzwerte. Ein `amount` ersetzt jetzt den Planwert dieses Postens in `cost()` (Quelle „Angabe“, „laut eurer Buchung · Plan war …“), auch im Puffer.
+- **Grenzen der Eingaben:** Bezahlt kann nicht höher sein als der Betrag. Ungültiger Status, ein ungültiges Datum und negative Werte werden abgewiesen. Ein Eintrag ohne Inhalt wird entfernt.
+- **Kosten-Reiter „Buchungen & Zahlungen“:** Gebucht, bezahlt (inkl. Unterkunftsangebot), noch offen bis Reiseende, Kaution separat und die nächsten Fälligkeiten. Jeder Posten hat Status, Betrag, Bezahlt und „fällig am“. Alles ist als Text sichtbar, nicht nur über Farbe.
+- **Plan-Check:** Überfällige Zahlungen werden als Warnung gemeldet, solche innerhalb von 14 Tagen als Hinweis. Zahlungen zu Posten, die nicht mehr im Plan sind, bleiben sichtbar und erzeugen eine Warnung.
+- **Mappe und Kalender:** Die Mappe hat einen Abschnitt „Zahlungen“, nur wenn etwas erfasst ist. Der `.ics`-Export enthält offene Fälligkeiten als ganztägige Termine.
+- **Tests:** Neu ist `tests/zahlungen.cjs`. `tests/browser.cjs` setzt einen Posten auf „gebucht“, trägt einen Betrag ein und prüft, dass eine Überzahlung abgewiesen und eine gültige Zahlung gespeichert wird. `npm test` und `npm run test:browser` sind grün. Kein iPhone-/Safari-Test.
+- **Grenzen:** Kein Teilzahlungsverlauf mit mehreren Daten, keine Erstattungen, keine Kaution für andere Posten und keine Kontoabgleiche. „Noch offen“ enthält auch Essen und Puffer, die erst vor Ort anfallen.
 
 ## Preiszuordnung und Aktualität (ChatGPT, 14.10.2026, Issue #3)
 
@@ -120,7 +135,7 @@ Am 13.10.2026 zusätzlich ausgeführt (Claude, Stand 1.5): ein Klicktest in **he
 - ChatGPT-Dateivorschau auf iPhone zeigt möglicherweise nur den statischen Rahmen; die App benötigt eine reguläre Browser-Umgebung.
 - Browser-Speicher synchronisiert nicht geräteübergreifend; die optionale Claude-Anbindung ist Altdaten-Kompatibilität, kein tragfähiges Mehrgeräte-Konzept.
 - Live-Anbieterzugänge und automatisch normalisierte Angebotsantworten fehlen. Das manuelle konkrete Angebotsmodell ist in v2.0 implementiert.
-- Zahlungen und Kautionen sind für konkrete Unterkunftsangebote getrennt; ein Zahlungsbuch für andere Reiseposten fehlt.
+- Zahlungen und Kautionen sind für konkrete Unterkunftsangebote getrennt. Seit v2.3 haben andere Reiseposten ein einfaches Zahlungsbuch (Status, Betrag, bezahlt, Fälligkeit), aber ohne Teilzahlungsverlauf, Erstattungen und Kontoabgleich.
 - Strecken außerhalb des Beispielstarts Hattenhofen müssen manuell eingetragen werden.
 - Kurs-, Verleih- und Skipasstarife über 3 bzw. 5 Tage sind nur hochgerechnet (als Richtwert markiert); echte Mehrtagestarife fehlen. Genaue Zeitkonflikte brauchen weitere Regeln.
 - Der öffentliche Katalog enthält Schätzwerte und ältere Angaben. Keine Buchungsentscheidung allein anhand dieser Werte treffen.

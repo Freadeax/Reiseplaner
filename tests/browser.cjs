@@ -100,6 +100,26 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="puffer"][data-val="10"]');
   assert((await viewText(p)).includes('Puffer 10 %'), name + ': Puffer fehlt');
   await noOverflow(p, name + ' Kosten');
+  /* Zahlungsbuch: Stephansdom (3 × 6 € = 18 €) gebucht für 20 €, 20 € bezahlt; Überzahlung wird abgewiesen */
+  await p.click('summary:has-text("Posten bearbeiten")');
+  const sk = await p.getAttribute('[data-ledger^="act:"][data-ledger-f="status"] >> nth=0', 'data-ledger');
+  await p.selectOption('[data-ledger="' + sk + '"][data-ledger-f="status"]', 'gebucht');
+  await p.fill('[data-ledger="' + sk + '"][data-ledger-f="amount"]', '20');
+  await p.press('[data-ledger="' + sk + '"][data-ledger-f="amount"]', 'Tab');
+  const tripId = () => p.evaluate(() => location.hash.split('-')[1]);
+  const ledger = async () => { const id = await tripId(); return p.evaluate(id => JSON.parse(localStorage.getItem('rp-trips'))[id].ledger || {}, id); };
+  assert.equal((await ledger())[sk].amount, 20, name + ': Buchungsbetrag nicht gespeichert');
+  assert((await viewText(p)).includes('laut eurer Buchung'), name + ': Kostenzeile nicht ersetzt');
+  if (!(await p.isVisible('[data-ledger="' + sk + '"][data-ledger-f="paid"]'))) await p.click('summary:has-text("Posten bearbeiten")');
+  await p.fill('[data-ledger="' + sk + '"][data-ledger-f="paid"]', '25');
+  await p.press('[data-ledger="' + sk + '"][data-ledger-f="paid"]', 'Tab');
+  assert.equal((await ledger())[sk].paid, 0, name + ': Überzahlung wurde gespeichert');
+  if (!(await p.isVisible('[data-ledger="' + sk + '"][data-ledger-f="paid"]'))) await p.click('summary:has-text("Posten bearbeiten")');
+  await p.fill('[data-ledger="' + sk + '"][data-ledger-f="paid"]', '20');
+  await p.press('[data-ledger="' + sk + '"][data-ledger-f="paid"]', 'Tab');
+  assert.equal((await ledger())[sk].paid, 20, name + ': Zahlung nicht gespeichert');
+  assert(/Bezahlt\s*20 €/.test(await p.textContent('.kpis >> nth=-1')) || (await viewText(p)).includes('Vollständig bezahlt'), name + ': Zahlungsstand fehlt');
+  await noOverflow(p, name + ' Zahlungsbuch');
 
   /* Checkliste */
   await p.click('.tab[data-go$="-check"]');

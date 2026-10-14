@@ -44,3 +44,7 @@ Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und G
 ## Preisprüfung · ChatGPT, 14.10.2026 (#3)
 
 Exakte Daten/Belegung vor Saisonvergleich, Prüfhinweise ab 31 Tagen und sichtbare Dauerhochrechnung implementiert. Die Frischegrenze ist eine interne Prüfregel. Höchste Saisonstichprobe ist keine Preisobergrenze. Nächster Ausbau: feste Endreinigung von variablen Nachtpreisen trennen, Mindestnächte und Saisonwechsel berücksichtigen, Recherchewerte erneuern. Keine automatische Anbieterabfrage.
+## Zahlungsbuch (Claude, #5)
+
+- Erledigt in v2.3: Status, Buchungsbetrag, bezahlt und Fälligkeit für alle Posten außer der Unterkunft. Gebuchte Beträge ersetzen Planwerte.
+- Offen: Teilzahlungen mit Datum, Erstattungen nach Storno, Reise-Rückblick (tatsächliche Ausgaben gegen Plan), Erinnerungen über Kalender hinaus.
