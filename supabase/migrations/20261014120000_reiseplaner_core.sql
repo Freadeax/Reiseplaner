@@ -1,5 +1,5 @@
 -- Reiseplaner · Kernschema für Reisen, Mitgliedschaften und Einladungen
--- Version 1 · 14.10.2026 · Issue #6
+-- Version 1 · 14.10.2026 · Issue #6 · Produktion: Supabase-Projekt sqkszjurzobltvdluiwh über die GitHub-Integration
 --
 -- Grundsätze
 -- * Jede Reise gehört genau einem Eigentümer (trip_members.role = 'owner'); weitere Mitglieder sind
