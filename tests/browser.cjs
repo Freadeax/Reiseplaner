@@ -207,7 +207,12 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('summary:has-text("Eigene Unternehmung")');
   await p.fill('#ca-t', 'Stephansdom');
   await p.fill('#ca-cost', '6');
+  await p.fill('#ca-hours', '1.5');
+  await p.check('#ca-indoor');
+  await p.fill('#ca-bring', 'Wasserflasche\nJacke');
   await p.click('[data-act="act-add"]');
+  assert((await viewText(p)).includes('ca. 1,5 Std.'), name + ': eigene Dauer fehlt');
+  assert((await viewText(p)).includes('drinnen'), name + ': eigene Indoor-Eignung fehlt');
   await p.click('[data-act="plan-act"]');
   await p.selectOption('#pl-day', '1');
   await p.selectOption('#pl-slot', 'morgen');

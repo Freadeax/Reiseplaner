@@ -14,6 +14,35 @@ const ctx = { window: win, document: { addEventListener() {}, querySelector() { 
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
 
+/* Eigene Ideen: Preis und Dauer bleiben unbekannt bis zur ausdrücklichen Angabe. */
+{
+  const form = { title: 'Eigenes Museum', cat: 'eigen', per: 'pp', cost: '', hours: '', link: '', note: '' };
+  const idea = a.customActFromForm(form, 'cmanual');
+  assert(idea.costOpen && idea.cost === 0);
+  assert.equal(a.actHours(idea), null);
+  assert.equal(a.actCost(a.newTrip(), idea).free, false);
+  const indoor = a.customActFromForm({ ...form, cost: '6.5', hours: '1.5', indoor: true, bring: 'Handtuch\n\nJacke\nHandtuch' }, 'cindoor');
+  assert.equal(indoor.hours, 1.5);
+  assert.equal(indoor.cost, 6.5);
+  assert.equal(indoor.costOpen, false);
+  assert.deepEqual(Array.from(indoor.bring), ['Handtuch', 'Jacke']);
+  const free = a.customActFromForm({ ...form, free: true }, 'cfree');
+  assert.equal(free.costOpen, false);
+  assert(a.actCost(a.newTrip(), free).free);
+  for (const change of [{ cost: '-1' }, { cost: 'abc' }, { cost: '0' }, { hours: '-2' }, { hours: '0' }, { hours: '25' }, { free: true, cost: '9' }, { link: 'javascript:alert(1)' }, { bring: 'x'.repeat(81) }, { bring: Array(11).fill('x').join('\n') }]) {
+    assert.throws(() => a.customActFromForm({ ...form, ...change }, 'cbad'));
+  }
+  const own = a.newTrip({ nights: 2, catalog: 'none' });
+  own.customActs = [idea, indoor]; own.items = [{ uid: 'manual1', act: idea.id, day: 1, slot: 'morgen' }, { uid: 'manual2', act: indoor.id, day: 1, slot: 'nachm' }];
+  assert(a.openCosts(own).some(x => x.includes('Eigenes Museum')));
+  assert.equal(a.dayLoad(own)[1].unknown, 1);
+  assert.equal(a.dayLoad(own)[1].planned, 1.5);
+  assert(a.rainIdeas(own, 0).some(x => x.id === indoor.id));
+  assert(a.checklist(own).some(g => g[1].some(x => /Handtuch/.test(x[1]))));
+  assert.equal(a.validateBackup({ format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(own))] })[0].customActs[1].hours, 1.5);
+  assert(a.tUnternehmen(own).includes('id="ca-hours"'));
+}
+
 let n = 0; const uid = p => p + 'u' + (++n);
 const act = (t, h, extra) => Object.assign({ id: 'c' + (++n), custom: true, t, cat: 'ausflug', cost: 0, per: 'pp', dur: h == null ? '' : 'ca. ' + String(h).replace('.', ',') + ' Std.' }, extra);
 const trip = o => a.newTrip(Object.assign({ id: 'tplan', title: 'Plan', nights: 2, origin: 'A', dest: 'B', travel: 'auto', km: 240 }, o));

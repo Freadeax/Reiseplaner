@@ -1,5 +1,16 @@
 # Projektstand · 14.10.2026
 
+## Eigene Unternehmungen: Dauer, Regen und Packhinweise (ChatGPT, #8)
+
+Gestartet auf 586542c, Claudes neue Tageskombinationen 065caa4 vor Veröffentlichung integriert. Konflikt nur im Testexport; beide Funktionslisten erhalten. Claude bestätigt im Issue keine Paketüberschneidung und bietet Chromium-Prüfung nach dem Push an.
+
+- Formular für eigene Unternehmungen: numerische Dauer (>0 bis 24 Stunden), Indoor-Merkmal, bis zu zehn Packhinweise, je 80 Zeichen. Dieselben vorhandenen optionalen Felder wie der Katalog; keine Migration, keine Auth/Store/Sync/SQL/config/cloud-Änderung.
+- Leerer Preis bedeutet offen, nicht kostenlos. Kostenlos muss ausdrücklich gewählt werden; widersprüchlicher Preis, negative/ungültige Zahlen und ungültige Link-Protokolle werden vor Änderung der Reise abgewiesen. Bestehende eigene Aktivitäten bleiben unverändert.
+- Dauer fließt in bestehende Tagesauslastung, drinnen in Plan B, Mitbringsel in die Packliste. Unbekannte Dauer wird nicht geraten. Kein automatischer Termin oder bestätigte Öffnung.
+- Node-Regressionsfälle für Leerwerte, Gratis, Validierung, Preis-offen, Auslastung, Regenideen, Packliste und Export/Import ergänzt. npm test auf integriertem 065caa4 vollständig grün; Gast-Build, Artefaktprüfung, Browser-Skript-Syntax und diff --check bestanden. Chromium-Skript um Formular-Dauer/Indoor/Packhinweise erweitert; neue Browserausführung bei Claude/CI noch offen, lokal Browserbinary fehlt. Kein neuer iPhone-Test.
+
+Nächster Schritt: Chromium-Abnahme des Formulars, danach Bearbeitung bestehender Aktivitätsdetails mit Buchungsschutz und explizite Zeiten/Wege. Konto und E-Mail bleiben für die PC-Einrichtung zurückgestellt.
+
 ## Warme Oberfläche und gemeinsame Katalogrichtung (ChatGPT)
 
 Ausgangspunkt e36cd65, angekündigt in #7. Erste Designbasis in index.html: Sand/Salbei/Terrakotta, Waldgrün im Dunkelmodus, ruhigere Karten/Reiter, größere Touchziele, Fokus und mobile Detailraster. Nur CSS und theme-color; keine Änderungen an Auth/Store/Sync/SQL/config.js/cloud.js oder gespeicherten Daten. Katalogdaten und DB-Ausbau bleiben bei Claude. Kreative Kombinationen, Regenalternativen und Quellenreife in DESIGN_CATALOG.md vorgeschlagen, noch nicht umgesetzt oder von Claude bestätigt.

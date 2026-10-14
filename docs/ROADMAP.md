@@ -108,4 +108,5 @@ Erste warme CSS-Basis implementiert, Details und kreative nächste Pakete in DES
   - Etappen nachträglich umsortieren.
   - Echte Fahrzeiten per Routing-Dienst (Freigabe nötig).
   - Bahn-Erreichbarkeit als Thema.
-  - Dauer für eigene Unternehmungen als eigenes Eingabefeld.
+  - Dauer für eigene Unternehmungen als eigenes Eingabefeld: implementiert (ChatGPT, #8), mit Indoor, Packhinweisen und offenem Preis. Neue Chromium-Abnahme steht noch aus.
+  - Bestehende eigene Ideen bearbeiten: Details ändern ohne Buchungen, Zahlungen und feste Termine zu umgehen; eigenes Folgepaket.

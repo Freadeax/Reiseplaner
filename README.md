@@ -26,7 +26,7 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
   - Tagesplan: Auslastung je Tag mit geschätzter Fahrzeit, Warnung bei überladenen Tagen, Tage tauschen (gebuchte Termine bleiben geschützt), „Lücken füllen“ mit Ideen aus der Umgebung, Tagesroute als Kartenlink, Packhinweise aus Katalog-Themen in der Packliste.
 - Beispielkatalog für vier Winterregionen mit Unterkünften und Aktivitäten
 - Tagesplan, Kostenübersicht, Pack- und Buchungscheckliste
-- Eigene Unterkunft, Aktivität und Kostenposten ergänzen
+- Eigene Unterkunft, Aktivität und Kostenposten ergänzen. Eigene Unternehmungen mit Dauer in Stunden, Indoor-Merkmal und Packhinweisen; leerer Preis bleibt offen, kostenlos nur bei ausdrücklicher Angabe
 - Einzelne oder alle Reisen als JSON-Datei sichern und ohne stilles Überschreiben wieder importieren
 - Bei beschädigten lokalen Speicherdaten wird das Schreiben gesperrt; Rohdaten lassen sich vor einem bewussten Zurücksetzen herunterladen
 - Heller und dunkler Modus je nach Geräteeinstellung
