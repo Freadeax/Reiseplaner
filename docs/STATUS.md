@@ -129,6 +129,16 @@ Ausgangsstand `e36cd65` (ChatGPT, Buchungsschutz), seitdem keine fremden Änderu
 - Bereits früher übernommene Ideen haben keine Packhinweise (`bring`).
 - Produktion geprüft: CI-Lauf 38625482845 für `482cd7d` grün einschließlich `deploy`. Die Integration hat v2 eingespielt (REST: 86 Ziele, 395 Attraktionen), die Live-Seite zeigt „Online-Katalog (Datenbank), Version 2“ ohne JS-Fehler.
 
+**Nachtrag Etappen umsortieren:**
+- Im Überblick einer Rundreise lassen sich Etappen mit „↑ früher“ / „↓ später“ verschieben und Nächte ändern. Das bleibt ein Entwurf mit „Übernehmen“ oder „Verwerfen“.
+- Beim Übernehmen (`reorderLegs`):
+  - Programmpunkte wandern blockweise mit ihrer Etappe; bei weniger Nächten rücken sie auf den letzten Tag der Etappe.
+  - Weiterfahrten werden neu erzeugt, Etappen-km neu geschätzt.
+  - Bei festen Daten muss die Summe der Nächte gleich bleiben.
+  - Gesperrt bei gebuchten, bezahlten oder fälligen Terminen (`commitmentIssues`).
+- Neue Katalogreisen speichern dafür `originGeo` (optional, validiert). Wird der Abfahrtsort geändert, fällt das Feld weg. Ältere Rundreisen ohne `originGeo` lassen sich umsortieren, aber Anfahrt und Heimfahrt werden nicht neu berechnet; die App sagt das.
+- Tests in `tests/tagesplan.cjs` und im Browser.
+
 **Nachtrag Jahresüberblick „Wann wohin?“:** In den Entdecken-Treffern zeigt eine Tabelle je Monat die Zahl der Ziele mit guter Reisezeit, mit bis zu drei Beispielen (Themen-Treffer zuerst). Monat antippen setzt den Reisemonat und bewertet neu, ohne neue Abfrage; nochmal antippen hebt ihn auf. Getestet in `tests/tagesplan.cjs` und im Browser.
 
 **Nachtrag Tagesideen (Kombis):** Im Ziel-Blatt stehen bis zu 3 Kombis aus Highlight und ruhiger Ergänzung (`CATX.combos`, Regeln in `COMBOS`). Auswählen setzt beide Häkchen, und `catApply` legt die Ergänzung in das freie andere Tagesfenster des Highlights. Getestet in `tests/catalog.cjs` und im Browsertest (gleicher Tag geprüft).

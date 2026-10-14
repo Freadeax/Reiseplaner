@@ -1224,7 +1224,7 @@ function tUeber(t){
   '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
   stackBar(c)+(c.saved?'<p class="small" style="color:var(--ok)">Durch die Gästekarte spart ihr beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
   '<section class="block"><h2>Plan-Check</h2><div class="checks-list">'+ch.map(x=>'<div class="chk '+x[0]+'"><b>'+(x[0]==='warn'?'!':x[0]==='ok'?'OK':'i')+'</b><span>'+esc(x[1])+'</span><button type="button" class="lnk" style="margin-left:auto" data-go="r-'+t.id+'-'+x[2]+'">Ansehen</button></div>').join('')+'</div></section>'+
-  (Array.isArray(t.legs)&&t.legs.length?'<section class="block"><h2>Etappen</h2><ol class="steps">'+t.legs.map((l,i)=>'<li><b>'+esc(l.name)+'</b> · '+num(l.nights,1)+' Nacht/Nächte <span class="small muted">(Anfahrt ≈ '+num(l.roadKm,0)+' km, geschätzt)</span> '+lk(mp(l.name),'Karte')+'</li>').join('')+'</ol></section>':'')+
+  legsBlock(t)+
   '<section class="block"><h2>Euer Plan</h2><div class="grid">'+
    '<div class="card"><span class="eyebrow">Ort</span><h3>'+esc(pl?pl.name:(t.dest||'Noch offen'))+'</h3><p class="small muted">'+esc(pl?pl.short:'')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
    '<div class="card"><span class="eyebrow">Unterkunft</span><h3>'+esc(st?st.name:'Noch keine')+'</h3><p class="small muted">'+esc(st?(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):''):'Im Bereich Ort & Unterkunft wählen')+'</p><div class="foot">'+(st&&st.url?lk(st.url,'Inserat'):'')+'<button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
@@ -1616,7 +1616,7 @@ function setField(obj,f,v){
   if(['persons','nights','budget','km','routeKm','ticket'].includes(f)){obj[f]=Math.max(0,num(v,0));if(f==='km')delete obj.kmSrc;}
   else if(['verb','preis'].includes(f)) obj[f]=num(v,f==='verb'?7.5:2.15);
   else if(f==='stayQuote') obj[f]=num(v,0)>0?num(v,0):null;
-  else obj[f]=v;
+  else{if(f==='origin'&&obj[f]!==v)delete obj.originGeo;obj[f]=v;}
 }
 document.addEventListener('click',async e=>{
   const g=e.target.closest('[data-go]'); if(g){e.preventDefault();UI.confirm=null;go(g.getAttribute('data-go'));return}
@@ -1655,7 +1655,7 @@ document.addEventListener('click',async e=>{
      try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
      try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
    case 'edit-trip': sheetEdit(t);return;
-   case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>=pd(o.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;delete o.kmSrc;}Object.assign(t,o);if(!('kmSrc' in o))delete t.kmSrc;save(t);closeSheet();render();return}
+   case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>=pd(o.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;delete o.kmSrc;delete o.originGeo;}Object.assign(t,o);if(!('kmSrc' in o))delete t.kmSrc;if(!('originGeo' in o))delete t.originGeo;save(t);closeSheet();render();return}
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
@@ -1696,6 +1696,10 @@ document.addEventListener('click',async e=>{
    case 'item-del': t.items=(t.items||[]).filter(i=>i.uid!==val);t.packageId='';save(t);closeSheet();break;
    case 'rain-twin': rainTwinShow(t,val);return;
    case 'rain-swap':{try{const na=rainSwap(t,UI.rainDraft,+val);save(t);closeSheet();UI.rainDraft=null;render();alertMsg('Getauscht: '+na.t+'. Die Draußen-Idee bleibt in der Ideenliste; Preis noch offen.')}catch(err){alertMsg(err.message)}return}
+   case 'leg-move':{const [k,dir]=val.split('|').map(Number);const d=UI.legDraft&&UI.legDraft.trip===t.id?UI.legDraft:{trip:t.id,order:t.legs.map((_,i)=>i),nights:t.legs.map(l=>Math.max(1,Math.round(num(l.nights,1))))};
+     const j=k+dir;if(j<0||j>=d.order.length)return;[d.order[k],d.order[j]]=[d.order[j],d.order[k]];[d.nights[k],d.nights[j]]=[d.nights[j],d.nights[k]];UI.legDraft=d;break}
+   case 'leg-cancel': UI.legDraft=null;break;
+   case 'leg-apply':{const d=UI.legDraft;if(!d||d.trip!==t.id)return;try{const r=reorderLegs(t,d.order,d.nights);const iss=typeof commitmentIssues==='function'?commitmentIssues(t,r.trip):[];if(iss.length)throw new Error('Nicht geändert: '+iss.join(' · '));Object.assign(t,r.trip);save(t);UI.legDraft=null;render();alertMsg('Etappen übernommen.'+(r.recalculated?' Kilometer neu geschätzt.':' Anfahrt/Heimfahrt nicht neu berechnet (Abfahrtsort ohne Koordinaten).'))}catch(err){alertMsg(err.message)}return}
    case 'day-swap-open': sheetSwap(t,+val);return;
    case 'day-swap':{const [a,b2]=val.split('|').map(Number);const cand=swapDays(t,a,b2);const iss=typeof commitmentIssues==='function'?commitmentIssues(t,cand):[];if(iss.length){alertMsg('Nicht getauscht: '+iss.join(' · '));return}t.items=cand.items;t.packageId='';save(t);closeSheet();break}
    case 'plan-fill': planFillSheet(t);return;
@@ -1823,6 +1827,7 @@ function validateExtras(t){
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
  validateLedger(t.ledger);
  if(t.kmSrc!=null&&t.kmSrc!=='schaetzung')throw new Error('Ungültige Herkunft der Fahrstrecke.');
+ if(t.originGeo!=null&&!(t.originGeo&&Number.isFinite(+t.originGeo.lat)&&Number.isFinite(+t.originGeo.lon)&&Math.abs(+t.originGeo.lat)<=90&&Math.abs(+t.originGeo.lon)<=180))throw new Error('Ungültige Koordinaten des Abfahrtsorts.');
  if(t.destGeo!=null&&!(t.destGeo&&typeof t.destGeo==='object'&&Math.abs(+t.destGeo.lat)<=90&&Math.abs(+t.destGeo.lon)<=180&&Number.isFinite(+t.destGeo.lat)&&Number.isFinite(+t.destGeo.lon)))throw new Error('Ungültige Zielkoordinaten.');
  (t.customActs||[]).forEach(a=>{if(!a||typeof a!=='object'||a.costOpen!=null&&typeof a.costOpen!=='boolean'||a.km!=null&&!(Number.isFinite(+a.km)&&+a.km>=0&&+a.km<=1e5)||a.hours!=null&&!(Number.isFinite(+a.hours)&&+a.hours>=0&&+a.hours<=24)||a.transit!=null&&typeof a.transit!=='boolean'||a.bring!=null&&!(Array.isArray(a.bring)&&a.bring.length<=10&&a.bring.every(x=>typeof x==='string'&&x.length<=80)))throw new Error('Ungültige eigene Unternehmung.')});
  if(t.legs!=null&&!(Array.isArray(t.legs)&&t.legs.length<=12&&t.legs.every(l=>l&&typeof l==='object'&&typeof l.name==='string'&&l.name.length<=120&&Math.abs(+l.lat)<=90&&Math.abs(+l.lon)<=180&&Number.isFinite(+l.lat)&&Number.isFinite(+l.lon)&&Number.isInteger(+l.nights)&&+l.nights>=0&&+l.nights<=60&&Number.isFinite(+l.roadKm)&&+l.roadKm>=0)))throw new Error('Ungültige Etappen der Rundreise.');
@@ -2268,7 +2273,7 @@ function catCreate(){
   const s=catState(),x=catFind(s.openId);if(!x)return;
   const p=x.place,nights=Math.max(0,Math.min(30,Math.round(num($('#cat-n').value,0)))),persons=Math.max(1,Math.min(20,Math.round(num($('#cat-p').value,2))));
   const picked=catPicked();
-  const t=newTrip({title:p.name,type:catTripType(p,nights,s.month),nights,persons,budget:0,origin:s.origin.label,dest:p.name+(p.region?', '+p.region:''),travel:'auto',km:x.roadKm,kmSrc:'schaetzung',
+  const t=newTrip({title:p.name,type:catTripType(p,nights,s.month),nights,persons,budget:0,origin:s.origin.label,originGeo:{lat:s.origin.lat,lon:s.origin.lon},dest:p.name+(p.region?', '+p.region:''),travel:'auto',km:x.roadKm,kmSrc:'schaetzung',
     destGeo:{lat:p.lat,lon:p.lon,place:p.id,v:x.version},
     notes:'Aus dem Umkreis-Katalog (Version '+x.version+', '+(x.source==='db'?'Datenbank':'Offline-Kopie')+'). '+p.summary+(p.angle?'\nIdee: '+p.angle:'')+'\nFahrstrecke '+x.roadKm+' km ist eine Schätzung; Preise und Öffnungszeiten vor Ort prüfen.'});
   if(s.month){t.dateMode='flex';t.month=catNextMonth(s.month)}
@@ -2305,6 +2310,7 @@ function catTourCreate(){
   const nights=r.nights.reduce((a,b)=>a+b,0);
   const t=newTrip({title:'Rundreise: '+r.order.map(p=>p.name.split(/[ (&]/)[0]).join(' – ').slice(0,70),type:'rund',nights,persons:P,budget:0,origin:s.origin.label,dest:r.order.map(p=>p.name).join(' → ').slice(0,200),travel:'auto',
     km:Math.round(r.roadKm/2),kmSrc:'schaetzung',destGeo:{lat:r.order[0].lat,lon:r.order[0].lon,place:r.order[0].id,v:(catFind(r.order[0].id)||{}).version||0},
+    originGeo:{lat:s.origin.lat,lon:s.origin.lon},
     legs:r.order.map((p,i)=>({place:p.id,name:p.name.slice(0,120),lat:p.lat,lon:p.lon,nights:r.nights[i],roadKm:r.legs[i].roadKm})),
     notes:'Rundreise aus dem Umkreis-Katalog. Gesamtstrecke ≈ '+r.roadKm+' km einschließlich Heimfahrt (Schätzung, Luftlinie × 1,3); im Feld „Entfernung“ steht die Hälfte, weil die App Hin- und Rückweg rechnet.\n'+r.legs.map((l,i)=>(i===0?s.origin.label:l.from.name)+' → '+(i===r.legs.length-1?s.origin.label:l.to.name)+': ≈ '+l.roadKm+' km').join('\n')});
   if(s.month){t.dateMode='flex';t.month=catNextMonth(s.month)}
@@ -2407,6 +2413,9 @@ document.addEventListener('change',e=>{
   s.res=null;catSavePrefs();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='cat-q'){e.preventDefault();catGeoSearch(e.target.value)}});
+document.addEventListener('change',e=>{const el=e.target;if(!el.getAttribute||el.getAttribute('data-leg-n')==null)return;const t=cur();if(!t||!t.legs)return;
+  const d=UI.legDraft&&UI.legDraft.trip===t.id?UI.legDraft:{trip:t.id,order:t.legs.map((_,i)=>i),nights:t.legs.map(l=>Math.max(1,Math.round(num(l.nights,1))))};
+  d.nights[+el.getAttribute('data-leg-n')]=Math.max(1,Math.min(21,Math.round(num(el.value,1))));UI.legDraft=d;render()});
 document.addEventListener('change',e=>{const el=e.target;if(!el.getAttribute||el.getAttribute('data-tn')==null)return;const s=catState(),i=+el.getAttribute('data-tn');if(s.tourNights&&s.tourNights[i]!=null){s.tourNights[i]=Math.max(1,Math.min(21,Math.round(num(el.value,1))));catTourSheet()}});
 
 /* ================= Tagesplan: realistische Tage, Tausch, Lücken, Tagesroute (Issue #8) ================= */
@@ -2471,9 +2480,51 @@ function planFillApply(t){
   return pick.length;
 }
 
+/* ================= Rundreise: Etappen umsortieren und Nächte ändern (Issue #8) ================= */
+/* Tag, an dem Etappe i beginnt; die letzte Etappe reicht bis zum Abreisetag. */
+function legStarts(legs){let d=0;return legs.map(l=>{const s=d;d+=Math.max(1,Math.round(num(l.nights,1)));return s})}
+function legOfDay(starts,day){let k=0;starts.forEach((s,i)=>{if(day>=s)k=i});return k}
+/* order: neue Reihenfolge als Indizes der alten Etappen; nights: Nächte in neuer Reihenfolge. Gibt eine geänderte Kopie zurück. */
+function reorderLegs(t,order,nights){
+  const legs=t.legs||[];
+  if(!Array.isArray(order)||order.length!==legs.length||[...order].sort((a,b)=>a-b).some((v,i)=>v!==i))throw new Error('Ungültige Reihenfolge.');
+  const nn=(nights||order.map(i=>legs[i].nights)).map(n=>Math.max(1,Math.min(21,Math.round(num(n,1)))));
+  const oldTotal=legs.reduce((x,l)=>x+Math.max(1,Math.round(num(l.nights,1))),0),newTotal=nn.reduce((a,b)=>a+b,0);
+  if(t.dateMode==='fix'&&newTotal!==oldTotal)throw new Error('Feste Reisedaten: Die Summe der Nächte muss gleich bleiben ('+oldTotal+'). Daten zuerst unter „Eckdaten“ ändern.');
+  const c=clone(t),oldStarts=legStarts(legs);
+  const newLegs=order.map((i,k)=>Object.assign({},legs[i],{nights:nn[k]})),newStarts=legStarts(newLegs),lastDay=newTotal;
+  const transitIds=new Set((c.customActs||[]).filter(a=>a.transit).map(a=>a.id));
+  c.items=(c.items||[]).filter(it=>!transitIds.has(it.act)).map(it=>{
+    const k=legOfDay(oldStarts,it.day),pos=order.indexOf(k),off=it.day-oldStarts[k];
+    const span=pos===newLegs.length-1?lastDay-newStarts[pos]:newLegs[pos].nights-1;
+    return Object.assign({},it,{day:newStarts[pos]+Math.max(0,Math.min(off,span))});
+  });
+  c.customActs=(c.customActs||[]).filter(a=>!a.transit);
+  /* Etappen-km neu schätzen; ohne Koordinaten des Starts bleiben Anfahrt und Heimfahrt unbekannt */
+  const est=(a,b)=>CATX?CATX.roadKm(CATX.airKm(a,b)):null,og=t.originGeo&&CATX&&CATX.validPoint(t.originGeo)?t.originGeo:null;
+  newLegs.forEach((l,k)=>{const from=k===0?og:newLegs[k-1];l.roadKm=from&&est(from,l)!=null?est(from,l):(k===0?num(l.roadKm,0):l.roadKm)});
+  newLegs.forEach((l,k)=>{if(k===0)return;const min=Math.round(num(l.roadKm,0)/DRIVE_KMH*60);
+    const mv={id:uid('c'),custom:true,t:'Weiterfahrt nach '+l.name,cat:'eigen',cost:0,per:'grp',dur:'ca. '+(CATX?CATX.durText(min):min+' Min.'),link:'',note:'Etappe ≈ '+num(l.roadKm,0)+' km (geschätzt). Die Kilometer sind schon in der Anreise der Reise enthalten.',slot:'morgen',map:l.name,ort:l.name,transit:true,hours:Math.round(min/6)/10};
+    c.customActs.push(mv);c.items.push({uid:uid('i'),act:mv.id,day:newStarts[k],slot:'morgen'})});
+  c.legs=newLegs;c.dest=newLegs.map(l=>l.name).join(' → ').slice(0,200);
+  if(c.dateMode!=='fix')c.nights=newTotal;
+  if(og&&c.kmSrc==='schaetzung'){const home=est(newLegs[newLegs.length-1],og);c.km=Math.round((newLegs.reduce((x,l)=>x+num(l.roadKm,0),0)+home)/2)}
+  c.packageId='';
+  return {trip:c,recalculated:!!og};
+}
+function legsBlock(t){
+  if(!Array.isArray(t.legs)||!t.legs.length)return '';
+  const L=t.legs,edit=!(Store.isAccount()&&!Store.canEdit(t.id)),d=UI.legDraft&&UI.legDraft.trip===t.id?UI.legDraft:null;
+  const order=d?d.order:L.map((_,i)=>i),nights=d?d.nights:L.map(l=>Math.max(1,Math.round(num(l.nights,1))));
+  return '<section class="block"><h2>Etappen</h2><ol class="steps">'+order.map((i,k)=>{const l=L[i];return '<li><b>'+esc(l.name)+'</b> · '+(edit?'<label class="small">Nächte <input type="number" min="1" max="21" data-leg-n="'+k+'" value="'+nights[k]+'" style="width:5em;display:inline-block;min-height:36px"></label>':nights[k]+' Nacht/Nächte')+
+    (d?'':' <span class="small muted">(Anfahrt ≈ '+num(l.roadKm,0)+' km, geschätzt)</span>')+' '+lk(mp(l.name),'Karte')+
+    (edit?' <span class="row" style="display:inline-flex"><button type="button" class="lnk" data-act="leg-move" data-val="'+k+'|-1"'+(k===0?' disabled':'')+' aria-label="'+esc(l.name)+' früher">↑ früher</button><button type="button" class="lnk" data-act="leg-move" data-val="'+k+'|1"'+(k===order.length-1?' disabled':'')+' aria-label="'+esc(l.name)+' später">↓ später</button></span>':'')+'</li>'}).join('')+'</ol>'+
+   (d?'<div class="note"><b>Neue Reihenfolge noch nicht übernommen</b><p>Die Programmpunkte wandern mit ihrer Etappe, Weiterfahrten und Kilometer werden neu geschätzt'+(t.originGeo?'':' (ohne Koordinaten des Abfahrtsorts bleiben Anfahrt und Heimfahrt unverändert)')+'. Gebuchte oder bezahlte Termine werden nicht verschoben.</p><div class="row"><button type="button" class="btn sm" data-act="leg-apply">Übernehmen</button><button type="button" class="btn ghost sm" data-act="leg-cancel">Verwerfen</button></div></div>':'')+'</section>';
+}
+
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

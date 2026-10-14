@@ -159,6 +159,16 @@ async function entdecken(browser, base, name, ctxOpts) {
   assert((await p.textContent('.board')).includes('Weiterfahrt nach'), name + ': Weiterfahrt eingeplant');
   await p.click('.tab[data-go$="-ueber"]');
   assert((await viewText(p)).includes('Etappen'), name + ': Etappen im Überblick');
+  const legNames = async () => p.$$eval('h2:has-text("Etappen") + ol li b', l => l.map(b => b.textContent));
+  const beforeLegs = await legNames();
+  await p.click('[data-act="leg-move"][data-val="0|1"]');
+  assert((await viewText(p)).includes('Neue Reihenfolge noch nicht übernommen'), name + ': Entwurf sichtbar');
+  await p.click('[data-act="leg-apply"]');
+  const afterLegs = await legNames();
+  assert.deepEqual(afterLegs.slice(0, 2), [beforeLegs[1], beforeLegs[0]], name + ': Etappen getauscht');
+  await p.click('.tab[data-go$="-plan"]');
+  assert((await p.textContent('.board')).includes('Weiterfahrt nach ' + beforeLegs[0]), name + ': Weiterfahrt neu');
+  await p.click('.tab[data-go$="-ueber"]');
   await p.click('.tab[data-go$="-check"]');
   assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packhinweise aus dem Katalog');
   await noOverflow(p, name + ' Rundreise');

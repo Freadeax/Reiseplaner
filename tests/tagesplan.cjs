@@ -167,6 +167,49 @@ assert(/aria-label="Gute Reisemonate: Mai, Juni, Juli"/.test(strip) && (strip.ma
 assert.equal(a.catSeasonStrip([]), '');
 const mapHtml = a.catMap([{ place: { id: 'harz', lat: 51.8, lon: 10.8 } }, { place: { id: 'berlin', lat: 52.5, lon: 13.4 } }], { lat: 48.7, lon: 9.65 });
 assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/text>/.test(mapHtml));
+/* Etappen umsortieren: Punkte wandern blockweise, Weiterfahrten neu, km neu geschätzt, feste Daten und Buchungen geschützt */
+{
+  const legsT = () => {
+    const tt = trip({ type: 'rund', nights: 4, km: 500, kmSrc: 'schaetzung', originGeo: { lat: 48.7, lon: 9.65 },
+      legs: [{ place: 'muenchen', name: 'München', lat: 48.137, lon: 11.575, nights: 2, roadKm: 200 }, { place: 'salzburg', name: 'Salzburg', lat: 47.8, lon: 13.044, nights: 2, roadKm: 150 }] });
+    const m1 = act('Museum M', 2), s1 = act('Festung S', 2), tr = act('Weiterfahrt nach Salzburg', 2, { transit: true });
+    tt.customActs = [m1, s1, tr];
+    tt.items = [{ uid: 'a', act: m1.id, day: 1, slot: 'morgen' }, { uid: 'b', act: tr.id, day: 2, slot: 'morgen' }, { uid: 'c', act: s1.id, day: 3, slot: 'morgen' }];
+    return { tt, m1, s1 };
+  };
+  let { tt, m1, s1 } = legsT();
+  assert.deepEqual(Array.from(a.legStarts(tt.legs)), [0, 2]);
+  const r = a.reorderLegs(tt, [1, 0]);
+  const c = r.trip;
+  assert.deepEqual(c.legs.map(l => l.name), ['Salzburg', 'München']);
+  assert.equal(c.items.find(i => i.act === s1.id).day, 1, 'Salzburg-Punkt wandert in die erste Etappe');
+  assert.equal(c.items.find(i => i.act === m1.id).day, 3, 'München-Punkt wandert in die zweite Etappe');
+  const trs = c.customActs.filter(x => x.transit);
+  assert.equal(trs.length, 1); assert.equal(trs[0].t, 'Weiterfahrt nach München');
+  assert.equal(c.items.find(i => i.act === trs[0].id).day, 2);
+  assert(r.recalculated && c.legs[0].roadKm === C.roadKm(C.airKm({ lat: 48.7, lon: 9.65 }, c.legs[0])), 'Anfahrt neu geschätzt');
+  assert.equal(c.dest, 'Salzburg → München');
+  assert.equal(tt.legs[0].name, 'München', 'Original unverändert bis zur Übernahme');
+  /* Nächte ändern: offene Daten → Gesamtdauer wächst */
+  const r2 = a.reorderLegs(tt, [0, 1], [3, 2]);
+  assert.equal(r2.trip.nights, 5); assert.equal(r2.trip.items.find(i => i.act === s1.id).day, 4, 'Salzburg beginnt später');
+  /* feste Daten: Summe muss gleich bleiben */
+  const fixed = Object.assign(a.newTrip({}), tt, { dateMode: 'fix', start: '2027-05-01', end: '2027-05-05' });
+  assert.throws(() => a.reorderLegs(fixed, [0, 1], [3, 2]), /Summe der Nächte/);
+  assert.equal(a.reorderLegs(fixed, [1, 0], [2, 2]).trip.dateMode, 'fix');
+  assert.throws(() => a.reorderLegs(tt, [0, 0]), /Reihenfolge/);
+  /* ohne Abfahrtskoordinaten: Anfahrt bleibt, Hinweis */
+  const noGeo = Object.assign({}, tt); delete noGeo.originGeo;
+  const r3 = a.reorderLegs(noGeo, [1, 0]);
+  assert.equal(r3.recalculated, false); assert.equal(r3.trip.km, 500, 'km ohne Startkoordinaten unverändert');
+  /* gebuchter Punkt: Prüfung meldet Verschiebung */
+  tt.ledger = { ['act:' + m1.id]: { status: 'gebucht', amount: 20, paid: 0 } };
+  assert(a.commitmentIssues(tt, a.reorderLegs(tt, [1, 0]).trip).length >= 1, 'gebuchter Termin blockiert Umsortieren');
+  /* Abfahrtsort ändern entfernt veraltete Koordinaten */
+  const o2 = Object.assign({}, tt); a.setField(o2, 'origin', 'Anderswo'); assert.equal(o2.originGeo, undefined);
+  const bk = { format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(Object.assign({}, legsT().tt, { id: 'tgeo1', originGeo: { lat: 99, lon: 0 } })))] };
+  assert.throws(() => a.validateBackup(bk), /Abfahrtsorts/);
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';
@@ -180,4 +223,4 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.catYear({ places: [] }), '');
   a.catState().month = '';
 }
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) und Jahresüberblick geprüft.');
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz) geprüft.');
