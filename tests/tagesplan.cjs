@@ -14,6 +14,40 @@ const ctx = { window: win, document: { addEventListener() {}, querySelector() { 
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
 
+/* Manuelle Änderungen dürfen Verpflichtungen und absolute Termine nicht umgehen. */
+{
+  const t = a.newTrip({ dateMode: 'fix', start: '2027-05-01', end: '2027-05-04', persons: 2 });
+  const idea = a.customActFromForm({ title: 'Museum', cat: 'eigen', cost: '12', per: 'pp', hours: '2' }, 'cprotected');
+  t.customActs = [idea]; t.items = [{ uid: 'protected1', act: idea.id, day: 1, slot: 'morgen' }];
+  const original = JSON.stringify(t);
+  assert.equal(a.protectedPlanChange(t, 'move', { uid: 'protected1', day: 2, slot: 'abend' }).items[0].day, 2);
+  assert.equal(JSON.stringify(t), original, 'Kandidat verändert Original nicht');
+  assert.throws(() => a.protectedPlanChange(t, 'move', { uid: 'protected1', day: 99, slot: 'abend' }), /gültigen/);
+  assert.equal(a.protectedPlanChange(t, 'clear').items.length, 0);
+  for (const e of [{status:'gebucht',paid:0}, {status:'angefragt',paid:0}, {status:'offen',paid:1}, {status:'offen',paid:0,due:'2027-04-01'}]) {
+    t.ledger = { 'act:cprotected': e };
+    const snapshot = JSON.stringify(t);
+    for (const [op,args] of [['move',{uid:'protected1',day:2,slot:'morgen'}],['remove',{uid:'protected1'}],['clear',{}],['package',{id:a.PKGS[0].id}]]) {
+      assert.throws(() => a.protectedPlanChange(t,op,args), /Nicht geändert/);
+      assert.equal(JSON.stringify(t),snapshot);
+    }
+    const dateDraft = JSON.parse(JSON.stringify(t));dateDraft.start='2027-05-02';dateDraft.end='2027-05-05';
+    assert.throws(() => a.protectedPlanChange(t,'edit',{draft:dateDraft}), /Nicht geändert/, 'gleicher Tagesindex aber anderer echter Tag gesperrt');
+    const peopleDraft = JSON.parse(JSON.stringify(t));peopleDraft.persons=3;
+    assert.throws(() => a.protectedPlanChange(t,'edit',{draft:peopleDraft}), /Nicht geändert/);
+    const safeDraft = JSON.parse(JSON.stringify(t));safeDraft.title='Neuer Reisetitel';safeDraft.budget=900;
+    assert.equal(a.protectedPlanChange(t,'edit',{draft:safeDraft}).title,'Neuer Reisetitel');
+    assert.equal(a.protectedPlanChange(t,'move',{uid:'protected1',day:1,slot:'morgen'}).items[0].day,1, 'identischer Termin weiterhin möglich');
+  }
+  delete t.ledger;t.check['b-cprotected']=true;
+  assert.throws(() => a.protectedPlanChange(t,'remove',{uid:'protected1'}), /Nicht geändert/);
+  delete t.check['b-cprotected'];t.check.stay=true;
+  const draft=JSON.parse(JSON.stringify(t));draft.dateMode='flex';draft.month='2027-05';
+  assert.throws(() => a.protectedPlanChange(t,'edit',{draft}), /Nicht geändert/);
+  t.check.stay=false;delete t.ledger;
+  assert.equal(a.protectedPlanChange(t,'edit',{draft}).dateMode,'flex');
+}
+
 /* Bearbeiten/Löschen: unverändernde Vorschau, Metadaten/IDs erhalten, Verpflichtungen schützen. */
 {
   const form = { title: 'Museum', cat: 'eigen', cost: '12', per: 'pp', hours: '2', note: '', link: '', bring: 'Jacke' };

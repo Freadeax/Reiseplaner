@@ -1416,7 +1416,9 @@ function stayCommitted(t){const o=activeOffer(t);return !!(t.check&&t.check.stay
 function commitmentIssues(before,after){
  const out=[], old=activeOffer(before), fresh=activeOffer(after);
  if(stayCommitted(before)&&(before.stayId!==after.stayId||before.activeOfferId!==after.activeOfferId||!after.check?.stay&&before.check?.stay||old&&fresh&&JSON.stringify(old)!==JSON.stringify(fresh)))out.push('Unterkunft ist gebucht oder bereits bezahlt');
- const signature=(t,k)=>sortedItems(t).filter(it=>{const a=actOf(t,it.act);return a&&(k==='kurs'?a.kurs:k==='verleih'?a.gear:k==='skipass'?a.pass||a.kurs:k==='act:'+it.act);}).map(it=>[it.uid,it.act,it.day,it.slot]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));
+ const basis=t=>[t.dateMode,t.start||'',t.end||'',t.month||'',nightsOf(t),t.persons];
+ if(stayCommitted(before)&&JSON.stringify(basis(before))!==JSON.stringify(basis(after)))out.push('Zeitraum oder Belegung der gebuchten Unterkunft würde verändert');
+ const signature=(t,k)=>{const days=daysOf(t);return sortedItems(t).filter(it=>{const a=actOf(t,it.act);return a&&(k==='kurs'?a.kurs:k==='verleih'?a.gear:k==='skipass'?a.pass||a.kurs:k==='act:'+it.act);}).map(it=>{const d=days[it.day];return [it.uid,it.act,it.day,it.slot,d&&d.date?iso(d.date):[t.dateMode,t.month||'',t.start||''],t.persons];}).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));};
  Object.entries(before.check||{}).forEach(([k,done])=>{if(done&&k.startsWith('b-')&&JSON.stringify(signature(before,'act:'+k.slice(2)))!==JSON.stringify(signature(after,'act:'+k.slice(2))))out.push('Gebuchte Unternehmung würde verändert');});
  Object.entries(before.ledger||{}).forEach(([k,e])=>{if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due))return;
   if(JSON.stringify(signature(before,k))!==JSON.stringify(signature(after,k)))out.push('Termin mit Buchung, Zahlung oder Fälligkeit würde verändert');
@@ -1424,6 +1426,30 @@ function commitmentIssues(before,after){
  });
  return [...new Set(out)];
 }
+/* Erst einen geprüften Kandidaten bilden; abgewiesene Aktionen verändern die Reise nicht. */
+function protectedPlanChange(t,action,args={}){
+ const c=clone(t);
+ if(action==='move'){
+  const it=(c.items||[]).find(i=>i.uid===args.uid);
+  if(!it)throw new Error('Termin nicht mehr vorhanden. Bitte neu öffnen.');
+  if(!Number.isInteger(args.day)||args.day<0||args.day>=daysOf(c).length||!SLOTS.some(s=>s[0]===args.slot))throw new Error('Bitte gültigen Tag und Tageszeit wählen.');
+  it.day=args.day;it.slot=args.slot;c.packageId='';
+ }else if(action==='remove'){if(!(c.items||[]).some(i=>i.uid===args.uid))throw new Error('Termin nicht mehr vorhanden.');c.items=c.items.filter(i=>i.uid!==args.uid);c.packageId='';}
+ else if(action==='clear'){c.items=[];c.packageId='';}
+ else if(action==='package'){const p=PKGS.find(x=>x.id===args.id);if(!p)throw new Error('Paket nicht mehr vorhanden.');applyPkg(c,p);}
+ else if(action==='edit'){
+  const o=clone(args.draft);
+  if(!o||o.id!==t.id)throw new Error('Reiseentwurf nicht mehr vorhanden.');
+  if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>=pd(o.start)))throw new Error('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');
+  if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons||t.dateMode!==o.dateMode||t.month!==o.month||nightsOf(t)!==nightsOf(o))resetStay(o);
+  if(t.origin!==o.origin){o.routeKm=null;o.km=0;delete o.kmSrc;delete o.originGeo;}
+  Object.assign(c,o);if(!('kmSrc' in o))delete c.kmSrc;if(!('originGeo' in o))delete c.originGeo;
+ }else throw new Error('Unbekannte Planänderung.');
+ const issues=commitmentIssues(t,c);
+ if(issues.length)throw new Error('Nicht geändert: '+issues.join(' · ')+'. Buchungen oder Zahlungen zuerst prüfen.');
+ return c;
+}
+function adoptPlanChange(t,c){Object.keys(t).forEach(k=>{if(!(k in c))delete t[k]});Object.assign(t,c);}
 function savingPreview(t,index){
  const tip=savingTips(t)[index];if(!tip)return null;
  const candidate=clone(t);tip.fn(candidate);const issues=commitmentIssues(t,candidate);if(issues.length)return null;
@@ -1601,7 +1627,7 @@ function sheetPkg(t,id){
    '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted">'+eur(c.total/c.P)+' p. P.</span></div>'+(t.packageId===p.id?'<span class="badge ok">übernommen</span>':'<button type="button" class="btn" data-act="pkg-apply" data-val="'+p.id+'">Übernehmen (ersetzt den aktuellen Plan)</button>'));
 }
 function sheetEdit(t){
-  UI.edit=clone(t);
+  UI.edit=clone(t);UI.editSource=JSON.stringify(t);
   openSheet('<h2>Eckdaten</h2><div id="editform">'+tripForm(UI.edit,'e-')+'</div><button type="button" class="btn" data-act="edit-save">Speichern</button>');
 }
 function sheetImport(){
@@ -1657,7 +1683,7 @@ document.addEventListener('click',async e=>{
      try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
      try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
    case 'edit-trip': sheetEdit(t);return;
-   case 'edit-save':{const o=UI.edit;if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>=pd(o.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons)resetStay(o);if(t.origin!==o.origin){o.routeKm=null;o.km=0;delete o.kmSrc;delete o.originGeo;}Object.assign(t,o);if(!('kmSrc' in o))delete t.kmSrc;if(!('originGeo' in o))delete t.originGeo;save(t);closeSheet();render();return}
+   case 'edit-save':{try{if(UI.editSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Eckdaten bitte erneut öffnen.');adoptPlanChange(t,protectedPlanChange(t,'edit',{draft:UI.edit}));save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
@@ -1666,7 +1692,7 @@ document.addEventListener('click',async e=>{
    case 'pkgfocus': UI.pkgfocus=val;break;
    case 'pkg-ask': UI.confirm='pkg-'+val;break;
    case 'pkg-cancel': UI.confirm=null;break;
-   case 'pkg-apply':{applyPkg(t,PKGS.find(p=>p.id===val));UI.confirm=null;save(t);closeSheet();go('r-'+t.id+'-plan');return}
+   case 'pkg-apply':{try{adoptPlanChange(t,protectedPlanChange(t,'package',{id:val}));UI.confirm=null;save(t);closeSheet();go('r-'+t.id+'-plan');}catch(err){alertMsg(err.message)}return;}
    case 'pkg-view': sheetPkg(t,val);return;
    case 'place': if((t.items||[]).length&&t.place){UI.confirm='place';UI.pendingPlace=val}else{resetStay(t);t.routeKm=null;t.place=val;t.stayId='';t.packageId='';save(t)}break;
    case 'place-yes':{const v=UI.pendingPlace;resetStay(t);t.routeKm=null;t.place=v;t.stayId='';t.stayQuote=null;t.packageId='';t.items=(t.items||[]).filter(i=>{const a=actOf(t,i.act);return a&&(a.custom||a.place==='*'||a.place.split('|').includes(v))});UI.confirm=null;save(t);break}
@@ -1694,8 +1720,7 @@ document.addEventListener('click',async e=>{
    case 'slot-add':{const [d,s]=val.split('|');sheetSlot(t,+d,s);return}
    case 'slot-pick':{const [id,d,s]=val.split('|');t.items=(t.items||[]).concat([{uid:uid('i'),act:id,day:+d,slot:s}]);t.packageId='';save(t);closeSheet();break}
    case 'item': sheetItem(t,val);return;
-   case 'item-move':{const it=t.items.find(i=>i.uid===val);if(it){it.day=+$('#mv-day').value;it.slot=$('#mv-slot').value;t.packageId='';save(t)}closeSheet();break}
-   case 'item-del': t.items=(t.items||[]).filter(i=>i.uid!==val);t.packageId='';save(t);closeSheet();break;
+   case 'item-move':case 'item-del':{try{adoptPlanChange(t,protectedPlanChange(t,act==='item-move'?'move':'remove',{uid:val,day:act==='item-move'?+$('#mv-day').value:undefined,slot:act==='item-move'?$('#mv-slot').value:undefined}));save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'rain-twin': rainTwinShow(t,val);return;
    case 'rain-swap':{try{const na=rainSwap(t,UI.rainDraft,+val);save(t);closeSheet();UI.rainDraft=null;render();alertMsg('Getauscht: '+na.t+'. Die Draußen-Idee bleibt in der Ideenliste; Preis noch offen.')}catch(err){alertMsg(err.message)}return}
    case 'leg-move':{const [k,dir]=val.split('|').map(Number);const d=UI.legDraft&&UI.legDraft.trip===t.id?UI.legDraft:{trip:t.id,order:t.legs.map((_,i)=>i),nights:t.legs.map(l=>Math.max(1,Math.round(num(l.nights,1))))};
@@ -1707,7 +1732,7 @@ document.addEventListener('click',async e=>{
    case 'plan-fill': planFillSheet(t);return;
    case 'plan-fill-do':{try{const n=planFillApply(t);if(!n){alertMsg('Nichts ausgewählt.');return}t.packageId='';save(t);closeSheet();UI.fillDraft=null;render();alertMsg(n+' Ideen eingeplant. Preise sind noch offen.')}catch(err){alertMsg(err.message)}return}
    case 'clear': UI.confirm='clear';break;
-   case 'clear-yes': t.items=[];t.packageId='';UI.confirm=null;save(t);break;
+   case 'clear-yes':{try{adoptPlanChange(t,protectedPlanChange(t,'clear'));UI.confirm=null;save(t);render();}catch(err){alertMsg(err.message)}return;}
    case 'clear-no': UI.confirm=null;break;
    case 'food': t.food=val;save(t);break;
    case 'puffer': t.puffer=num(val,0);save(t);break;
@@ -2556,7 +2581,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

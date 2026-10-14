@@ -1,5 +1,9 @@
 # Roadmap
 
+## Manuelle Planaktionen · ChatGPT, #8
+
+Verschieben/Entfernen/Leeren/Paketübernahme/Eckdaten durch vorhandene Verpflichtungen geschützt, echte Kalendertage statt nur Tagesindex verglichen. Node geprüft, neue Chromium-Abnahme offen. Noch kein allgemeiner Storno-/Umbuchungsablauf. Weitere Unterkunfts-/Ortswechselwege und zusätzliche Zeit-/Transferregeln bleiben nächste Pakete.
+
 ## Maßgebliche offene Punkte · 14.10.2026
 
 Siehe [OPEN_POINTS.md](OPEN_POINTS.md): konsolidierte Entscheidungen/Claude-Fragen/Prioritäten. Ältere Abschnitte unten sind historische Fortschrittsnotizen. Normale Exporte ohne Passwort und GitHub Pages als aktuelles Hosting sind die neueren Entscheidungen. Drei Verpflegungsszenarien implementiert; vollständige Preisunsicherheiten/Erstattungen bleiben offen. Zahlungsanrechnung entfernter Posten korrigiert. SMTP, Produktionskonten, iPhone/Safari, Konto-Lebenszyklus und Backup/Restore haben Vorrang vor Live-Anbietererweiterungen.

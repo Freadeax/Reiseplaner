@@ -1,5 +1,17 @@
 # Projektstand · 14.10.2026
 
+## Buchungsschutz für manuelle Planänderungen (ChatGPT, #8)
+
+Ausgangspunkt 1350338. Claude bestätigt abgegrenztes Paket; Routing/Katalog und neue v3.3-Funktionen bleiben unverändert.
+
+- Verschieben, Entfernen, Plan leeren und Paketübernahme bilden zuerst einen Kandidaten und prüfen vorhandene Buchungen/Anfragen/Zahlungen/Fälligkeiten. Bei Ablehnung bleiben Reise und Zahlungsbuch unverändert.
+- Eckdaten-Entwurf schützt vor zwischenzeitlich geänderter Reise. Neue Daten/Belegung setzen eine ungebuchte Unterkunftszuordnung zurück; gebuchte/bezahlte Unterkunft oder dadurch verschobene Aktivität sperren die Änderung.
+- Terminvergleich berücksichtigt jetzt absolute Kalendertage sowie Belegung, nicht nur Tagesindizes. Reiseverlängerung ohne Änderung eines geschützten Aktivitätstermins bleibt möglich, sofern die Unterkunft nicht gebunden ist. Reisetitel und Budget bleiben bearbeitbar.
+- Node-Regressionsfälle zu allen manuellen Aktionen, allen Verpflichtungsarten, gleichen echten Terminen und unverändernden Kandidaten ergänzt. npm test einschließlich bestehender Tausch/Regen/Etappenfälle grün. Browser-Skript ergänzt: bezahlten Termin verschieben/entfernen und Plan leeren werden abgewiesen. Neue Chromium-/iPhone-Abnahme noch offen; lokal kein Browserbinary.
+- Kein neues Speicherformat, keine Auth/Store/Sync/DB-/Konfigurationsänderung. Dies ist keine Storno-/Umbuchungsverwaltung: Verpflichtungen zuerst bewusst klären. Unterkunfts-/Ortswechsel außerhalb dieses Pakets und zusätzliche Buchungshistorie bleiben gesondert zu prüfen.
+
+Nächster Schritt: Chromium-Abnahme, anschließend weitere Unterkunftswechselwege/Terminbindung mit Vorher-Nachher-Vorschau vereinheitlichen.
+
 ## Eigene Ideen bearbeiten und Löschen absichern (ChatGPT, #8)
 
 Ausgangspunkt 660971e. Claude bestätigt getrennte Pakete und arbeitet an Rundreise-Etappen; neue Issue-Einträge während der Umsetzung gelesen.

@@ -316,6 +316,23 @@ async function run(browser, base, name, ctxOpts, now) {
   assert(/Bezahlt\s*20 €/.test(await p.textContent('.kpis >> nth=-1')) || (await viewText(p)).includes('Vollständig bezahlt'), name + ': Zahlungsstand fehlt');
   await noOverflow(p, name + ' Zahlungsbuch');
 
+  /* Manuelle Planaktionen dürfen die bezahlte Buchung nicht verschieben/entfernen. */
+  const bookedPlan = () => p.evaluate(() => JSON.parse(localStorage.getItem('rp-trips'))[location.hash.split('-')[1]].items);
+  const protectedItems = JSON.stringify(await bookedPlan());
+  await p.click('.tab[data-go$="-plan"]');
+  await p.click('.item[data-act="item"]');
+  await p.selectOption('#mv-day', '2');
+  await p.click('[data-act="item-move"]');
+  assert.equal(JSON.stringify(await bookedPlan()), protectedItems, name + ': bezahlter Termin wurde verschoben');
+  assert((await p.textContent('#msg')).includes('Nicht geändert'), name + ': Schutzmeldung fehlt');
+  await p.click('[data-act="item-del"]');
+  assert.equal(JSON.stringify(await bookedPlan()), protectedItems, name + ': bezahlter Termin wurde entfernt');
+  await p.click('[data-act="sheet-x"]');
+  await p.click('[data-act="clear"]');
+  await p.click('[data-act="clear-yes"]');
+  assert.equal(JSON.stringify(await bookedPlan()), protectedItems, name + ': bezahlter Plan wurde geleert');
+  await p.click('[data-act="clear-no"]');
+
   /* Checkliste */
   await p.click('.tab[data-go$="-check"]');
   await p.fill('#cc-t', 'Reisepass prüfen');
