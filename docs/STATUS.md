@@ -1,5 +1,14 @@
 # Projektstand · 14.10.2026
 
+## Gesamtprüfung und Kostenvergleich (ChatGPT)
+
+Ausgangspunkt 8bf665f; Issues #1–#7 und Claude-Übergaben geprüft. Paralleles cabefc5/v3.1 vor Abschluss integriert; Umkreis-Katalog und neue Tests erhalten. Entscheidungen, ersetzte Fragen und priorisierte Abnahme in OPEN_POINTS.md. Keine neue Produktions-/SMTP-/iPhone-Prüfung behauptet.
+
+- Drei Kostenvarianten im Kosten-Reiter mit expliziten Verpflegungsannahmen, gleichem Angebot/Programm/Pufferprozentsatz; Ausgaben, Reserve, Gesamt, Restbetrag und Kaution getrennt. Keine garantierten Preisgrenzen; offene Kosten sichtbar.
+- Zahlungsfehler korrigiert: Zahlungen für entfernte Posten reduzieren nicht mehr den offenen Betrag des verbleibenden Plans. Insgesamt gezahlt bleibt erhalten, Betrag für entfernte Posten separat erklärt. Unterkunftszahlungstext an vorhandenes Zahlungsbuch angepasst.
+- npm test grün (einschließlich neuer Regressionen für entfernte Zahlungen, Szenario-Summen, unveränderte Reise und fehlende Küche). Build im Gastmodus und Artefaktprüfung bestanden; Browser-Skript um Szenarioansicht erweitert und syntaktisch geprüft. Lokaler Chromium-Lauf nicht möglich: Playwright vorhanden, Browserbinary fehlt. GitHub-CI am neuen Commit noch zu prüfen. Kein Store/Sync/Auth/SQL/Workflow-Eingriff und kein neues Speicherformat.
+
+
 
 
 ## Betriebsstand · 14.10.2026, abends (Claude, Issue #6)

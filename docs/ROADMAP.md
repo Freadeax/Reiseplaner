@@ -1,5 +1,10 @@
 # Roadmap
 
+## Maßgebliche offene Punkte · 14.10.2026
+
+Siehe [OPEN_POINTS.md](OPEN_POINTS.md): konsolidierte Entscheidungen/Claude-Fragen/Prioritäten. Ältere Abschnitte unten sind historische Fortschrittsnotizen. Normale Exporte ohne Passwort und GitHub Pages als aktuelles Hosting sind die neueren Entscheidungen. Drei Verpflegungsszenarien implementiert; vollständige Preisunsicherheiten/Erstattungen bleiben offen. Zahlungsanrechnung entfernter Posten korrigiert. SMTP, Produktionskonten, iPhone/Safari, Konto-Lebenszyklus und Backup/Restore haben Vorrang vor Live-Anbietererweiterungen.
+
+
 ## Ergänzung Datensicherung · 14.10.2026
 
 Passwortgeschützte Exportdateien und lesbare Konfliktvorschau implementiert (#4). Import-Speicherfehler melden keinen falschen Erfolg mehr. Kein Eingriff in Claudes Saisonpreise #3. Nächste Prüfungen: Chromium-CI, echter iPhone-/Safari-Rundlauf, Austausch einer passwortgeschützten Datei zwischen zwei Geräten. Browser-Daten bleiben unverschlüsselt, keine automatische Synchronisation. Technische Beschreibung in BACKUP_SECURITY.md.

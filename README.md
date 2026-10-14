@@ -6,7 +6,7 @@ Ein Reiseplaner für alle, für Ausflüge, Wochenenden und längere Reisen. Er v
 
 ## Starten
 
-**Website:** Geplant ist `https://freadeax.github.io/Reiseplaner/`. Sie ist erst erreichbar, wenn GitHub Pages in den Repository-Einstellungen aktiviert ist (siehe unten). Bis dahin gilt die lokale Nutzung.
+**Website:** Laut Betriebsnachweis vom 14.10.2026 online unter `https://freadeax.github.io/Reiseplaner/`. Die letzte Übergabe meldet einen Konfigurationsfehler der Supabase-URL; Login braucht dessen Korrektur. Aktuelle Betriebsgrenzen stehen in [docs/STATUS.md](docs/STATUS.md).
 
 Die App bleibt buildlos: `index.html` plus `config.js` und `cloud.js`. Lokal im Browser öffnen oder einen kleinen Webserver starten:
 
@@ -52,7 +52,7 @@ Anbieterzugänge, Quellen und nächste Integrationsschritte: [docs/PROVIDER_INTE
 
 ## Konten und dauerhafte Speicherung (Supabase)
 
-Seit Issue #6 im Code umgesetzt und gegen einen **lokalen** Supabase-Stack geprüft. Ein Produktionsprojekt ist noch nicht verbunden (siehe „Betrieb“).
+Seit Issue #6 im Code umgesetzt und gegen einen **lokalen** Supabase-Stack geprüft. Das Produktionsschema ist laut letzter Betriebsprüfung vorhanden; Live-Konfiguration, SMTP und Tests mit echten Konten bleiben offene Betriebsaufgaben (siehe STATUS).
 
 - **Ohne Konto (Gastmodus):** wie bisher nur in diesem Browser (`rp-trips`).
 - **Mit Konto:**
@@ -81,6 +81,8 @@ Danach veröffentlicht der Workflow „Tests & Pages“ jeden grünen Stand von 
 Der Umkreis-Katalog kommt aus denselben Migrationen. Spielt die GitHub-Integration sie nicht ein, einmalig `supabase/manual/apply-catalog-v1.sql` im SQL-Editor ausführen. Bis dahin nutzt die Website automatisch die Offline-Kopie in der App und sagt das auch.
 
 **Sichern und importieren benötigt normalerweise kein Passwort.** Die Exportdatei enthält eure Reisepläne einschließlich privater Notizen. Bereits passwortgeschützte Altdateien bleiben mit dem damaligen Passwort importierbar. Details zu diesem Altformat stehen in [docs/BACKUP_SECURITY.md](docs/BACKUP_SECURITY.md). Die Export-Schaltflächen für Passwortschutz wurden aus dem normalen Ablauf entfernt; Anmeldung ist davon unabhängig.
+
+Entscheidungen, offene Fragen aus der Zusammenarbeit mit Claude und nächste Abnahmen: [docs/OPEN_POINTS.md](docs/OPEN_POINTS.md).
 
 ## Weitere Grenzen
 

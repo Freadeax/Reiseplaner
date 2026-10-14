@@ -162,6 +162,7 @@ async function run(browser, base, name, ctxOpts, now) {
 
   /* Kosten: 3 Personen × 6 € = 18 € */
   await p.click('.tab[data-go$="-kosten"]');
+  assert((await viewText(p)).includes('Drei Kostenszenarien'), name + ': Szenariovergleich fehlt');
   assert((await viewText(p)).includes('18 €'), name + ': Kosten der eigenen Unternehmung fehlen');
   assert((await viewText(p)).includes('300 €'), name + ': Unterkunft 3 Nächte × 100 € fehlt');
   await p.fill('#xc-t', 'Parken');

@@ -79,6 +79,11 @@ t.items = t.items.filter(i => i.act !== actItem.act);
 assert(!a.cost(t).lines.some(l => l.key === k));
 const orphan = a.ledgerRows(t).find(r => r.key === k);
 assert(orphan && orphan.orphan && orphan.paid === 50);
+const detached = a.financeSummary(t);
+assert.equal(detached.detachedPaid, 50);
+assert.equal(detached.paid, detached.activePaid + 50);
+assert(Math.abs(detached.open - Math.max(0, a.cost(t).total - detached.activePaid)) < 0.01, 'Entfernte Zahlung darf neuen Plan nicht bezahlen');
+assert(a.ledgerSection(t).includes('reduzieren den offenen Betrag'));
 assert(a.checks(t).some(x => x[1].includes('nicht mehr im Plan')));
 
 /* Zurücksetzen auf leer entfernt den Eintrag */
@@ -98,3 +103,25 @@ assert(a.tMappe(t).includes('<h3>Zahlungen</h3>'));
 assert(!a.tMappe(a.silvesterTemplate()).includes('<h3>Zahlungen</h3>'));
 assert(a.ledgerSection(t).includes('Buchungen & Zahlungen') && a.ledgerSection(t).includes('data-ledger="kurs"'));
 console.log('Zahlungsbuch: Schlüssel, Buchungsbetrag statt Plan (inkl. Puffer), Grenzen, Status, Fälligkeit/Plan-Check/Kalender, entfernte Posten, Sicherung und Mappe geprüft.');
+
+/* Szenarien bleiben nachvollziehbar und verändern weder Reise noch Buchungen. */
+const scenarioTrip = a.silvesterTemplate();
+scenarioTrip.food = 'gemischt'; scenarioTrip.puffer = 10;
+const unchanged = JSON.stringify(scenarioTrip);
+const scenarios = a.costScenarios(scenarioTrip);
+assert.equal(scenarios.length, 3);
+assert.equal(scenarios[1].total, a.cost(scenarioTrip).total);
+assert(scenarios[0].total <= scenarios[1].total && scenarios[1].total <= scenarios[2].total);
+scenarios.forEach(r => {
+ assert(Math.abs(r.total-r.lines.reduce((sum,l)=>sum+l.c,0))<0.001);
+ assert.equal(r.expenses+r.reserve, r.total);
+ assert.deepEqual(r.open, a.openCosts(scenarioTrip));
+});
+assert.equal(JSON.stringify(scenarioTrip), unchanged);
+const noKitchen = a.newTrip({food:'gemischt',nights:0});
+assert.equal(a.costScenarios(noKitchen)[0].total, a.cost(noKitchen).total);
+assert(a.scenarioSection(scenarioTrip).includes('keine Preisobergrenze'));
+assert(a.tKosten(scenarioTrip).includes('data-cost-scenarios'));
+
+assert.equal(a.costScenarios(t)[1].remaining, detached.open, 'Szenario und Zahlungsbuch rechnen gleich');
+assert(a.tMappe(t).includes('für entfernte Posten bezahlt; separat klären'));
