@@ -14,6 +14,42 @@ const ctx = { window: win, document: { addEventListener() {}, querySelector() { 
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
 
+/* Bearbeiten/Löschen: unverändernde Vorschau, Metadaten/IDs erhalten, Verpflichtungen schützen. */
+{
+  const form = { title: 'Museum', cat: 'eigen', cost: '12', per: 'pp', hours: '2', note: '', link: '', bring: 'Jacke' };
+  const idea = a.customActFromForm(form, 'cedit');
+  idea.catalogSpot = 'source-spot'; idea.km = 8;
+  const own = a.newTrip({ nights: 2, persons: 2 });
+  own.customActs = [idea]; own.items = [{ uid: 'keepid', act: idea.id, day: 1, slot: 'morgen' }];
+  const before = JSON.stringify(own);
+  let preview = a.activityChangePreview(own, idea.id, { ...form, title: 'Museum mit Führung', cost: '20' });
+  assert.equal(JSON.stringify(own), before, 'Vorschau verändert nichts');
+  assert(preview.after > preview.before);
+  a.applyActivityChange(own, preview);
+  assert.equal(own.customActs[0].catalogSpot, 'source-spot');
+  assert.equal(own.customActs[0].km, 8);
+  assert.equal(own.items[0].uid, 'keepid');
+  assert.equal(own.items[0].day, 1);
+  assert.throws(() => a.applyActivityChange(own, preview), /geändert/);
+  for (const commitment of [{ status: 'gebucht', paid: 0 }, { status: 'angefragt', paid: 0 }, { status: 'offen', paid: 1 }, { status: 'offen', paid: 0, due: '2026-12-01' }]) {
+    own.ledger = { 'act:cedit': commitment };
+    assert.throws(() => a.activityChangePreview(own, 'cedit', null, true), /Nicht gelöscht/);
+    assert.throws(() => a.activityChangePreview(own, 'cedit', { ...form, cost: '30' }), /geschützt/);
+    const safe = a.activityChangePreview(own, 'cedit', { ...form, title: 'Museum mit Führung', cost: '20', note: 'Treffpunkt am Eingang', indoor: true });
+    assert.equal(safe.candidate.customActs[0].note, 'Treffpunkt am Eingang');
+  }
+  delete own.ledger; own.check['b-cedit'] = true;
+  assert.throws(() => a.activityChangePreview(own, 'cedit', null, true), /Nicht gelöscht/);
+  own.check['b-cedit'] = false;
+  preview = a.activityChangePreview(own, 'cedit', null, true);
+  own.ledger = { 'act:cedit': { status: 'gebucht', paid: 0 } };
+  assert.throws(() => a.applyActivityChange(own, preview), /geändert/, 'Neue Verpflichtung sperrt alte Vorschau');
+  delete own.ledger;
+  preview = a.activityChangePreview(own, 'cedit', null, true);
+  a.applyActivityChange(own, preview);
+  assert.equal(own.customActs.length, 0); assert.equal(own.items.length, 0);
+}
+
 /* Eigene Ideen: Preis und Dauer bleiben unbekannt bis zur ausdrücklichen Angabe. */
 {
   const form = { title: 'Eigenes Museum', cat: 'eigen', per: 'pp', cost: '', hours: '', link: '', note: '' };

@@ -1,5 +1,16 @@
 # Projektstand · 14.10.2026
 
+## Eigene Ideen bearbeiten und Löschen absichern (ChatGPT, #8)
+
+Ausgangspunkt 660971e. Claude bestätigt getrennte Pakete und arbeitet an Rundreise-Etappen; neue Issue-Einträge während der Umsetzung gelesen.
+
+- Eigene Unternehmungen im Detailblatt bearbeiten: Titel, Kategorie, Preisbasis/Preis, Dauer, Indoor, Link, Notiz und Packhinweise. Vorschau mit Planwert vorher/nachher, Übernehmen oder Abbrechen. ID, eingeplante Termine und Katalog-/Streckenmetadaten bleiben erhalten. Alter Dauerfreitext bleibt ohne neuen Stundenwert erhalten.
+- Löschen zeigt Idee und Anzahl betroffener Termine vor der Bestätigung. Buchungscheck, Anfrage, Buchung, Zahlung und Fälligkeit sperren das Löschen auch ohne aktuellen Termin. Zahlungsbuchdaten werden nicht gelöscht.
+- Bei Verpflichtungen sind Titel/Kategorie/Preis/Dauer geschützt; Hinweise ergänzbar. Preis-Kurzweg ebenfalls gesperrt. Zwischenzeitlich geänderte Reise sperrt die Vorschau. Rundreise-Weiterfahrt nicht hier bearbeitbar.
+- Keine neuen Speicherfelder, keine Auth/Store/Sync/SQL/Katalogänderungen. Node-Fälle zu Vorschau, Kostenänderung, ID/Terminen/Metadaten, sämtlichen Verpflichtungen, Hinweisergänzung und veralteter Vorschau. npm test, Gast-Build, Artefaktprüfung, Browser-Skript-Syntax und diff --check bestanden. Browser-Skript um Edit/Abbruch/Übernahme/Löschabbruch ergänzt; neue Chromium-/iPhone-Abnahme offen, lokales Browserbinary fehlt.
+
+Nächster Schritt: Chromium am veröffentlichten Commit, danach explizite Termine mit Transfers und Zahlungshistorie als getrennte Pakete.
+
 ## Eigene Unternehmungen: Dauer, Regen und Packhinweise (ChatGPT, #8)
 
 Gestartet auf 586542c, Claudes neue Tageskombinationen 065caa4 vor Veröffentlichung integriert. Konflikt nur im Testexport; beide Funktionslisten erhalten. Claude bestätigt im Issue keine Paketüberschneidung und bietet Chromium-Prüfung nach dem Push an.

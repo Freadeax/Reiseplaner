@@ -1313,6 +1313,47 @@ function customActFromForm(f,id){
   if(duration!=='')a.hours=Number(duration);
   return a;
 }
+function activityCommitted(t,id){
+  const e=(t.ledger||{})['act:'+id];
+  return !!(t.check&&t.check['b-'+id]||e&&(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due));
+}
+function activityChangePreview(t,id,form,remove=false){
+  const old=(t.customActs||[]).find(a=>a.id===id);
+  if(!old)throw new Error('Diese eigene Unternehmung existiert nicht mehr.');
+  if(old.transit)throw new Error('Weiterfahrt gehört zur Rundreise und kann hier nicht geändert werden.');
+  const candidate=clone(t),index=candidate.customActs.findIndex(a=>a.id===id);
+  if(remove){
+    if(activityCommitted(t,id))throw new Error('Nicht gelöscht: Buchung, Anfrage, Zahlung oder Fälligkeit vorhanden. Zuerst Verpflichtung im Zahlungsbuch klären.');
+    candidate.customActs.splice(index,1);candidate.items=(candidate.items||[]).filter(i=>i.act!==id);
+  }else{
+    const legacyZero=old.hours===0&&String(form.hours)==='0';
+    const fresh=customActFromForm(legacyZero?Object.assign({},form,{hours:''}):form,id),next=Object.assign({},old,fresh);
+    if(legacyZero){fresh.hours=0;next.hours=0;next.dur=old.dur||'';}
+    if(fresh.hours==null){delete next.hours;if(old.hours==null)next.dur=old.dur||'';}
+    const fixed=['t','cat','cost','costOpen','per','hours','dur'];
+    if(activityCommitted(t,id)&&fixed.some(k=>JSON.stringify(old[k]??(k==='costOpen'?false:null))!==JSON.stringify(next[k]??(k==='costOpen'?false:null))))throw new Error('Titel, Kategorie, Preis und Dauer sind bei einer Verpflichtung geschützt. Notiz, Link, Indoor und Packhinweise können ergänzt werden.');
+    candidate.customActs[index]=next;
+  }
+  return {trip:t.id,id,remove,source:JSON.stringify(t),candidate,before:cost(t).total,after:cost(candidate).total,count:(t.items||[]).filter(i=>i.act===id).length};
+}
+function applyActivityChange(t,draft){
+  if(!draft||draft.trip!==t.id||draft.source!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Bitte Änderung erneut öffnen.');
+  const issues=commitmentIssues(t,draft.candidate);if(issues.length)throw new Error(issues.join(' · '));
+  Object.assign(t,clone(draft.candidate));return t;
+}
+function sheetActivityEdit(t,id){
+  const a=(t.customActs||[]).find(x=>x.id===id);if(!a||a.transit)return;
+  UI.activityEditSource=JSON.stringify(t);
+  openSheet('<h2>Unternehmung bearbeiten</h2><p class="small muted">Die Idee behält ihre ID und ihre Plätze im Tagesplan. Erst die Vorschau übernehmen speichert Änderungen.</p>'+(activityCommitted(t,id)?'<div class="note">Buchung oder Zahlung vorhanden: Titel, Kategorie, Preis und Dauer sind geschützt. Weitere Hinweise lassen sich ergänzen.</div>':'')+
+   '<div class="form"><label class="fld"><span>Titel</span><input id="ae-title" type="text" maxlength="80" value="'+esc(a.t)+'"></label><label class="fld"><span>Kategorie</span><select id="ae-cat">'+Object.keys(CAT).map(k=>'<option value="'+k+'"'+(a.cat===k?' selected':'')+'>'+esc(CAT[k])+'</option>').join('')+'</select></label><label class="fld"><span>Preis (€), leer = offen</span><input id="ae-cost" type="number" min="0" step="0.01" value="'+(a.costOpen||!num(a.cost,0)?'':num(a.cost,0))+'"></label><label class="fld"><span>Preisbasis</span><select id="ae-per"><option value="pp"'+(a.per!=='grp'?' selected':'')+'>pro Person</option><option value="grp"'+(a.per==='grp'?' selected':'')+'>gesamt</option></select></label><label class="fld"><span>Dauer in Stunden (optional)</span><input id="ae-hours" type="number" min="0" max="24" step="any" value="'+(a.hours==null?'':a.hours)+'"></label><label class="fld"><span>Link</span><input id="ae-link" type="url" value="'+esc(a.link||'')+'"></label></div>'+
+   '<div class="row"><label><input type="checkbox" id="ae-free"'+(!a.costOpen&&!num(a.cost,0)?' checked':'')+'> Ist kostenlos</label><label><input type="checkbox" id="ae-indoor"'+(a.indoor?' checked':'')+'> Drinnen</label></div>'+
+   '<label class="fld"><span>Packhinweise, ein Hinweis pro Zeile</span><textarea id="ae-bring" style="min-height:90px">'+esc((a.bring||[]).join('\n'))+'</textarea></label><label class="fld"><span>Notiz</span><textarea id="ae-note" style="min-height:90px">'+esc(a.note||'')+'</textarea></label><button type="button" class="btn" data-act="act-edit-preview" data-val="'+esc(id)+'">Änderung prüfen</button>');
+}
+function sheetActivityPreview(t,draft){
+  const before=(t.customActs||[]).find(a=>a.id===draft.id),after=(draft.candidate.customActs||[]).find(a=>a.id===draft.id);
+  openSheet('<h2>'+ (draft.remove?'Unternehmung löschen?':'Änderung prüfen')+'</h2><p><b>'+esc(before.t)+'</b></p>'+(draft.remove?'<p>Die Idee und '+draft.count+' eingeplante(r) Termin(e) werden entfernt. Angaben im Zahlungsbuch werden nicht gelöscht.</p>':'<dl class="facts"><dt>Titel danach</dt><dd>'+esc(after.t)+'</dd><dt>Preis vorher</dt><dd>'+esc(actCost(t,before).txt)+'</dd><dt>Preis danach</dt><dd>'+esc(actCost(draft.candidate,after).txt)+'</dd><dt>Dauer danach</dt><dd>'+esc(after.dur||'unbekannt')+'</dd></dl><p class="small">Termine und Aktivitäts-ID bleiben erhalten. Prüft Öffnung und tatsächliche Dauer beim Anbieter.</p>')+
+   '<dl class="facts"><dt>Plan vorher</dt><dd>'+eur(draft.before)+'</dd><dt>Plan danach</dt><dd>'+eur(draft.after)+'</dd></dl><p class="small muted">Planwerte; offene Preise sind nicht enthalten. Keine Stornierung oder Erstattung wird ausgelöst.</p><div class="row"><button type="button" class="btn'+(draft.remove?' warn':'')+'" data-act="act-change-confirm">'+(draft.remove?'Ja, Idee und Termine löschen':'Änderung übernehmen')+'</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.activityDraft=draft;
+}
 function tUnternehmen(t){
   if(t.catalog==='allgaeu'&&!t.place) return '<section class="block"><div class="empty"><b>Erst einen Ort wählen</b><button type="button" class="btn" data-go="r-'+t.id+'-unterkunft">Ort wählen</button></div></section>';
   let list=actsFor(t);
@@ -1514,7 +1555,7 @@ function sheetAct(t,id,preDay,preSlot){
    (planned.length?'<h4>Eingeplant</h4><div class="checks-list">'+planned.map(i=>'<div class="chk info"><span>'+esc((days[i.day]||{label:'außerhalb'}).label+' · '+SLOTNAME[i.slot])+'</span><button type="button" class="lnk" style="margin-left:auto" data-act="item-del" data-val="'+i.uid+'">Entfernen</button></div>').join('')+'</div>':'')+
    '<div class="panel"><h4>Einplanen</h4><div class="form"><label class="fld"><span>Tag</span><select id="pl-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===dDay?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="pl-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===dSlot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div><button type="button" class="btn" data-act="plan-do" data-val="'+esc(a.id)+'">In den Tagesplan</button></div>'+
    (a.custom&&a.costOpen&&!num(a.cost,0)?'<div class="panel"><h4>Preis eintragen</h4><p class="small muted">Aus dem Katalog übernommen, Preis noch offen. Tragt ein, was ihr beim Anbieter gefunden habt.</p><div class="form"><label class="fld"><span>Kosten (€)</span><input type="number" min="0" step="0.5" id="ap-cost"></label><label class="fld"><span>gilt</span><select id="ap-per"><option value="pp">pro Person</option><option value="grp">gesamt</option></select></label></div><div class="row"><button type="button" class="btn sm" data-act="act-price" data-val="'+esc(a.id)+'">Preis speichern</button><button type="button" class="btn ghost sm" data-act="act-free" data-val="'+esc(a.id)+'">Ist kostenlos</button></div></div>':'')+
-   (a.custom?'<button type="button" class="btn ghost sm" data-act="act-del" data-val="'+esc(a.id)+'">Eigene Unternehmung löschen</button>':''));
+   (a.custom&&!a.transit?'<div class="row"><button type="button" class="btn ghost sm" data-act="act-edit" data-val="'+esc(a.id)+'">Bearbeiten</button><button type="button" class="btn ghost sm" data-act="act-del" data-val="'+esc(a.id)+'">Eigene Unternehmung löschen</button></div>':''));
 }
 function sheetSlot(t,day,slot){
   const d=daysOf(t)[day]; let list=actsFor(t);
@@ -1643,8 +1684,11 @@ document.addEventListener('click',async e=>{
    case 'plan-do':{const day=+$('#pl-day').value,slot=$('#pl-slot').value;t.items=(t.items||[]).concat([{uid:uid('i'),act:val,day,slot}]);t.packageId='';save(t);closeSheet();render();toast(b,'Eingeplant');return}
    case 'act-add':{try{const a=customActFromForm({title:$('#ca-t').value,cat:$('#ca-cat').value,cost:$('#ca-cost').value,per:$('#ca-per').value,hours:$('#ca-hours').value,free:$('#ca-free').checked,indoor:$('#ca-indoor').checked,bring:$('#ca-bring').value,link:$('#ca-link').value,note:$('#ca-note').value},uid('c'));
      t.customActs=(t.customActs||[]).concat([a]);save(t)}catch(err){alertMsg(err.message);return}break}
-   case 'act-price':case 'act-free':{const a=(t.customActs||[]).find(x=>x.id===val);if(!a)return;const c=act==='act-free'?0:num($('#ap-cost').value,-1);if(act==='act-price'&&!(c>0)){alertMsg('Bitte einen Betrag über 0 eintragen oder „Ist kostenlos“ wählen.');return}a.cost=c;if(act==='act-price')a.per=$('#ap-per').value==='grp'?'grp':'pp';a.costOpen=false;save(t);closeSheet();break}
-   case 'act-del': t.customActs=(t.customActs||[]).filter(a=>a.id!==val);t.items=(t.items||[]).filter(i=>i.act!==val);save(t);closeSheet();break;
+   case 'act-price':case 'act-free':{const a=(t.customActs||[]).find(x=>x.id===val);if(!a)return;if(activityCommitted(t,val)){alertMsg('Preis ist wegen Buchung, Anfrage, Zahlung oder Fälligkeit geschützt. Zahlungsbuch zuerst klären.');return}const c=act==='act-free'?0:num($('#ap-cost').value,-1);if(act==='act-price'&&!(c>0)){alertMsg('Bitte einen Betrag über 0 eintragen oder „Ist kostenlos“ wählen.');return}a.cost=c;if(act==='act-price')a.per=$('#ap-per').value==='grp'?'grp':'pp';a.costOpen=false;save(t);closeSheet();break}
+   case 'act-edit':sheetActivityEdit(t,val);return;
+   case 'act-edit-preview':{try{if(UI.activityEditSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Bitte Bearbeiten erneut öffnen.');const f={title:$('#ae-title').value,cat:$('#ae-cat').value,cost:$('#ae-cost').value,per:$('#ae-per').value,hours:$('#ae-hours').value,free:$('#ae-free').checked,indoor:$('#ae-indoor').checked,bring:$('#ae-bring').value,link:$('#ae-link').value,note:$('#ae-note').value};sheetActivityPreview(t,activityChangePreview(t,val,f));}catch(err){alertMsg(err.message)}return;}
+   case 'act-del':{try{sheetActivityPreview(t,activityChangePreview(t,val,null,true));}catch(err){alertMsg(err.message)}return;}
+   case 'act-change-confirm':{try{applyActivityChange(t,UI.activityDraft);save(t);UI.activityDraft=null;closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'slot-add':{const [d,s]=val.split('|');sheetSlot(t,+d,s);return}
    case 'slot-pick':{const [id,d,s]=val.split('|');t.items=(t.items||[]).concat([{uid:uid('i'),act:id,day:+d,slot:s}]);t.packageId='';save(t);closeSheet();break}
    case 'item': sheetItem(t,val);return;
@@ -2429,7 +2473,7 @@ function planFillApply(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
