@@ -322,6 +322,27 @@
     return hit.sort(function (a, b) { return a.rank - b.rank || a.place.name.localeCompare(b.place.name, 'de'); }).slice(0, max || 12).map(function (x) { return x.place; });
   }
 
+  /* Zielvergleich: Zeilen für 2–3 bewertete Treffer (aus rank). Nur Unterschiede sichtbar machen, keine Wertung; unbekannt bleibt unbekannt. */
+  function compareRows(xs, opt) {
+    opt = opt || {};
+    var M = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+    var months = function (ms) { if (!ms.length) return 'unbekannt'; var a = ms.slice().sort(function (x, y) { return x - y; }); return a.length === 12 ? 'ganzjährig' : a.map(function (m) { return M[m - 1]; }).join(', '); };
+    var rows = [
+      ['Entfernung (geschätzt)', function (x) { return x.roadKm != null ? '≈ ' + x.roadKm + ' km · ca. ' + durText(x.minutes) : 'Abfahrtsort fehlt'; }],
+      ['Gute Reisemonate', function (x) { return months(x.place.months); }]
+    ];
+    if (opt.month) rows.push(['Im ' + ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][opt.month - 1], function (x) { var f = seasonFit(x.place, opt.month); return f === true ? '✓ gute Reisezeit' : f === false ? '– eher Nebensaison' : 'unbekannt'; }]);
+    rows.push(
+      ['Übliche Dauer', function (x) { return x.place.nights[0] === x.place.nights[1] ? x.place.nights[0] + ' Nächte' : x.place.nights[0] + '–' + x.place.nights[1] + ' Nächte'; }],
+      ['Themen', function (x) { return x.place.kinds.map(function (k) { return KINDS[k]; }).join(', '); }],
+      ['Ideen vor Ort', function (x) { var sp = x.spots || x.place.spots; return sp.length + ' (drinnen ' + sp.filter(function (s) { return s.indoor; }).length + ', für Kinder ' + sp.filter(function (s) { return s.family; }).length + ')'; }],
+      ['Mit Saisonbetrieb', function (x) { var n = x.place.spots.filter(function (s) { return s.months.length; }).length; return n ? n + ' Idee(n), Termine prüfen' : 'keine bekannt'; }],
+      ['Tagesideen (Kombis)', function (x) { return String(combos(x.place, { month: opt.month }).length); }],
+      ['Ums Eck gedacht', function (x) { return x.place.angle || '–'; }]
+    );
+    return rows.map(function (r) { return { label: r[0], values: xs.map(r[1]) }; });
+  }
+
   /* Regenzwilling: nächste Drinnen-Ideen zu einer Draußen-Idee, im Umkreis, in der Saison, ohne schon geplante.
      Nur Vorschlag; erst ein bewusster Tausch plant die Alternative ein (keine doppelten Pflichtkosten). */
   function rainTwins(spot, places, opt) {
@@ -355,7 +376,7 @@
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
-    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
+    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);

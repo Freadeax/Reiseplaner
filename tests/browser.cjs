@@ -172,6 +172,18 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('.tab[data-go$="-check"]');
   assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packhinweise aus dem Katalog');
   await noOverflow(p, name + ' Rundreise');
+  /* Zielvergleich: zwei Ziele markieren, nebeneinander ansehen */
+  await p.click('header [data-go="entdecken"]');
+  await p.click('[data-act="cat-search"]');
+  await p.waitForSelector('#cat-results [data-act="cat-cmp"]');
+  const cmpIds = await p.$$eval('#cat-results [data-act="cat-cmp"]', l => l.slice(0, 2).map(b => b.getAttribute('data-val')));
+  for (const id of cmpIds) await p.click('[data-act="cat-cmp"][data-val="' + id + '"]');
+  await p.click('[data-act="cat-cmp-open"]');
+  await p.waitForSelector('.sheet table.cmp');
+  assert.equal(await p.$$eval('.sheet table.cmp thead th', l => l.length), 3, name + ': zwei Spalten plus Beschriftung');
+  await noOverflow(p, name + ' Vergleich');
+  await p.click('[data-act="sheet-x"]');
+  await p.click('[data-act="cat-cmp-clear"]');
   /* v3.3: Ziel direkt finden, ähnliche Ziele, Link #ziel-<id> */
   await p.click('header [data-go="entdecken"]');
   await p.fill('#cat-find', 'Wachau'); await p.press('#cat-find', 'Enter');

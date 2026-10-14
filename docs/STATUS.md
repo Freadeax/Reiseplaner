@@ -106,6 +106,14 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Zielvergleich (Claude, 14.10.2026 nachts, Issue #8)
+
+Basis `a96b7ad`, angekündigt in #8.
+- In „Entdecken“ lassen sich bis zu 3 Ziele mit „Vergleichen“ markieren; „Nebeneinander ansehen“ öffnet eine Tabelle (`CATX.compareRows`).
+- Zeilen: geschätzte Entfernung und Fahrzeit, gute Reisemonate, Passung zum gewählten Monat, übliche Dauer, Themen, Ideen (drinnen, für Kinder), Ideen mit Saisonbetrieb, Zahl der Kombi-Tagesideen und „Ums Eck gedacht“.
+- Keine Preise und keine Wertung; ohne Abfahrtsort steht „Abfahrtsort fehlt“. Die erste Spalte bleibt beim seitlichen Wischen stehen.
+- **Tests:** `tests/catalog.cjs` und Browsertest (zwei Ziele, Tabelle, kein horizontales Scrollen der Seite auf 320 px). `npm test` und Chromium grün auf dem Stand mit ChatGPTs `a96b7ad`.
+
 ## Mappe, Kalender, Teilen-Text mit Katalog-Funktionen (Claude, 14.10.2026 nachts, Issue #8)
 
 Basis `80d82a1`, angekündigt in #8.

@@ -174,6 +174,16 @@ assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele
   assert(C.findPlaces(all, 'salzbergwerk').some(p => p.id === 'krakau'), 'Suche über Attraktionen');
   const br = C.findPlaces(all, 'Bre'); assert(br[0].name.toLowerCase().startsWith('bre'), 'Namensanfang zuerst');
 }
+{ /* Zielvergleich: gleiche Zeilen für alle Spalten, Monat optional, ohne Start „Abfahrtsort fehlt“ */
+  const rk = C.rank(C.searchLocal(DATA, { lat: goe.lat, lon: goe.lon, maxKm: 400 }), {}).slice(0, 3);
+  const rows = C.compareRows(rk, { month: 7 });
+  assert(rows.every(r => r.values.length === 3));
+  assert(rows.some(r => r.label === 'Im Juli') && rows.find(r => r.label === 'Im Juli').values.every(v => /gute Reisezeit|Nebensaison|unbekannt/.test(v)));
+  assert(rows.find(r => r.label === 'Entfernung (geschätzt)').values.every(v => /^≈ \d+ km/.test(v)));
+  assert(!rows.some(r => /€|preis/i.test(r.label + r.values.join(''))), 'keine Preise');
+  const noOrigin = C.compareRows([{ place: rk[0].place, roadKm: null, minutes: null, spots: rk[0].spots }], {});
+  assert.equal(noOrigin[0].values[0], 'Abfahrtsort fehlt'); assert(!noOrigin.some(r => /^Im /.test(r.label)));
+}
 { /* Regenzwilling: nächste Drinnen-Idee, nicht sie selbst, Saison und Ausschluss beachtet */
   const fall = C.findSpot(all, 'bad-urach-wasserfall');
   assert.equal(fall.place.id, 'bad-urach');
