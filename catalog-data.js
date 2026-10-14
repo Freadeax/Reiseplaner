@@ -4,7 +4,7 @@
    ungefähre Lagepunkte für die Entfernungsrechnung. Monate sind typische Reisezeiten bzw. übliche
    Saison und für konkrete Daten nicht geprüft. Nach Änderungen: node scripts/catalog-sql.mjs */
 window.RP_CATALOG = {
-"version": 2,
+"version": 3,
 "checked": "2026-10-14",
 "places": [
 {"id":"bad-urach","name":"Bad Urach & Schwäbische Alb","region":"Baden-Württemberg","country":"DE","lat":48.491,"lon":9.399,
@@ -917,6 +917,175 @@ window.RP_CATALOG = {
   {"id":"karlsbad-diana","name":"Aussichtsturm Diana","kind":"berge","lat":50.222,"lon":12.875,"hours":1.5,"family":true,"summary":"Standseilbahn zum Turm über der Stadt."},
   {"id":"karlsbad-becherovka","name":"Jan Becher Museum","kind":"genuss","lat":50.230,"lon":12.869,"hours":1,"indoor":true,"summary":"Geschichte des Kräuterlikörs."},
   {"id":"karlsbad-loket","name":"Burg Loket","kind":"burg","lat":50.186,"lon":12.754,"hours":2,"family":true,"summary":"Burg über der Ohře-Schleife."}
+ ]},
+{"id":"wachau","name":"Wachau","region":"Niederösterreich","country":"AT","lat":48.380,"lon":15.450,
+ "kinds":["genuss","kultur","wasser","natur"],"months":[4,5,6,7,8,9,10],"nights":[1,3],
+ "summary":"Donautal mit Weinterrassen, Marillen und einem barocken Stift.",
+ "angle":"Mit dem Rad an der Donau entlang, zurück mit dem Schiff – das Tal von beiden Seiten.",
+ "spots":[
+  {"id":"wachau-melk","name":"Stift Melk","kind":"kultur","lat":48.228,"lon":15.333,"hours":2,"family":true,"summary":"Barockes Benediktinerstift hoch über der Donau."},
+  {"id":"wachau-duernstein","name":"Dürnstein & Burgruine","kind":"burg","lat":48.395,"lon":15.520,"hours":2,"family":true,"summary":"Blauer Kirchturm und Ruine, in der Richard Löwenherz gefangen war."},
+  {"id":"wachau-schiff","name":"Schifffahrt Melk–Krems","kind":"wasser","lat":48.300,"lon":15.420,"hours":2,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Donauschiff durch das Welterbetal; Fahrplan prüfen."},
+  {"id":"wachau-heuriger","name":"Heuriger in Spitz oder Weißenkirchen","kind":"genuss","lat":48.395,"lon":15.470,"hours":2,"slot":"abend","summary":"Wein und Jause bei Winzern; Öffnungstage prüfen."},
+  {"id":"wachau-radweg","name":"Donauradweg in der Wachau","kind":"natur","lat":48.360,"lon":15.400,"hours":4,"family":true,"summary":"Flacher Abschnitt zwischen Weinbergen und Fluss."}
+ ]},
+{"id":"graz","name":"Graz","region":"Steiermark","country":"AT","lat":47.071,"lon":15.439,
+ "kinds":["stadt","kultur","genuss"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Rote Dächer, Uhrturm und moderne Architektur an der Mur.",
+ "angle":"Durch den Berg auf den Schloßberg: es gibt einen Lift im Fels und eine Rutsche hinunter.",
+ "spots":[
+  {"id":"graz-schlossberg","name":"Schloßberg & Uhrturm","kind":"berge","lat":47.076,"lon":15.437,"hours":2,"family":true,"summary":"Aussichtsberg mitten in der Stadt, per Treppe, Bahn oder Lift."},
+  {"id":"graz-kunsthaus","name":"Kunsthaus & Murinsel","kind":"kultur","lat":47.071,"lon":15.434,"hours":1.5,"indoor":true,"summary":"Blasenförmiges Museum und Insel aus Stahl in der Mur."},
+  {"id":"graz-altstadt","name":"Altstadt & Landhaushof","kind":"stadt","lat":47.070,"lon":15.440,"hours":2,"family":true,"summary":"Welterbe-Altstadt mit Renaissance-Arkaden."},
+  {"id":"graz-eggenberg","name":"Schloss Eggenberg","kind":"burg","lat":47.074,"lon":15.391,"hours":2,"family":true,"summary":"Barockschloss mit Park, Welterbe."},
+  {"id":"graz-markt","name":"Bauernmarkt am Kaiser-Josef-Platz","kind":"genuss","lat":47.069,"lon":15.446,"hours":1,"slot":"morgen","family":true,"summary":"Marktstände mit Kürbiskernöl und regionalen Produkten; Markttage prüfen."}
+ ]},
+{"id":"bled","name":"Bled & Ljubljana","region":"Oberkrain","country":"SI","lat":46.369,"lon":14.114,
+ "kinds":["wasser","natur","burg","stadt"],"months":[4,5,6,7,8,9,10],"nights":[2,5],
+ "summary":"Alpensee mit Inselkirche, Schluchten und eine entspannte Hauptstadt.",
+ "angle":"Mit der Pletna-Ruderbarke zur Insel, dann die 99 Stufen hinauf zur Glocke.",
+ "spots":[
+  {"id":"bled-insel","name":"Bleder Insel & Pletna-Boot","kind":"wasser","lat":46.362,"lon":14.090,"hours":2,"family":true,"summary":"Traditionelle Ruderboote zur Kirche auf der Insel."},
+  {"id":"bled-burg","name":"Burg Bled","kind":"burg","lat":46.370,"lon":14.101,"hours":1.5,"family":true,"summary":"Burg auf einem Felsen über dem See."},
+  {"id":"bled-vintgar","name":"Vintgar-Klamm","kind":"natur","lat":46.393,"lon":14.085,"hours":2,"family":true,"months":[4,5,6,7,8,9,10,11],"summary":"Holzstege durch eine enge Schlucht; Saison und Zeitfenster prüfen."},
+  {"id":"bled-bohinj","name":"Bohinjer See","kind":"wasser","lat":46.283,"lon":13.886,"hours":3,"family":true,"summary":"Ruhiger, größerer See im Triglav-Nationalpark."},
+  {"id":"bled-ljubljana","name":"Altstadt Ljubljana","kind":"stadt","lat":46.051,"lon":14.506,"hours":3,"family":true,"summary":"Drachenbrücke, Drei Brücken und Burgberg."}
+ ]},
+{"id":"lugano","name":"Lugano & Tessin","region":"Tessin","country":"CH","lat":46.004,"lon":8.951,
+ "kinds":["wasser","berge","stadt","genuss"],"months":[3,4,5,6,7,8,9,10],"nights":[2,5],
+ "summary":"Italienisches Flair am See, Hausberge mit Bahnen und Steindörfer.",
+ "angle":"Gandria per Uferweg: ein Wanderweg am See, der nur zu Fuß oder per Boot erreichbar ist.",
+ "spots":[
+  {"id":"lugano-monte-bre","name":"Monte Brè","kind":"berge","lat":46.012,"lon":8.985,"hours":2.5,"family":true,"summary":"Standseilbahn zum Aussichtsberg über dem See."},
+  {"id":"lugano-gandria","name":"Uferweg nach Gandria","kind":"natur","lat":45.997,"lon":9.003,"hours":2.5,"family":true,"summary":"Pfad am See zu einem Dorf an steilem Hang."},
+  {"id":"lugano-altstadt","name":"Altstadt & Piazza della Riforma","kind":"stadt","lat":46.004,"lon":8.951,"hours":1.5,"family":true,"summary":"Arkaden und Plätze am Seeufer."},
+  {"id":"lugano-san-salvatore","name":"Monte San Salvatore","kind":"berge","lat":45.977,"lon":8.947,"hours":2.5,"family":true,"months":[3,4,5,6,7,8,9,10,11],"summary":"Zweiter Hausberg mit Standseilbahn; Saison prüfen."},
+  {"id":"lugano-grotto","name":"Grotto-Essen im Tessin","kind":"genuss","lat":46.020,"lon":8.960,"hours":2,"slot":"abend","summary":"Einfache Gartenlokale mit Tessiner Küche."}
+ ]},
+{"id":"engadin","name":"Engadin & Bernina","region":"Graubünden","country":"CH","lat":46.498,"lon":9.839,
+ "kinds":["berge","winter","natur","technik"],"months":[1,2,3,6,7,8,9,10,12],"nights":[2,6],
+ "summary":"Hochtal mit Seen, Gletscherblick und einer Welterbe-Bahnstrecke.",
+ "angle":"Bernina-Express ohne Hast: nur einen Abschnitt fahren und am Lago Bianco aussteigen.",
+ "spots":[
+  {"id":"engadin-bernina","name":"Berninabahn","kind":"technik","lat":46.410,"lon":10.020,"hours":4,"family":true,"summary":"Welterbe-Bahnstrecke über den Berninapass."},
+  {"id":"engadin-diavolezza","name":"Diavolezza","kind":"berge","lat":46.412,"lon":9.970,"hours":3,"family":true,"summary":"Seilbahn mit Blick auf Piz Palü und Gletscher."},
+  {"id":"engadin-seen","name":"Oberengadiner Seen","kind":"wasser","lat":46.440,"lon":9.780,"hours":3,"family":true,"summary":"Seenkette zwischen Maloja und St. Moritz, im Winter teils zugefroren."},
+  {"id":"engadin-morteratsch","name":"Morteratschgletscher-Weg","kind":"natur","lat":46.430,"lon":9.935,"hours":2.5,"family":true,"months":[6,7,8,9,10],"summary":"Lehrpfad zum Gletscher mit Markierungen seines Rückgangs."},
+  {"id":"engadin-corviglia","name":"Skigebiet Corviglia","kind":"winter","lat":46.505,"lon":9.810,"hours":6,"months":[12,1,2,3],"summary":"Skigebiet über St. Moritz; Schnee und Betrieb prüfen."}
+ ]},
+{"id":"vogesen","name":"Vogesen (Route des Crêtes)","region":"Elsass/Lothringen","country":"FR","lat":47.920,"lon":7.100,
+ "kinds":["natur","berge","genuss"],"months":[5,6,7,8,9,10],"nights":[1,3],
+ "summary":"Kammstraße über Hochweiden, Bergseen und Ferme-Auberges.",
+ "angle":"Ferme-Auberge statt Restaurant: Bauernhöfe auf dem Kamm servieren ihr eigenes Essen.",
+ "spots":[
+  {"id":"vogesen-grand-ballon","name":"Grand Ballon","kind":"berge","lat":47.902,"lon":7.098,"hours":2,"family":true,"summary":"Höchster Gipfel der Vogesen mit Rundumblick."},
+  {"id":"vogesen-cretes","name":"Route des Crêtes","kind":"natur","lat":47.990,"lon":7.050,"hours":3,"family":true,"months":[5,6,7,8,9,10],"summary":"Kammstraße, im Winter teils gesperrt."},
+  {"id":"vogesen-hohneck","name":"Hohneck","kind":"berge","lat":48.039,"lon":7.016,"hours":2,"family":true,"summary":"Gipfel über Gletscherkaren."},
+  {"id":"vogesen-ferme","name":"Ferme-Auberge auf dem Kamm","kind":"genuss","lat":48.000,"lon":7.040,"hours":2,"slot":"mittag","summary":"Bauernhof-Gasthaus mit Munster-Käse; Öffnung prüfen."},
+  {"id":"vogesen-lac-blanc","name":"Lac Blanc","kind":"wasser","lat":48.128,"lon":7.087,"hours":2,"family":true,"summary":"Karsee unter Felswänden."}
+ ]},
+{"id":"flensburg","name":"Flensburg & Schlei","region":"Schleswig-Holstein","country":"DE","lat":54.784,"lon":9.436,
+ "kinds":["wasser","stadt","genuss","kultur"],"months":[4,5,6,7,8,9,10],"nights":[1,4],
+ "summary":"Förde, Kapitänshäuser und das Wikinger-Erbe an der Schlei.",
+ "angle":"Rum-Meile und Wikinger: Flensburgs Handelsgeschichte und Haithabu am selben Wochenende.",
+ "spots":[
+  {"id":"flensburg-hafen","name":"Historischer Hafen & Kaufmannshöfe","kind":"stadt","lat":54.792,"lon":9.434,"hours":2,"family":true,"summary":"Segelschiffe, Höfe und die Rote Straße."},
+  {"id":"flensburg-schifffahrtsmuseum","name":"Schifffahrtsmuseum mit Rum-Museum","kind":"kultur","lat":54.796,"lon":9.432,"hours":1.5,"indoor":true,"family":true,"summary":"Seefahrt und Rumhandel der Stadt."},
+  {"id":"flensburg-haithabu","name":"Wikinger Museum Haithabu","kind":"kultur","lat":54.491,"lon":9.566,"hours":2.5,"family":true,"summary":"Welterbe-Handelsplatz mit nachgebauten Häusern."},
+  {"id":"flensburg-arnis","name":"Arnis an der Schlei","kind":"wasser","lat":54.630,"lon":9.930,"hours":2,"family":true,"summary":"Kleinste Stadt Deutschlands am Ostseearm."},
+  {"id":"flensburg-gluecksburg","name":"Wasserschloss Glücksburg","kind":"burg","lat":54.833,"lon":9.551,"hours":1.5,"family":true,"summary":"Weißes Schloss mitten in einem See."}
+ ]},
+{"id":"rhoen","name":"Rhön (Wasserkuppe)","region":"Hessen/Bayern/Thüringen","country":"DE","lat":50.498,"lon":9.937,
+ "kinds":["natur","berge","familie","winter"],"months":[1,2,4,5,6,7,8,9,10,12],"nights":[1,3],
+ "summary":"Land der offenen Fernen: Hochmoor, Segelflieger und Sternenpark.",
+ "angle":"Sternenpark Rhön: Nachts ist es hier so dunkel, dass die Milchstraße gut sichtbar ist.",
+ "spots":[
+  {"id":"rhoen-wasserkuppe","name":"Wasserkuppe & Segelflugmuseum","kind":"technik","lat":50.498,"lon":9.937,"hours":2.5,"family":true,"summary":"Höchster Berg Hessens, Wiege des Segelflugs."},
+  {"id":"rhoen-schwarzes-moor","name":"Schwarzes Moor","kind":"natur","lat":50.517,"lon":10.068,"hours":1.5,"family":true,"summary":"Bohlenweg durch das Hochmoor mit Aussichtsturm."},
+  {"id":"rhoen-sterne","name":"Sternbeobachtung im Sternenpark","kind":"natur","lat":50.500,"lon":10.000,"hours":1.5,"slot":"abend","family":true,"summary":"Dunkler Nachthimmel; klare Nächte und Mondphase beachten."},
+  {"id":"rhoen-milseburg","name":"Milseburg","kind":"berge","lat":50.548,"lon":9.900,"hours":2.5,"family":true,"summary":"Markanter Berg mit Kapelle."},
+  {"id":"rhoen-fulda","name":"Barockviertel Fulda","kind":"stadt","lat":50.553,"lon":9.672,"hours":2,"family":true,"summary":"Dom, Stadtschloss und Orangerie."}
+ ]},
+{"id":"hameln","name":"Hameln & Weserbergland","region":"Niedersachsen","country":"DE","lat":52.104,"lon":9.356,
+ "kinds":["stadt","kultur","natur","burg"],"months":[4,5,6,7,8,9,10],"nights":[1,3],
+ "summary":"Rattenfängerstadt mit Weserrenaissance, Schlössern und Flussradweg.",
+ "angle":"Rattenfänger live: im Sommer wird die Sage an bestimmten Tagen auf der Hochzeitshausterrasse gespielt.",
+ "spots":[
+  {"id":"hameln-altstadt","name":"Altstadt & Rattenfängerhaus","kind":"stadt","lat":52.104,"lon":9.358,"hours":2,"family":true,"summary":"Weserrenaissance-Fassaden und Sagenwege."},
+  {"id":"hameln-freilichtspiel","name":"Rattenfänger-Freilichtspiel","kind":"kultur","lat":52.103,"lon":9.358,"hours":1,"family":true,"months":[5,6,7,8,9],"summary":"Freilichtaufführung im Sommer; Termine prüfen."},
+  {"id":"hameln-haemelschenburg","name":"Schloss Hämelschenburg","kind":"burg","lat":52.040,"lon":9.300,"hours":2,"family":true,"summary":"Wasserschloss der Weserrenaissance."},
+  {"id":"hameln-weserradweg","name":"Weserradweg","kind":"natur","lat":52.050,"lon":9.420,"hours":4,"family":true,"summary":"Flussradweg mit sanften Hügeln."}
+ ]},
+{"id":"fichtelgebirge","name":"Fichtelgebirge & Luisenburg","region":"Bayern","country":"DE","lat":50.030,"lon":11.970,
+ "kinds":["natur","berge","kultur","winter"],"months":[1,2,5,6,7,8,9,10,12],"nights":[1,3],
+ "summary":"Granitlabyrinth, Quellen und eine Felsenbühne.",
+ "angle":"Felsenlabyrinth Luisenburg: durch Spalten und unter Blöcken hindurch, Kinder lieben es.",
+ "spots":[
+  {"id":"fichtelgebirge-luisenburg","name":"Felsenlabyrinth Luisenburg","kind":"natur","lat":50.040,"lon":12.005,"hours":2,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Granitblöcke mit Wegen und Leitern; Saison prüfen."},
+  {"id":"fichtelgebirge-ochsenkopf","name":"Ochsenkopf","kind":"berge","lat":50.031,"lon":11.810,"hours":3,"family":true,"summary":"Seilbahn, Sommerrodelbahn und Wintersport."},
+  {"id":"fichtelgebirge-schneeberg","name":"Schneeberg & Backöfele","kind":"berge","lat":50.050,"lon":11.856,"hours":3,"family":true,"summary":"Höchster Berg Frankens mit Aussichtsturm."},
+  {"id":"fichtelgebirge-porzellan","name":"Porzellanikon Selb","kind":"kultur","lat":50.171,"lon":12.130,"hours":2,"indoor":true,"family":true,"summary":"Porzellanmuseum in alter Fabrik."}
+ ]},
+{"id":"altmuehltal","name":"Altmühltal (Eichstätt)","region":"Bayern","country":"DE","lat":48.892,"lon":11.185,
+ "kinds":["natur","wasser","kultur","familie"],"months":[4,5,6,7,8,9,10],"nights":[1,3],
+ "summary":"Flusstal mit Jurafelsen, Fossilien und gemütlichem Paddelrevier.",
+ "angle":"Selbst Fossilien suchen: in Steinbrüchen bei Eichstätt darf man mit Hammer klopfen (Bedingungen vor Ort).",
+ "spots":[
+  {"id":"altmuehltal-fossilien","name":"Fossilien-Steinbruch","kind":"familie","lat":48.895,"lon":11.160,"hours":2.5,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Hobby-Steinbruch zum Klopfen; Regeln und Saison prüfen."},
+  {"id":"altmuehltal-paddeln","name":"Paddeln auf der Altmühl","kind":"wasser","lat":48.930,"lon":11.300,"hours":4,"family":true,"months":[5,6,7,8,9],"summary":"Ruhiger Fluss, Verleih vor Ort."},
+  {"id":"altmuehltal-zwoelf-apostel","name":"Zwölf Apostel bei Solnhofen","kind":"natur","lat":48.896,"lon":10.988,"hours":1.5,"family":true,"summary":"Felsgruppe aus Jurakalk am Fluss."},
+  {"id":"altmuehltal-willibaldsburg","name":"Willibaldsburg & Jura-Museum","kind":"burg","lat":48.889,"lon":11.174,"hours":2,"indoor":true,"family":true,"summary":"Burg mit Museum zu Fossilien wie dem Archaeopteryx."}
+ ]},
+{"id":"rheingau","name":"Rheingau & Rüdesheim","region":"Hessen","country":"DE","lat":49.979,"lon":7.924,
+ "kinds":["genuss","kultur","wasser"],"months":[4,5,6,7,8,9,10,11,12],"nights":[1,2],
+ "summary":"Riesling, Klöster und der Blick vom Niederwalddenkmal.",
+ "angle":"Seilbahn hinauf, Sessellift auf der anderen Seite hinunter – eine Rundtour über die Weinberge.",
+ "spots":[
+  {"id":"rheingau-niederwald","name":"Niederwalddenkmal & Seilbahn","kind":"berge","lat":49.980,"lon":7.908,"hours":2.5,"family":true,"months":[3,4,5,6,7,8,9,10,11],"summary":"Gondel über die Weinberge zum Denkmal; Saison prüfen."},
+  {"id":"rheingau-eberbach","name":"Kloster Eberbach","kind":"kultur","lat":50.042,"lon":8.047,"hours":2,"indoor":true,"summary":"Zisterzienserkloster mit Weingut."},
+  {"id":"rheingau-drosselgasse","name":"Drosselgasse","kind":"genuss","lat":49.979,"lon":7.925,"hours":1.5,"slot":"abend","summary":"Weinlokale in der engen Gasse."},
+  {"id":"rheingau-musikkabinett","name":"Siegfrieds Mechanisches Musikkabinett","kind":"kultur","lat":49.980,"lon":7.926,"hours":1,"indoor":true,"family":true,"summary":"Selbstspielende Musikinstrumente im Brömserhof."}
+ ]},
+{"id":"lahntal","name":"Lahntal (Limburg & Weilburg)","region":"Hessen","country":"DE","lat":50.389,"lon":8.064,
+ "kinds":["kultur","wasser","unterwelt","burg"],"months":[4,5,6,7,8,9,10],"nights":[1,2],
+ "summary":"Dom über dem Fluss, Schiffstunnel und eine Tropfsteinhöhle.",
+ "angle":"Durch Deutschlands einzigen Schiffstunnel paddeln – in Weilburg.",
+ "spots":[
+  {"id":"lahntal-dom","name":"Limburger Dom & Altstadt","kind":"kultur","lat":50.389,"lon":8.064,"hours":2,"family":true,"summary":"Bunter Dom auf dem Felsen über der Lahn."},
+  {"id":"lahntal-schiffstunnel","name":"Schiffstunnel Weilburg","kind":"wasser","lat":50.487,"lon":8.262,"hours":3,"family":true,"months":[5,6,7,8,9],"summary":"Mit Kanu oder Boot durch den Tunnel; Verleih vor Ort."},
+  {"id":"lahntal-kubacher","name":"Kubacher Kristallhöhle","kind":"unterwelt","lat":50.491,"lon":8.290,"hours":1.5,"indoor":true,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Höhle mit Kristallen; Saison prüfen."},
+  {"id":"lahntal-weilburg","name":"Schloss Weilburg","kind":"burg","lat":50.485,"lon":8.262,"hours":2,"family":true,"summary":"Residenzschloss über der Lahnschleife."}
+ ]},
+{"id":"maastricht","name":"Maastricht & Südlimburg","region":"Limburg","country":"NL","lat":50.851,"lon":5.691,
+ "kinds":["stadt","genuss","unterwelt","kultur"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Burgundisch geprägte Stadt mit Höhlengängen im Mergel.",
+ "angle":"Eine Buchhandlung in einer Kirche – und danach unter die Stadt in die Mergelgrotten.",
+ "spots":[
+  {"id":"maastricht-vrijthof","name":"Vrijthof & Altstadt","kind":"stadt","lat":50.849,"lon":5.687,"hours":2,"family":true,"summary":"Großer Platz mit Kirchen und Cafés."},
+  {"id":"maastricht-dominicanen","name":"Buchhandlung Dominicanen","kind":"kultur","lat":50.851,"lon":5.689,"hours":1,"indoor":true,"family":true,"summary":"Buchladen in einer gotischen Kirche."},
+  {"id":"maastricht-grotten","name":"Grotten Sint-Pietersberg","kind":"unterwelt","lat":50.836,"lon":5.682,"hours":1.5,"indoor":true,"family":true,"summary":"Gänge im Mergelberg, nur mit Führung."},
+  {"id":"maastricht-valkenburg","name":"Valkenburg","kind":"burg","lat":50.865,"lon":5.832,"hours":2.5,"family":true,"summary":"Burgruine über dem Ort, Höhlen und im Advent Weihnachtsmarkt in Grotten."}
+ ]},
+{"id":"texel","name":"Texel","region":"Nordholland","country":"NL","lat":53.060,"lon":4.800,
+ "kinds":["wasser","natur","familie"],"months":[4,5,6,7,8,9,10],"nights":[2,7],
+ "summary":"Größte Wattenmeerinsel der Niederlande mit Dünen, Schafen und Seehunden.",
+ "angle":"Die Insel mit dem Rad: Fähre ab Den Helder, dann alles ohne Auto.",
+ "spots":[
+  {"id":"texel-ecomare","name":"Ecomare","kind":"familie","lat":53.087,"lon":4.749,"hours":2,"indoor":true,"family":true,"summary":"Seehundauffangstation und Naturmuseum."},
+  {"id":"texel-duenen","name":"Nationalpark Duinen van Texel","kind":"natur","lat":53.080,"lon":4.760,"hours":3,"family":true,"summary":"Dünen und Heide an der Westküste."},
+  {"id":"texel-leuchtturm","name":"Leuchtturm De Cocksdorp","kind":"natur","lat":53.182,"lon":4.855,"hours":1.5,"family":true,"summary":"Roter Leuchtturm an der Nordspitze."},
+  {"id":"texel-strand","name":"Nordseestrand Paal 17","kind":"wasser","lat":53.070,"lon":4.735,"hours":3,"family":true,"months":[6,7,8,9],"summary":"Breiter Strand im Westen der Insel."}
+ ]},
+{"id":"krakau","name":"Krakau (Kraków)","region":"Kleinpolen","country":"PL","lat":50.062,"lon":19.937,
+ "kinds":["stadt","kultur","unterwelt","burg"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[2,4],
+ "summary":"Königsstadt mit Wawel, großem Marktplatz und einem Salzbergwerk.",
+ "angle":"Kapelle aus Salz: im Salzbergwerk Wieliczka sind selbst die Kronleuchter aus Salzkristallen.",
+ "spots":[
+  {"id":"krakau-rynek","name":"Hauptmarkt & Tuchhallen","kind":"stadt","lat":50.062,"lon":19.937,"hours":2,"family":true,"summary":"Einer der größten mittelalterlichen Plätze Europas."},
+  {"id":"krakau-wawel","name":"Wawel","kind":"burg","lat":50.054,"lon":19.935,"hours":3,"family":true,"summary":"Königsschloss und Kathedrale über der Weichsel."},
+  {"id":"krakau-wieliczka","name":"Salzbergwerk Wieliczka","kind":"unterwelt","lat":49.983,"lon":20.055,"hours":3,"indoor":true,"family":true,"summary":"Welterbe-Bergwerk mit Kapellen aus Salz; nur mit Führung."},
+  {"id":"krakau-kazimierz","name":"Kazimierz","kind":"kultur","lat":50.051,"lon":19.946,"hours":2,"family":true,"summary":"Früheres jüdisches Viertel mit Synagogen und Cafés."},
+  {"id":"krakau-schindler","name":"Fabrik Oskar Schindlers","kind":"kultur","lat":50.047,"lon":19.961,"hours":2,"indoor":true,"summary":"Museum zur Besatzungszeit in Krakau."}
  ]}
 ]
 };

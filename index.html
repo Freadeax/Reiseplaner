@@ -266,7 +266,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v3.2</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v3.3</span></button>
     <button type="button" class="lnk" data-go="entdecken">Entdecken</button>
     <button type="button" class="sync" id="sync" data-go="konto" aria-label="Konto und Speicherstatus"><i></i><span>Nur in diesem Browser</span></button>
   </header>
@@ -1155,11 +1155,13 @@ function go(h,keepScroll){
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
   else if(h==='konto'){UI.view='konto'}
   else if(h==='entdecken'){UI.view='entdecken'}
+  else if(/^ziel-[a-z0-9-]{2,40}$/.test(h)){UI.view='entdecken';UI.openZiel=h.slice(5)}
   else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
-  const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.view;
+  const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.openZiel?'ziel-'+UI.openZiel:UI.view;
   try{history.replaceState(null,'','#'+target)}catch(e){}
   closeSheet();render();if(!keepScroll)try{window.scrollTo(0,0)}catch(e){}
+  if(UI.openZiel&&CATX){const z=UI.openZiel;UI.openZiel=null;catOpenById(z).catch(err=>alertMsg(err.message))}
 }
 const cur=()=>UI.view==='reise'?Store.get(UI.tid):null;
 function save(t,now){Store.put(t,now)}
@@ -2163,6 +2165,8 @@ function vEntdecken(){
    '<p class="small muted">Die Ortssuche fragt OpenStreetMap (Nominatim); übertragen wird nur der eingegebene Ort. Der Standort wird auf etwa 1 km gerundet und nur in diesem Browser gemerkt.</p>';
   const res=s.res;
   let out='<section class="block"><span class="eyebrow">Entdecken</span><h1>Wohin von hier aus?</h1><p class="lead muted">Abfahrtsort und Kilometer angeben, Themen wählen: Der Katalog schlägt passende Ziele mit Attraktionen, Zwischenstopps auf dem Weg und Ausflügen vor Ort vor. Daraus wird auf Knopfdruck eine Reise mit Tagesgerüst.</p></section>'+
+   '<section class="block"><div class="panel"><h2>Ziel direkt finden</h2><div class="form"><label class="fld"><span>Name, Region oder Idee</span><input type="search" id="cat-find" maxlength="60" value="'+esc(s.findQ||'')+'" placeholder="z. B. Wachau, Höhle, Bodensee" autocomplete="off"></label><div class="fld"><span>&nbsp;</span><button type="button" class="btn ghost" data-act="cat-find">Finden</button></div></div>'+
+    (s.findHits?(s.findHits.length?'<div class="checks-list">'+s.findHits.map(p=>'<button type="button" class="chk info" style="cursor:pointer;text-align:left" data-act="cat-open-id" data-val="'+esc(p.id)+'"><span><strong>'+esc(p.name)+'</strong> <span class="small muted">'+esc(p.region)+(o?' · ≈ '+CATX.roadKm(CATX.airKm(o,p))+' km':'')+'</span></span></button>').join('')+'</div>':'<p class="small">Nichts gefunden für „'+esc(s.findQ)+'“.</p>'):'')+'</div></section>'+
    '<section class="block"><div class="panel"><h2>1 · Abfahrtsort</h2>'+originBox+'</div>'+
    '<div class="panel"><h2>2 · Wie weit?</h2><div class="opts">'+CATX.RANGES.map(r=>opt('cat-range',r.id,r.name,r.sub,s.range===r.id)).join('')+'</div>'+
    '<div class="form"><label class="fld"><span>ab km</span><input type="number" min="0" max="1990" step="10" data-cf="minKm" value="'+esc(s.minKm)+'"></label><label class="fld"><span>bis km</span><input type="number" min="10" max="2000" step="10" data-cf="maxKm" value="'+esc(s.maxKm)+'"></label></div>'+
@@ -2220,32 +2224,55 @@ function catOpen(id){
   const nights=s.nights===''?Math.max(p.nights[0],Math.min(2,p.nights[1])):+s.nights;
   const editable=Store.list().filter(t=>!Store.isAccount()||Store.canEdit(t.id));
   openSheet('<span class="eyebrow">'+esc(p.region)+'</span><h2>'+esc(p.name)+'</h2><p>'+esc(p.summary)+'</p>'+catSeasonStrip(p.months,'Gute Reisemonate (typisch, nicht für eure Daten geprüft)')+'<p class="small muted">Typische Reisezeit: '+p.nights[0]+'–'+p.nights[1]+' Nächte.</p>'+(p.angle?'<div class="note"><b>Ums Eck gedacht</b><p>'+esc(p.angle)+'</p></div>':'')+
-   '<p class="small"><b>≈ '+x.roadKm+' km Fahrstrecke, ca. '+esc(CATX.durText(x.minutes))+'</b> ab '+esc(s.origin.label)+' <span class="muted">(Schätzung)</span> '+lk(route(s.origin.label,p.name),'Route prüfen')+'</p>'+
+   (s.origin&&x.roadKm!=null?'<p class="small"><b>≈ '+x.roadKm+' km Fahrstrecke, ca. '+esc(CATX.durText(x.minutes))+'</b> ab '+esc(s.origin.label)+' <span class="muted">(Schätzung)</span> '+lk(route(s.origin.label,p.name),'Route prüfen')+'</p>':'<p class="small muted">Für Entfernung, Zwischenstopps und Planung oben in „Entdecken“ einen Abfahrtsort wählen.</p>')+
+   '<div class="row"><button type="button" class="btn ghost sm" data-act="cat-share" data-val="'+esc(p.id)+'">Link zu diesem Ziel teilen</button>'+lk(mp(p.name),'Karte')+'</div>'+
    catComboBlock(p)+
    '<h3>Vor Ort</h3><p class="small muted">Vorausgewählt ist, was in eure Reisezeit und Dauer passt. Häkchen setzen oder entfernen.</p><div class="checks-list">'+x.spots.map(sp=>catSpotRow({spot:sp,place:p,kind:'dest'},want.has(sp.id))).join('')+
    (x.closed?'<p class="small muted">'+x.closed+' weitere Idee(n) sind im gewählten Monat üblicherweise geschlossen und ausgeblendet.</p>':'')+'</div>'+
-   '<h3>Unterwegs-Stopps</h3><div id="cat-stops"><p class="small" role="status">Suche Stopps auf dem Weg …</p></div>'+
+   (s.origin?'<h3>Unterwegs-Stopps</h3><div id="cat-stops"><p class="small" role="status">Suche Stopps auf dem Weg …</p></div>':'')+
    '<h3>Ausflüge vom Ziel aus</h3><div id="cat-near"><p class="small" role="status">Suche in der Umgebung …</p></div>'+
+   '<h3>Ähnliche Ziele</h3><div id="cat-similar"><p class="small" role="status">Suche …</p></div>'+
    '<div class="panel"><h3>Daraus eine Reise machen</h3><div class="form"><label class="fld"><span>Nächte</span><input type="number" min="0" max="30" id="cat-n" value="'+nights+'"></label><label class="fld"><span>Personen</span><input type="number" min="1" max="20" id="cat-p" value="2"></label></div>'+
    '<p class="small muted">Die Auswahl wird automatisch auf die Tage verteilt (Anreisetag nachmittags, Abreisetag vormittags, lange Touren ganztags, Drinnen-Ideen nachmittags). Preise bleiben offen, bis ihr sie eintragt. Fahrstrecke wird als Schätzung übernommen.</p>'+
-   '<div class="row"><button type="button" class="btn" data-act="cat-create">Als neue Reise anlegen</button></div>'+
+   '<div class="row"><button type="button" class="btn" data-act="cat-create"'+(s.origin?'':' disabled')+'>Als neue Reise anlegen</button>'+(s.origin?'':'<span class="small muted">Erst einen Abfahrtsort wählen.</span>')+'</div>'+
    (editable.length?'<div class="form"><label class="fld"><span>Oder zu bestehender Reise</span><select id="cat-trip">'+editable.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.title)+'</option>').join('')+'</select></label><div class="fld"><span>&nbsp;</span><button type="button" class="btn ghost" data-act="cat-add">Hinzufügen</button></div></div>':'')+'</div>');
   catExtras(x).catch(e=>{const a=$('#cat-stops'),b=$('#cat-near');if(a)a.innerHTML='<p class="small">'+esc(e.message)+'</p>';if(b)b.innerHTML=''});
 }
 /* Stopps und Ausflüge nachladen: zwei weitere Abfragen mit derselben Quelle */
 async function catExtras(x){
   const s=catState(),p=x.place,id=p.id;
+  catSimilar(p).catch(()=>{const el=$('#cat-similar');if(el)el.innerHTML=''});
   const [way,around]=await Promise.all([
-    catalogQuery({lat:s.origin.lat,lon:s.origin.lon,maxKm:Math.min(CATX.MAX_KM,x.roadKm+40),minKm:0}).catch(()=>({places:[]})),
+    s.origin&&x.roadKm!=null?catalogQuery({lat:s.origin.lat,lon:s.origin.lon,maxKm:Math.min(CATX.MAX_KM,x.roadKm+40),minKm:0}).catch(()=>({places:[]})):Promise.resolve({places:[]}),
     catalogQuery({lat:p.lat,lon:p.lon,maxKm:80,minKm:0}).catch(()=>({places:[]}))]);
   if(s.openId!==id)return;
-  const stops=CATX.stopsAlong(way.places,s.origin,p),near=CATX.nearbyFrom(around.places,p,50).filter(n=>!stops.some(st=>st.spot.id===n.spot.id));
+  const stops=s.origin?CATX.stopsAlong(way.places,s.origin,p):[],near=CATX.nearbyFrom(around.places,p,50).filter(n=>!stops.some(st=>st.spot.id===n.spot.id));
   stops.forEach(e=>{s.index[e.spot.id]={spot:e.spot,place:e.place,kind:'stop',detourKm:e.detourKm}});
   near.forEach(e=>{s.index[e.spot.id]={spot:e.spot,place:e.place,kind:'near',roadKm:e.roadKm}});
   const a=$('#cat-stops'),b=$('#cat-near');
   if(a)a.innerHTML=stops.length?'<p class="small muted">Liegen auf dem Weg, Umweg geschätzt. Werden am Anreisetag eingeplant.</p><div class="checks-list">'+stops.map(e=>catSpotRow(Object.assign({kind:'stop'},e),false)).join('')+'</div>':'<p class="small muted">'+(x.roadKm<80?'Für kurze Strecken keine Stopps.':'Keine Katalog-Idee nah genug an der Strecke.')+'</p>';
   if(b)b.innerHTML=near.length?'<div class="checks-list">'+near.map(e=>catSpotRow(Object.assign({kind:'near'},e),false)).join('')+'</div>':'<p class="small muted">Keine weiteren Katalog-Ideen im Umkreis von 50 km.</p>';
 }
+/* Ziel per ID öffnen (Direktsuche, Ähnliche, Link #ziel-<id>); mit Start wie ein Suchtreffer bewertet, sonst ohne Entfernung */
+async function catOpenById(id){
+  const s=catState();let x=catFind(id);
+  if(!x){const data=await catLoadLocal(),raw=data.places.find(q=>q.id===id);if(!raw){alertMsg('Dieses Ziel gibt es im Katalog nicht (mehr).');return}
+    if(s.origin){try{x=await catLoadPlace(id,raw.lat,raw.lon)}catch(e){x=null}}
+    if(!x){const p=CATX.normPlace(raw);x={place:p,spots:p.spots.filter(sp=>CATX.spotSeason(sp,s.month)!==false),why:[],score:0,season:CATX.seasonFit(p,s.month),nightsFit:null,roadKm:null,minutes:null,closed:0,indoor:0,version:data.version,source:'lokal'};x.closed=p.spots.length-x.spots.length;s.extra[id]=x}}
+  catOpen(id);
+}
+async function catSimilar(p){
+  const s=catState(),data=await catLoadLocal(),list=CATX.similar(p,data.places,{origin:s.origin,max:4});
+  const el=$('#cat-similar');if(!el||s.openId!==p.id)return;
+  el.innerHTML=list.length?'<div class="checks-list">'+list.map(x=>'<div class="chk info"><span><strong>'+esc(x.place.name)+'</strong> <span class="small muted">'+esc(x.place.region)+(x.airKm!=null?' · ≈ '+CATX.roadKm(x.airKm)+' km von euch':'')+'</span><br><small>gemeinsam: '+x.shared.map(k=>esc(CATX.KINDS[k])).join(', ')+'</small></span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="cat-open-id" data-val="'+esc(x.place.id)+'">Ansehen</button></div>').join('')+'</div>':'<p class="small muted">Keine ähnlichen Ziele im Katalog.</p>';
+}
+async function catFindRun(q){
+  const s=catState();s.findQ=String(q||'').trim().slice(0,60);
+  if(s.findQ.length<2){s.findHits=null;render();return}
+  const data=await catLoadLocal();s.findHits=CATX.findPlaces(data.places,s.findQ,12);render();
+  const el=document.getElementById('cat-find');if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
+}
+function catShareUrl(id){return location.origin+location.pathname+'#ziel-'+id}
 function catPicked(){const s=catState();return [...document.querySelectorAll('[data-cs]')].filter(c=>c.checked).map(c=>s.index[c.getAttribute('data-cs')]).filter(Boolean)}
 /* Auswahl als eigene Unternehmungen mit Tagesgerüst in eine Reise übernehmen (nur additive Felder). */
 function catApply(t,picked,nights){
@@ -2271,6 +2298,7 @@ function catTripType(p,nights,month){
 }
 function catCreate(){
   const s=catState(),x=catFind(s.openId);if(!x)return;
+  if(!s.origin||x.roadKm==null){alertMsg('Bitte zuerst einen Abfahrtsort wählen.');return}
   const p=x.place,nights=Math.max(0,Math.min(30,Math.round(num($('#cat-n').value,0)))),persons=Math.max(1,Math.min(20,Math.round(num($('#cat-p').value,2))));
   const picked=catPicked();
   const t=newTrip({title:p.name,type:catTripType(p,nights,s.month),nights,persons,budget:0,origin:s.origin.label,originGeo:{lat:s.origin.lat,lon:s.origin.lon},dest:p.name+(p.region?', '+p.region:''),travel:'auto',km:x.roadKm,kmSrc:'schaetzung',
@@ -2394,6 +2422,9 @@ document.addEventListener('click',e=>{
     case 'cat-tour-open':catTourSheet();return;
     case 'cat-tour-create':catTourCreate();return;
     case 'cat-q-clear':s.q='';render();return;
+    case 'cat-find':catFindRun(($('#cat-find')||{}).value);return;
+    case 'cat-open-id':catOpenById(val).catch(err=>alertMsg(err.message));return;
+    case 'cat-share':{const u=catShareUrl(val);(async()=>{try{if(navigator.share){await navigator.share({title:'Reiseziel',url:u});return}}catch(err){if(err&&err.name==='AbortError')return}try{await navigator.clipboard.writeText(u);alertMsg('Link kopiert: '+u)}catch(err){alertMsg('Link: '+u)}})();return}
     case 'cat-month':{if(!s.res)return;s.month=s.month===val?'':val;s.res.ranked=CATX.rank(s.res,catPrefs());s.res.ranked.forEach(x=>{x.version=s.res.version;x.source=s.res.source});s.extra={};catSavePrefs();render();return}
     case 'cat-combo':{const ids=val.split('|');ids.forEach(id=>{const c=document.querySelector('[data-cs="'+id.replace(/"/g,'')+'"]');if(c)c.checked=true});s.combo=ids;document.querySelectorAll('[data-act="cat-combo"]').forEach(x=>{x.textContent=x===b?'✓ gewählt':'Diese Kombi';x.setAttribute('aria-pressed',x===b?'true':'false')});return}
     case 'cat-create':catCreate();return;
@@ -2413,6 +2444,7 @@ document.addEventListener('change',e=>{
   s.res=null;catSavePrefs();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='cat-q'){e.preventDefault();catGeoSearch(e.target.value)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='cat-find'){e.preventDefault();catFindRun(e.target.value)}});
 document.addEventListener('change',e=>{const el=e.target;if(!el.getAttribute||el.getAttribute('data-leg-n')==null)return;const t=cur();if(!t||!t.legs)return;
   const d=UI.legDraft&&UI.legDraft.trip===t.id?UI.legDraft:{trip:t.id,order:t.legs.map((_,i)=>i),nights:t.legs.map(l=>Math.max(1,Math.round(num(l.nights,1))))};
   d.nights[+el.getAttribute('data-leg-n')]=Math.max(1,Math.min(21,Math.round(num(el.value,1))));UI.legDraft=d;render()});
@@ -2524,7 +2556,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

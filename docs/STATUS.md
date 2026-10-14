@@ -76,6 +76,27 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## v3.3 · Ziel finden, teilen, Ähnliche, Katalog v3 (Claude, 14.10.2026 nachts, Issue #8)
+
+Basis `bf12e00`, vorher in #8 angekündigt. Philipp: „frei weiterarbeiten“.
+
+**Umgesetzt:**
+- **Katalog v3:**
+  - 102 Ziele und 468 Attraktionen in 12 Ländern (neu: Slowenien). Neu u. a. Wachau, Graz, Bled & Ljubljana, Lugano, Engadin, Vogesen, Flensburg & Schlei, Rhön, Hameln, Fichtelgebirge, Altmühltal, Rheingau, Lahntal, Maastricht, Texel und Krakau.
+  - Seed-Migration `20261014230000_catalog_seed_v3.sql`; die Notfall-Datei ist jetzt `apply-catalog-v3.sql`, v2 gelöscht.
+- **Ziel direkt finden:** Suchfeld über den ganzen Katalog, nach Name, Region oder Attraktion (`CATX.findPlaces`, Namensanfang zuerst). Funktioniert auch ohne Abfahrtsort; mit Start zeigt es Entfernungen.
+- **Link je Ziel:** `#ziel-<id>` öffnet das Ziel-Blatt direkt. Knopf „Link zu diesem Ziel teilen“ (Web-Share bzw. Zwischenablage). Im Link steht nur die Ziel-ID.
+- **Ziel-Blatt ohne Abfahrtsort:** zeigt Infos, Kombis, Ausflüge und Ähnliche; „Als neue Reise anlegen“ ist bis zur Wahl eines Starts gesperrt.
+- **Ähnliche Ziele:** Themen-Überschneidung (mindestens 2 gemeinsame) plus gemeinsame gute Monate, nach Entfernung (`CATX.similar`).
+- **Fehlerbehebung Gleichlauf:** Die Offline-Suche sortierte nach gerundeter Luftlinie, die Datenbank nach ungerundeter. Bei fast gleich weit entfernten Zielen (Weimar/Fichtelgebirge ab Dresden) war die Reihenfolge dadurch verschieden. Aufgefallen durch `test:db` mit 102 Zielen; jetzt sortieren beide nach ungerundeter Entfernung und ID.
+
+**Ausgeführt:**
+- `npm test` grün.
+- `supabase db reset` mit 5 Migrationen, `db lint` ohne Befund, `test:db` grün (vier Abfragen gleich, inklusive 2000 km mit Obergrenze 80), `test:e2e` grün („Version 3“).
+- `npm run test:browser` grün in Chromium (Desktop, 390 px, 320 px dunkel): Direktsuche „Wachau“, Ähnliche Ziele, Link `#ziel-harz`.
+
+**Grenzen:** Die neuen Katalogtexte sind redaktionelles Allgemeinwissen ohne Live-Recherche; Saisonangaben sind als „prüfen“ gekennzeichnet. Die Produktion bekommt v3 über die GitHub-Integration; geprüft wird nach dem Deploy.
+
 ## v3.2 · Suche & Tagesplan (Claude, 14.10.2026 abends, Issue #8)
 
 Ausgangsstand `e36cd65` (ChatGPT, Buchungsschutz), seitdem keine fremden Änderungen. Auftrag Philipp: Such- und Planpunkte erweitern, vorerst ohne Konto-Anbindung. Philipps eigener iPhone-Test war laut ihm erfolgreich (dokumentiert von ChatGPT).

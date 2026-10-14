@@ -172,6 +172,17 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('.tab[data-go$="-check"]');
   assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packhinweise aus dem Katalog');
   await noOverflow(p, name + ' Rundreise');
+  /* v3.3: Ziel direkt finden, ähnliche Ziele, Link #ziel-<id> */
+  await p.click('header [data-go="entdecken"]');
+  await p.fill('#cat-find', 'Wachau'); await p.press('#cat-find', 'Enter');
+  await p.click('[data-act="cat-open-id"][data-val="wachau"]');
+  await p.waitForSelector('.sheet h2:has-text("Wachau")');
+  await p.waitForSelector('#cat-similar [data-act="cat-open-id"]');
+  await p.click('[data-act="sheet-x"]');
+  await p.goto(base + '/index.html#ziel-harz');
+  await p.waitForSelector('.sheet h2:has-text("Harz")');
+  assert(/#ziel-harz$/.test(p.url()), name + ': Ziel-Link bleibt in der Adresse');
+  await p.click('[data-act="sheet-x"]');
   /* Weite Strecke mit Zwischenstopps; Filter bleiben nach Neuladen erhalten */
   await p.click('header [data-go="entdecken"]');
   await p.click('[data-act="cat-kind"][data-val="burg"]');

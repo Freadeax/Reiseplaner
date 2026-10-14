@@ -164,6 +164,16 @@ assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele
   assert(C.combos(mu, { family: true }).every(x => x.highlight.family && x.calm.family));
   assert(all.filter(p => C.combos(p, {}).length).length >= 50, 'Kombis für die meisten Ziele');
 }
+{ /* Ähnliche Ziele und Direktsuche */
+  const harz = all.find(p => p.id === 'harz');
+  const sim = C.similar(harz, all, { origin: goe });
+  assert(sim.length >= 1 && sim.length <= 4 && sim.every(x => x.place.id !== 'harz' && x.shared.length >= 2 && x.airKm > 0));
+  for (let i = 1; i < sim.length; i++) assert(sim[i - 1].score >= sim[i].score);
+  assert.equal(C.findPlaces(all, 'w').length, 0, 'mindestens 2 Zeichen');
+  assert.equal(C.findPlaces(all, 'Wachau')[0].id, 'wachau');
+  assert(C.findPlaces(all, 'salzbergwerk').some(p => p.id === 'krakau'), 'Suche über Attraktionen');
+  const br = C.findPlaces(all, 'Bre'); assert(br[0].name.toLowerCase().startsWith('bre'), 'Namensanfang zuerst');
+}
 { /* Regenzwilling: nächste Drinnen-Idee, nicht sie selbst, Saison und Ausschluss beachtet */
   const fall = C.findSpot(all, 'bad-urach-wasserfall');
   assert.equal(fall.place.id, 'bad-urach');

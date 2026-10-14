@@ -81,10 +81,11 @@
       var p = normPlace(raw), air = airKm(q, p), road = air * ROAD_FACTOR;
       if (road < q.minKm || road > q.maxKm) return;
       if (q.kinds.length && !p.kinds.some(function (k) { return q.kinds.indexOf(k) >= 0; })) return;
-      p.airKm = round1(air); out.push(p);
+      p.airKm = round1(air); out.push({ p: p, air: air });
     });
-    out.sort(function (a, b) { return a.airKm - b.airKm || (a.id < b.id ? -1 : 1); });
-    return { version: data.version || 0, places: out.slice(0, 80) };
+    /* wie in SQL: nach ungerundeter Luftlinie, dann ID */
+    out.sort(function (a, b) { return a.air - b.air || (a.p.id < b.p.id ? -1 : 1); });
+    return { version: data.version || 0, places: out.slice(0, 80).map(function (x) { return x.p; }) };
   }
 
   function seasonFit(p, month) { return !month || !p.months.length ? null : p.months.indexOf(+month) >= 0; }
@@ -298,6 +299,29 @@
     return res.slice(0, opt.max || 3);
   }
 
+  /* Ähnliche Ziele: Themen-Überschneidung (Jaccard) und gemeinsame gute Monate, optional nach Entfernung vom Start */
+  function similar(place, places, opt) {
+    opt = opt || {};
+    var mine = place.kinds, mm = place.months;
+    return places.map(function (raw) { return raw.spots && raw.id ? raw : normPlace(raw); }).filter(function (p) { return p.id !== place.id; }).map(function (p) {
+      var inter = p.kinds.filter(function (k) { return mine.indexOf(k) >= 0; }).length, uni = new Set(mine.concat(p.kinds)).size;
+      var mon = mm.length && p.months.length ? p.months.filter(function (m) { return mm.indexOf(m) >= 0; }).length / 12 : 0;
+      return { place: p, score: Math.round((inter / Math.max(1, uni) + mon * 0.3) * 100) / 100, shared: p.kinds.filter(function (k) { return mine.indexOf(k) >= 0; }),
+        airKm: opt.origin ? round1(airKm(opt.origin, p)) : null };
+    }).filter(function (x) { return x.shared.length >= 2; }).sort(function (a, b) {
+      return b.score - a.score || (a.airKm != null && b.airKm != null ? a.airKm - b.airKm : 0) || (a.place.id < b.place.id ? -1 : 1);
+    }).slice(0, opt.max || 4);
+  }
+  /* Ziel direkt finden: Treffer über den ganzen Katalog, Name zuerst, dann Region/Ideen */
+  function findPlaces(places, q, max) {
+    q = String(q || '').trim().toLowerCase(); if (q.length < 2) return [];
+    var list = places.map(function (raw) { return raw.spots && raw.id ? raw : normPlace(raw); });
+    var hit = list.filter(function (p) { return textMatch(p, q); }).map(function (p) {
+      var n = p.name.toLowerCase(); return { place: p, rank: n.indexOf(q) === 0 ? 0 : n.indexOf(q) >= 0 ? 1 : p.region.toLowerCase().indexOf(q) >= 0 ? 2 : 3 };
+    });
+    return hit.sort(function (a, b) { return a.rank - b.rank || a.place.name.localeCompare(b.place.name, 'de'); }).slice(0, max || 12).map(function (x) { return x.place; });
+  }
+
   /* Regenzwilling: nächste Drinnen-Ideen zu einer Draußen-Idee, im Umkreis, in der Saison, ohne schon geplante.
      Nur Vorschlag; erst ein bewusster Tausch plant die Alternative ein (keine doppelten Pflichtkosten). */
   function rainTwins(spot, places, opt) {
@@ -331,7 +355,7 @@
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
-    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
+    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);
