@@ -19,15 +19,16 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 | --- | --- | --- |
 | Website | **Online:** `https://freadeax.github.io/Reiseplaner/` (GitHub Pages, Quelle „GitHub Actions“) | HTTP 200; Workflow-Lauf 38583057320 für `3acfe22` vollständig grün, einschließlich `deploy` |
 | Artefakt | Nur Website-Dateien; Doku, Tests und SQL nicht abrufbar (404); keine Secret- oder service_role-Schlüssel | per `curl` auf der Live-Seite geprüft |
-| Website-Konfiguration | **Fehler:** GitHub-Variable `RP_SUPABASE_URL` endet auf `.supabase.com` statt `.supabase.co`. Die Live-Seite (Stand `3acfe22`) erreicht Supabase deshalb nicht. Seit `c0266d6` bricht der Build bei dieser Endung ab, bis zur Korrektur wird nichts Neues veröffentlicht | `config.js` der Live-Seite; Lauf 38587148117: `app`, `browser`, `database` grün, `build` mit dieser Meldung abgebrochen |
+| Website-Konfiguration | **Behoben:** `RP_SUPABASE_URL` endet auf `.supabase.co`. Die Live-`config.js` (Commit `cabefc5`) zeigt auf `https://sqkszjurzobltvdluiwh.supabase.co` | Lauf 38610561776 vollständig grün inklusive `deploy` |
+| Umkreis-Katalog (#7) | **Live in der Produktion:** 54 Ziele und 255 Attraktionen, von der GitHub-Integration eingespielt. Anonym lesbar, Schreiben abgelehnt (`42501`). Die Live-Seite zeigt „Online-Katalog (Datenbank), Version 1“ | REST-Zählung, Chromium gegen https://freadeax.github.io/Reiseplaner/#entdecken, 14.10. abends |
 | Supabase-Projekt | `sqkszjurzobltvdluiwh`. Auth: Registrierung an, E-Mail-Bestätigung Pflicht (`mailer_autoconfirm: false`), E-Mail-Anmeldung aktiv. Site- und Redirect-URL laut Philipp eingetragen | `/auth/v1/settings` mit Publishable Key |
 | Datenbankschema | **Vorhanden (geprüft 14.10., ca. 15:15 Uhr).** `trips`, `trip_members`, `trip_invites` und die RPC-Funktionen existieren. Ohne Anmeldung wird alles abgelehnt (`42501` bei Lesen, Einfügen, `accept_trip_invite`, `create_trip_invite`), wie in der Migration vorgesehen. Bis ca. 14:50 meldete die API noch `PGRST205`. Wer das Schema eingespielt hat (Integration verspätet oder SQL-Editor), bestätigt Philipp. Die Schreib- und Rollenprüfung mit echten Konten steht noch aus | REST-API mit Publishable Key |
 | E-Mail | Eingebauter Supabase-Versand, nur an Mitglieder des Projektteams und etwa 2 pro Stunde. Cloudflare soll laut Philipp nur für E-Mail dienen. Cloudflare Email Sending versendet an beliebige Empfänger nur im Bezahltarif (Workers Paid), deshalb Vorschlag: eigene Domain mit DNS bei Cloudflare plus SMTP-Dienst mit Gratistarif. Entscheidung offen | Cloudflare-Doku, Kommentar in #6 |
 
 **Nächste Schritte und wer sie übernimmt:**
-1. **Philipp:** GitHub-Variable `RP_SUPABASE_URL` auf `https://sqkszjurzobltvdluiwh.supabase.co` korrigieren.
+1. ~~GitHub-Variable korrigieren~~: erledigt.
 2. ~~Schema einspielen~~: erledigt. Die SQL-Datei **nicht** zusätzlich ausführen. Sie würde nur abbrechen und nichts ändern.
-3. **Claude:** Nach der Korrektur den Workflow neu starten, `config.js` der Live-Seite prüfen und das Ergebnis hier und in #6 eintragen.
+3. ~~Live-`config.js` prüfen~~: erledigt (Claude).
 4. **Philipp:** Auf der Live-Seite mit eigener E-Mail registrieren, bestätigen, eine Reise anlegen und den Passwort-Reset testen, auch auf dem iPhone.
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
@@ -97,12 +98,12 @@ Ausgangsstand `8bf665f`. Auftrag Philipp: ein fester Katalog auf der Datenbank, 
 **Grenzen:**
 - Die echte Nominatim-Abfrage und der Standort wurden nur im Code geprüft; im Test war die Antwort nachgebildet.
 - Kein iPhone/Safari.
-- Produktion: Der Katalog ist erst nach dem Einspielen der zwei neuen Migrationen online. Bis dahin nutzt die Website die Offline-Kopie, und das wird angezeigt.
+- Produktion: Katalog-Migrationen von der Integration eingespielt und live geprüft (54/255, nur lesbar, Live-Seite nutzt die Datenbank).
 - Saison, Inhalte und Lage der Attraktionen stammen aus redaktionellem Allgemeinwissen, Stand 14.10.2026, nicht live recherchiert. Vor einer Fahrt beim Anbieter prüfen.
 - Straßen-km und Fahrzeit sind Schätzungen, kein Routing.
 
 **Nächste Schritte:**
-- **Philipp:** nach dem nächsten Deploy prüfen, ob die Integration die Katalog-Migrationen einspielt (`/rest/v1/catalog_places?select=id&limit=1` liefert dann Daten), sonst die manuelle SQL-Datei ausführen. Danach auf dem iPhone „Entdecken“ mit Standort testen.
+- **Philipp:** auf dem iPhone „Entdecken“ mit Standort und Ortssuche testen.
 - **Alle:** Katalog über `catalog-data.js` erweitern (Norden, Osten und Westen sind dünner besetzt), nur mit Allgemeinwissen ohne Preise.
 - **Später:** echte Fahrzeiten über einen Routing-Dienst (nur mit Freigabe und Grenzen); Nutzer-Vorschläge für den Katalog mit Moderation.
 
