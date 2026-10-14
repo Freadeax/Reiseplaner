@@ -153,6 +153,17 @@ assert.equal(C.dayCapacity(0, 3, 120), 8); assert.equal(C.dayCapacity(1, 3, 120)
   assert(p2.length && p2.every(i => i.day >= 2 && i.day <= 3), 'nur Tage der Etappe');
 }
 assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele und Länder');
+{ /* Kombi-Tagesideen: Highlight + ruhige Ergänzung, kurzer Weg, höchstens 7 Std., Saison/Kinder beachtet */
+  const mu = all.find(p => p.id === 'muenchen');
+  const cs = C.combos(mu, {});
+  assert(cs.length >= 1 && cs.length <= 3);
+  for (const x of cs) { assert(x.airKm <= 15 && x.hours <= 7 && x.highlight.hours <= 5 && x.highlight.id !== x.calm.id); assert(C.COMBOS.some(c => c[0] === x.highlight.kind && c[1] === x.calm.kind && c[2] === x.label)); }
+  assert.equal(new Set(cs.map(x => x.highlight.id)).size, cs.length, 'jedes Highlight nur einmal');
+  const sbg2 = all.find(p => p.id === 'salzburg');
+  assert(!C.combos(sbg2, { month: 1 }).some(x => x.highlight.id === 'salzburg-hellbrunn' || x.calm.id === 'salzburg-hellbrunn'), 'geschlossene Saison nicht kombiniert');
+  assert(C.combos(mu, { family: true }).every(x => x.highlight.family && x.calm.family));
+  assert(all.filter(p => C.combos(p, {}).length).length >= 50, 'Kombis für die meisten Ziele');
+}
 { /* Regenzwilling: nächste Drinnen-Idee, nicht sie selbst, Saison und Ausschluss beachtet */
   const fall = C.findSpot(all, 'bad-urach-wasserfall');
   assert.equal(fall.place.id, 'bad-urach');

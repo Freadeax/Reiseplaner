@@ -107,6 +107,8 @@ Ausgangsstand `e36cd65` (ChatGPT, Buchungsschutz), seitdem keine fremden Änderu
 - Bereits früher übernommene Ideen haben keine Packhinweise (`bring`).
 - Produktion geprüft: CI-Lauf 38625482845 für `482cd7d` grün einschließlich `deploy`. Die Integration hat v2 eingespielt (REST: 86 Ziele, 395 Attraktionen), die Live-Seite zeigt „Online-Katalog (Datenbank), Version 2“ ohne JS-Fehler.
 
+**Nachtrag Tagesideen (Kombis):** Im Ziel-Blatt stehen bis zu 3 Kombis aus Highlight und ruhiger Ergänzung (`CATX.combos`, Regeln in `COMBOS`). Auswählen setzt beide Häkchen, und `catApply` legt die Ergänzung in das freie andere Tagesfenster des Highlights. Getestet in `tests/catalog.cjs` und im Browsertest (gleicher Tag geprüft).
+
 **Nachtrag Regenzwilling** (Vorschlag 2 aus `docs/DESIGN_CATALOG.md`, nach `482cd7d`):
 - Im Blatt eines geplanten Draußen-Punkts aus dem Katalog gibt es „☂ Regenzwilling“: bis zu drei Drinnen-Ideen im Umkreis von 30 km, saisonpassend, ohne bereits geplante.
 - Erst „Bei Regen stattdessen“ plant die Alternative an derselben Stelle ein, mit offenem Preis. Die Draußen-Idee bleibt als Idee erhalten, es entstehen keine doppelten Pflichtkosten.

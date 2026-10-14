@@ -72,12 +72,20 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.waitForSelector('#cat-near input[data-cs]');
   const pre = await p.$$eval('.sheet input[data-cs]:checked', l => l.length);
   assert(pre >= 2, name + ': Ideen vorausgewählt');
+  /* Kombi-Tagesidee: setzt beide Häkchen; danach am selben Tag geplant */
+  const combo = await p.getAttribute('[data-act="cat-combo"] >> nth=0', 'data-val');
+  await p.click('[data-act="cat-combo"] >> nth=0');
+  for (const id of combo.split('|')) assert(await p.isChecked('[data-cs="' + id + '"]'), name + ': Kombi-Häkchen');
   await p.check('#cat-near input[data-cs] >> nth=0');
   await p.fill('#cat-n', '1');
   await p.click('[data-act="cat-create"]');
   await p.waitForSelector('.tabs');
   assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': nach Anlegen im Tagesplan');
   const items = await p.$$eval('.item[data-act="item"]', l => l.length);
+  const comboNames = await p.evaluate(ids => ids.map(id => { for (const pl of window.RP_CATALOG.places) for (const sp of pl.spots) if (sp.id === id) return sp.name; return null; }), combo.split('|'));
+  const comboDays = await p.$$eval('.dcol', (cols, names) => names.map(nm => cols.findIndex(c => c.textContent.includes(nm))), comboNames);
+  assert(comboDays[0] >= 0 && comboDays[0] === comboDays[1], name + ': Kombi am selben Tag ' + JSON.stringify(comboDays));
+
   assert(items >= 2, name + ': Tagesgerüst angelegt');
   await noOverflow(p, name + ' Katalogreise Tagesplan');
   await p.click('.tab[data-go$="-ueber"]');

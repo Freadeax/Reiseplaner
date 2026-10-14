@@ -2121,6 +2121,13 @@ function vEntdecken(){
   }
   return out;
 }
+/* Tagesideen: ein Highlight plus eine ruhige Ergänzung am selben Ziel (DESIGN_CATALOG.md, Vorschlag 3) */
+function catComboBlock(p){
+  const s=catState(),list=CATX.combos(p,{month:s.month,family:s.family});s.combo=null;
+  if(!list.length)return '';
+  return '<h3>Tagesideen: ein Highlight, eine ruhige Ergänzung</h3><p class="small muted">Kurzer Weg, zusammen höchstens 7 Std., damit Zeit zum Durchatmen bleibt. Auswählen setzt beide Häkchen und plant sie am selben Tag.</p><div class="checks-list">'+
+   list.map(x=>'<div class="chk info"><span><strong>'+esc(x.label)+'</strong><br><small>'+esc(x.highlight.name)+' + '+esc(x.calm.name)+' · ≈ '+String(x.airKm).replace('.',',')+' km Luftlinie · zusammen ca. '+String(x.hours).replace('.',',')+' Std.</small></span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="cat-combo" data-val="'+esc(x.highlight.id+'|'+x.calm.id)+'">Diese Kombi</button></div>').join('')+'</div>';
+}
 function catSpotRow(e,checked){
   const sp=e.spot,s=catState(),season=CATX.spotSeason(sp,s.month);
   const extra=e.kind==='stop'?'Umweg ca. '+e.detourKm+' km · '+esc(e.place.name):e.kind==='near'?'≈ '+e.roadKm+' km vom Ziel · '+esc(e.place.name):'';
@@ -2137,6 +2144,7 @@ function catOpen(id){
   const editable=Store.list().filter(t=>!Store.isAccount()||Store.canEdit(t.id));
   openSheet('<span class="eyebrow">'+esc(p.region)+'</span><h2>'+esc(p.name)+'</h2><p>'+esc(p.summary)+'</p>'+catSeasonStrip(p.months,'Gute Reisemonate (typisch, nicht für eure Daten geprüft)')+'<p class="small muted">Typische Reisezeit: '+p.nights[0]+'–'+p.nights[1]+' Nächte.</p>'+(p.angle?'<div class="note"><b>Ums Eck gedacht</b><p>'+esc(p.angle)+'</p></div>':'')+
    '<p class="small"><b>≈ '+x.roadKm+' km Fahrstrecke, ca. '+esc(CATX.durText(x.minutes))+'</b> ab '+esc(s.origin.label)+' <span class="muted">(Schätzung)</span> '+lk(route(s.origin.label,p.name),'Route prüfen')+'</p>'+
+   catComboBlock(p)+
    '<h3>Vor Ort</h3><p class="small muted">Vorausgewählt ist, was in eure Reisezeit und Dauer passt. Häkchen setzen oder entfernen.</p><div class="checks-list">'+x.spots.map(sp=>catSpotRow({spot:sp,place:p,kind:'dest'},want.has(sp.id))).join('')+
    (x.closed?'<p class="small muted">'+x.closed+' weitere Idee(n) sind im gewählten Monat üblicherweise geschlossen und ausgeblendet.</p>':'')+'</div>'+
    '<h3>Unterwegs-Stopps</h3><div id="cat-stops"><p class="small" role="status">Suche Stopps auf dem Weg …</p></div>'+
@@ -2168,6 +2176,10 @@ function catApply(t,picked,nights){
   picked.forEach(e=>{const a=CATX.toAct(e.spot,e.place,uid);if(e.kind==='stop'){a.km=e.detourKm;a.note+=' Zwischenstopp, Umweg ca. '+e.detourKm+' km (geschätzt).';stops.push(a)}else{if(e.kind==='near'){a.km=e.roadKm*2;a.note+=' Ausflug vom Ziel, hin und zurück ca. '+e.roadKm*2+' km (geschätzt).'}main.push(Object.assign({},e.spot,{id:a.id,slot:e.spot.slot}))}acts[a.id]=a});
   t.customActs=(t.customActs||[]).concat(Object.values(acts));
   const plan=CATX.dayPlan(main,nights).map(i=>({uid:uid('i'),act:i.spotId,day:i.day,slot:i.slot}));
+  /* gewählte Kombi am selben Tag: Ergänzung in das andere Tagesfenster des Highlights legen, wenn dort frei */
+  const cb=(catState().combo||[]).map(id=>Object.values(acts).find(a=>a.catalogSpot===id)).filter(Boolean);
+  if(cb.length===2){const hi=plan.find(i=>i.act===cb[0].id),ca=plan.find(i=>i.act===cb[1].id);
+    if(hi&&ca&&hi.day!==ca.day){const other=hi.slot==='morgen'?'nachm':'morgen';if(!plan.some(i=>i.day===hi.day&&i.slot===other)){ca.day=hi.day;ca.slot=other}}}
   const st=stops.map(a=>({uid:uid('i'),act:a.id,day:0,slot:'mittag'}));
   t.items=(t.items||[]).concat(st,plan);
   return {acts:Object.keys(acts).length,planned:plan.length+st.length};
@@ -2304,6 +2316,7 @@ document.addEventListener('click',e=>{
     case 'cat-tour-open':catTourSheet();return;
     case 'cat-tour-create':catTourCreate();return;
     case 'cat-q-clear':s.q='';render();return;
+    case 'cat-combo':{const ids=val.split('|');ids.forEach(id=>{const c=document.querySelector('[data-cs="'+id.replace(/"/g,'')+'"]');if(c)c.checked=true});s.combo=ids;document.querySelectorAll('[data-act="cat-combo"]').forEach(x=>{x.textContent=x===b?'✓ gewählt':'Diese Kombi';x.setAttribute('aria-pressed',x===b?'true':'false')});return}
     case 'cat-create':catCreate();return;
     case 'cat-add':catAdd();return;
     case 'cat-trip-ideas':{const t=cur();if(t)catTripIdeas(t);return}
@@ -2387,7 +2400,7 @@ function planFillApply(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

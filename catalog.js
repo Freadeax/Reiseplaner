@@ -264,6 +264,40 @@
     return Math.max(0, Math.round(cap * 10) / 10);
   }
 
+  /* „Bekanntes Ziel, neuer Blick“ (DESIGN_CATALOG.md, Vorschlag 3): ein Highlight plus eine ruhige Ergänzung am selben Ziel.
+     Nur Paare mit kurzem Weg (Luftlinie ≤ 15 km) und zusammen höchstens 7 Std., damit Zeit zum Durchatmen bleibt. */
+  var COMBOS = [
+    ['berge', 'genuss', 'Aussicht, dann einkehren'], ['berge', 'wasser', 'Oben schauen, unten ans Wasser'],
+    ['technik', 'natur', 'Technik, dann Luft schnappen'], ['technik', 'stadt', 'Technik, dann bummeln'],
+    ['unterwelt', 'natur', 'Unter Tage, dann ins Grüne'], ['unterwelt', 'genuss', 'Unter Tage, dann einkehren'],
+    ['burg', 'stadt', 'Burg und Altstadtbummel'], ['burg', 'natur', 'Burg und Spaziergang'],
+    ['kultur', 'genuss', 'Museum, dann genießen'], ['kultur', 'natur', 'Kultur, dann durchatmen'],
+    ['natur', 'therme', 'Draußen unterwegs, danach Wärme'], ['wasser', 'genuss', 'Am Wasser, dann einkehren'],
+    ['familie', 'natur', 'Programm für Kinder, dann frei laufen'], ['stadt', 'genuss', 'Bummeln, dann genießen'],
+    ['winter', 'therme', 'Schnee, danach Wärme']
+  ];
+  function combos(place, opt) {
+    opt = opt || {};
+    var sp = place.spots.filter(function (s) { return spotSeason(s, opt.month) !== false && (!opt.family || s.family); }), out = [], used = {};
+    COMBOS.forEach(function (c) {
+      sp.forEach(function (a) {
+        if (a.kind !== c[0] || a.hours > 5) return;
+        var best = null;
+        sp.forEach(function (b) {
+          if (b === a || b.kind !== c[1] || a.hours + b.hours > 7) return;
+          var d = airKm(a, b); if (d > 15) return;
+          if (!best || d < best.d) best = { b: b, d: d };
+        });
+        var key = best && [a.id, best.b.id].sort().join('|');
+        if (best && !used[key]) { used[key] = true; out.push({ label: c[2], highlight: a, calm: best.b, airKm: round1(best.d), hours: a.hours + best.b.hours }); }
+      });
+    });
+    /* jede Attraktion höchstens einmal als Highlight, abwechslungsreich zuerst */
+    var seen = {}, res = [];
+    out.forEach(function (x) { if (seen[x.highlight.id]) return; seen[x.highlight.id] = true; res.push(x); });
+    return res.slice(0, opt.max || 3);
+  }
+
   /* Regenzwilling: nächste Drinnen-Ideen zu einer Draußen-Idee, im Umkreis, in der Saison, ohne schon geplante.
      Nur Vorschlag; erst ein bewusster Tausch plant die Alternative ein (keine doppelten Pflichtkosten). */
   function rainTwins(spot, places, opt) {
@@ -297,7 +331,7 @@
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
-    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
+    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);

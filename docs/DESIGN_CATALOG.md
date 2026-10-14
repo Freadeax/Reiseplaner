@@ -24,7 +24,8 @@ Stand 14.10.2026, Auftrag Philipp. Ausgangspunkt e36cd65. Claude erweitert Ziele
 - **1 · Ein Highlight, Zeit zum Durchatmen:** teilweise umgesetzt in v3.2. Die Tagesauslastung zählt Dauer und Fahrt, Leerlauf wird nicht automatisch gefüllt, „Lücken füllen“ ist nur ein Vorschlag mit Häkchen.
 - **2 · Regenzwilling:** umgesetzt im Blatt eines Draußen-Punkts. Tausch nur bewusst, Alternative ohne Pflichtkosten, gebuchte Termine geschützt.
 - **4 · Faire regionale Abdeckung:** umgesetzt mit Katalog v2 (86 Ziele, 11 Länder).
-- **3, 5, 6:** offen und bestätigt. Barrierefreiheit nur mit Quelle; unbekannt bleibt unbekannt.
+- **3 · Bekanntes Ziel, neuer Blick:** umgesetzt als „Tagesideen“ im Ziel-Blatt. Ein Highlight und eine ruhige Ergänzung am selben Ziel, Luftlinie höchstens 15 km, zusammen höchstens 7 Std., saison- und kinderbewusst. Die gewählte Kombi wird am selben Tag geplant. Kombis gibt es für 61 von 86 Zielen.
+- **5, 6:** offen und bestätigt. Barrierefreiheit nur mit Quelle; unbekannt bleibt unbekannt.
 
 ## Technischer Vertrag für den nächsten gemeinsamen Schritt
 
