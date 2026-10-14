@@ -228,6 +228,10 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.check('#cs-kitchen');
   await p.click('[data-act="stay-add"]');
   assert((await viewText(p)).includes('Testpension'), name + ': eigene Unterkunft fehlt');
+  await p.click('[data-act="stay-del"]');
+  assert((await p.textContent('.sheet')).includes('Unterkunft entfernen'), name + ': Unterkunfts-Löschvorschau fehlt');
+  await p.click('[data-act="sheet-x"]');
+  assert((await viewText(p)).includes('Testpension'), name + ': Unterkunft nach Abbrechen verloren');
 
   /* Eigene Unternehmung anlegen und einplanen */
   await p.click('.tab[data-go$="-unternehmen"]');

@@ -14,6 +14,29 @@ const ctx = { window: win, document: { addEventListener() {}, querySelector() { 
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
 
+/* Unterkunfts- und Ortswechsel: unverändernde Vorschau, kein Verlust gebundener Aufenthalte. */
+{
+  const t=a.silvesterTemplate();t.check.stay=true;
+  assert.throws(()=>a.stayChangePreview(t,'place','oberstaufen'),/Nicht geändert/);
+  assert.throws(()=>a.stayChangePreview(t,'select','os-holidu'),/Nicht geändert/);
+  const same=a.stayChangePreview(t,'select',t.stayId);
+  assert.equal(same.candidate.check.stay,true,'erneute Auswahl erhält Buchung');
+  t.customStays.push({id:'scustom',custom:true,name:'Hotel X',priceNight:120});
+  const inactive=a.stayChangePreview(t,'remove','scustom');
+  assert.equal(inactive.candidate.check.stay,true,'unbenutzte Unterkunft darf entfernt werden');
+  t.check.stay=false;
+  const original=JSON.stringify(t),draft=a.stayChangePreview(t,'place','oberstaufen');
+  assert.equal(JSON.stringify(t),original);
+  assert(draft.removed>0);
+  t.budget+=1;
+  assert.throws(()=>a.applyStayChange(t,draft),/geändert/);
+  const fresh=a.stayChangePreview(t,'place','oberstaufen');a.applyStayChange(t,fresh);
+  assert.equal(t.place,'oberstaufen');assert.equal(t.stayId,'');
+  t.customStays=[{id:'scustom',custom:true,name:'Hotel X',priceNight:120}];t.stayId='scustom';t.check.stay=true;
+  assert.throws(()=>a.stayChangePreview(t,'remove','scustom'),/Nicht geändert/);
+  assert.throws(()=>a.stayChangePreview(t,'add',{id:'snew',name:'Neu',custom:true,priceNight:10}),/Nicht geändert/);
+}
+
 /* Manuelle Änderungen dürfen Verpflichtungen und absolute Termine nicht umgehen. */
 {
   const t = a.newTrip({ dateMode: 'fix', start: '2027-05-01', end: '2027-05-04', persons: 2 });

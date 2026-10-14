@@ -1,5 +1,9 @@
 # Roadmap
 
+## Serie: Unterkunft, Kostenposten, nächste Schritte · ChatGPT
+
+Paket 1 Orts-/Unterkunftswechsel mit Kandidat, Vorschau und Verpflichtungsschutz implementiert; initiale Auswahl direkt, erneute gleiche Auswahl erhält Buchungszustand. Paket 2 eigene Kostenposten bearbeiten/entfernen mit Zahlungsbindung, Paket 3 nächste Aktionen in der Übersicht folgen getrennt. Kein Konto-/E-Mail-/Cloudflare-Eingriff.
+
 ## Manuelle Planaktionen · ChatGPT, #8
 
 Verschieben/Entfernen/Leeren/Paketübernahme/Eckdaten durch vorhandene Verpflichtungen geschützt, echte Kalendertage statt nur Tagesindex verglichen. Node geprüft, neue Chromium-Abnahme offen. Noch kein allgemeiner Storno-/Umbuchungsablauf. Weitere Unterkunfts-/Ortswechselwege und zusätzliche Zeit-/Transferregeln bleiben nächste Pakete.

@@ -1450,6 +1450,34 @@ function protectedPlanChange(t,action,args={}){
  return c;
 }
 function adoptPlanChange(t,c){Object.keys(t).forEach(k=>{if(!(k in c))delete t[k]});Object.assign(t,c);}
+function stayChangePreview(t,action,value){
+ const c=clone(t);let title='Unterkunft wechseln';
+ if(action==='place'){
+  if(!PLACES[value])throw new Error('Ort nicht mehr vorhanden.');
+  if(c.place!==value){resetStay(c);c.routeKm=null;c.place=value;c.stayId='';c.packageId='';c.items=(c.items||[]).filter(i=>{const a=actOf(c,i.act);return a&&(a.custom||a.place==='*'||String(a.place||'').split('|').includes(value))});}
+  title='Ort wechseln';
+ }else if(action==='select'){
+  if(!STAYS.some(s=>s.id===value)&&!(c.customStays||[]).some(s=>s.id===value))throw new Error('Unterkunft nicht mehr vorhanden.');
+  if(c.stayId!==value){resetStay(c);c.stayId=value;}
+ }else if(action==='add'){
+  if(!value||!value.id||!String(value.name||'').trim()||!Number.isFinite(value.priceNight)||value.priceNight<0)throw new Error('Name und gültigen Nachtpreis eintragen.');
+  resetStay(c);c.customStays=(c.customStays||[]).concat([clone(value)]);c.stayId=value.id;
+ }else if(action==='remove'){
+  if(!(c.customStays||[]).some(s=>s.id===value))throw new Error('Eigene Unterkunft nicht mehr vorhanden.');
+  c.customStays=c.customStays.filter(s=>s.id!==value);if(c.stayId===value){resetStay(c);c.stayId='';}title='Eigene Unterkunft entfernen';
+ }else throw new Error('Unbekannter Unterkunftswechsel.');
+ const issues=commitmentIssues(t,c);if(issues.length)throw new Error('Nicht geändert: '+issues.join(' · ')+'. Bestehende Verpflichtungen zuerst klären.');
+ return {trip:t.id,source:JSON.stringify(t),candidate:c,title,before:cost(t).total,after:cost(c).total,removed:(t.items||[]).length-(c.items||[]).length,open:openCosts(c)};
+}
+function applyStayChange(t,draft){
+ if(!draft||draft.trip!==t.id||draft.source!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Wechsel bitte erneut öffnen.');
+ const issues=commitmentIssues(t,draft.candidate);if(issues.length)throw new Error(issues.join(' · '));
+ adoptPlanChange(t,clone(draft.candidate));return t;
+}
+function sheetStayChange(t,draft){
+ const old=stayOf(t),fresh=stayOf(draft.candidate);
+ openSheet('<h2>'+esc(draft.title)+'?</h2><dl class="facts"><dt>Unterkunft vorher</dt><dd>'+esc(old?old.name:'Noch keine')+'</dd><dt>Unterkunft danach</dt><dd>'+esc(fresh?fresh.name:'Noch keine')+'</dd><dt>Plan vorher</dt><dd>'+eur(draft.before)+'</dd><dt>Plan danach</dt><dd>'+eur(draft.after)+'</dd><dt>Termine entfernt</dt><dd>'+draft.removed+'</dd></dl><p class="small">Es wird keine Buchung, Stornierung oder Erstattung ausgelöst. Ein Wechsel setzt unterkunftsgebundene Angebotspreise und Gästekartenbestätigungen zurück.</p>'+(draft.open.length?'<div class="note"><b>Noch offene Kosten</b><p>'+esc(draft.open.join(' · '))+'</p></div>':'')+'<div class="row"><button type="button" class="btn" data-act="stay-change-confirm">Wechsel übernehmen</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.stayDraft=draft;
+}
 function savingPreview(t,index){
  const tip=savingTips(t)[index];if(!tip)return null;
  const candidate=clone(t);tip.fn(candidate);const issues=commitmentIssues(t,candidate);if(issues.length)return null;
@@ -1694,14 +1722,14 @@ document.addEventListener('click',async e=>{
    case 'pkg-cancel': UI.confirm=null;break;
    case 'pkg-apply':{try{adoptPlanChange(t,protectedPlanChange(t,'package',{id:val}));UI.confirm=null;save(t);closeSheet();go('r-'+t.id+'-plan');}catch(err){alertMsg(err.message)}return;}
    case 'pkg-view': sheetPkg(t,val);return;
-   case 'place': if((t.items||[]).length&&t.place){UI.confirm='place';UI.pendingPlace=val}else{resetStay(t);t.routeKm=null;t.place=val;t.stayId='';t.packageId='';save(t)}break;
-   case 'place-yes':{const v=UI.pendingPlace;resetStay(t);t.routeKm=null;t.place=v;t.stayId='';t.stayQuote=null;t.packageId='';t.items=(t.items||[]).filter(i=>{const a=actOf(t,i.act);return a&&(a.custom||a.place==='*'||a.place.split('|').includes(v))});UI.confirm=null;save(t);break}
+   case 'place':case 'place-yes':{try{const d=stayChangePreview(t,'place',act==='place'?val:UI.pendingPlace);if(t.place||t.stayId||(t.items||[]).length){sheetStayChange(t,d);return}applyStayChange(t,d);UI.confirm=null;save(t);}catch(err){alertMsg(err.message);return}break;}
    case 'place-no': UI.confirm=null;break;
    case 'sflt': UI.sflt[val]=!UI.sflt[val];break;
-   case 'stay': resetStay(t);t.stayId=val;save(t);break;
+   case 'stay':{try{const d=stayChangePreview(t,'select',val);if(t.stayId&&t.stayId!==val){sheetStayChange(t,d);return}applyStayChange(t,d);save(t);}catch(err){alertMsg(err.message);return}break;}
    case 'stay-add':{const n=$('#cs-name').value.trim();if(!n){alertMsg('Bitte einen Namen eintragen.');return}const s={id:uid('s'),custom:true,name:n,ort:$('#cs-ort').value.trim(),priceNight:num($('#cs-price').value,0),url:/^https?:\/\//.test($('#cs-url').value.trim())?$('#cs-url').value.trim():'',sauna:$('#cs-sauna').checked,kitchen:$('#cs-kitchen').checked,breakfast:$('#cs-bf').checked,card:$('#cs-card').checked,info:'Eigener Eintrag',map:$('#cs-ort').value.trim()?n+' '+$('#cs-ort').value.trim():''};
-     resetStay(t);t.customStays=(t.customStays||[]).concat([s]);t.stayId=s.id;save(t);break}
-   case 'stay-del': t.customStays=(t.customStays||[]).filter(s=>s.id!==val);if(t.stayId===val){resetStay(t);t.stayId='';}save(t);break;
+     try{const d=stayChangePreview(t,'add',s);if(t.stayId){sheetStayChange(t,d);return}applyStayChange(t,d);save(t);}catch(err){alertMsg(err.message);return}break;}
+   case 'stay-del':{try{sheetStayChange(t,stayChangePreview(t,'remove',val));}catch(err){alertMsg(err.message)}return;}
+   case 'stay-change-confirm':{try{applyStayChange(t,UI.stayDraft);save(t);UI.stayDraft=null;UI.confirm=null;closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'copy':{const txt=inquiry(t);try{await navigator.clipboard.writeText(txt);b.textContent='Kopiert ✓'}catch(err){const el=$('#inq');const r=document.createRange();r.selectNodeContents(el);const s=window.getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Markiert, jetzt kopieren'}return}
    case 'fcat': UI.fcat=val;break;
    case 'ffree': UI.ffree=!UI.ffree;break;
@@ -2581,7 +2609,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

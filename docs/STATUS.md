@@ -1,5 +1,11 @@
 # Projektstand · 14.10.2026
 
+## Serie Paket 1: Orts-/Unterkunftswechsel (ChatGPT, #8)
+
+Basis 80d82a1. Alle direkten Auswahl-, Hinzufügen- und Entfernenwege bilden Kandidaten und prüfen Verpflichtungen. Bestehende Unterkunfts-/Ortswechsel zeigen Kosten vorher/nachher, entfernte Termine und offene Kosten vor Übernahme. Abbrechen unverändernd; zwischenzeitlich geänderte Reise sperrt den Entwurf. Initiale Auswahl bleibt direkt. Erneute Auswahl derselben Unterkunft erhält Angebot und Buchungscheck. Unbenutzte eigene Unterkunft darf entfernt werden, gebundene ausgewählte nicht. Keine Buchung/Storno/Erstattung ausgelöst; kein neues Speicherformat/Auth/DB/Sync-Eingriff.
+
+Node-Fälle ergänzt; npm test vollständig grün, Gast-Build/Artefaktprüfung bestanden. Browser-Skript um Unterkunft entfernen/Abbrechen ergänzt und syntaktisch geprüft; neue Chromium-Abnahme steht noch aus, lokal Browserbinary fehlt.
+
 ## Buchungsschutz für manuelle Planänderungen (ChatGPT, #8)
 
 Ausgangspunkt 1350338. Claude bestätigt abgegrenztes Paket; Routing/Katalog und neue v3.3-Funktionen bleiben unverändert.
