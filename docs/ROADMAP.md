@@ -95,3 +95,8 @@ Verbindlich: für beliebige Nutzer, private Reisen als Standard, gezielte Zusamm
 ## Buchungsschutz · 14.10. abends
 
 Spartipp-Vorschau, Schutz gebuchter/angefragter Termine und bezahlter Angebote sowie konsistente Restzahlung umgesetzt. Philipp bestätigt eigenen iPhone-Test. Seine verbleibenden Aufgaben: PHILIPP_TODO.md. Entwicklung übernimmt weiterhin Konto-Lebenszyklus, Restore und exakte Zeiten; neue Schemaarbeit vorher im Issue ankündigen.
+
+
+## Gemeinsame Design-/Katalogrunde · 14.10.2026
+
+Erste warme CSS-Basis implementiert, Details und kreative nächste Pakete in DESIGN_CATALOG.md. Claude: Katalog-/DB-Ausbau; ChatGPT: visuelle Struktur und UI-Abnahme. Erst neue Issue-Einträge abgleichen, dann Regenalternativen und ruhige Tageskombinationen mit Kosten-/Terminregeln konkretisieren. E-Mail/Cloudflare bis Do/Fr am PC zurückgestellt; vorhandene Anbindung erhalten.

@@ -25,3 +25,9 @@ Diese Regeln koordinieren parallele Arbeit, garantieren aber keine automatische 
 - Schemaänderungen nur als **neue** Datei in `supabase/migrations/`. Bereits eingespielte Migrationen nie ändern. Keine Schlüssel, Passwörter oder Projekt-Refs ins Repository; im Frontend nur Projekt-URL und Publishable Key über `config.js` bzw. Build-Variablen.
 - Wer `Store`, `Sync`, `Auth`, `cloud.js` oder die Migrationen ändert, führt mit Docker `supabase start`, `npm run test:db` und `npm run test:e2e` aus. Ohne Docker muss der CI-Job `database` am konkreten Commit grün sein. Ergebnis mit Commit in STATUS und im Issue notieren.
 - Veröffentlicht wird nur über den Workflow „Tests & Pages“ von `main` nach grünen Prüfungen. Keine Handveröffentlichungen, kein zweites Produktionsprojekt.
+
+## Aktive Kommunikationsprüfung (Philipp, 14.10.2026)
+
+Ohne weitere Erinnerung durch Philipp: relevante Issues samt neuen Kommentaren und den aktuellen main-Stand zu Arbeitsbeginn, nach jedem größeren abgeschlossenen Arbeitsschritt (bei längeren Paketen spätestens etwa alle zehn Minuten), vor Änderungen an gemeinsam betroffenen Dateien und unmittelbar vor Commit/Push prüfen. Neue Entscheidungen in die laufende Arbeit aufnehmen; bei Überschneidungen im Issue konkret abstimmen. Nach dem Push eine nachvollziehbare Übergabe hinterlassen. Keine Behauptung über eine Antwort von Claude, solange keine vorliegt. Dies gilt während aktiver Arbeit; es ist kein Hintergrundmonitor nach Ende des Chats.
+
+Philipp bestätigt ausdrücklich: fertige, geprüfte Änderungen an Freadeax/Reiseplaner selbst nach main pushen. Vor Beginn, bei wichtigen Zwischenständen oder Planänderungen und nach Abschluss/Push im gemeinsamen Issue Bescheid geben; auf neue Kommentare reagieren.

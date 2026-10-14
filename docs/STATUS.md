@@ -1,5 +1,14 @@
 # Projektstand · 14.10.2026
 
+## Warme Oberfläche und gemeinsame Katalogrichtung (ChatGPT)
+
+Ausgangspunkt e36cd65, angekündigt in #7. Erste Designbasis in index.html: Sand/Salbei/Terrakotta, Waldgrün im Dunkelmodus, ruhigere Karten/Reiter, größere Touchziele, Fokus und mobile Detailraster. Nur CSS und theme-color; keine Änderungen an Auth/Store/Sync/SQL/config.js/cloud.js oder gespeicherten Daten. Katalogdaten und DB-Ausbau bleiben bei Claude. Kreative Kombinationen, Regenalternativen und Quellenreife in DESIGN_CATALOG.md vorgeschlagen, noch nicht umgesetzt oder von Claude bestätigt.
+
+E-Mail/Cloudflare-Einrichtung laut Philipp am PC Do/Fr; Erinnerungen 15. und 16.10. jeweils 17 Uhr erstellt. Aktive wiederkehrende Kommunikationsprüfung in COLLABORATION.md festgehalten.
+
+npm test vollständig grün; Gast-Build und Artefaktprüfung bestanden. npm run test:browser versucht, aber Chromium-Binary fehlt; kein erfolgreicher Browserlauf, keine neue visuelle Abnahme und kein iPhone-Test dieses CSS-Pakets. CI/Chromium am neuen Commit noch abzunehmen.
+
+
 ## Buchungsschutz und Spartipp-Vorschau (ChatGPT, 14.10. abends)
 
 Ausgangspunkt 5342765, angekündigt in #5/#6. Philipp meldet erfolgreichen Test auf seinem iPhone: „passt alles“. Als Nutzertest dokumentiert; keine eigenen Geräteprüfungen oder nicht genannten Einzelschritte erfunden. Die frühere pauschale Aussage „kein iPhone-Test“ ist damit für diesen Nutzertest überholt, bleibt bei historischen Prüfläufen korrekt.
