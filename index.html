@@ -445,7 +445,7 @@ function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.
 function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
 function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offerAmounts(o).unknown.map(k=>k+' offen'));if(!offerCurrent(o,t))out.push('Ausgewähltes Angebot passt nicht mehr zu Daten/Personen oder ist abgelaufen');if(o.availability!=='available')out.push('Verfügbarkeit des Angebots unbestätigt');}
  if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt');}
- else if(!o){const st=stayOf(t);if(st.gone)out.push(st.name+': Inserat nicht mehr auffindbar, andere Unterkunft wählen');if(!(num(t.stayQuote,0)>0)){out.push('Konkretes Unterkunftsangebot fehlt');const sn=stayNight(t,st);if(sn.sample&&Math.round(num(t.persons,2))!==sn.sample.adults)out.push('Unterkunftspreis gilt laut Abfrage für '+sn.sample.adults+' Erwachsene, für '+Math.round(num(t.persons,2))+' Personen beim Anbieter prüfen');}out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
+ else if(!o){const st=stayOf(t);if(st.gone)out.push(st.name+': Inserat nicht mehr auffindbar, andere Unterkunft wählen');if(!(num(t.stayQuote,0)>0)){out.push('Konkretes Unterkunftsangebot fehlt');const sn=stayNight(t,st);if(sn.stale)out.push('Unterkunftspreis: ältere oder unklare Abfrage, aktuellen Preis erneut prüfen');if(sn.scaled)out.push('Unterkunftskosten auf andere Dauer hochgerechnet: feste Gebühren und Mindestnächte prüfen');if(sn.sample&&Math.round(num(t.persons,2))!==sn.sample.adults)out.push('Unterkunftspreis gilt laut Abfrage für '+sn.sample.adults+' Erwachsene, für '+Math.round(num(t.persons,2))+' Personen beim Anbieter prüfen');}out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
  if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
  if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
  if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
@@ -639,17 +639,24 @@ function tripSeason(t){
 }
 const nightsBetween=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
 const shortRange=(a,b)=>{const x=pd(a),y=pd(b);return String(x.getUTCDate()).padStart(2,'0')+'.'+String(x.getUTCMonth()+1).padStart(2,'0')+'.–'+fmtLong(y)};
-/* Nachtpreis einer Katalog-Unterkunft für diese Reise: höchster Wert aus Portalabfragen derselben Saison
-   (nicht unterschätzen), sonst der gekennzeichnete Jahreswechsel-Schätzwert. */
-function stayNight(t,st){
+/* Exakte Abfrage zuerst, sonst höchster Saisonvergleich. Keine Preisobergrenze:
+   Gesamtpreise können feste Gebühren enthalten und sind nicht proportional zur Dauer. */
+function sampleAge(x,now=new Date()){
+  const checked=pd(x.checked),today=pd(now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0'));
+  return checked?Math.round((today-checked)/864e5):null;
+}
+function stayNight(t,st,now=new Date()){
   const plan=num(st.plan!=null?st.plan:st.priceNight,0);
   if(st.custom)return {pn:plan,src:'ok',txt:'eure Angabe',sample:null};
-  const season=tripSeason(t),hits=(st.samples||[]).filter(x=>season&&seasonOfMd(x.from.slice(5))===season);
-  if(hits.length){
-    const best=hits.map(x=>({x,pn:x.total/nightsBetween(x.from,x.to)})).sort((a,b)=>b.pn-a.pn)[0],x=best.x;
-    const exact=t.dateMode==='fix'&&t.start===x.from&&t.end===x.to&&Math.round(num(t.persons,2))===x.adults;
-    return {pn:best.pn,src:exact?'ok':'est',sample:x,
-      txt:(exact?'Portalpreis':'Vergleichswert '+SEASONS[season])+': Abfrage vom '+fmtLong(pd(x.checked))+' für '+shortRange(x.from,x.to)+', '+x.adults+' Erw., '+eur(x.total)+' für '+nightsBetween(x.from,x.to)+' Nächte · '+x.incl+(exact?'':' · für eure Daten nicht abgefragt')};
+  const season=tripSeason(t),valid=(st.samples||[]).filter(x=>pd(x.from)&&pd(x.to)&&nightsBetween(x.from,x.to)>0&&Number.isFinite(x.total)&&x.total>0);
+  const matching=valid.find(x=>t.dateMode==='fix'&&t.start===x.from&&t.end===x.to&&Math.round(num(t.persons,2))===x.adults);
+  const hits=valid.filter(x=>season&&seasonOfMd(x.from.slice(5))===season);
+  const best=matching?{x:matching,pn:matching.total/nightsBetween(matching.from,matching.to)}:hits.map(x=>({x,pn:x.total/nightsBetween(x.from,x.to)})).sort((a,b)=>b.pn-a.pn)[0];
+  if(best){
+    const x=best.x,exact=!!matching,age=sampleAge(x,now),stale=age===null||age<0||age>30;
+    const scaled=!exact&&nightsOf(t)!==nightsBetween(x.from,x.to);
+    return {pn:best.pn,src:exact&&!stale?'ok':'est',sample:x,exact,stale,scaled,
+      txt:(exact?'Portalpreis':'Vergleichswert '+SEASONS[season])+': Abfrage vom '+(pd(x.checked)?fmtLong(pd(x.checked)):'unbekannten Datum')+' für '+shortRange(x.from,x.to)+', '+x.adults+' Erw., '+eur(x.total)+' für '+nightsBetween(x.from,x.to)+' Nächte · '+x.incl+(exact?' · Momentaufnahme, erneut prüfen':' · für eure Daten nicht abgefragt · keine Preisobergrenze')+(scaled?' · auf eure Dauer hochgerechnet; feste Gebühren und Mindestnächte können abweichen':'')+(stale?' · Prüfdatum älter als 30 Tage oder unklar; neu abfragen':'')};
   }
   return {pn:plan,src:'est',sample:null,txt:(st.ab?st.ab+' · ':'')+'Planwert '+eur(plan)+' / Nacht ('+planBasis(t)+')'};
 }
@@ -1478,7 +1485,7 @@ document.addEventListener('click',async e=>{
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

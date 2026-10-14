@@ -34,6 +34,8 @@ assert.equal(a.tripSeason(fix('2027-11-02', '2027-11-06')), 'herbst');
 assert.equal(a.tripSeason(a.newTrip({ dateMode: 'flex', month: '2027-08' })), 'sommer');
 assert.equal(a.tripSeason(a.newTrip({ dateMode: 'open' })), null);
 
+// Feste Prüfuhr: spätere Testläufe dürfen Preise nicht als frisch behandeln.
+vm.runInContext("const RealDate=Date; Date=class extends RealDate { constructor(...args){super(...(args.length?args:['2026-10-14T12:00:00']))} };", context);
 const line = tr => a.cost(tr).lines.find(l => l.cat === 'unterkunft');
 /* Beispielreise: exakt abgefragter Zeitraum → Portalpreis statt zu niedrigem Planwert (früher 4 × 110 €) */
 const ex = a.silvesterTemplate();
@@ -73,3 +75,29 @@ for (const st of a.STAYS.filter(s => s.place === 'oberjoch' && !s.gone)) {
   assert(!a.savingTips(tr).some(x => x.t.includes('Haus Haug')), 'Spartipp empfiehlt verschwundenes Inserat');
 }
 console.log('Saisonpreise: Quellen, Saisonzuordnung, Portalpreis vs. Vergleichswert, kein Unterschätzen, Personenhinweis, verschwundenes Inserat geprüft.');
+
+/* Exakt passende günstigere Abfrage hat Vorrang vor teurerem Saisonwert. */
+const march=fix('2027-03-08','2027-03-12',{place:'oberstaufen',stayId:'os-schoen'});
+assert.equal(line(march).c,460);
+assert.equal(line(march).src,'ok');
+assert(line(march).s.includes('Portalpreis'));
+const stay=a.STAYS.find(s=>s.id==='os-schoen');
+const old=a.stayNight(march,stay,at('2026-11-14'));
+assert.equal(old.pn,115);
+assert.equal(old.src,'est');
+assert(old.stale && old.exact && old.txt.includes('älter als 30 Tage'));
+assert(!a.stayNight(march,stay,at('2026-11-13')).stale);
+assert(a.stayNight(march,stay,at('2026-10-13')).stale,'zukünftiges Prüfdatum nicht frisch');
+assert(a.stayNight(sh,stay).scaled);
+assert(a.openCosts(sh).some(x=>x.includes('andere Dauer')));
+assert(line(sh).s.includes('feste Gebühren'));
+assert(line(feb).s.includes('keine Preisobergrenze'));
+vm.runInContext("Date=class extends RealDate { constructor(...args){super(...(args.length?args:['2026-11-14T12:00:00']))} };",context);
+assert(a.openCosts(march).some(x=>x.includes('ältere oder unklare')));
+const malformed=Object.assign({},stay,{samples:[{from:'bad',to:'bad',total:500}]});
+assert.equal(a.stayNight(march,malformed).sample,null);
+console.log('Exakter Preisvorrang, Frischegrenzen, Hochrechnung und ungültige Stichproben geprüft.');
+
+const undated=Object.assign({},stay,{samples:[Object.assign({},stay.samples[0],{checked:null})]});
+assert(a.stayNight(march,undated).stale);
+assert(a.stayNight(march,undated).txt.includes('unbekannten Datum'));

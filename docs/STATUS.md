@@ -1,5 +1,18 @@
-# Projektstand · 13.10.2026
+# Projektstand · 14.10.2026
 
+
+## Preiszuordnung und Aktualität (ChatGPT, 14.10.2026, Issue #3)
+
+Ausgangspunkt `df924f0`; Claudes Übergabe in Issue #3 gelesen und Folgepaket dort angekündigt. Der bereitgestellte HTML-Anhang hat Stand 1.3 und ersetzt nicht die neuere App auf main.
+
+- Exakt passende Preisabfrage für Zeitraum und Personenzahl hat Vorrang vor dem höchsten Saisonvergleich. Regression: Schön Hier 08.–12.03.2027 jetzt 460 € statt 500 €.
+- Preisabfragen älter als 30 Tage sowie unklare/zukünftige Prüfdaten erhalten Richtwertstatus und einen offenen Prüfhinweis. Die 30-Tage-Grenze ist eine interne Erinnerungsregel, keine zugesagte Preisgültigkeit; auch frische Werte sind Momentaufnahmen.
+- Hochrechnung auf andere Aufenthaltsdauer ist in Kosten und offenen Punkten ausdrücklich sichtbar. Feste Gebühren und Mindestnächte können abweichen. Der höchste Saisonvergleich ist keine garantierte Obergrenze.
+- Ungültige Preisstichproben werden ignoriert. Fehlendes Prüfdatum wird ohne Absturz angezeigt. Kein neues Reiseformat und keine Änderung der recherchierten Katalogdaten.
+
+Ausgeführt: `npm test` erfolgreich, einschließlich neuer Regressionen für exakte Preispriorität, 30/31-Tage-Grenze, zukünftiges/fehlendes Prüfdatum, Hochrechnung und ungültige Stichproben. `git diff --check` erfolgreich. Lokaler Chromium-Test konnte nicht starten: Browserbinary fehlt, Installationsdownload liefert ungültiges ZIP. GitHub-CI nach Push prüfen; kein iPhone-/Safari-Test. Keine neue Anbieterrecherche.
+
+Übergabe: Live-Anbieterzugänge und serverseitige Synchronisation bleiben offen. Nächste Schritte sind exakte Gebührenmodelle für Vergleichs-Stichproben und weitere Anbieterabfragen; höchste Saisonwerte allein verhindern keine Unterschätzung.
 
 ## v2.2 · Saisonpreise aus Portalabfragen (Claude, 14.10.2026, Issue #3)
 

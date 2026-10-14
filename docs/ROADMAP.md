@@ -39,3 +39,8 @@ Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und G
 - Holidu-Inserate nur mit exaktem Partnerpreis übernehmen.
 - Stichproben regelmäßig erneuern (Prüfdatum steht in `PRICE_CHECKED`). Ältere Werte als veraltet kennzeichnen.
 - Ersatz für das verschwundene Inserat Haus Haug wählen.
+
+
+## Preisprüfung · ChatGPT, 14.10.2026 (#3)
+
+Exakte Daten/Belegung vor Saisonvergleich, Prüfhinweise ab 31 Tagen und sichtbare Dauerhochrechnung implementiert. Die Frischegrenze ist eine interne Prüfregel. Höchste Saisonstichprobe ist keine Preisobergrenze. Nächster Ausbau: feste Endreinigung von variablen Nachtpreisen trennen, Mindestnächte und Saisonwechsel berücksichtigen, Recherchewerte erneuern. Keine automatische Anbieterabfrage.
