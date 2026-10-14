@@ -125,3 +125,39 @@ assert(a.tKosten(scenarioTrip).includes('data-cost-scenarios'));
 
 assert.equal(a.costScenarios(t)[1].remaining, detached.open, 'Szenario und Zahlungsbuch rechnen gleich');
 assert(a.tMappe(t).includes('für entfernte Posten bezahlt; separat klären'));
+
+/* Spartipps respektieren konkrete Verpflichtungen und brauchen eine aktuelle Vorschau. */
+const advice = a.silvesterTemplate();
+advice.food = 'auswaerts';
+const candidates = a.savingTips(advice);
+assert(candidates.length > 0);
+const foodIndex = candidates.findIndex(tip => tip.t.includes('selbst kochen'));
+assert(foodIndex >= 0, 'bestätigte Küche erlaubt Kochvorschlag');
+const source = JSON.stringify(advice), preview = a.savingPreview(advice, foodIndex);
+assert(preview && preview.saved > 0);
+assert.equal(JSON.stringify(advice), source, 'Vorschau verändert den Originalplan nicht');
+assert.equal(preview.after, a.cost(preview.candidate).total);
+const copied = JSON.parse(JSON.stringify(advice));
+a.applySavingPreview(copied, preview);
+assert.equal(a.cost(copied).total, preview.after);
+advice.notes = 'zwischenzeitlich geändert';
+assert.throws(() => a.applySavingPreview(advice, preview), /geändert/);
+const noCook = a.newTrip({food:'auswaerts'});
+assert(!a.savingTips(noCook).some(tip=>tip.t.includes('selbst kochen')), 'unbekannte Küche ist kein Treffer');
+const courseBooked = a.silvesterTemplate();
+a.setLedger(courseBooked,'kurs','status','gebucht');
+assert(!a.savingTips(courseBooked).some(tip=>tip.t.includes('Kurstag weniger')));
+const courseDue = a.silvesterTemplate();
+a.setLedger(courseDue,'kurs','due','2026-12-01');
+assert(!a.savingTips(courseDue).some(tip=>tip.t.includes('Kurstag weniger')));
+const checkBooked = a.silvesterTemplate();
+checkBooked.check['b-oj-kurs'] = true;
+assert(!a.savingTips(checkBooked).some(tip=>tip.t.includes('Kurstag weniger')));
+checkBooked.check.stay = true;
+assert(!a.savingTips(checkBooked).some(tip=>tip.t.includes('Katalog-Unterkunft')));
+/* Jeder erlaubte Tipp lässt die geschützten Verpflichtungen gleich. */
+[courseBooked, courseDue, checkBooked].forEach(tr => a.savingTips(tr).forEach(tip=>{
+ const next = JSON.parse(JSON.stringify(tr));tip.fn(next);
+ assert.equal(a.commitmentIssues(tr,next).length,0);
+}));
+console.log('Spartipps: Buchung/Zahlung/Fälligkeit geschützt, bestätigte Küche, unverändernde Vorschau und Sperre bei zwischenzeitlicher Änderung geprüft.');

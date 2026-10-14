@@ -137,6 +137,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('summary:has-text("Eigene Unterkunft")');
   await p.fill('#cs-name', 'Testpension');
   await p.fill('#cs-price', '100');
+  await p.check('#cs-kitchen');
   await p.click('[data-act="stay-add"]');
   assert((await viewText(p)).includes('Testpension'), name + ': eigene Unterkunft fehlt');
 
@@ -172,6 +173,18 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="puffer"][data-val="10"]');
   assert((await viewText(p)).includes('Puffer 10 %'), name + ': Puffer fehlt');
   await noOverflow(p, name + ' Kosten');
+  /* Spartipp: Vorschau statt sofortigem Ändern, Abbrechen bleibt verlustfrei. */
+  await p.click('[data-act="food"][data-val="auswaerts"]');
+  const foodState = () => p.evaluate(() => JSON.parse(localStorage.getItem('rp-trips'))[location.hash.split('-')[1]].food);
+  await p.click('[data-act="tip"] >> nth=0');
+  assert((await p.textContent('.sheet')).includes('Plan vorher') && (await p.textContent('.sheet')).includes('Plan danach'), name + ': Änderungsvorschau fehlt');
+  assert.equal(await foodState(), 'auswaerts', name + ': Vorschau hat schon geändert');
+  await p.click('[data-act="sheet-x"]');
+  assert.equal(await foodState(), 'auswaerts', name + ': Abbrechen hat geändert');
+  await p.click('[data-act="tip"] >> nth=0');
+  await p.click('[data-act="tip-confirm"]');
+  assert.equal(await foodState(), 'selbst', name + ': Spartipp nicht übernommen');
+
   /* Zahlungsbuch: Stephansdom (3 × 6 € = 18 €) gebucht für 20 €, 20 € bezahlt; Überzahlung wird abgewiesen */
   await p.click('summary:has-text("Posten bearbeiten")');
   const sk = await p.getAttribute('[data-ledger^="act:"][data-ledger-f="status"] >> nth=0', 'data-ledger');

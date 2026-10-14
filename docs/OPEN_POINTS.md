@@ -27,7 +27,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 | Silvester-Beispiel über Budget ändern? | Weiter offen. Keine automatische Kürzung oder Änderung von Zeitraum/Budget; konkrete Angebote fehlen |
 | Welche Domain und welcher SMTP-Dienst? | Offen; DNS/SMTP-Konfiguration und Versand an echte externe Nutzer fehlen |
 | Wer hat das Produktionsschema eingespielt? | **Geklärt:** die GitHub-Integration (verzögert), nicht der SQL-Editor (Philipp, 14.10.). Die Katalog-Migrationen kamen ebenfalls über die Integration. Nicht erneut ausführen |
-| Funktioniert Produktion mit echten Konten/iPhone? | Noch kein dokumentierter Abnahmenachweis |
+| Funktioniert Produktion mit echten Konten/iPhone? | Philipp meldet erfolgreichen eigenen iPhone-Test am 14.10. abends. Einzelprotokoll nicht angegeben; SMTP/Mehrkonten separat abnehmen |
 
 ## Priorisierte nächste Arbeiten
 
@@ -35,7 +35,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 | --- | --- | --- |
 | ~~P0~~ | GitHub-Variable RP_SUPABASE_URL und Live-Konfiguration | **Erledigt** (Claude, 14.10. abends): Live-`config.js` zeigt `.supabase.co`, Lauf 38610561776 mit `deploy` grün. Umkreis-Katalog in der Produktion (54/255, nur lesbar), Live-Seite nutzt die Datenbank |
 | P0 | Auth-E-Mail | Domain/SMTP festlegen, Bestätigung und Reset mit externen Adressen nachweisen. Kein Dienst in diesem Paket aktiviert |
-| P0 | Produktion und echte Geräte | Zwei Konten, private Reisen, Rollen, Einladung, Rechteentzug, Konflikt, Offline, Abmelden; iPhone/Safari, Homescreen, Druck und Kalenderimport |
+| P0 | Produktion und echte Geräte | iPhone-Nutzertest laut Philipp erfolgreich. Konkrete externe Auth-/Mehrkontenabnahme nach SMTP noch separat nachweisen; keine erneute pauschale Gerätetest-Aufgabe |
 | P1 | Betreiberbackup | Ablauf und isolierte Restore-Probe; Benutzerexport ersetzt dies nicht |
 | P1 | Konto-Lebenszyklus | Kontoexport/-löschung, Anzeigenamen, atomarer Besitzerwechsel. Neue Migrationen und echte Datenbanktests nötig |
 | P1 | Öffentlicher Betrieb | Betreiberkontakt/Datenschutz mit tatsächlichem Betreiber und Datenflüssen; keine erfundenen Rechtstexte |
@@ -47,7 +47,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 
 ## Durchsicht gegen PUBLIC_PRODUCT
 
-Gastnutzung, neutrale Standardwerte, Kontentrennung, Revisionen und Rollen sind implementiert und im vorhandenen Testbestand beschrieben. Dies ist kein neuer Produktionsnachweis. Betrieb ist noch keine vollständig abgenommene öffentliche Dauerlösung: SMTP, echte Produktionskonten, iPhone, Konto-Lebenszyklus, Backup/Restore und Betreibertexte fehlen.
+Gastnutzung, neutrale Standardwerte, Kontentrennung, Revisionen und Rollen sind implementiert und im vorhandenen Testbestand beschrieben. Dies ist kein neuer Produktionsnachweis. Betrieb ist noch keine vollständig abgenommene öffentliche Dauerlösung: SMTP, echte Produktionskonten, Konto-Lebenszyklus, Backup/Restore und Betreibertexte fehlen.
 
 Aktuell behoben: Zahlungen für entfernte Posten dürfen keine verbleibenden Planposten bezahlen. `financeSummary` zeigt insgesamt Bezahlt, trennt `activePaid`/`detachedPaid` und berechnet Restbetrag nur mit Zahlungen für aktuelle Posten. Erstattung/Stornokosten bleiben zu klären; kein Verlust der gespeicherten Einträge.
 
@@ -56,3 +56,7 @@ Die neuen Szenarien variieren ausschließlich Verpflegung über vorhandene FOOD-
 ## Integrierte parallele Übergabe #7
 
 Während der Arbeit erschien cabefc5 (Claude, v3.1). Vollständige Übergabe gelesen und Code integriert: 54 Ziele/255 Ideen, Umkreis, Zwischenstopps, Tagesgerüst, Offline-Kopie, Preis-offen und additive Felder. Neue Produktions-Katalogmigrationen, echte Standort-/Nominatim-Abfrage und iPhone bleiben ungeprüft. Eigene Indoor-Ideen sind jetzt implementiert; der frühere offene Punkt ist damit teilweise erledigt. Nicht gleichzeitig die Kernmigration erneut ausführen.
+
+## Persönliche Aufgaben und nächstes Paket
+
+[PHILIPP_TODO.md](PHILIPP_TODO.md) trennt erledigte Einrichtung vom noch benötigten Domain-/SMTP-Zugang, externer Auth-Abnahme und Betreiber-/Lizenzentscheidung. Spartipps mit Verpflichtungsschutz/Vorschau umgesetzt; echte Stornoabrechnung, Erstattungen und Buchungshistorie bleiben gesondert. Nächste Entwicklung: Konto-Lebenszyklus und Betreiberbackup mit echten Datenbanktests, vor SQL-Arbeit neues Issue abstimmen.

@@ -1,5 +1,17 @@
 # Projektstand · 14.10.2026
 
+## Buchungsschutz und Spartipp-Vorschau (ChatGPT, 14.10. abends)
+
+Ausgangspunkt 5342765, angekündigt in #5/#6. Philipp meldet erfolgreichen Test auf seinem iPhone: „passt alles“. Als Nutzertest dokumentiert; keine eigenen Geräteprüfungen oder nicht genannten Einzelschritte erfunden. Die frühere pauschale Aussage „kein iPhone-Test“ ist damit für diesen Nutzertest überholt, bleibt bei historischen Prüfläufen korrekt.
+
+- Spartipps schützen gebuchte/angefragte Programmpunkte, Zahlungen, Fälligkeiten und Unterkunftsbuchungen. Keine automatische Koch-Ersparnis ohne bestätigte Küche; Küche bleibt beim Unterkunftsvergleich erhalten.
+- Vorschau zeigt Änderung, Plan vorher/nachher, Ersparnis und offene Kosten. Abbrechen verändert nichts. Zwischenzeitlich geänderter Plan sperrt die Übernahme.
+- Bezahlte Unterkunft auch ohne „gebucht“ vor Wechsel geschützt. Bezahlte Angebote vor Löschen geschützt. Erneute Auswahl desselben Angebots erhält Buchungscheck.
+- Angebotsvergleich nutzt für den Restbetrag jetzt dieselbe Zahlungsberechnung einschließlich anderer aktueller Posten. Veralteter Finder-Text zur Synchronisation korrigiert.
+- Persönliche Betreiber-Aufgaben in PHILIPP_TODO.md. Keine neuen Speicherfelder, Migrationen oder Store/Sync/Auth-Änderungen.
+- npm test inklusive neuer Regressionsfälle grün. Browser-Skript um Vorschau/Abbrechen/Übernahme erweitert; Browser-Syntax, Gast-Build und Artefaktprüfung bestanden. CI am neuen Commit noch zu prüfen. Lokaler Chromium-Browser fehlt.
+
+
 ## Gesamtprüfung und Kostenvergleich (ChatGPT)
 
 Ausgangspunkt 8bf665f; Issues #1–#7 und Claude-Übergaben geprüft. Paralleles cabefc5/v3.1 vor Abschluss integriert; Umkreis-Katalog und neue Tests erhalten. Entscheidungen, ersetzte Fragen und priorisierte Abnahme in OPEN_POINTS.md. Keine neue Produktions-/SMTP-/iPhone-Prüfung behauptet.

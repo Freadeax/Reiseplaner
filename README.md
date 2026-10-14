@@ -6,7 +6,7 @@ Ein Reiseplaner für alle, für Ausflüge, Wochenenden und längere Reisen. Er v
 
 ## Starten
 
-**Website:** online unter `https://freadeax.github.io/Reiseplaner/`, verbunden mit dem Supabase-Projekt. Am 14.10.2026 abends geprüft: Live-`config.js` mit `.supabase.co`, Katalog kommt aus der Datenbank. Anmeldung mit echten Konten, SMTP und iPhone sind noch nicht abgenommen. Aktuelle Betriebsgrenzen stehen in [docs/STATUS.md](docs/STATUS.md).
+**Website:** online unter `https://freadeax.github.io/Reiseplaner/`, verbunden mit dem Supabase-Projekt. Am 14.10.2026 abends geprüft: Live-`config.js` mit `.supabase.co`, Katalog kommt aus der Datenbank. Philipp bestätigt einen erfolgreichen eigenen iPhone-Test. SMTP und konkrete externe Kontoabnahme bleiben offen. Aktuelle Betriebsgrenzen stehen in [docs/STATUS.md](docs/STATUS.md).
 
 Die App bleibt buildlos: `index.html` plus `config.js` und `cloud.js`. Lokal im Browser öffnen oder einen kleinen Webserver starten:
 
@@ -70,7 +70,9 @@ Seit Issue #6 im Code umgesetzt und gegen einen **lokalen** Supabase-Stack gepr�
 
 Einrichtung und Betrieb: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md). Hosting und späterer Wechsel zu Cloudflare Pages: [docs/HOSTING_MIGRATION.md](docs/HOSTING_MIGRATION.md). Produktziel und Abnahmekriterien: [docs/PUBLIC_PRODUCT.md](docs/PUBLIC_PRODUCT.md).
 
-## Betrieb: was Philipp einmalig einrichtet
+## Betrieb: Einrichtung und verbleibende Aufgaben
+
+Die Einrichtung unten ist bereits erfolgt; offene Aufgaben für Philipp stehen in [docs/PHILIPP_TODO.md](docs/PHILIPP_TODO.md).
 
 1. Supabase-Projekt (Gratistarif) anlegen und die Migration einspielen. Dazu Auth-URLs, E-Mail-Bestätigung und eigenes SMTP konfigurieren, siehe `docs/SUPABASE_SETUP.md`.
 2. Unter GitHub → *Settings → Secrets and variables → Actions → Variables* setzen: `RP_SUPABASE_URL`, `RP_SUPABASE_PUBLISHABLE_KEY` und `PAGES_ENABLED=true`. Nur öffentliche Werte, niemals Secret- oder service_role-Schlüssel.
@@ -89,7 +91,7 @@ Entscheidungen, offene Fragen aus der Zusammenarbeit mit Claude und nächste Abn
 - Reisekosten sind zunächst **Planwerte**, kein bestätigter Gesamtpreis. Fehlende Pflichtkosten werden als offen angezeigt.
 - Ohne Konto liegen die Daten nur im Browser des jeweiligen Geräts. Synchronisation zwischen Geräten gibt es nur mit Konto und eingerichtetem Supabase-Projekt.
 - Der frühere `window.claude`-Speicherpfad wurde entfernt und durch Supabase ersetzt.
-- Frühere Browserprüfungen sind im Status dokumentiert. Für den neuen Finder ist der Klicktest erweitert; sein aktuelles CI-Ergebnis steht bei GitHub Actions. Ein echter iPhone-/Safari-Test steht aus.
+- Frühere Browserprüfungen sind im Status dokumentiert. Für den neuen Finder ist der Klicktest erweitert; sein aktuelles CI-Ergebnis steht bei GitHub Actions. Philipp hat einen erfolgreichen eigenen iPhone-Test gemeldet; automatisierte Browserprüfungen bleiben davon getrennt.
 - Keine Buchung, Zahlung oder Anbieteranfrage wird durch die App ausgelöst.
 
 ## Prüfen

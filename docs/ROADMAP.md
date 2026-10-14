@@ -91,3 +91,7 @@ Verbindlich: für beliebige Nutzer, private Reisen als Standard, gezielte Zusamm
   - moderierte Nutzervorschläge;
   - Saisonkalender, also wann ein Ziel am schönsten ist, als Übersicht;
   - „Rundreise bauen“: mehrere Ziele hintereinander mit Etappen-km.
+
+## Buchungsschutz · 14.10. abends
+
+Spartipp-Vorschau, Schutz gebuchter/angefragter Termine und bezahlter Angebote sowie konsistente Restzahlung umgesetzt. Philipp bestätigt eigenen iPhone-Test. Seine verbleibenden Aufgaben: PHILIPP_TODO.md. Entwicklung übernimmt weiterhin Konto-Lebenszyklus, Restore und exakte Zeiten; neue Schemaarbeit vorher im Issue ankündigen.
