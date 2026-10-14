@@ -108,3 +108,7 @@ Commit `3e2e9f380ff551d1471a657a8e12a6d16950a74b`: [Actions-Lauf 38455456651](ht
 
 v2.1 baut auf `e830697` auf. Finder (`suche`), Angebotsmodell und Sicherung v2 sind unverändert. Neue Funktionen über `window.__app`: `holidayStay`, `planBasis`, `TEMPLATES`. Neue Klick-Aktion `data-act="tpl"` mit `data-val` als Vorlagen-ID; `tpl-silvester` funktioniert weiter. Wer Startseite oder „Neue Reise“ ändert, bitte `tests/vorlagen.cjs` und den Vorlagen-Abschnitt in `tests/browser.cjs` erhalten. Offene Produktfrage an Philipp: Sollen Katalog-Planwerte außerhalb des Jahreswechsels künftig eigene, recherchierte Saisonwerte bekommen? Bis dahin werden sie nur ehrlich gekennzeichnet.
 
+
+## Nachgewiesene CI für passwortgeschützte Sicherungen (#4)
+
+Commit `2fb8f70a3a3a4ead085108f3a1adbe86feac1522`: [Actions-Lauf 38506764102](https://github.com/Freadeax/Reiseplaner/actions/runs/38506764102) erfolgreich. Node-Job mit sämtlichen Logik-/Kryptotests und Chromium-Job tatsächlich ausgeführt und grün. Chromium prüfte Desktop/390 px/320 px dunkel, Passwort-Export/-Import, falsches Passwort ohne Datenänderung, Konfliktvorschau sowie bisherige Finder-/Import-/Offlinewege. Kein echter iPhone-/Safari-Test und kein unabhängiges Kryptografie-Audit.
