@@ -137,8 +137,10 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.click('[data-acc="share"]');
     await A.p.click('[data-acc="member-remove"]'); await A.p.waitForSelector('[data-acc="invite-create"]');
     await A.p.click('[data-act="sheet-x"]');
-    await B.p.goto(BASE + '#konto'); await B.p.click('[data-acc="sync"]'); await waitSync(B.p, /Online gespeichert/);
-    await B.p.goto(BASE + '#reisen'); assert(!(await B.p.textContent('#view')).includes('Gast-Reise ' + run), 'nach Entzug weg');
+    await B.p.goto(BASE + '#konto'); await B.p.click('[data-acc="sync"]');
+    await B.p.goto(BASE + '#reisen');
+    /* Nicht auf die Statusanzeige warten (stand schon vorher auf "Online gespeichert"), sondern auf das Ergebnis */
+    await B.p.waitForFunction(t => !document.querySelector('#view').textContent.includes(t), 'Gast-Reise ' + run, { timeout: 20000 });
     const bRows = (await bApi.from('trips').select('id')).data; assert.equal((bRows || []).length, 0, 'API bestätigt: kein Zugriff');
 
     /* Abmelden: keine Kontodaten mehr sichtbar, Gastdaten wieder da */
