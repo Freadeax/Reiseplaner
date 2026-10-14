@@ -47,7 +47,7 @@ Ausgangspunkt `d7112a3`. Vor dem Push mit ChatGPTs `1c67ff5` (öffentliches Prod
 - Kein Produktions-Supabase-Projekt verbunden, weil Zugangsdaten fehlen.
 - GitHub Pages ist nicht aktiviert (404 am 14.10.2026), daher keine Veröffentlichung.
 - Kein echter E-Mail-Versand (lokal über Mailpit), kein iPhone/Safari, keine Cloudflare-Pages-Prüfung.
-- Die neuen CI-Jobs laufen erst mit diesem Push und müssen am Commit geprüft werden.
+- CI-Nachweis: [Lauf 38566417993](https://github.com/Freadeax/Reiseplaner/actions/runs/38566417993) für `332b1fe`. `app`, `browser`, `database` (lokaler Supabase-Stack in GitHub Actions: Migration, Linter, `test:db` und `test:e2e`) und `build` mit Artefaktprüfung waren erfolgreich. `deploy` wurde übersprungen, weil `PAGES_ENABLED` noch nicht gesetzt ist. Zwei CI-Korrekturen davor: Ports der lokalen Supabase-Dienste auf 553xx verlegt (54324 war auf dem Runner belegt), und der E2E-Test wartet jetzt auf das Ergebnis statt auf eine unveränderte Statusanzeige.
 
 **Grenzen:**
 - Gratistarif: Pausierung nach 1 Woche Inaktivität, keine automatischen Backups.
