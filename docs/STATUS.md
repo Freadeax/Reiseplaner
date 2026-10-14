@@ -10,15 +10,15 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 | --- | --- | --- |
 | Website | **Online:** `https://freadeax.github.io/Reiseplaner/` (GitHub Pages, Quelle „GitHub Actions“) | HTTP 200; Workflow-Lauf 38583057320 für `3acfe22` vollständig grün, einschließlich `deploy` |
 | Artefakt | Nur Website-Dateien; Doku, Tests und SQL nicht abrufbar (404); keine Secret- oder service_role-Schlüssel | per `curl` auf der Live-Seite geprüft |
-| Website-Konfiguration | **Fehler:** GitHub-Variable `RP_SUPABASE_URL` endet auf `.supabase.com` statt `.supabase.co`, daher erreicht die Live-Seite Supabase nicht. Der Build bricht bei dieser Endung jetzt ab | `config.js` der Live-Seite |
+| Website-Konfiguration | **Fehler:** GitHub-Variable `RP_SUPABASE_URL` endet auf `.supabase.com` statt `.supabase.co`. Die Live-Seite (Stand `3acfe22`) erreicht Supabase deshalb nicht. Seit `c0266d6` bricht der Build bei dieser Endung ab, bis zur Korrektur wird nichts Neues veröffentlicht | `config.js` der Live-Seite; Lauf 38587148117: `app`, `browser`, `database` grün, `build` mit dieser Meldung abgebrochen |
 | Supabase-Projekt | `sqkszjurzobltvdluiwh`. Auth: Registrierung an, E-Mail-Bestätigung Pflicht (`mailer_autoconfirm: false`), E-Mail-Anmeldung aktiv. Site- und Redirect-URL laut Philipp eingetragen | `/auth/v1/settings` mit Publishable Key |
-| Datenbankschema | **Noch nicht eingespielt.** Die GitHub-Integration (Working directory `.`, Deploy to production, `main`) hat trotz zwei Pushes nichts angewendet. Ersatz: `supabase/manual/apply-20261014120000-reiseplaner_core.sql` im SQL-Editor | REST `PGRST205` |
+| Datenbankschema | **Vorhanden (geprüft 14.10., ca. 15:15 Uhr).** `trips`, `trip_members`, `trip_invites` und die RPC-Funktionen existieren. Ohne Anmeldung wird alles abgelehnt (`42501` bei Lesen, Einfügen, `accept_trip_invite`, `create_trip_invite`), wie in der Migration vorgesehen. Bis ca. 14:50 meldete die API noch `PGRST205`. Wer das Schema eingespielt hat (Integration verspätet oder SQL-Editor), bestätigt Philipp. Die Schreib- und Rollenprüfung mit echten Konten steht noch aus | REST-API mit Publishable Key |
 | E-Mail | Eingebauter Supabase-Versand, nur an Mitglieder des Projektteams und etwa 2 pro Stunde. Cloudflare soll laut Philipp nur für E-Mail dienen. Cloudflare Email Sending versendet an beliebige Empfänger nur im Bezahltarif (Workers Paid), deshalb Vorschlag: eigene Domain mit DNS bei Cloudflare plus SMTP-Dienst mit Gratistarif. Entscheidung offen | Cloudflare-Doku, Kommentar in #6 |
 
 **Nächste Schritte und wer sie übernimmt:**
 1. **Philipp:** GitHub-Variable `RP_SUPABASE_URL` auf `https://sqkszjurzobltvdluiwh.supabase.co` korrigieren.
-2. **Philipp:** Im Supabase-SQL-Editor `supabase/manual/apply-20261014120000-reiseplaner_core.sql` einmal ausführen.
-3. **Claude:** Neu veröffentlichen, Tabellen und Rechte über die Produktions-API prüfen, Ergebnis hier und in #6 eintragen.
+2. ~~Schema einspielen~~: erledigt. Die SQL-Datei **nicht** zusätzlich ausführen. Sie würde nur abbrechen und nichts ändern.
+3. **Claude:** Nach der Korrektur den Workflow neu starten, `config.js` der Live-Seite prüfen und das Ergebnis hier und in #6 eintragen.
 4. **Philipp:** Auf der Live-Seite mit eigener E-Mail registrieren, bestätigen, eine Reise anlegen und den Passwort-Reset testen, auch auf dem iPhone.
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
