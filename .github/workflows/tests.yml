@@ -1,7 +1,19 @@
-name: Tests
+name: Tests & Pages
+# Prüfungen bei jedem Push. Veröffentlichung auf GitHub Pages nur von main, nur nach erfolgreichen
+# Prüfungen und nur, wenn die Repository-Variable PAGES_ENABLED = true gesetzt ist (Pages-Quelle
+# "GitHub Actions" muss in den Repository-Einstellungen aktiviert sein). Siehe docs/HOSTING_MIGRATION.md.
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   app:
     runs-on: ubuntu-latest
@@ -11,6 +23,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm test
+
   browser:
     runs-on: ubuntu-latest
     steps:
@@ -21,3 +34,56 @@ jobs:
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+
+  database:
+    # Migrationen, Row Level Security, Auth und Ende-zu-Ende gegen einen lokalen Supabase-Stack
+    # (Docker im Runner). Kein Produktionsprojekt, keine Geheimnisse.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g supabase@2.120.0
+      - run: supabase start
+      - run: supabase db lint --level warning --fail-on warning
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: REQUIRE_DB=1 npm run test:db
+      - run: REQUIRE_DB=1 npm run test:e2e
+      - if: always()
+        run: supabase stop --no-backup
+
+  build:
+    needs: [app, browser, database]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # Öffentliche Werte als Repository-Variablen (nicht Secrets): Projekt-URL und Publishable Key.
+      - run: npm run build
+        env:
+          RP_SUPABASE_URL: ${{ vars.RP_SUPABASE_URL }}
+          RP_SUPABASE_PUBLISHABLE_KEY: ${{ vars.RP_SUPABASE_PUBLISHABLE_KEY }}
+          RP_SITE_URL: ${{ vars.RP_SITE_URL }}
+          RP_BASE_PATH: /Reiseplaner/
+      - run: npm run check:artifact
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

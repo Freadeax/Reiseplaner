@@ -91,7 +91,8 @@ section.block:first-child{border-top:0;padding-top:4px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:4px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
 .brand{display:flex;align-items:baseline;gap:10px;cursor:pointer;background:none;border:0;padding:0}
 .brand b{font-family:var(--f-display);font-size:1.5rem;font-weight:700;letter-spacing:.01em}
-.sync{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:6px;background:none;border:1px solid transparent;border-radius:8px;padding:6px 8px;min-height:36px;cursor:pointer;text-align:left}
+.sync:hover{border-color:var(--line)}
 .sync i{width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block}
 .sync.on i{background:var(--ok)}
 
@@ -218,14 +219,16 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.3</span></button>
-    <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v3.0</span></button>
+    <button type="button" class="sync" id="sync" data-go="konto" aria-label="Konto und Speicherstatus"><i></i><span>Nur in diesem Browser</span></button>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
 </div>
 <div class="dock" id="dock" hidden role="status" aria-live="polite"><div class="in"><span class="nm" id="dock-nm"></span><span class="sum num" id="dock-sum"></span><div class="bar" id="dock-bar"><i></i></div></div></div>
 <div id="sheet-root"></div>
 
+<script src="config.js"></script>
+<script src="cloud.js"></script>
 <script>
 (function(){
 "use strict";
@@ -623,9 +626,10 @@ function importTrips(raw,conflictMode){
     t.updated=Date.now();next[t.id]=t;added.push(t.id);
   }
   if(!added.length)return added;
-  Store.trips=next;
-  if(!Store.saveLocal()){Store.trips=previous;throw new Error('Import nicht gespeichert. Bestehende Reisen blieben erhalten. Speicherproblem lösen und erneut versuchen.');}
-  if(Store.mode==='db')added.forEach(id=>Store.flush(id));
+  const prevQueue=Store.queue;
+  Store.trips=next;if(Store.isAccount()){Store.queue=clone(prevQueue);added.forEach(id=>{Store.queue[id]={op:'upsert',at:Date.now()}})}
+  if(!Store.saveLocal()){Store.trips=previous;Store.queue=prevQueue;throw new Error('Import nicht gespeichert. Bestehende Reisen blieben erhalten. Speicherproblem lösen und erneut versuchen.');}
+  if(Store.isAccount())Sync.schedule(0);
   return added;
 }
 function downloadBackup(trips){
@@ -847,50 +851,230 @@ function ledgerSection(t){
 function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'Reise'}
 
 /* ================= Speicher ================= */
-const Store={mode:'local',db:null,trips:{},synced:{},timers:{},busy:{},again:{},corruptRaw:null,
+/* Speicher mit getrennten Bereichen (Issue #6):
+   * Gast: Schlüssel rp-trips (unverändert, wie bisher nur dieser Browser).
+   * Konto: Schlüssel rp-u:<Benutzer-ID> mit {trips, meta, queue} als Offline-Cache. meta hält die zuletzt
+     bestätigte Serverversion und Rolle, queue die noch nicht bestätigten Änderungen und Löschungen.
+   Beim Wechsel des Bereichs wird der Arbeitsspeicher geleert, damit nie Daten eines anderen Kontos sichtbar bleiben. */
+const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
+  key(){return this.scope==='guest'?'rp-trips':'rp-u:'+this.scope},
+  historyKey(){return this.scope==='guest'?'rp-history':'rp-u:'+this.scope+':history'},
+  isAccount(){return this.scope!=='guest'},
+  setScope(scope){this.scope=scope||'guest';this.trips={};this.meta={};this.queue={};this.lastRaw=undefined;this.conflict=false;this.localError=false;this.corruptRaw=null;this.loadLocal()},
+  serialize(){return this.scope==='guest'?JSON.stringify(this.trips):JSON.stringify({v:1,trips:this.trips,meta:this.meta,queue:this.queue})},
   loadLocal(){
     let raw;
-    try{raw=localStorage.getItem('rp-trips');const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');Object.values(s).forEach(t=>{if(t&&typeof t==='object')validateExtras(t);});this.trips=s;this.lastRaw=raw;this.corruptRaw=null}
-    catch(e){this.trips={};this.localError=true;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
+    try{raw=localStorage.getItem(this.key());
+      if(this.scope==='guest'){const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');Object.values(s).forEach(t=>{if(t&&typeof t==='object')validateExtras(t);});this.trips=s;}
+      else{const s=JSON.parse(raw||'{"v":1,"trips":{},"meta":{},"queue":{}}');if(!s||s.v!==1||[s.trips,s.meta,s.queue].some(x=>!x||typeof x!=='object'||Array.isArray(x)))throw new Error('Ungültiger Kontospeicher');Object.values(s.trips).forEach(t=>validateExtras(t));this.trips=s.trips;this.meta=s.meta;this.queue=s.queue;}
+      this.lastRaw=raw;this.corruptRaw=null;this.localError=false}
+    catch(e){this.trips={};this.meta={};this.queue={};this.localError=true;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
   },
   saveLocal(){
     if(this.corruptRaw!==null){this.localError=true;setSync('storage-error');return false}
-    try{const raw=JSON.stringify(this.trips),previous=localStorage.getItem('rp-trips');
+    try{const raw=this.serialize(),previous=localStorage.getItem(this.key());
       if(this.lastRaw!==undefined&&previous!==this.lastRaw){this.localError=true;this.conflict=true;setSync('storage-error');alertMsg('Eine andere Ansicht hat neuere Daten gespeichert. Eigene Änderungen als Datei sichern und neu laden.');return false;}
-      if(previous&&previous!==raw){try{let h=JSON.parse(localStorage.getItem('rp-history')||'[]');if(!Array.isArray(h))throw new Error('Sicherungspunkte ungültig');h.unshift({at:new Date().toISOString(),raw:previous});localStorage.setItem('rp-history',JSON.stringify(h.slice(0,5)));this.historyError=false;}catch(e){this.historyError=true;}}
-      localStorage.setItem('rp-trips',raw);this.lastRaw=raw;this.conflict=false;this.localError=false;return true}
+      if(previous&&previous!==raw){try{let h=JSON.parse(localStorage.getItem(this.historyKey())||'[]');if(!Array.isArray(h))throw new Error('Sicherungspunkte ungültig');h.unshift({at:new Date().toISOString(),raw:previous});localStorage.setItem(this.historyKey(),JSON.stringify(h.slice(0,5)));this.historyError=false;}catch(e){this.historyError=true;}}
+      localStorage.setItem(this.key(),raw);this.lastRaw=raw;this.conflict=false;this.localError=false;setSync();return true}
     catch(e){this.localError=true;setSync('storage-error');return false}
   },
   resetCorrupt(){
     if(this.corruptRaw===null)return false;
-    try{localStorage.removeItem('rp-trips');this.corruptRaw=null;this.trips={};this.lastRaw=null;this.localError=false;setSync('local');return true}
+    try{localStorage.removeItem(this.key());this.corruptRaw=null;this.trips={};this.meta={};this.queue={};this.lastRaw=null;this.localError=false;setSync('local');return true}
     catch(e){this.localError=true;setSync('storage-error');return false}
   },
   list(){return Object.values(this.trips).sort((a,b)=>(a.start||a.month||'9999').localeCompare(b.start||b.month||'9999'))},
   get(id){return this.trips[id]||null},
-  put(t,now){t.updated=Date.now();this.trips[t.id]=t;if(!this.saveLocal())return;if(this.mode!=='db')return;clearTimeout(this.timers[t.id]);this.timers[t.id]=setTimeout(()=>this.flush(t.id),now?0:700)},
-  async flush(id){if(this.busy[id]){this.again[id]=true;return}const t=this.trips[id];if(!t||!this.db)return;this.busy[id]=true;setSync('saving');
-    try{await this.db.doc('trips/'+id).set(clone(t));this.synced[id]=true;setSync('on')}catch(e){setSync(e&&e.code==='invalid_argument'?'ro':'err')}
-    this.busy[id]=false;if(this.again[id]){this.again[id]=false;this.flush(id)}},
-  async remove(id){delete this.trips[id];if(!this.saveLocal())return;if(this.db){try{await this.db.doc('trips/'+id).delete()}catch(e){}}},
-  async connect(){
-    let db=null;try{db=(window.claude&&typeof window.claude.use==='function')?await window.claude.use('db'):null}catch(e){db=null}
-    if(!db){setSync('local');return}
-    this.db=db;this.mode='db';setSync('on');let first=true;
-    try{db.collection('trips').onSnapshot(snap=>{
-      const remote={};snap.docs.forEach(d=>{if(d.exists)remote[d.id]=d.data()});
-      let changed=false;
-      if(first){first=false;Object.keys(this.trips).forEach(id=>{if(!remote[id])this.flush(id)})}
-      Object.keys(remote).forEach(id=>{if(this.busy[id]||this.timers[id]&&this.trips[id]&&this.trips[id].updated>(remote[id].updated||0))return;
-        const r=JSON.stringify(remote[id]);if(JSON.stringify(this.trips[id])!==r){this.trips[id]=JSON.parse(r);changed=true}this.synced[id]=true});
-      Object.keys(this.trips).forEach(id=>{if(!remote[id]&&this.synced[id]){delete this.trips[id];changed=true}});
-      this.saveLocal();if(changed)remoteChanged();
-    },()=>{this.mode='local';setSync('local')})}catch(e){this.mode='local';setSync('local')}
+  role(id){return this.isAccount()&&this.meta[id]&&this.meta[id].version?this.meta[id].role||'owner':'owner'},
+  canEdit(id){return this.role(id)!=='viewer'},
+  pending(){return Object.keys(this.queue).length},
+  put(t,now){
+    if(this.isAccount()&&!this.canEdit(t.id)){const m=this.meta[t.id];if(m&&m.sv)this.trips[t.id]=JSON.parse(m.sv);alertMsg('Nur Leserecht: Änderungen an dieser Reise werden nicht gespeichert.');if(typeof render==='function')setTimeout(render,0);return false}
+    t.updated=Date.now();this.trips[t.id]=t;
+    if(this.isAccount()){const q=this.queue[t.id];this.queue[t.id]={op:'upsert',at:Date.now()};if(q&&q.op==='delete')this.queue[t.id].op='upsert';if(this.meta[t.id])delete this.meta[t.id].failed}
+    if(!this.saveLocal())return false;
+    if(this.isAccount())Sync.schedule(now?0:800);
+    return true;
+  },
+  async remove(id){
+    if(this.isAccount()){
+      const m=this.meta[id];
+      if(m&&m.version&&this.role(id)!=='owner')throw new Error('Nur der Eigentümer kann die Reise löschen. Ihr könnt die Reise stattdessen verlassen.');
+      delete this.trips[id];
+      if(m&&m.version)this.queue[id]={op:'delete',at:Date.now()};else{delete this.queue[id];delete this.meta[id]}
+      if(!this.saveLocal())return;Sync.schedule(0);return;
+    }
+    delete this.trips[id];this.saveLocal();
   }
 };
-function setSync(s){if(Store.conflict)s='conflict';else if(Store.localError)s='storage-error';const el=$('#sync');if(!el)return;const txt={'conflict':'Neuere Daten in anderer Ansicht – Änderungen sichern und neu laden','storage-error':'Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen',on:'Gespeichert',saving:'Speichert …',local:'Nur in diesem Browser',err:'Speichern fehlgeschlagen, lokal gesichert',ro:'Nur Lesen'}[s]||'';el.className='sync'+(s==='on'||s==='saving'?' on':'');el.querySelector('span').textContent=txt}
+/* Abgleich mit Supabase. Grundsätze: Nur der Server bestätigt "online gespeichert"; Änderungen werden nur
+   mit der zuletzt bekannten Version geschrieben (atomar in der Datenbank); bei Abweichung entsteht ein
+   sichtbarer Konflikt statt eines stillen Überschreibens. Löschungen werden als Markierung übertragen. */
+const toServer=t=>{const d=migrateTrip(clone(t));d.schemaVersion=2;return d};
+const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,notice:'',
+  cloud(){return typeof window!=='undefined'&&window.RPCloud&&window.RPCloud.enabled()?window.RPCloud:null},
+  active(){return Store.isAccount()&&!!this.cloud()&&!!Auth.user&&Auth.user.id===Store.scope},
+  schedule(ms){if(!this.active())return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.run(),ms==null?800:ms)},
+  async run(){
+    if(!this.active())return;
+    if(this.running){this.again=true;return}
+    if(typeof navigator!=='undefined'&&navigator.onLine===false){this.state='offline';setSync();return}
+    const scope=Store.scope;this.running=true;this.state='syncing';setSync();
+    let changed=false;
+    try{changed=await this.push(scope);changed=(await this.pull(scope))||changed;if(Store.scope===scope){this.state='ok';this.error='';this.last=Date.now()}}
+    catch(e){if(Store.scope===scope){this.state=e&&e.network?'offline':'error';this.error=e&&e.message||'Unbekannter Fehler'}}
+    this.running=false;
+    if(Store.scope===scope){Store.saveLocal();setSync();if(changed)remoteChanged()}
+    if(this.again){this.again=false;this.run()}
+  },
+  /* Laufenden Abgleich abwarten und danach sicher neu abgleichen (z. B. nach Annahme einer Einladung). */
+  async settle(){for(let i=0;i<200&&this.running;i++)await new Promise(r=>setTimeout(r,50));await this.run()},
+  apply(row,role){const m=Store.meta[row.id]||{};Store.meta[row.id]={version:row.version,role:role||row.role||m.role||'owner',owner:row.owner_id,updatedAt:row.updated_at,sv:(role||row.role||m.role)==='viewer'?JSON.stringify(row.data):undefined}},
+  async push(scope){
+    const c=this.cloud();let changed=false;
+    for(const id of Object.keys(Store.queue)){
+      if(Store.scope!==scope)return changed;
+      const q=Store.queue[id],m=Store.meta[id]||{};
+      if(m.conflict||m.lost||(m.failed&&m.failedAt===q.at))continue;
+      if(q.op==='delete'){
+        if(!m.version){delete Store.queue[id];delete Store.meta[id];continue}
+        const row=await c.deleteTrip(id,m.version);if(Store.scope!==scope)return changed;
+        if(row||!(await c.getTrip(id))){delete Store.queue[id];delete Store.meta[id];changed=true}
+        else{const cur=await c.getTrip(id);if(cur&&cur.deleted_at){delete Store.queue[id];delete Store.meta[id]}else{Store.meta[id]=Object.assign(m,{conflict:{op:'delete',remote:cur}});changed=true}}
+        continue;
+      }
+      const t=Store.trips[id];if(!t){delete Store.queue[id];continue}
+      let data;try{data=toServer(t)}catch(e){Store.meta[id]=Object.assign(m,{failed:e.message,failedAt:q.at});continue}
+      try{
+        if(!m.version){
+          let row;
+          try{row=await c.insertTrip(id,data)}
+          catch(e){if(String(e.code)!=='23505')throw e;
+            /* Idempotenz: Anlegen kam evtl. schon an, nur die Antwort ging verloren → eigene Zeile übernehmen statt doppelt anlegen */
+            const mine=await c.getTrip(id);if(Store.scope!==scope)return changed;
+            if(mine&&mine.owner_id===Store.scope&&!mine.deleted_at){this.apply(mine,'owner');Store.meta[id].version=mine.version;const r2=await c.updateTrip(id,data,mine.version);if(r2)this.apply(r2,'owner');if(Store.queue[id]&&Store.queue[id].at===q.at)delete Store.queue[id];changed=true;continue}
+            if(this.reassign(id)){changed=true;continue}throw e}
+          if(Store.scope!==scope)return changed;this.apply(row,'owner');
+        }else{
+          const row=await c.updateTrip(id,data,m.version);if(Store.scope!==scope)return changed;
+          if(row)this.apply(row);
+          else{const cur=await c.getTrip(id);if(Store.scope!==scope)return changed;
+            if(!cur)Store.meta[id]=Object.assign(m,{lost:true});
+            else Store.meta[id]=Object.assign(m,{conflict:{op:cur.deleted_at?'deleted':'update',remote:cur}});
+            changed=true;continue}
+        }
+        if(Store.queue[id]&&Store.queue[id].at===q.at)delete Store.queue[id];
+      }catch(e){if(e&&e.network)throw e;if(/23514|22P02|22023|23502|check constraint/i.test(String(e.code)+' '+e.message)){Store.meta[id]=Object.assign(Store.meta[id]||{},{failed:e.message,failedAt:q.at});changed=true}else throw e}
+    }
+    return changed;
+  },
+  /* ID existiert bereits auf dem Server (z. B. dieselbe Sicherung in zwei Konten importiert): lokale Reise unter neuer ID weiterführen. */
+  reassign(id){const t=Store.trips[id];if(!t)return null;let nid;do{nid=uid('t')}while(Store.trips[nid]);const n=clone(t);n.id=nid;Store.trips[nid]=n;Store.queue[nid]={op:'upsert',at:Date.now()};delete Store.trips[id];delete Store.queue[id];delete Store.meta[id];this.notice='Eine Reise bekam eine neue ID, weil die alte bereits vergeben war.';return nid},
+  async pull(scope){
+    const c=this.cloud(),rows=await c.listTrips(Store.scope);if(Store.scope!==scope)return false;
+    let changed=false;const seen=new Set();
+    for(const row of rows){
+      seen.add(row.id);const q=Store.queue[row.id],m=Store.meta[row.id];
+      if(row.deleted_at){
+        if(q&&q.op==='upsert'){if(m&&m.version&&!m.conflict){m.conflict={op:'deleted',remote:row};changed=true}}
+        else if(Store.trips[row.id]||m){delete Store.trips[row.id];delete Store.meta[row.id];delete Store.queue[row.id];changed=true}
+        continue;
+      }
+      if(q){if(m)m.role=row.role;continue}
+      if(!m||m.version!==row.version||!Store.trips[row.id]){
+        try{validateExtras(row.data)}catch(e){continue}
+        Store.trips[row.id]=clone(row.data);this.apply(row);changed=true;
+      }else if(m.role!==row.role){this.apply(row);changed=true}
+    }
+    for(const id of Object.keys(Store.trips)){const m=Store.meta[id];
+      if(m&&m.version&&!seen.has(id)){if(Store.queue[id])m.lost=true;else{delete Store.trips[id];delete Store.meta[id];this.notice='Eine Reise ist nicht mehr für euch freigegeben und wurde von diesem Gerät entfernt.'}changed=true}}
+    return changed;
+  },
+  /* Konfliktlösung durch den Benutzer */
+  resolve(id,how){
+    const m=Store.meta[id];if(!m)return;
+    const remote=m.conflict&&m.conflict.remote;
+    if(how==='server'&&remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote);delete Store.queue[id]}
+    else if(how==='mine'&&remote&&!remote.deleted_at){m.version=remote.version;delete m.conflict;Store.queue[id]={op:'upsert',at:Date.now()}}
+    else if(how==='copy'){const t=Store.trips[id]||(remote&&remote.data);if(t){let nid;do{nid=uid('t')}while(Store.trips[nid]);const n=clone(t);n.id=nid;n.title=(String(t.title||'Reise').slice(0,64)+' (eigene Kopie)').slice(0,80);Store.trips[nid]=n;Store.queue[nid]={op:'upsert',at:Date.now()}}
+      if(remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote);delete Store.queue[id]}else{delete Store.trips[id];delete Store.meta[id];delete Store.queue[id]}}
+    else if(how==='discard'){if(remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote)}else{delete Store.trips[id];delete Store.meta[id]}delete Store.queue[id]}
+    else return;
+    Store.saveLocal();this.schedule(0);
+  }
+};
+/* Konto-Zustand. Kein automatisches Übertragen der Gast-Reisen. */
+const Auth={user:null,ready:false,recovery:false,gen:0,
+  async start(){
+    const c=Sync.cloud();if(!c){this.ready=true;return}
+    c.onAuth((event,user)=>{if(event==='PASSWORD_RECOVERY'){this.recovery=true;UI.view='konto'}this.switchTo(user)});
+    const gen=this.gen;let user=null;try{user=await c.init()}catch(e){Sync.state='error';Sync.error=e.message}
+    this.ready=true;if(this.gen===gen)this.switchTo(user);
+    else if(typeof document!=='undefined'&&document.querySelector&&!document.querySelector('[data-acc-form]'))render(); /* nur den Ladehinweis ersetzen, nie offene Formulare (Eingaben gingen sonst verloren) */
+    else setSync();
+    try{const u=new URL(location.href),tok=u.searchParams.get('einladung');if(tok){sessionStorage.setItem('rp-invite',tok);u.searchParams.delete('einladung');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}
+    this.tryInvite();
+    if(typeof window!=='undefined'){window.addEventListener('online',()=>Sync.schedule(0));setInterval(()=>{if(typeof document==='undefined'||document.visibilityState!=='hidden')Sync.schedule(0)},60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')Sync.schedule(0)})}
+  },
+  switchTo(user){
+    this.gen++;const next=user?user.id:'guest';
+    if(Store.scope===next&&((this.user&&user&&this.user.id===user.id)||(!this.user&&!user))){this.user=user;setSync();return}
+    this.user=user;UI.confirm=null;UI.tid=null;if(UI.view==='reise')UI.view='reisen';
+    Store.setScope(next);setSync();if(typeof render==='function')render();
+    if(user){Sync.schedule(0);this.tryInvite()}
+  },
+  async tryInvite(){
+    let tok=null;try{tok=sessionStorage.getItem('rp-invite')}catch(e){}
+    if(!tok)return;
+    if(!this.user){UI.view='konto';UI.invitePending=true;render();return}
+    try{const id=await Sync.cloud().acceptInvite(tok);sessionStorage.removeItem('rp-invite');UI.invitePending=false;await Sync.settle();alertMsg('Einladung angenommen.');if(Store.get(id))go('r-'+id+'-ueber')}
+    catch(e){try{sessionStorage.removeItem('rp-invite')}catch(x){}UI.invitePending=false;alertMsg(e.message);render()}
+  },
+  async signOut(force){
+    if(Store.pending()&&!force){UI.confirm='logout';UI.view='konto';render();return}
+    const scope=Store.scope,keep=Store.pending()>0;
+    try{await Sync.cloud().signOut()}catch(e){alertMsg(e.message);return}
+    if(!keep){try{localStorage.removeItem('rp-u:'+scope);localStorage.removeItem('rp-u:'+scope+':history')}catch(e){}}
+    this.switchTo(null);UI.view='reisen';render();
+  }
+};
+/* Gast-Reisen dieses Browsers lesen (nur lesend), um sie bewusst ins Konto zu übernehmen. */
+function guestTrips(){try{const s=JSON.parse(localStorage.getItem('rp-trips')||'{}');return s&&typeof s==='object'&&!Array.isArray(s)?Object.values(s):[]}catch(e){return null}}
+function guestPreview(){
+  const list=guestTrips();if(list===null)return {error:'Die Gast-Reisen dieses Browsers sind beschädigt und können nicht übernommen werden. Sichert sie zuerst als Rohdaten.',rows:[]};
+  return {rows:list.map(t=>{let problem='';try{validateBackup(backupData([t]))}catch(e){problem=e.message}return {trip:t,problem,exists:!!Store.get(t.id)}})};
+}
+function adoptGuestTrips(ids){
+  if(!Store.isAccount())throw new Error('Bitte zuerst anmelden.');
+  const pv=guestPreview(),added=[];
+  pv.rows.filter(r=>ids.includes(r.trip.id)&&!r.problem).forEach(r=>{const t=migrateTrip(clone(r.trip));
+    if(Store.trips[t.id]){let nid;do{nid=uid('t')}while(Store.trips[nid]);t.id=nid;t.title=(String(t.title).slice(0,70)+' (Gast)').slice(0,80)}
+    Store.trips[t.id]=t;Store.queue[t.id]={op:'upsert',at:Date.now()};added.push(t.id)});
+  if(added.length&&!Store.saveLocal())throw new Error('Übernahme nicht gespeichert.');
+  try{const k='rp-adopted:'+Store.scope,done=JSON.parse(localStorage.getItem(k)||'[]');localStorage.setItem(k,JSON.stringify([...new Set(done.concat(ids))]))}catch(e){}
+  Sync.schedule(0);return added;
+}
+function guestPendingCount(){if(!Store.isAccount())return 0;const g=guestTrips();if(!g)return 0;let done=[];try{done=JSON.parse(localStorage.getItem('rp-adopted:'+Store.scope)||'[]')}catch(e){}return g.filter(t=>t&&!done.includes(t.id)).length}
+function tripSyncState(id){if(!Store.isAccount())return '';const m=Store.meta[id]||{},q=Store.queue[id];if(m.conflict)return 'konflikt';if(m.lost)return 'kein-zugriff';if(m.failed&&q&&m.failedAt===q.at)return 'fehler';if(q)return 'ausstehend';return m.version?'online':'ausstehend'}
+function setSync(s){
+  if(Store.conflict)s='conflict';else if(Store.localError)s='storage-error';
+  const el=$('#sync');if(!el)return;
+  let txt,on=false;
+  if(s==='conflict')txt='Neuere Daten in anderer Ansicht – Änderungen sichern und neu laden';
+  else if(s==='storage-error')txt='Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen';
+  else if(!Store.isAccount())txt=Sync.cloud()?'Gast · nur in diesem Browser':'Nur in diesem Browser';
+  else{const n=Store.pending(),k=Object.values(Store.meta).filter(m=>m.conflict||m.lost).length;
+    if(k)txt='Konflikt bei '+k+(k===1?' Reise':' Reisen')+' – bitte prüfen';
+    else if(Sync.state==='error')txt='Speicherfehler online: '+Sync.error+(n?' · '+n+' lokal gespeichert':'');
+    else if(Sync.state==='offline')txt='Offline · '+(n?n+' Änderung'+(n===1?'':'en')+' nur lokal gespeichert':'lokal gespeichert');
+    else if(Sync.state==='syncing')txt='Synchronisiere …';
+    else if(n)txt='Synchronisation ausstehend ('+n+')';
+    else if(Sync.last){txt='Online gespeichert';on=true}
+    else txt='Lokal gespeichert · noch nicht abgeglichen';}
+  el.className='sync'+(on?' on':'');el.querySelector('span').textContent=txt;
+}
 let deferred=false;
-function remoteChanged(){if(UI.pending&&UI.view==='reisen'){const h=UI.pending;const id=h.split('-')[1];if(Store.get(id)){UI.pending=null;go(h,true);return}}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){deferred=true;return}render()}
+function remoteChanged(){if(UI.view==='konto'&&typeof document!=='undefined'&&document.querySelector&&document.querySelector('[data-acc-form]')){setSync();return} /* offene Kontoformulare nicht durch Hintergrund-Abgleich leeren */if(UI.pending&&UI.view==='reisen'){const h=UI.pending;const id=h.split('-')[1];if(Store.get(id)){UI.pending=null;go(h,true);return}}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){deferred=true;return}render()}
 document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
 
 /* ================= Zustand & Routing ================= */
@@ -899,6 +1083,7 @@ const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote
 function go(h,keepScroll){
   h=(h||'').replace(/^#/,'');
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
+  else if(h==='konto'){UI.view='konto'}
   else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
   const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.view;
@@ -912,12 +1097,13 @@ function save(t,now){Store.put(t,now)}
 function vReisen(){
   const list=Store.list();
   const card=t=>{const c=cost(t),ph=tripPhase(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
-    return '<button type="button" class="card click" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3><p class="small muted">'+esc(rangeText(t))+'</p>'+
+    return '<button type="button" class="card click" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3>'+(Store.isAccount()?'<div class="badges">'+syncBadge(t.id)+(Store.role(t.id)!=='owner'?'<span class="badge">'+ROLE_TXT[Store.role(t.id)]+'</span>':'')+'</div>':'')+'<p class="small muted">'+esc(rangeText(t))+'</p>'+
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
     (ph?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
     '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+'</button>'};
   return (Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
    '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
+   (Store.isAccount()&&guestPendingCount()?'<div class="note"><b>'+guestPendingCount()+' Reise(n) ohne Konto in diesem Browser.</b><p>Sie werden nicht automatisch übertragen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und ins Konto übernehmen</button></div></div>':'')+(!Store.isAccount()&&Sync.cloud()?'<p class="small muted">Gastmodus: Reisen nur in diesem Browser. <button type="button" class="lnk" data-go="konto">Anmelden für Online-Speicherung und Teilen</button></p>':'')+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
    '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
@@ -973,7 +1159,7 @@ function tUeber(t){
    '<div class="card"><span class="eyebrow">Angebot</span><h3>'+esc(pk?pk.name:'Frei geplant')+'</h3><p class="small muted">'+esc(pk?pk.pitch:'Pakete als Startpunkt im Bereich Angebote')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-angebote">Angebote</button></div></div>'+
   '</div></section>'+
   '<section class="block"><h2>Nächste Schritte</h2>'+(open.length?'<div class="checks-list">'+open.slice(0,5).map(i=>'<label class="chk info"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>').join('')+'</div>':'<p class="muted">Keine offenen Buchungen.</p>')+'</section>'+
-  '<section class="block"><h2>Reise verwalten</h2><div class="row"><button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button>'+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
+  '<section class="block"><h2>Reise verwalten</h2>'+(Store.isAccount()?'<p class="small">'+syncBadge(t.id)+' · Eure Rolle: '+ROLE_TXT[Store.role(t.id)]+'</p>':'')+'<div class="row">'+(Store.isAccount()?'<button type="button" class="btn ghost sm" data-acc="share">Teilen & Rechte</button>':'')+'<button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button>'+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
 }
 function tAngebote(t){
   if(t.catalog!=='allgaeu') return '<section class="block"><div class="empty"><b>Für diese Reise gibt es noch keine fertigen Angebote</b><span>Angebote gibt es bisher für den Katalog „Allgäu & Tirol im Winter“. Plant frei über Unterkunft und Unternehmungen.</span><button type="button" class="btn ghost" data-go="r-'+t.id+'-unternehmen">Zu den Unternehmungen</button></div></section>';
@@ -1165,12 +1351,12 @@ function tMappe(t){
 function vReise(){
   const t=cur(); if(!t) return vReisen();
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
-  return tripHead(t)+costNotice(t)+body(t);
+  return tripHead(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+costNotice(t)+body(t);
 }
 function render(){
   const v=$('#view');
   try{
-    v.innerHTML=UI.view==='neu'?vNeu():UI.view==='reise'?vReise():vReisen();
+    v.innerHTML=UI.view==='neu'?vNeu():UI.view==='reise'?vReise():UI.view==='konto'?vKonto():vReisen();
     renderDock();
   }catch(err){
     console.error('Reiseplaner: Ansicht konnte nicht aufgebaut werden',err);
@@ -1285,7 +1471,7 @@ document.addEventListener('click',async e=>{
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
-   case 'del-yes': UI.confirm=null;await Store.remove(t.id);go('reisen');return;
+   case 'del-yes': UI.confirm=null;try{await Store.remove(t.id)}catch(err){alertMsg(err.message);render();return}go('reisen');return;
    case 'pkgf': UI.pkgf=val;break;
    case 'pkgfocus': UI.pkgfocus=val;break;
    case 'pkg-ask': UI.confirm='pkg-'+val;break;
@@ -1356,7 +1542,7 @@ document.addEventListener('input',e=>{
   if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
-window.addEventListener('storage',e=>{if(e.key==='rp-trips'){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
+window.addEventListener('storage',e=>{if(e.key===Store.key()){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
 window.addEventListener('hashchange',()=>go(location.hash,true));
 document.addEventListener('change',e=>{
   const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-ledger'))return;
@@ -1473,7 +1659,7 @@ function offerSheet(t,id){
  const o=UI.offerDraft,inp=(k,label,type,extra)=>'<label class="fld"><span>'+label+'</span><input data-offer="'+k+'" type="'+(type||'text')+'" value="'+esc(o[k]==null?'':o[k])+'" '+(extra||'')+'></label>',sel=(k,label,opts)=>'<label class="fld"><span>'+label+'</span><select data-offer="'+k+'">'+optionList(opts,o[k])+'</select></label>';
  openSheet('<h2>'+(old?'Angebot bearbeiten':'Konkretes Angebot erfassen')+'</h2><p class="small">Übernehmt den tatsächlich angezeigten Tarif. Gebühren nur als inklusive markieren, wenn der Anbieter das bestätigt. Zusätzliche Gebühren immer als Gesamtbetrag für alle Personen und den Aufenthalt.</p><div class="form">'+inp('name','Unterkunft / Tarif','text','maxlength="160"')+inp('location','Ort / Region','text','maxlength="160"')+sel('provider','Quelle / Anbieter',PROVIDERS.map(p=>[p.id,p.name]))+sel('type','Art',[['hotel','Hotel'],['fewo','Ferienwohnung'],['pension','Pension'],['other','Andere']])+inp('start','Anreise','date')+inp('end','Abreise','date')+inp('persons','Personen','number','min="1" max="20"')+inp('price','Preis (€)','number','min="0" step="0.01"')+sel('basis','Preisbasis',[['stay','Gesamter Aufenthalt'],['night','Pro Nacht / Unterkunft'],['person','Pro Person / Aufenthalt'],['personNight','Pro Person / Nacht']])+inp('url','Konkreter Angebotslink (HTTPS)','url')+inp('checkedAt','Beim Anbieter geprüft am','date')+inp('validUntil','Gültig bis (optional)','date')+sel('availability','Verfügbarkeit laut Anbieter',[['unknown','Unbestätigt'],['available','Als verfügbar angezeigt'],['unavailable','Nicht verfügbar']])+inp('drive','Fahrzeit einfach (Minuten, optional)','number','min="0"')+inp('rating','Bewertung (auf 0–10 umgerechnet)','number','min="0" max="10" step="0.1"')+'</div><h3>Merkmale des gewählten Tarifs</h3><div class="criteria">'+Object.entries(FEATURES).map(([k,label])=>'<label class="fld"><span>'+label+'</span><select data-offer-feature="'+k+'">'+optionList([['unknown','Unbekannt'],['yes','Bestätigt ja'],['no','Nein']],o.features[k])+'</select></label>').join('')+'</div><h3>Gebühren ohne Doppelzählung</h3>'+Object.entries(FEES).map(([k,label])=>'<div class="form"><label class="fld"><span>'+label+'</span><select data-offer-fee="'+k+'">'+optionList([['unknown','Noch offen'],['included','Inklusive / entfällt'],['extra','Zusätzlich']],o.fees[k].state)+'</select></label><label class="fld"><span>Zusätzlicher Gesamtbetrag (€)</span><input type="number" min="0" step="0.01" data-offer-amount="'+k+'" value="'+esc(o.fees[k].amount)+'"></label></div>').join('')+'<label class="fld"><span>Tarif, Leistungen, Stornofrist, Einschränkungen</span><textarea data-offer="terms" maxlength="4000" rows="4">'+esc(o.terms)+'</textarea></label><h3>Buchung & Zahlungen</h3><p class="small">Hier dokumentiert ihr eine bereits extern erfolgte Buchung. Die App bucht und bezahlt nichts. Kautionen zählen separat zum Geldbedarf.</p><div class="form">'+inp('paid','Bereits bezahlt (€)','number','min="0" step="0.01"')+inp('deposit','Zusätzlicher Kautionsbedarf (€)','number','min="0" step="0.01"')+'</div><label><input type="checkbox" data-offer="booked"'+(o.booked?' checked':'')+'> Extern gebucht</label><div class="row"><button class="btn" data-search-act="offer-save">Angebot speichern</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button>'+(old?'<button class="btn ghost" data-search-act="offer-delete" data-value="'+o.id+'">Entfernen …</button>':'')+'</div><p id="offer-error" role="alert"></p>');
 }
-function historySheet(){let history;try{history=JSON.parse(localStorage.getItem('rp-history')||'[]');if(!Array.isArray(history))throw new Error('Ungültige Sicherungspunkte');}catch(e){alertMsg('Sicherungspunkte konnten nicht gelesen werden.');return;}UI.history=history;openSheet('<h2>Lokale Sicherungspunkte</h2><p>Die letzten fünf vorherigen Speicherstände dieses Browsers. Ladet einen Stand herunter und importiert ihn danach mit der vorhandenen Konfliktprüfung. Es wird nichts direkt überschrieben.</p>'+history.map((h,i)=>'<p>'+esc(h.at)+' <button class="btn ghost sm" data-search-act="history-download" data-value="'+i+'">Als Datei herunterladen</button></p>').join('')+(history.length?'':'<p>Noch keine Sicherungspunkte vorhanden.</p>'));}
+function historySheet(){let history;try{history=JSON.parse(localStorage.getItem(Store.historyKey())||'[]');if(!Array.isArray(history))throw new Error('Ungültige Sicherungspunkte');}catch(e){alertMsg('Sicherungspunkte konnten nicht gelesen werden.');return;}UI.history=history;openSheet('<h2>Lokale Sicherungspunkte</h2><p>Die letzten fünf vorherigen Speicherstände dieses Browsers. Ladet einen Stand herunter und importiert ihn danach mit der vorhandenen Konfliktprüfung. Es wird nichts direkt überschrieben.</p>'+history.map((h,i)=>'<p>'+esc(h.at)+' <button class="btn ghost sm" data-search-act="history-download" data-value="'+i+'">Als Datei herunterladen</button></p>').join('')+(history.length?'':'<p>Noch keine Sicherungspunkte vorhanden.</p>'));}
 document.addEventListener('change',e=>{
  const el=e.target,t=cur();if(!t||Store.corruptRaw!==null)return;
  if(el.hasAttribute('data-search')||el.hasAttribute('data-criterion')||el.hasAttribute('data-provider')){const q=searchState(t),k=el.getAttribute('data-search');if(k){q[k]=el.type==='checkbox'?el.checked:el.value;}const c=el.getAttribute('data-criterion');if(c){q.must=q.must.filter(k=>k!==c);q.wish=q.wish.filter(k=>k!==c);if(el.value==='must')q.must.push(c);if(el.value==='wish')q.wish.push(c);}const p=el.getAttribute('data-provider');if(p)q.providers=el.checked?[...new Set([...q.providers,p])]:q.providers.filter(id=>id!==p);try{validateSearch(q);t.search=q;t.schemaVersion=2;save(t);render();}catch(err){alertMsg(err.message);}return;}
@@ -1573,11 +1759,109 @@ document.addEventListener('click',async e=>{
  }catch(err){if(job===(UI.secureJob||0)&&box)box.textContent=err.message;}finally{if(job===(UI.secureJob||0))b.disabled=false;}
 });
 
+/* ================= Konto, Freigaben, Konflikte (Issue #6) ================= */
+const ROLE_TXT={owner:'Eigentümer',editor:'Bearbeiten',viewer:'Lesen'};
+const SYNC_TXT={online:'online gespeichert',ausstehend:'Synchronisation ausstehend',konflikt:'Konflikt',fehler:'Speicherfehler','kein-zugriff':'kein Zugriff mehr'};
+function syncBadge(id){const s=tripSyncState(id);if(!s)return '';const cls=s==='online'?'ok':s==='ausstehend'?'est':'bad';return '<span class="badge '+cls+'">'+SYNC_TXT[s]+'</span>'}
+function vKonto(){
+  const c=Sync.cloud(),head='<section class="block"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><span class="eyebrow">Konto & Speicher</span><h1>Konto</h1></section>';
+  if(!c)return head+'<section class="block"><div class="note"><b>Online-Konto ist für diese Installation noch nicht eingerichtet.</b><p>Die App läuft im Gastmodus: Reisen liegen nur in diesem Browser. Nutzt „Reisen sichern“ für Sicherungsdateien. Einrichtung: docs/SUPABASE_SETUP.md.</p></div></section>';
+  if(!Auth.ready)return head+'<section class="block"><p>Konto wird geladen …</p></section>';
+  const f=UI.authMsg?'<div class="note" role="status"><p>'+esc(UI.authMsg)+'</p></div>':'';
+  if(Auth.recovery&&Auth.user)return head+f+'<section class="block"><h2>Neues Passwort festlegen</h2><form class="panel" data-acc-form="newpw"><input type="email" autocomplete="username" value="'+esc(Auth.user.email||'')+'" hidden readonly><label class="fld"><span>Neues Passwort (mind. 10 Zeichen)</span><input type="password" id="acc-pw" autocomplete="new-password" minlength="10" required></label><label class="fld"><span>Wiederholen</span><input type="password" id="acc-pw2" autocomplete="new-password" minlength="10" required></label><button class="btn" type="submit">Passwort speichern</button></form></section>';
+  if(!Auth.user){
+    const m=UI.authMode||'signin';
+    const tabs='<div class="row" role="tablist">'+[['signin','Anmelden'],['signup','Registrieren'],['reset','Passwort vergessen']].map(x=>'<button type="button" class="chipbtn" data-acc="mode" data-val="'+x[0]+'" aria-pressed="'+(m===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+    const email='<label class="fld"><span>E-Mail</span><input type="email" id="acc-email" autocomplete="email" required value="'+esc(UI.authEmail||'')+'"></label>';
+    const form=m==='signin'?'<form class="panel" data-acc-form="signin">'+email+'<label class="fld"><span>Passwort</span><input type="password" id="acc-pw" autocomplete="current-password" required></label><button class="btn" type="submit">Anmelden</button></form>'
+      :m==='signup'?'<form class="panel" data-acc-form="signup">'+email+'<label class="fld"><span>Passwort (mind. 10 Zeichen)</span><input type="password" id="acc-pw" autocomplete="new-password" minlength="10" required></label><label class="fld"><span>Passwort wiederholen</span><input type="password" id="acc-pw2" autocomplete="new-password" minlength="10" required></label><p class="small muted">Ihr bekommt eine E-Mail zur Bestätigung. Erst danach ist die Anmeldung möglich.</p><button class="btn" type="submit">Konto anlegen</button></form>'
+      :'<form class="panel" data-acc-form="reset">'+email+'<p class="small muted">Ihr bekommt einen Link, der zurück zu dieser Seite führt. Öffnet ihn im selben Browser.</p><button class="btn" type="submit">Link senden</button></form>';
+    return head+f+(UI.invitePending?'<section class="block"><div class="note"><b>Einladung erkannt.</b><p>Meldet euch an oder registriert euch; danach wird die Einladung angenommen.</p></div></section>':'')+
+      '<section class="block"><p class="lead muted">Mit Konto werden Reisen online gespeichert und lassen sich mit Mitreisenden teilen. Ohne Konto bleibt alles wie bisher nur in diesem Browser.</p>'+tabs+form+'</section>';
+  }
+  const n=Store.pending(),gp=guestPendingCount();
+  return head+f+'<section class="block"><dl class="facts"><dt>Angemeldet</dt><dd>'+esc(Auth.user.email||'')+'</dd><dt>Speicher</dt><dd>'+esc($('#sync')?$('#sync').textContent:'')+'</dd>'+(Sync.last?'<dt>Letzter Abgleich</dt><dd>'+esc(new Date(Sync.last).toLocaleString('de-DE'))+'</dd>':'')+(Sync.notice?'<dt>Hinweis</dt><dd>'+esc(Sync.notice)+'</dd>':'')+'</dl>'+
+    '<div class="row"><button type="button" class="btn sm" data-acc="sync">Jetzt synchronisieren</button><button type="button" class="btn ghost sm" data-acc="signout">Abmelden</button></div>'+
+    (UI.confirm==='logout'?'<div class="note" role="alert"><b>'+n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.</b><p>Beim Abmelden bleiben sie in diesem Browser für dieses Konto liegen und werden nach der nächsten Anmeldung übertragen. Sichert sie zusätzlich als Datei, falls ihr das Gerät wechselt.</p><div class="row"><button type="button" class="btn sm" data-acc="sync">Erst synchronisieren</button><button type="button" class="btn ghost sm" data-act="backup-all">Als Datei sichern</button><button type="button" class="btn warn sm" data-acc="signout-force">Trotzdem abmelden</button></div></div>':'')+
+    '<p class="small muted">Lokaler Speicher ist keine Datensicherung. Der kostenlose Supabase-Tarif enthält keine automatischen Backups; sichert wichtige Reisen zusätzlich als Datei.</p></section>'+
+    (gp?'<section class="block"><h2>Reisen ohne Konto in diesem Browser</h2><p>'+gp+' Reise'+(gp===1?'':'n')+' aus dem Gastmodus. Sie werden nicht automatisch übertragen.</p><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und übernehmen</button></section>':'')+
+    '<section class="block"><h2>Einladung annehmen</h2><form class="row" data-acc-form="invite"><input type="text" id="acc-invite" placeholder="Einladungslink oder Code" style="flex:1;min-width:220px"><button class="btn ghost sm" type="submit">Annehmen</button></form></section>';
+}
+function adoptSheet(){
+  const pv=guestPreview();
+  if(pv.error){openSheet('<h2>Gast-Reisen übernehmen</h2><p>'+esc(pv.error)+'</p>');return}
+  openSheet('<span class="eyebrow">Bewusste Übernahme</span><h2>Gast-Reisen ins Konto übernehmen</h2><p class="small">Ausgewählte Reisen werden in euer Konto kopiert und online gespeichert. Die Gast-Kopie in diesem Browser bleibt unverändert. Gleiche IDs im Konto werden nicht überschrieben, sondern als Kopie angelegt.</p><div class="checks-list">'+
+    pv.rows.map(r=>'<label class="chk '+(r.problem?'warn':'info')+'"><input type="checkbox" data-adopt="'+esc(r.trip.id)+'"'+(r.problem?' disabled':'')+'> <span><b>'+esc(r.trip.title||'Ohne Titel')+'</b><br><small class="muted">'+esc(rangeText(r.trip))+(r.exists?' · ID schon im Konto → wird als Kopie übernommen':'')+(r.problem?' · nicht übernehmbar: '+esc(r.problem):'')+'</small></span></label>').join('')+
+    '</div><button type="button" class="btn" data-acc="adopt-do">Ausgewählte übernehmen</button>');
+}
+async function shareSheet(t){
+  const c=Sync.cloud(),role=Store.role(t.id),m=Store.meta[t.id]||{};
+  if(!m.version){openSheet('<h2>Teilen</h2><p>Die Reise ist noch nicht online gespeichert. Bitte erst synchronisieren.</p>');return}
+  openSheet('<h2>Teilen</h2><p>Lade Mitglieder …</p>');
+  let members=[],invites=[];
+  try{members=await c.members(t.id);if(role==='owner')invites=await c.invites(t.id)}catch(e){openSheet('<h2>Teilen</h2><p>'+esc(e.message)+'</p>');return}
+  const now=Date.now();
+  openSheet('<span class="eyebrow">'+esc(t.title)+'</span><h2>Mitreisende & Rechte</h2><p class="small">Eure Rolle: <b>'+ROLE_TXT[role]+'</b>. Rechte prüft die Datenbank; der Link zur Website macht keine Reise öffentlich.</p>'+
+    '<div class="checks-list">'+members.map(x=>'<div class="chk info"><span><b>'+esc(x.email||x.user_id)+'</b><br><small class="muted">'+ROLE_TXT[x.role]+'</small></span>'+(role==='owner'&&x.role!=='owner'?'<select data-acc-role="'+esc(x.user_id)+'" aria-label="Rolle von '+esc(x.email||'')+'" style="margin-left:auto;width:auto"><option value="editor"'+(x.role==='editor'?' selected':'')+'>Bearbeiten</option><option value="viewer"'+(x.role==='viewer'?' selected':'')+'>Lesen</option></select><button type="button" class="btn ghost sm" data-acc="member-remove" data-val="'+esc(x.user_id)+'">Entfernen</button>':'')+'</div>').join('')+'</div>'+
+    (role==='owner'?'<h3>Neue Einladung</h3><div class="form"><label class="fld"><span>Rolle</span><select id="inv-role"><option value="editor">Bearbeiten</option><option value="viewer">Lesen</option></select></label><label class="fld"><span>Gültig</span><select id="inv-hours"><option value="24">24 Stunden</option><option value="72" selected>3 Tage</option><option value="168">7 Tage</option></select></label><label class="fld"><span>Nur für E-Mail (empfohlen)</span><input type="email" id="inv-email" placeholder="name@beispiel.de" autocomplete="off"></label></div><p class="small muted">Ein Link gilt für eine Person und einmalige Verwendung. Mit E-Mail-Angabe kann ihn nur das Konto mit genau dieser bestätigten Adresse annehmen.</p><button type="button" class="btn sm" data-acc="invite-create">Einladungslink erstellen</button>'+(UI.inviteLink?'<div class="copybox" id="inv-link">'+esc(UI.inviteLink)+'</div><button type="button" class="btn ghost sm" data-acc="invite-copy">Link kopieren</button>':'')+
+      '<h3>Einladungen</h3>'+(invites.length?'<div class="checks-list">'+invites.map(i=>{const st=i.revoked_at?'widerrufen':i.used_at?'angenommen':new Date(i.expires_at).getTime()<now?'abgelaufen':'offen bis '+new Date(i.expires_at).toLocaleString('de-DE');return '<div class="chk info"><span>'+ROLE_TXT[i.role]+(i.email?' · für '+esc(i.email):'')+' · '+esc(st)+'</span>'+(st.startsWith('offen')?'<button type="button" class="btn ghost sm" style="margin-left:auto" data-acc="invite-revoke" data-val="'+esc(i.id)+'">Widerrufen</button>':'')+'</div>'}).join('')+'</div>':'<p class="muted small">Keine.</p>')
+     :'<button type="button" class="btn ghost sm" data-acc="leave" data-val="'+esc(t.id)+'">Reise verlassen</button>'));
+}
+function conflictBlock(t){
+  const m=Store.isAccount()&&Store.meta[t.id];if(!m)return '';
+  if(m.lost)return '<section class="block"><div class="note" role="alert"><b>Kein Zugriff mehr auf die Online-Version dieser Reise.</b><p>Eure lokalen Änderungen sind nicht verloren. Ihr könnt sie als eigene neue Reise speichern oder verwerfen.</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="copy">Als eigene Reise speichern</button><button type="button" class="btn ghost sm" data-acc="conf" data-how="discard">Verwerfen</button></div></div></section>';
+  if(m.failed&&Store.queue[t.id]&&m.failedAt===Store.queue[t.id].at)return '<section class="block"><div class="note" role="alert"><b>Speicherfehler online:</b><p>'+esc(m.failed)+'. Die Änderung ist lokal gespeichert. Bitte Eckdaten prüfen und erneut ändern.</p></div></section>';
+  if(!m.conflict)return '';
+  const r=m.conflict.remote,who=r&&r.updated_at?new Date(r.updated_at).toLocaleString('de-DE'):'';
+  if(m.conflict.op==='deleted')return '<section class="block"><div class="note" role="alert"><b>Diese Reise wurde online gelöscht, während ihr sie geändert habt.</b><p>Eure Version kann als neue Reise gespeichert oder verworfen werden.</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="copy">Als neue Reise speichern</button><button type="button" class="btn ghost sm" data-acc="conf" data-how="discard">Verwerfen</button></div></div></section>';
+  if(m.conflict.op==='delete')return '<section class="block"><div class="note" role="alert"><b>Löschen nicht ausgeführt:</b><p>Die Reise wurde zwischenzeitlich online geändert ('+esc(who)+').</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="server">Aktuelle Version behalten</button></div></div></section>';
+  return '<section class="block"><div class="note" role="alert"><b>Gleichzeitige Bearbeitung:</b><p>Diese Reise wurde online geändert ('+esc(who)+', Version '+esc(r.version)+'), während ihr sie hier bearbeitet habt. Nichts wurde überschrieben.</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="server">Online-Version übernehmen</button><button type="button" class="btn ghost sm" data-acc="conf" data-how="copy">Meine Version als Kopie</button><button type="button" class="btn warn sm" data-acc="conf" data-how="mine">Meine Version speichern (überschreibt)</button></div></div></section>';
+}
+function accErr(e){UI.authMsg=e&&e.message?e.message:String(e);render()}
+document.addEventListener('submit',async e=>{
+  const f=e.target.closest('[data-acc-form]');if(!f)return;e.preventDefault();
+  const kind=f.getAttribute('data-acc-form'),c=Sync.cloud(),val=id=>{const x=document.getElementById(id);return x?x.value:''};
+  UI.authEmail=val('acc-email').trim();UI.authMsg='';
+  try{
+    if(kind==='signin'){await c.signIn(UI.authEmail,val('acc-pw'));UI.authMsg=''}
+    else if(kind==='signup'){if(val('acc-pw')!==val('acc-pw2'))throw new Error('Passwörter stimmen nicht überein.');if(val('acc-pw').length<10)throw new Error('Mindestens 10 Zeichen.');const r=await c.signUp(UI.authEmail,val('acc-pw'));UI.authMsg=r.needsConfirmation?'Fast fertig: Bitte den Link in der E-Mail an '+UI.authEmail+' öffnen. Danach anmelden.':'Konto angelegt.';UI.authMode='signin'}
+    else if(kind==='reset'){await c.resetPassword(UI.authEmail);UI.authMsg='Falls ein Konto zu '+UI.authEmail+' existiert, ist ein Link unterwegs. Bitte im selben Browser öffnen.'}
+    else if(kind==='newpw'){if(val('acc-pw')!==val('acc-pw2'))throw new Error('Passwörter stimmen nicht überein.');if(val('acc-pw').length<10)throw new Error('Mindestens 10 Zeichen.');await c.updatePassword(val('acc-pw'));Auth.recovery=false;UI.authMsg='Passwort geändert.'}
+    else if(kind==='invite'){let v=val('acc-invite').trim();try{const u=new URL(v);v=u.searchParams.get('einladung')||v}catch(x){}if(!v)return;sessionStorage.setItem('rp-invite',v);await Auth.tryInvite();return}
+    render();
+  }catch(err){accErr(err)}
+});
+document.addEventListener('change',async e=>{
+  const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-acc-role'))return;const t=cur();if(!t)return;
+  try{await Sync.cloud().setRole(t.id,el.getAttribute('data-acc-role'),el.value);alertMsg('Rolle geändert.');shareSheet(t)}catch(err){alertMsg(err.message);shareSheet(t)}
+});
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-acc]');if(!b)return;
+  const act=b.getAttribute('data-acc'),val=b.getAttribute('data-val'),t=cur(),c=Sync.cloud();
+  try{
+    switch(act){
+      case 'mode':UI.authMode=val;UI.authMsg='';render();return;
+      case 'sync':await Sync.settle();UI.confirm=null;render();return;
+      case 'signout':await Auth.signOut(false);return;
+      case 'signout-force':UI.confirm=null;await Auth.signOut(true);return;
+      case 'adopt-open':adoptSheet();return;
+      case 'adopt-do':{const ids=[...document.querySelectorAll('[data-adopt]')].filter(x=>x.checked).map(x=>x.getAttribute('data-adopt'));if(!ids.length){alertMsg('Keine Reise ausgewählt.');return}const added=adoptGuestTrips(ids);closeSheet();alertMsg(added.length+' Reise'+(added.length===1?'':'n')+' übernommen. Synchronisation läuft.');go('reisen');return}
+      case 'share':if(t)await shareSheet(t);return;
+      case 'invite-create':UI.inviteLink=await c.createInvite(t.id,$('#inv-role').value,+$('#inv-hours').value,($('#inv-email')&&$('#inv-email').value.trim())||null);await shareSheet(t);return;
+      case 'invite-copy':try{await navigator.clipboard.writeText(UI.inviteLink);alertMsg('Link kopiert.')}catch(x){alertMsg('Bitte Link markieren und kopieren.')}return;
+      case 'invite-revoke':await c.revokeInvite(val);await shareSheet(t);return;
+      case 'member-remove':await c.removeMember(t.id,val);await shareSheet(t);return;
+      case 'leave':await c.removeMember(val,Auth.user.id);closeSheet();await Sync.settle();go('reisen');alertMsg('Reise verlassen.');return;
+      case 'conf':Sync.resolve(t.id,b.getAttribute('data-how'));render();return;
+    }
+  }catch(err){alertMsg(err.message)}
+});
+
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
-if(Store.corruptRaw===null)Store.connect();
+Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
 try{if(typeof navigator!=='undefined'&&navigator.serviceWorker&&typeof location!=='undefined'&&/^https?:$/.test(location.protocol))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}catch(e){}
 })();

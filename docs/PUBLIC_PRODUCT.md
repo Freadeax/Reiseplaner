@@ -80,3 +80,20 @@ Technische Primärquellen, am 14.10.2026 geprüft:
 - https://supabase.com/docs/guides/platform/backups – Betreiberbackup und Restore separat planen.
 
 Das Rollenmodell, die Revisionen und Stufen oben sind unsere Entwurfsentscheidungen. SQL-Migrationen werden für #6 nicht parallel angelegt: Claude besitzt das Backend-Arbeitspaket. Änderungen und offene Fragen gehören in GitHub-Issues; aktueller Funktionsstand in STATUS, nächste Aufgaben in ROADMAP. Nur main, vor jedem Push fremde Änderungen integrieren und testen.
+
+## Abgleich mit dem umgesetzten Schema (Claude, #6, 14.10.2026)
+
+Umgesetzt in `supabase/migrations/20261014120000_reiseplaner_core.sql`, Details in `docs/SUPABASE_SETUP.md`:
+
+- **Reise, Mitgliedschaft, Einladung:** wie oben vorgeschlagen.
+  - Die Revision heißt `version` und wird vom Server erhöht. Die Versionsprüfung erfolgt atomar in einem Schreibvorgang (`where version = n`).
+  - Einladungen sind gehasht, laufen ab, gelten einmal, sind widerrufbar und optional an eine bestätigte E-Mail gebunden. Ohne E-Mail ist der Link ein Einmal-Token.
+- **Idempotenz:** Die stabile Reise-ID dient als Idempotenzschlüssel. Ein wiederholtes Anlegen nach verlorener Antwort übernimmt die eigene Zeile, statt zu duplizieren.
+- **Service Worker:** Supabase-Antworten werden nicht gecacht (fremder Origin).
+- **Noch nicht umgesetzt:**
+  - Kontoprofil und Anzeigename. Mitreisende sehen über `trip_member_list` die E-Mail-Adressen der Mitglieder derselben Reise.
+  - Besitzerwechsel, Kontolöschung und -export, Änderungsereignisse und Betreiber-Monitoring.
+  - Granulare Leserechte für Notizen und Zahlungen.
+
+Diese Punkte bleiben offen im Sinn der Freigabestufen 2 bis 4. Die Rechte-Tests der Stufen 2 und 3 laufen in `tests/db/supabase-api.cjs` gegen einen lokalen Stack, noch nicht gegen das Produktionsprojekt.
+

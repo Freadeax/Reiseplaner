@@ -19,3 +19,9 @@ Philipp, Claude und ChatGPT arbeiten möglicherweise gleichzeitig am Reiseplaner
 - Wer eine Änderung beginnt, verantwortet ihren Test, Push und eine lesbare Übergabe. Philipp entscheidet bei Produkt- oder Prioritätskonflikten.
 
 Diese Regeln koordinieren parallele Arbeit, garantieren aber keine automatische Echtzeit-Kommunikation zwischen den KI-Diensten. Wer Claude oder ChatGPT eine neue Aufgabe gibt, verweist auf dieses Dokument und das betreffende GitHub-Issue.
+
+## Backend, Datenbank und Veröffentlichung (seit v3.0, Issue #6)
+
+- Schemaänderungen nur als **neue** Datei in `supabase/migrations/`. Bereits eingespielte Migrationen nie ändern. Keine Schlüssel, Passwörter oder Projekt-Refs ins Repository; im Frontend nur Projekt-URL und Publishable Key über `config.js` bzw. Build-Variablen.
+- Wer `Store`, `Sync`, `Auth`, `cloud.js` oder die Migrationen ändert, führt mit Docker `supabase start`, `npm run test:db` und `npm run test:e2e` aus. Ohne Docker muss der CI-Job `database` am konkreten Commit grün sein. Ergebnis mit Commit in STATUS und im Issue notieren.
+- Veröffentlicht wird nur über den Workflow „Tests & Pages“ von `main` nach grünen Prüfungen. Keine Handveröffentlichungen, kein zweites Produktionsprojekt.

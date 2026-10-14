@@ -1,5 +1,60 @@
 # Projektstand · 14.10.2026
 
+
+## v3.0 · GitHub Pages + Supabase (Claude, 14.10.2026, Issue #6)
+
+Ausgangspunkt `d7112a3`. Vor dem Push mit ChatGPTs `1c67ff5` (öffentliches Produkt, neutrale Standardwerte, Export ohne Passwort) zusammengeführt. Mit `docs/PUBLIC_PRODUCT.md` abgeglichen.
+
+**Umgesetzt (Code, Migration, Tests):**
+- **Supabase-Schema** in `supabase/migrations/20261014120000_reiseplaner_core.sql`:
+  - Tabellen `trips` (bestehende IDs, `data` JSONB im App-Format schemaVersion 2, abgeleitete Spalten, serverseitige `version`/Zeitstempel, Soft-Delete), `trip_members` (owner/editor/viewer) und `trip_invites` (SHA-256-Hash, Ablauf ≤ 30 Tage, einmalig, widerrufbar, optional an bestätigte E-Mail gebunden).
+  - RLS ist aktiv und erzwungen. Spalten-Grants, Trigger gegen Änderungen an ID/Eigentümer/Erstellzeit, Löschen nur durch den Eigentümer.
+  - Funktionen `create_trip_invite`, `accept_trip_invite`, `trip_member_list` und `trip_role_of`, alle `security definer` mit leerem `search_path`.
+- **`cloud.js`:** einziger Supabase-Zugriff, mit PKCE-Auth: Registrierung, Bestätigung, Anmeldung, Abmeldung, Sitzung und Passwort-Reset mit Rückkehr auf die Website.
+- **`config.js`:** öffentliche Konfiguration. Leer bedeutet Gastmodus.
+- **`vendor/supabase-js-2.117.2.js`:** lokal statt CDN, MIT, Prüfsumme in `vendor/README.md`.
+- **Speicher in `index.html`:**
+  - Der Gastbereich `rp-trips` bleibt unverändert. Jedes Konto hat einen eigenen Bereich `rp-u:<id>` mit Reisen, bestätigter Version/Rolle und Warteschlange.
+  - Beim Kontowechsel wird der Arbeitsspeicher geleert. Beim Abmelden ohne offene Änderungen wird der Konto-Cache gelöscht, mit offenen Änderungen kommt eine Rückfrage, und der Cache bleibt bis zur nächsten Anmeldung.
+  - `window.claude.use('db')` ist entfernt.
+- **Abgleich (`Sync`):**
+  - Schreiben nur mit bekannter Version, sonst ein sichtbarer Konflikt mit drei Wegen: Online-Version übernehmen, eigene als Kopie oder bewusst überschreiben.
+  - Offline-Warteschlange. Löschungen als Markierung. Rechteentzug entfernt die Reise vom Gerät, mit ausstehender Änderung wird sie als „kein Zugriff mehr“ gerettet.
+  - Bei einer fremden ID-Kollision entsteht eine neue ID. Nach einer verlorenen Antwort beim Anlegen entsteht keine doppelte Reise (Idempotenz).
+  - „Online gespeichert“ erscheint erst nach Bestätigung durch die Datenbank.
+- **Oberfläche:**
+  - Konto-Seite `#konto`: Anmelden, Registrieren, Passwort vergessen, neues Passwort, Abmelden, Synchronisieren, Einladung annehmen.
+  - Bewusste Übernahme der Gast-Reisen mit Vorschau und Validierung.
+  - „Teilen & Rechte“: Mitglieder, Rolle ändern, entfernen, Einladungslink erstellen und widerrufen, Reise verlassen. Dazu Konflikt- und Leserecht-Hinweise und Status-Plaketten je Reise.
+- **Fehlerbehebungen aus den neuen Tests:**
+  - Die Leseregel blockierte `INSERT … RETURNING` für den Eigentümer.
+  - Ein Neuaufbau der Konto-Seite durch den Hintergrund-Abgleich hat getippte Passwörter gelöscht. Offene Kontoformulare werden jetzt nicht mehr neu aufgebaut.
+  - Ein Wettlauf beim Sitzungsstart konnte eine frische Anmeldung überschreiben.
+- **GitHub Pages:**
+  - `npm run build` erzeugt `public/` nur mit Website-Dateien und `404.html`. Der Build lehnt Secret- und service_role-Schlüssel ab, `npm run check:artifact` prüft Dateiliste und Schlüssel.
+  - Workflow „Tests & Pages“: `app`, `browser` und `database` (lokaler Supabase-Stack in GitHub Actions) laufen vor `build`. `deploy` läuft nur auf `main` und mit `vars.PAGES_ENABLED == 'true'`, mit minimalen Rechten.
+  - Der Service Worker cached Supabase-Antworten nicht, sie sind ein fremder Origin.
+
+**Am 14.10.2026 tatsächlich ausgeführt:**
+- `npm test`, inklusive neuem `tests/sync.cjs` mit nachgebildetem Server für Offline, Konflikte, Löschung, Leserecht, Entzug, ID-Kollision, Idempotenz, Gast-Übernahme, Kontowechsel und Abmelden: grün.
+- `npm run test:browser` (Gastmodus, Chromium): grün.
+- `npm run test:db` gegen einen **lokalen** Supabase-Stack (CLI 2.120.0, Postgres 17) über die echte Auth- und REST-API mit drei Konten: grün. Geprüft wurden Registrierung mit Mail-Bestätigung, Anmelden, Abmelden, Passwort-Reset per E-Mail-Link, Lesen/Ändern/Löschen je Rolle, unberechtigtes Konto, unangemeldete Aufrufe, Selbsthochstufung, Einladung einmalig/widerrufen/an E-Mail gebunden, Rechteänderung und -entzug, Versionskonflikt und Soft-Delete.
+- `supabase db lint`: keine Befunde.
+- `npm run test:e2e`, dreimal hintereinander grün, in Chromium mit der gebauten Website unter `/Reiseplaner/` plus lokalem Stack: Pfad, Direktlink, Neuladen, 404, Registrierung mit Bestätigungslink, Gast-Übernahme, „Online gespeichert“ erst nach Datenbank-Bestätigung, Einladung an ein zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden und Passwort-Reset in der Oberfläche.
+- Build-Schutz: Secret Key, service_role-JWT, fremde Datei und eingeschmuggelter Schlüssel brechen jeweils ab.
+
+**Nicht durchgeführt bzw. nicht möglich:**
+- Kein Produktions-Supabase-Projekt verbunden, weil Zugangsdaten fehlen.
+- GitHub Pages ist nicht aktiviert (404 am 14.10.2026), daher keine Veröffentlichung.
+- Kein echter E-Mail-Versand (lokal über Mailpit), kein iPhone/Safari, keine Cloudflare-Pages-Prüfung.
+- Die neuen CI-Jobs laufen erst mit diesem Push und müssen am Commit geprüft werden.
+
+**Grenzen:**
+- Gratistarif: Pausierung nach 1 Woche Inaktivität, keine automatischen Backups.
+- Eingebauter Supabase-Mailversand nur an Mitglieder des Projektteams, daher eigenes SMTP nötig.
+- Kein Realtime, Abgleich alle 60 s und bei Fokus/Änderung.
+- Kein Besitzerwechsel, keine Kontolöschung in der App, keine Profile oder Anzeigenamen. Die E-Mail ist für Mitreisende derselben Reise sichtbar.
+
 ## Öffentliche Produktgrundlage (ChatGPT, 14.10.2026)
 
 Auf d7112a3, Abstimmung in #6/#1. Claude bearbeitet Store/Sync/Hosting; diese Bereiche hier nicht verändert.
@@ -142,7 +197,7 @@ Am 13.10.2026 zusätzlich ausgeführt (Claude, Stand 1.5): ein Klicktest in **he
 ## Bekannte Grenzen
 
 - ChatGPT-Dateivorschau auf iPhone zeigt möglicherweise nur den statischen Rahmen; die App benötigt eine reguläre Browser-Umgebung.
-- Browser-Speicher synchronisiert nicht geräteübergreifend; die optionale Claude-Anbindung ist Altdaten-Kompatibilität, kein tragfähiges Mehrgeräte-Konzept.
+- Ohne Konto synchronisiert der Browser-Speicher nicht geräteübergreifend. Mit Konto läuft der Abgleich über Supabase (v3.0), sobald ein Produktionsprojekt eingerichtet ist.
 - Live-Anbieterzugänge und automatisch normalisierte Angebotsantworten fehlen. Das manuelle konkrete Angebotsmodell ist in v2.0 implementiert.
 - Zahlungen und Kautionen sind für konkrete Unterkunftsangebote getrennt. Seit v2.3 haben andere Reiseposten ein einfaches Zahlungsbuch (Status, Betrag, bezahlt, Fälligkeit), aber ohne Teilzahlungsverlauf, Erstattungen und Kontoabgleich.
 - Strecken außerhalb des Beispielstarts Hattenhofen müssen manuell eingetragen werden.
@@ -172,3 +227,9 @@ v2.1 baut auf `e830697` auf. Finder (`suche`), Angebotsmodell und Sicherung v2 s
 ## Nachgewiesene CI für passwortgeschützte Sicherungen (#4)
 
 Commit `2fb8f70a3a3a4ead085108f3a1adbe86feac1522`: [Actions-Lauf 38506764102](https://github.com/Freadeax/Reiseplaner/actions/runs/38506764102) erfolgreich. Node-Job mit sämtlichen Logik-/Kryptotests und Chromium-Job tatsächlich ausgeführt und grün. Chromium prüfte Desktop/390 px/320 px dunkel, Passwort-Export/-Import, falsches Passwort ohne Datenänderung, Konfliktvorschau sowie bisherige Finder-/Import-/Offlinewege. Kein echter iPhone-/Safari-Test und kein unabhängiges Kryptografie-Audit.
+
+## Aktuelle Übergabe nach v3.0 (Claude → Philipp, ChatGPT)
+
+- **Philipp:** Supabase-Projekt anlegen, Migration einspielen, Auth-URLs, E-Mail-Bestätigung und SMTP einrichten, GitHub-Variablen setzen und Pages auf „GitHub Actions“ stellen. Schritte in `docs/SUPABASE_SETUP.md` und README „Betrieb“. Danach `#konto` auf der echten Website testen, auch auf dem iPhone.
+- **ChatGPT/Claude:** Speicher- und Abgleichsbereich ist wieder frei. Wer `Store`, `Sync`, `Auth` oder `cloud.js` ändert, muss `tests/sync.cjs`, `npm run test:db` und `npm run test:e2e` grün halten. Schemaänderungen nur als neue Migrationsdatei.
+- **Offene Abnahmekriterien aus `docs/PUBLIC_PRODUCT.md`:** Besitzerwechsel, Kontolöschung und -export, Profile/Anzeigenamen, Betreiber-Backup-Ablauf mit Restore-Probe, Datenschutztexte, iPhone/Safari.

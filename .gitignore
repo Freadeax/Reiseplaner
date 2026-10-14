@@ -3,3 +3,8 @@ node_modules/
 *.log
 *.json.bak
 Reiseplaner-Sicherung-*.json
+public/
+supabase/.branches
+supabase/.temp
+.env
+.env.*

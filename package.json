@@ -4,11 +4,14 @@
   "version": "0.2.0",
   "description": "Reisen, Tagespläne und Kosten gemeinsam nachvollziehbar planen",
   "scripts": {
-    "test": "node tests/logic.cjs && node tests/start.cjs && node tests/unterwegs.cjs && node tests/search.cjs && node tests/vorlagen.cjs && node tests/saisonpreise.cjs && node tests/zahlungen.cjs && node tests/secure-backup.cjs",
-    "test:browser": "node tests/browser.cjs"
+    "test": "node tests/logic.cjs && node tests/start.cjs && node tests/unterwegs.cjs && node tests/search.cjs && node tests/vorlagen.cjs && node tests/saisonpreise.cjs && node tests/zahlungen.cjs && node tests/sync.cjs && node tests/secure-backup.cjs",
+    "test:browser": "node tests/browser.cjs",
+    "build": "node scripts/build.mjs",
+    "check:artifact": "node scripts/check-artifact.mjs public",
+    "test:db": "node tests/db/supabase-api.cjs",
+    "test:e2e": "node tests/e2e-cloud.cjs"
   },
   "engines": {
     "node": ">=20"
   }
 }
-

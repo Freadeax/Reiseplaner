@@ -6,7 +6,9 @@ Ein Reiseplaner für alle, für Ausflüge, Wochenenden und längere Reisen. Er v
 
 ## Starten
 
-Die App besteht derzeit aus einer Datei. `index.html` im normalen Browser öffnen oder lokal einen kleinen Webserver starten:
+**Website:** Geplant ist `https://freadeax.github.io/Reiseplaner/`. Sie ist erst erreichbar, wenn GitHub Pages in den Repository-Einstellungen aktiviert ist (siehe unten). Bis dahin gilt die lokale Nutzung.
+
+Die App bleibt buildlos: `index.html` plus `config.js` und `cloud.js`. Lokal im Browser öffnen oder einen kleinen Webserver starten:
 
 ```bash
 python3 -m http.server 8000
@@ -47,17 +49,41 @@ Unbekannte Merkmale erfüllen kein Muss. Offene Pflichtgebühren erfüllen kein 
 
 Anbieterzugänge, Quellen und nächste Integrationsschritte: [docs/PROVIDER_INTEGRATION.md](docs/PROVIDER_INTEGRATION.md).
 
-## Konten und dauerhafte Speicherung
+## Konten und dauerhafte Speicherung (Supabase)
 
-Produktziel ist eine öffentliche Anwendung mit eigenen Konten, privaten Reisen und gezielter gemeinsamer Planung. Hosting und Supabase-Anbindung werden in Issue #6 entwickelt; das Ziel allein ist kein Nachweis einer funktionierenden Anmeldung oder Synchronisation. Umfang, Rollenmodell und Freigabekriterien stehen in [docs/PUBLIC_PRODUCT.md](docs/PUBLIC_PRODUCT.md).
+Seit Issue #6 im Code umgesetzt und gegen einen **lokalen** Supabase-Stack geprüft. Ein Produktionsprojekt ist noch nicht verbunden (siehe „Betrieb“).
+
+- **Ohne Konto (Gastmodus):** wie bisher nur in diesem Browser (`rp-trips`).
+- **Mit Konto:**
+  - Registrieren mit Bestätigungs-E-Mail, Anmelden, Abmelden, Passwort vergessen. Der Link führt zurück auf die Website und setzt dort ein neues Passwort.
+  - Reisen werden online gespeichert und zusätzlich je Konto getrennt im Browser zwischengespeichert, auch offline nutzbar.
+  - Die Anzeige oben unterscheidet „Gast“, „Lokal gespeichert“, „Synchronisation ausstehend“, „Offline“, „Online gespeichert“ (erst nach Bestätigung der Datenbank), „Speicherfehler“ und „Konflikt“.
+- **Übernahme lokaler Reisen:** Nie automatisch. Nach der Anmeldung bietet die App eine Vorschau mit Prüfung an. Gleiche IDs werden als Kopie übernommen, die Gast-Kopie bleibt.
+- **Gemeinsam planen:** Eigentümer laden per Link ein. Der Link läuft ab, gilt einmal, ist widerrufbar und optional an eine E-Mail gebunden. Rollen sind „Bearbeiten“ oder „Lesen“ und lassen sich ändern oder entziehen. Rechte setzt die Datenbank durch (Row Level Security), nicht die Oberfläche. Die öffentliche Website-Adresse macht keine Reise öffentlich.
+- **Gleichzeitige Bearbeitung:** Gespeichert wird nur auf die zuletzt bekannte Version. Sonst erscheint ein Konflikt mit der Wahl „Online-Version übernehmen“, „Meine Version als Kopie“ oder „bewusst überschreiben“. Löschungen werden als Markierung übertragen und tauchen nicht wieder auf.
+- **Grenzen:**
+  - Lokaler Speicher ist keine Datensicherung, und der Supabase-Gratistarif hat keine automatischen Backups. Wichtige Reisen zusätzlich als Datei sichern.
+  - Ein Wechsel der Website-Domain überträgt weder Browser-Speicher noch Anmeldung.
+  - Offline lassen sich nur Reisen bearbeiten, die schon im Browser liegen. Offline-Anmeldung und Einladungen sind nicht möglich.
+  - Kein Besitzerwechsel, keine Kontolöschung in der App, kein Realtime-Abgleich (Abgleich bei Änderung und Fokus sowie alle 60 s).
+
+Einrichtung und Betrieb: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md). Hosting und späterer Wechsel zu Cloudflare Pages: [docs/HOSTING_MIGRATION.md](docs/HOSTING_MIGRATION.md). Produktziel und Abnahmekriterien: [docs/PUBLIC_PRODUCT.md](docs/PUBLIC_PRODUCT.md).
+
+## Betrieb: was Philipp einmalig einrichtet
+
+1. Supabase-Projekt (Gratistarif) anlegen und die Migration einspielen. Dazu Auth-URLs, E-Mail-Bestätigung und eigenes SMTP konfigurieren, siehe `docs/SUPABASE_SETUP.md`.
+2. Unter GitHub → *Settings → Secrets and variables → Actions → Variables* setzen: `RP_SUPABASE_URL`, `RP_SUPABASE_PUBLISHABLE_KEY` und `PAGES_ENABLED=true`. Nur öffentliche Werte, niemals Secret- oder service_role-Schlüssel.
+3. GitHub → *Settings → Pages → Build and deployment → Source: GitHub Actions*.
+
+Danach veröffentlicht der Workflow „Tests & Pages“ jeden grünen Stand von `main`.
 
 **Sichern und importieren benötigt normalerweise kein Passwort.** Die Exportdatei enthält eure Reisepläne einschließlich privater Notizen. Bereits passwortgeschützte Altdateien bleiben mit dem damaligen Passwort importierbar. Details zu diesem Altformat stehen in [docs/BACKUP_SECURITY.md](docs/BACKUP_SECURITY.md). Die Export-Schaltflächen für Passwortschutz wurden aus dem normalen Ablauf entfernt; Anmeldung ist davon unabhängig.
 
 ## Weitere Grenzen
 
 - Reisekosten sind zunächst **Planwerte**, kein bestätigter Gesamtpreis. Fehlende Pflichtkosten werden als offen angezeigt.
-- Die Daten liegen im Browser-Speicher des jeweiligen Geräts. Es gibt **keine automatische Synchronisation** zwischen PC und Handy. Nutze den Export für Sicherungen und den manuellen Transfer.
-- Der ältere optionale `window.claude`-Speicherpfad ist eine Altfunktion und kein zugesagter Cloud-Dienst.
+- Ohne Konto liegen die Daten nur im Browser des jeweiligen Geräts. Synchronisation zwischen Geräten gibt es nur mit Konto und eingerichtetem Supabase-Projekt.
+- Der frühere `window.claude`-Speicherpfad wurde entfernt und durch Supabase ersetzt.
 - Frühere Browserprüfungen sind im Status dokumentiert. Für den neuen Finder ist der Klicktest erweitert; sein aktuelles CI-Ergebnis steht bei GitHub Actions. Ein echter iPhone-/Safari-Test steht aus.
 - Keine Buchung, Zahlung oder Anbieteranfrage wird durch die App ausgelöst.
 
@@ -68,6 +94,11 @@ Node.js ab Version 20 genügt; es gibt keine Laufzeit-Abhängigkeiten:
 ```bash
 npm test
 npm run test:browser   # Klicktest in Chromium, braucht Playwright; ohne Playwright übersprungen
+npm run build          # Website-Artefakt nach public/ (mit RP_SUPABASE_* aus der Umgebung)
+npm run check:artifact # nur erlaubte Dateien, keine Schlüssel
+supabase start         # lokaler Supabase-Stack (Docker, Supabase CLI 2.120.0)
+npm run test:db        # Rechte, Auth, Einladungen, Konflikte über die echte API
+npm run test:e2e       # Chromium gegen gebaute Website unter /Reiseplaner/ + lokalen Stack
 ```
 
 Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatte, Kosten, Sicherungsdateien, beschädigten Browser-Speicher, Reisephasen, Kalenderexport und den Aufbau der Startansicht ab.
@@ -76,8 +107,14 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 
 | Pfad | Inhalt |
 | --- | --- |
-| `index.html` | Aktuelle App, einschließlich CSS und JavaScript |
-| `tests/` | Logik-, Start- und Browser-Klickprüfungen |
+| `index.html` | Aktuelle App, einschließlich CSS und JavaScript (Fachlogik, Speicher, Abgleich, Oberfläche) |
+| `cloud.js` | Einziger Supabase-Zugriff (Auth, Reisen, Freigaben) |
+| `config.js` | Öffentliche Konfiguration. Leer bedeutet Gastmodus, der Build erzeugt sie aus Umgebungsvariablen |
+| `vendor/` | supabase-js 2.117.2 (MIT), lokal statt CDN |
+| `scripts/` | `build.mjs` (Artefakt nach `public/`) und `check-artifact.mjs` |
+| `supabase/` | `migrations/*.sql` (Schema, RLS, Funktionen) und `config.toml` (nur lokal) |
+| `.github/workflows/tests.yml` | Prüfungen und Veröffentlichung auf GitHub Pages |
+| `tests/` | Logik-, Start-, Sync- und Browser-Klickprüfungen; `tests/db/` Rechte über die Supabase-API; `tests/e2e-cloud.cjs` Ende-zu-Ende |
 | `sw.js`, `manifest.webmanifest`, `*.png` | Offline-Start und App-Icon |
 | `docs/STATUS.md` | Bestätigter Stand und bekannte Grenzen |
 | `docs/ROADMAP.md` | Nächste Entwicklungsschritte |

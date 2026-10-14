@@ -53,3 +53,21 @@ Exakte Daten/Belegung vor Saisonvergleich, Prüfhinweise ab 31 Tagen und sichtba
 ## Öffentliche Anwendung · 14.10.2026
 
 Verbindlich: für beliebige Nutzer, private Reisen als Standard, gezielte Zusammenarbeit. Produkt-/Datenvertrag und Freigabekriterien: PUBLIC_PRODUCT.md. Normale Sicherungen ohne Passwort; verschlüsselte Altimporte erhalten. Allgemeine neue Reisen ohne persönlichen Startort. Backend/Hosting in Claude #6: private Konten zuerst, danach Reise-Mitgliedschaften und Einladungen mit serverseitigen Rechten, Revisionskonflikten und geprüfter Wiederherstellung. Live-Suche, Szenariokosten, exakte Termine und öffentlicher Betrieb sind getrennte Arbeitspakete, keine schon erfüllten Funktionen.
+
+## Hosting & Backend (Claude, #6)
+
+- **Erledigt in v3.0 (Code und lokale Tests):** GitHub-Pages-Workflow, Supabase-Schema mit RLS, Konten, Offline-Abgleich mit Versionskonflikt, Freigaben per Einladung und bewusste Übernahme der Gast-Reisen.
+- **Nächste Schritte:**
+  1. Produktionsprojekt und Pages einrichten (Philipp).
+  2. CI-Ergebnis am Push prüfen.
+  3. Echte E-Mail über SMTP testen.
+  4. iPhone/Safari: Anmelden, Passwort-Reset und Offline.
+- **Danach:**
+  - Besitzerwechsel (atomar).
+  - Kontolöschung und Datenexport je Konto.
+  - Anzeigenamen statt E-Mail.
+  - Optional Realtime als Benachrichtigung.
+  - Strukturierte Tabellen für Angebote und Zahlungen, sobald Abfragen über mehrere Reisen nötig sind.
+  - Betreiber-Backup mit Restore-Probe.
+- **Später:** Wechsel zu Cloudflare Pages nach `docs/HOSTING_MIGRATION.md`, mit Übergangsphase und demselben Supabase-Projekt.
+
