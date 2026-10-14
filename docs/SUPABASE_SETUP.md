@@ -45,10 +45,16 @@ RLS ist auf allen Tabellen aktiv und erzwungen. `anon` hat keine Rechte, `authen
 
 Ein Besitzerwechsel ist noch nicht umgesetzt. Der Eigentümer kann nicht entfernt werden.
 
+## Produktionsprojekt (Stand 14.10.2026)
+
+- Projekt-URL: `https://sqkszjurzobltvdluiwh.supabase.co` (Projekt-Ref `sqkszjurzobltvdluiwh`). Die URL ist öffentlich und steht auch in der Website-Konfiguration.
+- **Migrationen über die Supabase-GitHub-Integration:** Repository `Freadeax/Reiseplaner`, Working directory `.`, „Deploy to production“ an, Produktionszweig `main`. Neue Dateien in `supabase/migrations/` werden bei jedem Push auf `main` eingespielt. Auth- und API-Einstellungen aus `config.toml` ignoriert die Integration standardmäßig, sie werden im Dashboard gepflegt. **Migrationen deshalb nicht zusätzlich im SQL-Editor ausführen.**
+- Branching (Vorschau-Datenbanken) ist im Gratistarif nicht verfügbar und wird nicht gebraucht.
+
 ## Ersteinrichtung (Philipp, einmalig, Gratistarif)
 
 1. Unter <https://supabase.com/dashboard> ein Projekt anlegen, z. B. „reiseplaner“, Region EU (z. B. Frankfurt). Das Datenbankpasswort im Passwortmanager ablegen und **nicht** ins Repository.
-2. **Migration einspielen** (eine der beiden Varianten):
+2. **Migration einspielen** (genau eine Variante; für das Produktionsprojekt ist die GitHub-Integration aktiv, siehe oben):
    - Mit CLI: `npx supabase@2.120.0 login`, dann `npx supabase@2.120.0 link --project-ref <ref>`, dann `npx supabase@2.120.0 db push`. Das spielt `supabase/migrations/*.sql` ein, nur neue Dateien.
    - Ohne CLI: Den Inhalt von `supabase/migrations/20261014120000_reiseplaner_core.sql` im Dashboard unter *SQL Editor* ausführen, einmalig.
 3. **Authentication → Sign In / Providers → Email:** E-Mail-Anmeldung an, „Confirm email“ an, minimale Passwortlänge 10.
