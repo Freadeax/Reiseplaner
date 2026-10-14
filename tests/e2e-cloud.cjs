@@ -74,6 +74,10 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await p0.goto(BASE); assert((await p0.textContent('#view')).includes('Meine Reisen'));
     await p0.goto(BASE + '#konto'); assert((await p0.textContent('#view')).includes('Anmelden'), 'direkter Link #konto');
     await p0.reload(); assert((await p0.textContent('#view')).includes('Anmelden'), 'Neuladen behält Ansicht');
+    /* Umkreis-Katalog ohne Anmeldung aus der Datenbank (#7) */
+    await p0.goto(BASE + '#entdecken'); await p0.selectOption('#cat-city', { label: 'Stuttgart' });
+    await p0.click('[data-act="cat-search"]'); await p0.waitForSelector('#cat-results');
+    assert((await p0.textContent('#cat-results')).includes('Online-Katalog (Datenbank), Version 1'), 'Katalog kommt aus der Datenbank');
     await p0.goto('http://127.0.0.1:' + PORT + '/Reiseplaner/irgendwas#konto'); await p0.waitForURL(BASE + '#konto'); assert((await p0.textContent('#view')).includes('Anmelden'), '404 leitet zur App');
     await c0.close();
 
@@ -163,5 +167,5 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await A.ctx.close(); await B.ctx.close();
   } finally { await browser.close(); server.close(); execSync('node scripts/build.mjs', { cwd: ROOT, stdio: 'ignore' }); }
   if (errors.length) { console.error('Fehler im Browser:\n' + errors.join('\n')); process.exit(1); }
-  console.log('E2E (Chromium, lokaler Supabase, /Reiseplaner/): Pfade/Direktlinks/404, Registrierung+Bestätigung, Gast-Übernahme mit Vorschau, Online-Bestätigung, Neuladen, Einladung, zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden, Passwort-Reset geprüft.');
+  console.log('E2E (Chromium, lokaler Supabase, /Reiseplaner/): Pfade/Direktlinks/404, Umkreis-Katalog aus der Datenbank, Registrierung+Bestätigung, Gast-Übernahme mit Vorschau, Online-Bestätigung, Neuladen, Einladung, zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden, Passwort-Reset geprüft.');
 })().catch(async e => { console.error(e); try { server.close(); execSync('node scripts/build.mjs', { cwd: ROOT, stdio: 'ignore' }); } catch (x) {} process.exit(1); });

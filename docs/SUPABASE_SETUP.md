@@ -92,6 +92,20 @@ supabase stop
 
 `supabase/config.toml` gilt nur lokal (E-Mails landen in Mailpit, http://127.0.0.1:55324). Die Produktionswerte werden im Dashboard gesetzt.
 
+## Umkreis-Katalog (Issue #7, seit v3.1)
+
+- **Tabellen** `catalog_places` (Ziele) und `catalog_spots` (Attraktionen) mit Koordinaten, Themen, guten Monaten und Dauer. Keine Preise, keine Öffnungszeiten, keine Nutzerdaten.
+- **Rechte:** RLS erzwungen. `anon` und `authenticated` dürfen nur lesen. Schreiben geht ausschließlich über Migrationen, also redaktionell. `tests/db/supabase-api.cjs` prüft, dass Einfügen, Ändern und Löschen abgelehnt werden.
+- **Suche:** `catalog_search(p_lat, p_lon, p_max_km, p_min_km, p_kinds)`.
+  - Luftlinie nach Haversine, geschätzte Straßen-km = Luftlinie × 1,3.
+  - Bereich [min, max], Themen-Überschneidung, sortiert nach Luftlinie, höchstens 80 Ziele.
+  - Ergebnis `{version, places:[…]}`.
+  - Dieselbe Regel steht in `catalog.js`. Der Datenbanktest vergleicht beide Ergebnisse für mehrere Abfragen.
+- **Eine Quelle:** `catalog-data.js`. Nach Änderungen `node scripts/catalog-sql.mjs` ausführen. Für eine neue Version `version` erhöhen und `--stamp JJJJMMTTHHMMSS` angeben, dann entsteht eine neue Seed-Migration. `npm test` schlägt fehl, wenn Daten ungültig oder Migrationen veraltet sind.
+- **Gültigkeitsprüfung:** Prüfung von IDs, Koordinaten, Monaten, Themen und Entfernung der Attraktion zum Ziel (höchstens 60 km). Texte mit Preis- oder Uhrzeitangaben werden abgelehnt.
+- **Ausweg ohne Integration:** `supabase/manual/apply-catalog-v1.sql` im SQL-Editor. Die Datei läuft in einer Transaktion und verbucht beide Migrationen in der Historie. Lokal geprüft: erster Lauf ok, zweiter bricht ohne Änderung ab.
+- **App ohne Datenbank:** Ohne Datenbank, offline oder bei leerem Katalog rechnet die App mit der Offline-Kopie und zeigt die Quelle an.
+
 ## Änderungen am Schema
 
 Neue Datei `supabase/migrations/<JJJJMMTTHHMMSS>_<name>.sql`, niemals bereits eingespielte Dateien ändern. Erst lokal mit `supabase db reset` und den Tests prüfen, dann `db push`. Änderungen am Dokumentformat (`schemaVersion`) brauchen eine Migration in der App (`migrateTrip`) und in der Datenbank-Prüfung.

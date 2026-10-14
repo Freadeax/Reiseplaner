@@ -117,6 +117,12 @@
       var rows = unwrap(await need().from('trip_invites').update({ revoked_at: new Date().toISOString() }).eq('id', id).is('revoked_at', null).select('id'), 'Einladung nicht widerrufen');
       if (!rows.length) throw new Error('Einladung nicht widerrufen');
     },
-    acceptInvite: async function (token) { return unwrap(await need().rpc('accept_trip_invite', { p_token: token }), 'Einladung ungültig'); }
+    acceptInvite: async function (token) { return unwrap(await need().rpc('accept_trip_invite', { p_token: token }), 'Einladung ungültig'); },
+
+    /* ---------- Umkreis-Katalog (Issue #7), öffentlich lesbar, auch ohne Anmeldung ---------- */
+    catalogSearch: async function (q) {
+      await init();
+      return unwrap(await need().rpc('catalog_search', { p_lat: q.lat, p_lon: q.lon, p_max_km: Math.round(q.maxKm), p_min_km: Math.round(q.minKm || 0), p_kinds: q.kinds && q.kinds.length ? q.kinds : null }), 'Katalog nicht geladen');
+    }
   };
 })();

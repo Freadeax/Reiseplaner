@@ -23,6 +23,80 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## v3.1 · Umkreis-Katalog „Entdecken“ (Claude, 14.10.2026, Issue #7)
+
+Ausgangsstand `8bf665f`. Auftrag Philipp: ein fester Katalog auf der Datenbank, der Orte und Attraktionen anhand von Abfahrtsort und Kilometern vorschlägt. Mehr Tiefe, kreativ weitergedacht.
+
+**Umgesetzt:**
+- **Datenbank:**
+  - Migration `20261014160000_catalog.sql`: Tabellen `catalog_places` und `catalog_spots`, öffentlich nur lesbar.
+  - RPC `catalog_search` mit Entfernungsregel.
+  - Seed-Migration `20261014160100_catalog_seed_v1.sql`, erzeugt aus `catalog-data.js`.
+  - Ausweg für den SQL-Editor: `supabase/manual/apply-catalog-v1.sql`.
+- **Daten:**
+  - 54 Ziele in DE, AT, CH, FR, IT, CZ und NL mit 255 Attraktionen und 12 Themen, darunter „Höhlen & Unterwelt“ und „Technik & Industrie“.
+  - Je Ziel gute Monate, übliche Dauer, Kurzbeschreibung und eine „Ums Eck gedacht“-Idee.
+  - Je Attraktion Dauer, drinnen, kindgeeignet und übliche Saison.
+  - **Keine Preise, keine Öffnungszeiten.** Saisonangaben sind als „prüfen“ gekennzeichnet. Koordinaten sind ungefähre Lagepunkte.
+  - Kartenlinks führen auf eine Kartensuche, nicht auf erfundene Anbieterseiten.
+- **App `#entdecken`** (Kopfzeile „Entdecken“ und Startseite):
+  - Abfahrtsort per Standort (auf etwa 1 km gerundet), Ortssuche über OpenStreetMap Nominatim (nur auf Knopfdruck) oder Liste mit 49 Städten.
+  - Bereiche Feierabend, Tagesausflug, Wochenende, Langes Wochenende und Richtig weg, oder frei von–bis.
+  - Themen, Monat, Dauer, „Mit Kindern“ und „Auch bei Schlechtwetter“.
+  - Bewertung nach Themen-Treffern, Saison, Dauer, Kinder und Drinnen-Ideen. Im Reisemonat übliche geschlossene Ideen werden ausgeblendet und gezählt.
+  - „Überrasch mich“ wählt zufällig unter den oberen Treffern.
+  - Im Ziel-Blatt:
+    - vorausgewählte Ideen;
+    - **Zwischenstopps auf dem Weg** (Umweg höchstens etwa 33 km, im mittleren Teil der Strecke);
+    - **Ausflüge vom Ziel** (bis 50 km).
+  - „Als neue Reise anlegen“ bzw. „Zur Reise hinzufügen“:
+    - **automatisches Tagesgerüst**: Anreisetag ab Nachmittag, Abreisetag vormittags, lange Touren ganztags, Drinnen-Ideen nachmittags, Abend-Ideen abends;
+    - Stopps am Anreisetag mittags;
+    - Umwege und Ausflugs-km fließen als geschätzte Zusatz-km in die Anreisekosten;
+    - Reiseart und Monat werden vorbelegt.
+  - In einer Katalogreise: Unternehmungen → „Mehr Ideen aus dem Katalog rund ums Ziel“.
+  - Quelle: zuerst die Datenbank, sonst die Offline-Kopie `catalog-data.js` mit derselben Rechnung. Die Quelle steht sichtbar über den Ergebnissen.
+- **Ehrliche Kosten:**
+  - Übernommene Ideen zeigen „Preis offen, vor Ort prüfen“ statt „kostenlos“. Preis eintragen oder „Ist kostenlos“ wählen.
+  - Der Plan-Check meldet offene Preise und „Fahrstrecke geschätzt (Luftlinie × 1,3)“, bis die km von Hand geändert werden.
+  - Eigene Katalog-Ideen mit Merkmal „drinnen“ erscheinen jetzt auch im Plan B bei Schlechtwetter.
+- **Reiseformat:** nur optionale, additive Felder, kein neues `schemaVersion`.
+  - An der Reise: `kmSrc: 'schaetzung'` und `destGeo {lat, lon, place, v}`.
+  - An eigenen Unternehmungen: `costOpen`, `indoor`, `km`, `catalogSpot`, `ort`, `map`.
+  - Die Sicherungsprüfung (`validateExtras`) lehnt ungültige Werte ab. Ältere App-Versionen ignorieren die Felder; dort würden übernommene Ideen wie bisher als „kostenlos“ erscheinen.
+- **Browser-Speicher:** Abfahrtsort und Filter liegen nur in `rp-entdecken`, nicht in den Reisedaten.
+- **Version:** Service-Worker-Cache `reiseplaner-v3` mit `catalog.js` und `catalog-data.js`. Build und Artefaktprüfung kennen beide Dateien. Kopfzeile v3.1.
+
+**Ausgeführte Tests (14.10.2026, Container mit Docker, Supabase CLI 2.120.0, Chromium über Playwright):**
+- `npm test` grün, darin neu `tests/catalog.cjs`. Abgedeckt sind:
+  - Daten gültig und Migrationen aktuell, Haversine gegen die bekannte Strecke Berlin–München;
+  - Kilometerbereich, Themen und Saison, Stopps (Göppingen → Berlin ohne Bodensee oder Hamburg), Ausflüge, Tagesgerüst;
+  - offener Preis, Plan-Check und Sicherungsprüfung;
+  - Rückfall bei leerer oder fehlerhafter Datenbank und Verarbeitung einer Datenbank-Antwort.
+- `npm run test:db` grün:
+  - Katalog ohne Anmeldung lesbar, anonym und angemeldet nicht schreibbar;
+  - **Datenbank und App liefern bei vier Abfragen identische Ziele, Entfernungen und Attraktionen**;
+  - ungültige Eingaben werden abgelehnt.
+- `npm run test:browser` grün:
+  - neuer Ablauf in Chromium Desktop und 320 px dunkel: Ortssuche (Nominatim-Antwort im Test nachgebildet), Bereich, Thema, Ergebnis, Reise mit Tagesgerüst, offener Preis, Preis eintragen, weitere Ideen, Zwischenstopps, Filter nach Neuladen gemerkt;
+  - kein horizontales Scrollen.
+- `npm run test:e2e` grün: Die gebaute Website unter `/Reiseplaner/` holt den Katalog ohne Anmeldung aus dem lokalen Supabase-Stack („Online-Katalog (Datenbank), Version 1“).
+- `supabase db lint` ohne Befund.
+- `supabase/manual/apply-catalog-v1.sql` auf der lokalen Datenbank: erster Lauf ok (54/255, Historie verbucht), zweiter bricht ab, danach `test:db` grün.
+- Build und Artefaktprüfung grün. Screenshots 390 px gesichtet.
+
+**Grenzen:**
+- Die echte Nominatim-Abfrage und der Standort wurden nur im Code geprüft; im Test war die Antwort nachgebildet.
+- Kein iPhone/Safari.
+- Produktion: Der Katalog ist erst nach dem Einspielen der zwei neuen Migrationen online. Bis dahin nutzt die Website die Offline-Kopie, und das wird angezeigt.
+- Saison, Inhalte und Lage der Attraktionen stammen aus redaktionellem Allgemeinwissen, Stand 14.10.2026, nicht live recherchiert. Vor einer Fahrt beim Anbieter prüfen.
+- Straßen-km und Fahrzeit sind Schätzungen, kein Routing.
+
+**Nächste Schritte:**
+- **Philipp:** nach dem nächsten Deploy prüfen, ob die Integration die Katalog-Migrationen einspielt (`/rest/v1/catalog_places?select=id&limit=1` liefert dann Daten), sonst die manuelle SQL-Datei ausführen. Danach auf dem iPhone „Entdecken“ mit Standort testen.
+- **Alle:** Katalog über `catalog-data.js` erweitern (Norden, Osten und Westen sind dünner besetzt), nur mit Allgemeinwissen ohne Preise.
+- **Später:** echte Fahrzeiten über einen Routing-Dienst (nur mit Freigabe und Grenzen); Nutzer-Vorschläge für den Katalog mit Moderation.
+
 ## v3.0 · GitHub Pages + Supabase (Claude, 14.10.2026, Issue #6)
 
 Ausgangspunkt `d7112a3`. Vor dem Push mit ChatGPTs `1c67ff5` (öffentliches Produkt, neutrale Standardwerte, Export ohne Passwort) zusammengeführt. Mit `docs/PUBLIC_PRODUCT.md` abgeglichen.

@@ -71,3 +71,18 @@ Verbindlich: für beliebige Nutzer, private Reisen als Standard, gezielte Zusamm
   - Betreiber-Backup mit Restore-Probe.
 - **Später:** Wechsel zu Cloudflare Pages nach `docs/HOSTING_MIGRATION.md`, mit Übergangsphase und demselben Supabase-Projekt.
 
+
+## Umkreis-Katalog (Claude, #7)
+
+- **Erledigt in v3.1 (Code und lokale Tests):** Katalog in der Datenbank (54 Ziele, 255 Attraktionen), Suche nach Abfahrtsort und Kilometerbereich, Themen, Saison, Zwischenstopps, Ausflüge vom Ziel, Tagesgerüst, „Preis offen“ statt „kostenlos“.
+- **Nächste Schritte:**
+  - Migrationen in der Produktion bestätigen.
+  - iPhone-Test mit Standort.
+  - Katalog in dünn besetzten Regionen ausbauen (Nordwesten, Osten, Benelux, Dänemark, Polen).
+- **Ideen:**
+  - echte Fahrzeiten per Routing-Dienst mit Freigabe;
+  - Bahn-Erreichbarkeit als Thema;
+  - Merkliste „Irgendwann mal“ je Konto (eigene Tabelle mit RLS);
+  - moderierte Nutzervorschläge;
+  - Saisonkalender, also wann ein Ziel am schönsten ist, als Übersicht;
+  - „Rundreise bauen“: mehrere Ziele hintereinander mit Etappen-km.

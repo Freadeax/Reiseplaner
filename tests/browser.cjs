@@ -40,6 +40,77 @@ async function noOverflow(p, where) {
 }
 const viewText = p => p.textContent('#view');
 
+/* Umkreis-Katalog (#7): Abfahrtsort suchen (Nominatim-Antwort im Test nachgebildet), Bereich, Thema, Ergebnis,
+   Reise mit Tagesgerüst anlegen, offener Preis, geschätzte Fahrstrecke, weitere Ideen, Zwischenstopps. */
+async function entdecken(browser, base, name, ctxOpts) {
+  const ctx = await browser.newContext(Object.assign({ serviceWorkers: 'block' }, ctxOpts));
+  const p = await ctx.newPage();
+  p.on('pageerror', e => errors.push(name + ' Entdecken: ' + e.message));
+  await p.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+  let geoCalls = 0;
+  await p.route(/nominatim\.openstreetmap\.org/, r => { geoCalls++; r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([{ display_name: 'Göppingen, Landkreis Göppingen, Baden-Württemberg, Deutschland', lat: '48.7035', lon: '9.6522' }]) }); });
+  await p.goto(base + '/index.html');
+  await p.click('header [data-go="entdecken"]');
+  await p.waitForSelector('text=Wohin von hier aus?');
+  assert.equal(await p.isDisabled('[data-act="cat-search"]'), true, name + ': Suche ohne Abfahrtsort gesperrt');
+  await noOverflow(p, name + ' Entdecken leer');
+  await p.fill('#cat-q', 'Göppingen');
+  await p.click('[data-act="cat-geo-search"]');
+  await p.waitForSelector('[data-act="cat-pick"]');
+  assert.equal(geoCalls, 1, name + ': Ortssuche nur auf Knopfdruck');
+  await p.click('[data-act="cat-pick"][data-val="1"]');
+  assert((await viewText(p)).includes('Start: Göppingen, Landkreis Göppingen'), name + ': Abfahrtsort übernommen');
+  await p.click('[data-act="cat-kind"][data-val="burg"]');
+  await p.click('[data-act="cat-search"]');
+  await p.waitForSelector('#cat-results');
+  let txt = await viewText(p);
+  assert(txt.includes('Bad Urach') && txt.includes('Offline-Kopie in der App'), name + ': Treffer und Quelle');
+  assert(!txt.includes('Rügen'), name + ': nichts außerhalb des Bereichs');
+  await noOverflow(p, name + ' Entdecken Ergebnisse');
+  await p.click('[data-act="cat-open"][data-val="bad-urach"]');
+  await p.waitForSelector('#cat-stops >> text=kurze Strecken');
+  await p.waitForSelector('#cat-near input[data-cs]');
+  const pre = await p.$$eval('.sheet input[data-cs]:checked', l => l.length);
+  assert(pre >= 2, name + ': Ideen vorausgewählt');
+  await p.check('#cat-near input[data-cs] >> nth=0');
+  await p.fill('#cat-n', '1');
+  await p.click('[data-act="cat-create"]');
+  await p.waitForSelector('.tabs');
+  assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': nach Anlegen im Tagesplan');
+  const items = await p.$$eval('.item[data-act="item"]', l => l.length);
+  assert(items >= 2, name + ': Tagesgerüst angelegt');
+  await noOverflow(p, name + ' Katalogreise Tagesplan');
+  await p.click('.tab[data-go$="-ueber"]');
+  txt = await viewText(p);
+  assert(txt.includes('Fahrstrecke geschätzt') && txt.includes('ohne Preis'), name + ': Plan-Check meldet Schätzung und offene Preise');
+  await p.click('.tab[data-go$="-unternehmen"]');
+  assert((await viewText(p)).includes('Preis offen, vor Ort prüfen'), name + ': offener Preis statt kostenlos');
+  await p.click('[data-act="act-view"] >> nth=0');
+  await p.fill('#ap-cost', '7');
+  await p.click('[data-act="act-price"]');
+  assert((await viewText(p)).includes('7 € p. P.'), name + ': eingetragener Preis');
+  await p.click('[data-act="cat-trip-ideas"]');
+  await p.waitForSelector('#cat-trip-ideas input[data-cs]');
+  await p.check('#cat-trip-ideas input[data-cs] >> nth=0');
+  const before = await p.$$eval('[data-act="act-view"]', l => l.length);
+  await p.click('[data-act="cat-trip-add"]');
+  assert.equal(await p.$$eval('[data-act="act-view"]', l => l.length), before + 1, name + ': weitere Idee hinzugefügt');
+  /* Weite Strecke mit Zwischenstopps; Filter bleiben nach Neuladen erhalten */
+  await p.click('header [data-go="entdecken"]');
+  await p.click('[data-act="cat-kind"][data-val="burg"]');
+  await p.click('[data-act="cat-range"][data-val="weit"]');
+  await p.click('[data-act="cat-search"]');
+  await p.waitForSelector('[data-act="cat-open"][data-val="berlin"]');
+  await p.click('[data-act="cat-open"][data-val="berlin"]');
+  await p.waitForSelector('#cat-stops input[data-cs]');
+  await p.click('[data-act="sheet-x"]');
+  await p.reload();
+  await p.click('header [data-go="entdecken"]');
+  txt = await viewText(p);
+  assert(txt.includes('Start: Göppingen') && await p.getAttribute('[data-act="cat-range"][data-val="weit"]', 'aria-pressed') !== 'false', name + ': Abfahrtsort und Bereich gemerkt');
+  await ctx.close();
+}
+
 async function run(browser, base, name, ctxOpts, now) {
   const ctx = await browser.newContext(Object.assign({ acceptDownloads: true, serviceWorkers: 'block' }, ctxOpts));
   const p = await ctx.newPage();
@@ -340,13 +411,15 @@ async function offline(browser, base) {
     await run(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } }, now);
     await run(browser, base, 'mobil', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, now);
     await run(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' }, now);
+    await entdecken(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } });
+    await entdecken(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' });
     await offline(browser, base);
   } finally {
     await browser.close();
     srv.close();
   }
   if (errors.length) { console.error('JavaScript-Fehler:\n' + errors.join('\n')); process.exit(1); }
-  console.log('Browser-Klicktest (Chromium: Desktop, Mobilbreite, 320 px dunkel) bestanden.');
+  console.log('Browser-Klicktest (Chromium: Desktop, Mobilbreite, 320 px dunkel; Umkreis-Katalog Desktop und 320 px) bestanden.');
 })().catch(e => { console.error(e); process.exit(1); });
 
 

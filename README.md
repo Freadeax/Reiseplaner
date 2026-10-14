@@ -19,6 +19,7 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 ## Was bereits geht
 
 - Reisen mit festem, flexiblem oder offenem Zeitraum anlegen und bearbeiten, leer oder mit einer Vorlage (Wochenende, Städtereise, Tagesausflug, Sommer-, Winterurlaub; Silvester als ausgefülltes Beispiel)
+- **Entdecken (Umkreis-Katalog, v3.1):** Abfahrtsort per Standort, Ortssuche oder Städteliste wählen, Kilometerbereich (z. B. „Wochenende 80–350 km“ oder frei von–bis), Themen, Monat, Dauer, „Mit Kindern“ und „Auch bei Schlechtwetter“. Der Katalog schlägt aus 54 Zielen in Deutschland und den Nachbarländern mit 255 Attraktionen passende Ziele vor, mit Zwischenstopps auf dem Weg und Ausflügen vom Ziel. „Überrasch mich“ wählt zufällig unter den besten Treffern. Auf Knopfdruck entsteht eine Reise mit verteiltem Tagesgerüst. Keine Preise und keine Öffnungszeiten: übernommene Ideen stehen auf „Preis offen“, bis ihr einen Betrag eintragt. Kilometer und Fahrzeit sind gekennzeichnete Schätzungen (Luftlinie × 1,3)
 - Beispielkatalog für vier Winterregionen mit Unterkünften und Aktivitäten
 - Tagesplan, Kostenübersicht, Pack- und Buchungscheckliste
 - Eigene Unterkunft, Aktivität und Kostenposten ergänzen
@@ -77,6 +78,8 @@ Einrichtung und Betrieb: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md). Hosti
 
 Danach veröffentlicht der Workflow „Tests & Pages“ jeden grünen Stand von `main`.
 
+Der Umkreis-Katalog kommt aus denselben Migrationen. Spielt die GitHub-Integration sie nicht ein, einmalig `supabase/manual/apply-catalog-v1.sql` im SQL-Editor ausführen. Bis dahin nutzt die Website automatisch die Offline-Kopie in der App und sagt das auch.
+
 **Sichern und importieren benötigt normalerweise kein Passwort.** Die Exportdatei enthält eure Reisepläne einschließlich privater Notizen. Bereits passwortgeschützte Altdateien bleiben mit dem damaligen Passwort importierbar. Details zu diesem Altformat stehen in [docs/BACKUP_SECURITY.md](docs/BACKUP_SECURITY.md). Die Export-Schaltflächen für Passwortschutz wurden aus dem normalen Ablauf entfernt; Anmeldung ist davon unabhängig.
 
 ## Weitere Grenzen
@@ -108,7 +111,9 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | Pfad | Inhalt |
 | --- | --- |
 | `index.html` | Aktuelle App, einschließlich CSS und JavaScript (Fachlogik, Speicher, Abgleich, Oberfläche) |
-| `cloud.js` | Einziger Supabase-Zugriff (Auth, Reisen, Freigaben) |
+| `cloud.js` | Einziger Supabase-Zugriff (Auth, Reisen, Freigaben, Katalogsuche) |
+| `catalog.js` | Rechenregeln des Umkreis-Katalogs (Entfernung, Bereich, Bewertung, Stopps, Tagesgerüst) |
+| `catalog-data.js` | Katalogdaten, einzige Quelle; daraus erzeugt `scripts/catalog-sql.mjs` die Seed-Migration |
 | `config.js` | Öffentliche Konfiguration. Leer bedeutet Gastmodus, der Build erzeugt sie aus Umgebungsvariablen |
 | `vendor/` | supabase-js 2.117.2 (MIT), lokal statt CDN |
 | `scripts/` | `build.mjs` (Artefakt nach `public/`) und `check-artifact.mjs` |

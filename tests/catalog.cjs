@@ -1,0 +1,175 @@
+/* Umkreis-Katalog (Issue #7): Daten, Entfernungsregel, Bewertung, Stopps, Tagesgerüst und Übernahme in eine Reise.
+   Node-Test, kein Browser- und kein Datenbanktest (Gleichlauf mit public.catalog_search prüft tests/db/supabase-api.cjs). */
+const fs = require('fs');
+const vm = require('vm');
+const path = require('path');
+const assert = require('assert');
+const { execFileSync } = require('child_process');
+const ROOT = path.join(__dirname, '..');
+const C = require('../catalog.js');
+
+const dctx = { window: {} }; vm.createContext(dctx);
+vm.runInContext(fs.readFileSync(path.join(ROOT, 'catalog-data.js'), 'utf8'), dctx);
+const DATA = JSON.parse(JSON.stringify(dctx.window.RP_CATALOG));
+
+/* Daten gültig und Migrationen aktuell (gleiche Prüfung wie scripts/catalog-sql.mjs --check) */
+execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'catalog-sql.mjs'), '--check'], { stdio: 'pipe' });
+assert(DATA.places.length >= 40, 'mindestens 40 Ziele');
+const allSpots = DATA.places.flatMap(p => p.spots);
+assert(allSpots.length >= 200, 'mindestens 200 Attraktionen');
+for (const k of Object.keys(C.KINDS)) assert(DATA.places.some(p => p.kinds.includes(k)), 'Thema ohne Ziel: ' + k);
+const countries = new Set(DATA.places.map(p => p.country));
+assert(countries.size >= 5, 'Ziele in mehreren Ländern');
+assert(!/€|kostenlos|gratis/i.test(fs.readFileSync(path.join(ROOT, 'catalog-data.js'), 'utf8')), 'keine Preisangaben im Katalog');
+
+/* Haversine: bekannte Strecke Berlin–München ≈ 504 km Luftlinie */
+const berlin = { lat: 52.520, lon: 13.405 }, muenchen = { lat: 48.137, lon: 11.575 };
+assert(Math.abs(C.airKm(berlin, muenchen) - 504) < 3, 'Luftlinie Berlin–München');
+assert.equal(C.airKm(berlin, berlin), 0);
+assert.equal(C.roadKm(100), 130);
+assert.equal(C.driveMin(100), 100); // 130 km bei 80 km/h ≈ 97,5 → auf 5 Minuten gerundet
+assert.equal(C.durText(95), '1 Std. 35 Min.');
+
+/* Abfrage prüfen */
+assert.throws(() => C.checkQuery({ lat: 99, lon: 0, maxKm: 100 }), /Koordinaten/);
+assert.throws(() => C.checkQuery({ lat: 48, lon: 9, maxKm: 0 }), /höchstens/);
+assert.throws(() => C.checkQuery({ lat: 48, lon: 9, maxKm: 5000 }), /höchstens/);
+assert.throws(() => C.checkQuery({ lat: 48, lon: 9, maxKm: 100, minKm: 100 }), /kleiner/);
+
+/* Kilometerbereich: alle Treffer innerhalb [min, max] geschätzter Straßen-km, sortiert nach Luftlinie */
+const goe = { lat: 48.703, lon: 9.652 }; // Göppingen
+const near = C.searchLocal(DATA, { lat: goe.lat, lon: goe.lon, maxKm: 150 });
+assert(near.places.length >= 3);
+for (const p of near.places) assert(p.airKm * C.ROAD_FACTOR <= 150 + 0.1);
+for (let i = 1; i < near.places.length; i++) assert(near.places[i].airKm >= near.places[i - 1].airKm);
+assert.equal(near.places[0].id, 'bad-urach');
+const far = C.searchLocal(DATA, { lat: goe.lat, lon: goe.lon, minKm: 400, maxKm: 900 });
+assert(far.places.length >= 5);
+for (const p of far.places) { const r = p.airKm * C.ROAD_FACTOR; assert(r >= 399.9 && r <= 900.1, p.id + ' außerhalb'); }
+assert(!far.places.some(p => near.places.some(q => q.id === p.id)), 'Bereiche ohne Überschneidung');
+/* Themenfilter: nur Ziele mit mindestens einem gewählten Thema */
+const caves = C.searchLocal(DATA, { lat: goe.lat, lon: goe.lon, maxKm: 600, kinds: ['unterwelt'] });
+assert(caves.places.length >= 3 && caves.places.every(p => p.kinds.includes('unterwelt')));
+/* Ein anderer Abfahrtsort ergibt andere Ziele: Hamburg nah = Norden */
+const hh = C.searchLocal(DATA, { lat: 53.551, lon: 9.994, maxKm: 200 });
+assert(hh.places.some(p => p.id === 'luebeck') && !hh.places.some(p => p.id === 'bad-urach'));
+
+/* Bewertung: Saison, Dauer, Familie, Schlechtwetter; geschlossene Ideen ausgeblendet */
+const ranked = C.rank(far, { kinds: ['stadt'], month: 1, nights: 2 });
+assert(ranked[0].score >= ranked[ranked.length - 1].score);
+const top = ranked[0];
+assert(top.place.kinds.includes('stadt'), 'Themen-Treffer zuerst');
+const sbg = C.rank(C.searchLocal(DATA, { lat: 47.8, lon: 13.04, maxKm: 30 }), { month: 1 }).find(x => x.place.id === 'salzburg');
+assert(sbg && !sbg.spots.some(s => s.id === 'salzburg-eisriesenwelt'), 'Eishöhle im Januar ausgeblendet');
+assert(sbg.closed >= 1);
+const rainy = C.rank(near, { rainy: true });
+assert(rainy[0].indoor >= 1, 'Schlechtwetter bevorzugt Ziele mit Drinnen-Ideen');
+/* Überrasch mich: deterministisch mit eigener Zufallsquelle, nur aus den oberen Treffern */
+assert.equal(C.surprise([], () => 0), null);
+assert.equal(C.surprise(ranked, () => 0).place.id, ranked[0].place.id);
+assert(ranked.slice(0, Math.max(3, Math.ceil(ranked.length / 3))).includes(C.surprise(ranked, () => 0.999)));
+
+/* Zwischenstopps: Göppingen → Berlin führt über Franken/Thüringen/Sachsen, nicht über Bodensee oder Hamburg */
+const all = DATA.places.map(C.normPlace);
+const berlinPlace = all.find(p => p.id === 'berlin');
+const stops = C.stopsAlong(all, goe, berlinPlace);
+assert(stops.length >= 3, 'Stopps gefunden');
+for (const s of stops) {
+  assert(s.place.id !== 'berlin' && s.detourKm <= Math.round(25 * C.ROAD_FACTOR));
+  assert(!['bodensee-nord', 'hamburg', 'ruegen', 'koeln'].includes(s.place.id), 'kein Umweg-Ziel: ' + s.place.id);
+}
+for (let i = 1; i < stops.length; i++) assert(stops[i].fromStart >= stops[i - 1].fromStart, 'Stopps in Fahrtrichtung sortiert');
+assert.deepEqual(C.stopsAlong(all, goe, all.find(p => p.id === 'bad-urach')), [], 'kurze Strecke ohne Stopps');
+/* Ausflüge vom Ziel: im Umkreis, ohne eigene Attraktionen */
+const nb = C.nearbyFrom(all, all.find(p => p.id === 'colmar'), 50);
+assert(nb.length && nb.every(n => n.place.id !== 'colmar' && n.airKm <= 50));
+assert(nb.some(n => n.place.id === 'freiburg' || n.place.id === 'strassburg'));
+
+/* Tagesgerüst */
+const sp = (id, hours, extra) => Object.assign({ id, hours, indoor: false, slot: '' }, extra);
+let plan = C.dayPlan([sp('a', 2), sp('b', 2), sp('c', 2), sp('d', 2)], 0);
+assert.equal(plan.length, 2, 'Tagesausflug: Vormittag und Nachmittag, der Abend bleibt für Abend-Ideen');
+assert(!plan.some(i => i.slot === 'abend'));
+assert(plan.every(i => i.day === 0));
+plan = C.dayPlan([sp('lang', 5), sp('kurz', 1), sp('drin', 2, { indoor: true }), sp('abend', 1, { slot: 'abend' })], 2);
+const at = id => plan.find(i => i.spotId === id);
+assert.equal(at('lang').slot, 'morgen'); assert.notEqual(at('lang').day, 0, 'ganztägige Tour nicht am Anreisetag'); assert.notEqual(at('lang').day, 2);
+assert(!plan.some(i => i.day === 0 && i.slot === 'morgen'), 'Anreisetag erst ab Nachmittag');
+assert(!plan.some(i => i.day === 2 && i.slot !== 'morgen'), 'Abreisetag nur vormittags');
+assert.equal(at('abend').slot, 'abend');
+assert.equal(at('drin').slot, 'nachm');
+const keys = plan.map(i => i.day + i.slot); assert.equal(new Set(keys).size, keys.length, 'keine Doppelbelegung');
+assert.equal(plan.find(i => i.spotId === 'lang' && i.day === at('lang').day && i.slot === 'nachm'), undefined);
+assert(!plan.some(i => i.day === at('lang').day && i.slot === 'nachm'), 'Nachmittag nach ganztägiger Tour frei');
+
+/* Übernahme als Unternehmung: Preis offen, Kartenlink, Herkunft */
+let n = 0; const fakeUid = p => p + 'x' + (++n);
+const act = C.toAct(DATA.places[0].spots[0], DATA.places[0], fakeUid);
+assert(act.custom && act.costOpen === true && act.cost === 0 && act.catalogSpot === DATA.places[0].spots[0].id && act.map);
+assert(/prüfen/.test(act.note));
+assert.equal(C.toAct(Object.assign({}, DATA.places[0].spots[0], { kind: 'therme' }), DATA.places[0], fakeUid).cat, 'wellness');
+
+/* App: Übernahme in eine Reise, Kosten „Preis offen“, Plan-Check, Sicherung bleibt gültig */
+const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
+const win = { addEventListener() {}, RPCatalog: C, RP_CATALOG: DATA };
+const ctx = { window: win, document: { addEventListener() {}, querySelector() { return null; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild() {} }, head: { appendChild() {} } },
+  localStorage: { getItem() { return null; }, setItem() {} }, setTimeout, clearTimeout, console, navigator: {} };
+vm.createContext(ctx); vm.runInContext(code, ctx);
+const a = win.__app;
+(async () => {
+  const r = await a.catalogQuery({ lat: goe.lat, lon: goe.lon, maxKm: 150, minKm: 0 });
+  assert.equal(r.source, 'lokal', 'ohne Datenbank: Offline-Kopie');
+  assert.deepEqual(r.places.map(p => p.id), near.places.map(p => p.id));
+  const x = C.rank(r, {})[0], p = x.place;
+  const t = a.newTrip({ nights: 2, origin: 'Göppingen', km: x.roadKm, kmSrc: 'schaetzung', destGeo: { lat: p.lat, lon: p.lon, place: p.id, v: 1 } });
+  const picked = x.spots.slice(0, 3).map(s => ({ spot: s, place: p, kind: 'dest' }));
+  const nb2 = C.nearbyFrom(all, p, 50)[0];
+  picked.push({ spot: nb2.spot, place: nb2.place, kind: 'near', roadKm: nb2.roadKm });
+  const res = a.catApply(t, picked, 2);
+  assert.equal(res.acts, 4); assert.equal(t.customActs.length, 4);
+  assert(res.planned >= 3, 'Ideen eingeplant');
+  assert(t.items.every(i => t.customActs.some(c => c.id === i.act)), 'Tagesplan zeigt nur übernommene Ideen');
+  const nearAct = t.customActs.find(c => c.catalogSpot === nb2.spot.id);
+  assert.equal(nearAct.km, nb2.roadKm * 2, 'Ausflug vom Ziel: Hin- und Rückweg als Zusatz-km');
+  const c0 = t.customActs[0];
+  assert.equal(a.actCost(t, c0).txt, 'Preis offen, vor Ort prüfen');
+  assert.equal(a.actCost(t, c0).free, false, 'offener Preis ist nicht kostenlos');
+  const oc = a.openCosts(t).join(' | ');
+  assert(/ohne Preis/.test(oc), 'Plan-Check meldet offene Preise');
+  assert(/Fahrstrecke geschätzt/.test(oc), 'Plan-Check meldet geschätzte Fahrstrecke');
+  /* geschätzte km fließen in die Anreisekosten ein */
+  const anreise = a.cost(t).lines.filter(l => l.cat === 'anreise').reduce((s, l) => s + l.c, 0);
+  assert(anreise > 0);
+  /* Eigener Preis ersetzt „offen“ */
+  c0.cost = 12; c0.costOpen = false;
+  assert(/12/.test(a.actCost(t, c0).txt));
+  /* Sicherung: neue Felder sind gültig, Unsinn wird abgelehnt */
+  t.id = 'tcat1'; t.title = 'Katalogreise';
+  const backup = { format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(t))] };
+  assert.equal(a.validateBackup(backup)[0].destGeo.place, p.id);
+  const bad = JSON.parse(JSON.stringify(backup)); bad.trips[0].kmSrc = 'geraten';
+  assert.throws(() => a.validateBackup(bad), /Fahrstrecke/);
+  const bad2 = JSON.parse(JSON.stringify(backup)); bad2.trips[0].customActs[0].costOpen = 'ja';
+  assert.throws(() => a.validateBackup(bad2), /Unternehmung/);
+  const bad3 = JSON.parse(JSON.stringify(backup)); bad3.trips[0].destGeo = { lat: 200, lon: 0 };
+  assert.throws(() => a.validateBackup(bad3), /Zielkoordinaten/);
+  /* Reiseart */
+  assert.equal(a.catTripType(all.find(q => q.id === 'berlin'), 0, ''), 'tag');
+  assert.equal(a.catTripType(all.find(q => q.id === 'zillertal'), 5, '1'), 'winter');
+  assert.equal(a.catTripType(all.find(q => q.id === 'berlin'), 3, ''), 'stadt');
+  assert.equal(a.catTripType(all.find(q => q.id === 'harz'), 2, ''), 'wochenende');
+  /* Datenbank-Antwort wird gleich behandelt; leerer Datenbank-Katalog fällt auf die Offline-Kopie zurück */
+  win.RPCloud = { enabled: () => true, catalogSearch: async () => ({ version: 0, places: [] }) };
+  const fb = await a.catalogQuery({ lat: goe.lat, lon: goe.lon, maxKm: 150 });
+  assert.equal(fb.source, 'lokal'); assert(/leer/.test(fb.dbErr));
+  win.RPCloud = { enabled: () => true, catalogSearch: async () => { throw new Error('PGRST202'); } };
+  assert.equal((await a.catalogQuery({ lat: goe.lat, lon: goe.lon, maxKm: 150 })).source, 'lokal');
+  const dbLike = { version: 1, places: near.places.map(q => Object.assign({}, q, { air_km: q.airKm, nights_min: q.nights[0], nights_max: q.nights[1], nights: undefined, airKm: undefined })) };
+  win.RPCloud = { enabled: () => true, catalogSearch: async () => dbLike };
+  const db = await a.catalogQuery({ lat: goe.lat, lon: goe.lon, maxKm: 150 });
+  assert.equal(db.source, 'db');
+  assert.deepEqual(db.places.map(q => [q.id, q.airKm, q.nights.join('-')]), near.places.map(q => [q.id, q.airKm, q.nights.join('-')]));
+  console.log('Umkreis-Katalog: ' + DATA.places.length + ' Ziele/' + allSpots.length + ' Attraktionen gültig, Migration aktuell, Kilometerbereich, Themen, Saison, Stopps, Ausflüge, Tagesgerüst, Übernahme mit offenem Preis, Plan-Check, Sicherung und Datenbank-Rückfall geprüft.');
+})().catch(e => { console.error(e); process.exit(1); });

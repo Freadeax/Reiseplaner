@@ -2,8 +2,8 @@
    Netz zuerst: Ist eine Verbindung da, kommt immer der aktuelle Stand. Nur ohne Netz wird die
    zuletzt geladene Kopie aus dem Cache gezeigt. Reisedaten liegen weiterhin nur im Browser-Speicher
    (rp-trips) und werden hier weder gelesen noch zwischengespeichert. */
-const CACHE = 'reiseplaner-v2';
-const FILES = ['./', './index.html', './config.js', './cloud.js', './vendor/supabase-js-2.117.2.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'reiseplaner-v3';
+const FILES = ['./', './index.html', './config.js', './cloud.js', './catalog.js', './catalog-data.js', './vendor/supabase-js-2.117.2.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

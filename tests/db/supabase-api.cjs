@@ -164,5 +164,27 @@ const doc = (id, title, extra) => Object.assign({ id, title, type: 'stadt', stat
   /* Abmelden: danach keine Daten mehr */
   await A.c.auth.signOut();
   r = await A.c.from('trips').select('id'); assert.deepEqual(r.data || [], []);
-  console.log('Supabase-API: Registrierung mit Bestätigung, Anmeldung, Abmeldung, Passwort-Reset, Eigentümer/Bearbeiter/Leser, unberechtigtes Konto, Einladung einmalig/widerrufen, Rechteänderung/Entzug, Versionskonflikt, Soft-Delete geprüft.');
+
+  /* Umkreis-Katalog (#7): öffentlich lesbar ohne Anmeldung, nicht schreibbar, gleiche Entfernungsregel wie catalog.js */
+  const CatJs = require('../../catalog.js');
+  const dctx = { window: {} }; vm.createContext(dctx);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', '..', 'catalog-data.js'), 'utf8'), dctx);
+  const DATA = JSON.parse(JSON.stringify(dctx.window.RP_CATALOG));
+  const pub = client();
+  r = await pub.from('catalog_places').select('id', { count: 'exact', head: true }); assert.ifError(r.error); assert.equal(r.count, DATA.places.length, 'alle Ziele in der Datenbank');
+  r = await pub.from('catalog_spots').select('id', { count: 'exact', head: true }); assert.equal(r.count, DATA.places.reduce((n, p) => n + p.spots.length, 0), 'alle Attraktionen in der Datenbank');
+  r = await pub.from('catalog_places').insert({ id: 'fake-' + run, name: 'Fake', country: 'DE', lat: 1, lon: 1, catalog_version: 1 }); assert(r.error, 'anonym nicht schreibbar');
+  r = await C2.from('catalog_places').update({ name: 'Gehackt' }).eq('id', DATA.places[0].id).select(); assert(r.error || !(r.data || []).length, 'angemeldet nicht änderbar');
+  r = await C2.from('catalog_spots').delete().eq('place_id', DATA.places[0].id).select(); assert(r.error || !(r.data || []).length, 'angemeldet nicht löschbar');
+  const queries = [{ lat: 48.703, lon: 9.652, maxKm: 150 }, { lat: 48.703, lon: 9.652, minKm: 400, maxKm: 900 }, { lat: 53.551, lon: 9.994, maxKm: 300, kinds: ['wasser', 'technik'] }, { lat: 51.05, lon: 13.74, maxKm: 2000 }];
+  for (const q of queries) {
+    r = await pub.rpc('catalog_search', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null }); assert.ifError(r.error);
+    const loc = CatJs.searchLocal(DATA, q), db = r.data.places.map(CatJs.normPlace);
+    assert.equal(r.data.version, DATA.version);
+    assert.deepEqual(db.map(p => p.id), loc.places.map(p => p.id), 'gleiche Ziele für ' + JSON.stringify(q));
+    db.forEach((p, i) => { const l = loc.places[i]; assert(Math.abs(p.airKm - l.airKm) <= 0.1); assert.deepEqual(p.spots.map(s => s.id), l.spots.map(s => s.id)); assert.deepEqual(p.nights, l.nights); assert.deepEqual(p.months, l.months); });
+  }
+  r = await pub.rpc('catalog_search', { p_lat: 48.7, p_lon: 9.6, p_max_km: 5000 }); assert(r.error && /2000/.test(r.error.message));
+  r = await pub.rpc('catalog_search', { p_lat: 120, p_lon: 9.6, p_max_km: 100 }); assert(r.error && /Koordinaten/.test(r.error.message));
+  console.log('Supabase-API: Registrierung mit Bestätigung, Anmeldung, Abmeldung, Passwort-Reset, Eigentümer/Bearbeiter/Leser, unberechtigtes Konto, Einladung einmalig/widerrufen, Rechteänderung/Entzug, Versionskonflikt, Soft-Delete, Umkreis-Katalog (öffentlich lesbar, nicht schreibbar, gleiche Ergebnisse wie die App) geprüft.');
 })().catch(e => { console.error(e); process.exit(1); });
