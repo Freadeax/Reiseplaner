@@ -1,5 +1,11 @@
 # Projektstand · 14.10.2026
 
+## Serie Paket 2: Eigene Kostenposten (ChatGPT, #8)
+
+Basis Paket 1 be96924. Eigene Kostenposten bearbeiten mit Betrag/Bezeichnung/Notiz und Vorschau, Abbrechen oder Übernehmen. Entfernen ebenfalls erst nach Vorschau. Anfrage/Buchung/Zahlung/Fälligkeit sperrt Entfernen und Änderung des Betrags/der Bezeichnung; Notiz bleibt ergänzbar. Zahlungsbuchdaten bleiben erhalten, gebuchte Beträge behalten Vorrang. Leere, negative und nicht endliche Beträge abgewiesen, explizite 0 erlaubt. Stabile Posten-ID erhalten, alte Vorschau bei Reiseänderung gesperrt. Keine Erstattung/Storno ausgelöst, keine neuen Speicherfelder/Auth/DB/Sync-Änderung.
+
+Node- und Browser-Regressionsfälle ergänzt; npm test vollständig grün, Gast-Build/Artefaktprüfung, Browser-Syntax und diff --check bestanden. Neue Chromium-Abnahme offen, lokal Browserbinary fehlt. Ein lokaler Handler-Syntaxfehler wurde vor Veröffentlichung korrigiert und vollständig erneut geprüft.
+
 ## Serie Paket 1: Orts-/Unterkunftswechsel (ChatGPT, #8)
 
 Basis 80d82a1. Alle direkten Auswahl-, Hinzufügen- und Entfernenwege bilden Kandidaten und prüfen Verpflichtungen. Bestehende Unterkunfts-/Ortswechsel zeigen Kosten vorher/nachher, entfernte Termine und offene Kosten vor Übernahme. Abbrechen unverändernd; zwischenzeitlich geänderte Reise sperrt den Entwurf. Initiale Auswahl bleibt direkt. Erneute Auswahl derselben Unterkunft erhält Angebot und Buchungscheck. Unbenutzte eigene Unterkunft darf entfernt werden, gebundene ausgewählte nicht. Keine Buchung/Storno/Erstattung ausgelöst; kein neues Speicherformat/Auth/DB/Sync-Eingriff.

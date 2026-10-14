@@ -2,7 +2,7 @@
 
 ## Serie: Unterkunft, Kostenposten, nächste Schritte · ChatGPT
 
-Paket 1 Orts-/Unterkunftswechsel mit Kandidat, Vorschau und Verpflichtungsschutz implementiert; initiale Auswahl direkt, erneute gleiche Auswahl erhält Buchungszustand. Paket 2 eigene Kostenposten bearbeiten/entfernen mit Zahlungsbindung, Paket 3 nächste Aktionen in der Übersicht folgen getrennt. Kein Konto-/E-Mail-/Cloudflare-Eingriff.
+Paket 1 Orts-/Unterkunftswechsel mit Kandidat, Vorschau und Verpflichtungsschutz implementiert; initiale Auswahl direkt, erneute gleiche Auswahl erhält Buchungszustand. Paket 2 eigene Kostenposten bearbeiten/entfernen mit Zahlungsbindung ebenfalls implementiert und Node-geprüft. Paket 3 nächste Aktionen in der Übersicht folgt getrennt. Neue Chromium-Abnahmen offen. Kein Konto-/E-Mail-/Cloudflare-Eingriff.
 
 ## Manuelle Planaktionen · ChatGPT, #8
 

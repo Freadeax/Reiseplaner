@@ -1393,6 +1393,30 @@ function tPlan(t){
       return '<div class="dslot"><span class="lbl">'+lab+'</span>'+fixed+its.map(it=>{const a=actOf(t,it.act);if(!a)return '';return '<button type="button" class="item'+(isWarn(it,a,d)?' warn':'')+'" style="border-left-color:'+CATCOL[a.cat||'eigen']+'" data-act="item" data-val="'+it.uid+'">'+esc(a.t)+'<small>'+esc(a.dur||'')+(a.ort?' · '+esc(a.ort):'')+'</small></button>'}).join('')+
       '<button type="button" class="add" data-act="slot-add" data-val="'+d.i+'|'+k+'" aria-label="'+esc(d.label+' '+lab)+' hinzufügen">+</button></div>'}).join('')+'</div>'}).join('')+'</div></section>';
 }
+function costEntryCommitted(t,id){const e=(t.ledger||{})['xc:'+id];return !!(e&&(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due));}
+function costEntryFromForm(f,id){
+ const title=String(f.title||'').trim(),note=String(f.note||'').trim(),raw=String(f.amount==null?'':f.amount).trim(),amount=Number(raw);
+ if(!title||title.length>80)throw new Error('Bezeichnung mit höchstens 80 Zeichen eintragen.');
+ if(raw===''||!Number.isFinite(amount)||amount<0||amount>1e9)throw new Error('Einen gültigen Betrag zwischen 0 und 1 Milliarde Euro eintragen.');
+ if(note.length>1000)throw new Error('Notiz mit höchstens 1000 Zeichen eintragen.');
+ return {id,t:title,c:amount,note};
+}
+function costEntryPreview(t,id,form,remove=false){
+ const old=(t.extraCosts||[]).find(e=>e.id===id);if(!old)throw new Error('Kostenposten nicht mehr vorhanden.');
+ const c=clone(t),index=c.extraCosts.findIndex(e=>e.id===id);
+ if(remove){if(costEntryCommitted(t,id))throw new Error('Nicht entfernt: Anfrage, Buchung, Zahlung oder Fälligkeit vorhanden. Zuerst Zahlungsbuch klären.');c.extraCosts.splice(index,1);}
+ else{const fresh=costEntryFromForm(form,id);if(costEntryCommitted(t,id)&&(old.t!==fresh.t||num(old.c,0)!==fresh.c))throw new Error('Bezeichnung und Betrag sind durch eine Verpflichtung geschützt. Notiz kann ergänzt werden.');c.extraCosts[index]=Object.assign({},old,fresh);}
+ return {trip:t.id,id,remove,source:JSON.stringify(t),candidate:c,before:cost(t).total,after:cost(c).total};
+}
+function applyCostEntry(t,draft){if(!draft||draft.trip!==t.id||draft.source!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Kostenposten erneut öffnen.');adoptPlanChange(t,clone(draft.candidate));return t;}
+function sheetCostEntry(t,id){
+ const e=(t.extraCosts||[]).find(x=>x.id===id);if(!e)return;
+ openSheet('<h2>Kostenposten bearbeiten</h2>'+(costEntryCommitted(t,id)?'<div class="note">Verpflichtung vorhanden: Bezeichnung und Betrag sind geschützt. Ergänzt bei Bedarf die Notiz.</div>':'')+'<div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="ce-title" maxlength="80" value="'+esc(e.t)+'"></label><label class="fld"><span>Planbetrag gesamt (€)</span><input type="number" id="ce-amount" min="0" step="0.01" value="'+esc(e.c)+'"></label></div><label class="fld"><span>Notiz</span><textarea id="ce-note" maxlength="1000">'+esc(e.note||'')+'</textarea></label><p class="small muted">Gebuchte Beträge im Zahlungsbuch haben Vorrang vor dem Planbetrag. Erst Übernehmen in der Vorschau speichert.</p><button type="button" class="btn" data-act="xc-preview" data-val="'+esc(id)+'">Änderung prüfen</button>');UI.costEntrySource=JSON.stringify(t);
+}
+function sheetCostEntryPreview(t,draft){
+ const before=(t.extraCosts||[]).find(e=>e.id===draft.id),after=(draft.candidate.extraCosts||[]).find(e=>e.id===draft.id);
+ openSheet('<h2>'+ (draft.remove?'Kostenposten entfernen?':'Kostenänderung prüfen')+'</h2><p><b>'+esc(before.t)+'</b></p><dl class="facts"><dt>Posten vorher</dt><dd>'+eur(before.c)+'</dd><dt>Posten danach</dt><dd>'+ (after?esc(after.t)+' · '+eur(after.c):'entfernt')+'</dd><dt>Reiseplan vorher</dt><dd>'+eur(draft.before)+'</dd><dt>Reiseplan danach</dt><dd>'+eur(draft.after)+'</dd></dl><p class="small muted">Zahlungsbuchangaben bleiben erhalten. Das ist keine Stornierung, Erstattung oder Preisbestätigung.</p><div class="row"><button type="button" class="btn'+(draft.remove?' warn':'')+'" data-act="xc-confirm">'+(draft.remove?'Ja, Posten entfernen':'Änderung übernehmen')+'</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.costEntryDraft=draft;
+}
 function tKosten(t){
   const c=cost(t), groups={};
   c.lines.forEach(l=>{(groups[l.cat]=groups[l.cat]||[]).push(l)});
@@ -1408,7 +1432,7 @@ function tKosten(t){
    order.filter(k=>groups[k]).map(k=>'<tr class="grp"><td>'+COSTCAT[k][0]+'</td><td></td><td class="r">'+eur(c.byCat[k])+'</td></tr>'+groups[k].map(l=>'<tr><td>'+esc(l.t)+'<small>'+esc(l.s)+'</small></td><td>'+srcBadge(l.src)+'</td><td class="r">'+eur(l.c)+'</td></tr>').join('')).join('')+
    '<tr class="total"><td>Gesamt</td><td></td><td class="r">'+eur(c.total)+'</td></tr><tr><td>pro Person</td><td></td><td class="r">'+eur(c.total/c.P)+'</td></tr></tbody></table></div>'+
    (c.saved?'<p class="small" style="color:var(--ok)">Gästekarte spart beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  scenarioSection(t)+offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
+  scenarioSection(t)+offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-edit" data-val="'+esc(e.id)+'">Bearbeiten</button><button type="button" class="lnk" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" step="0.01" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
   '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Änderung prüfen</button></div>').join('')+'</div>':'<p class="muted">Keine sichere automatische Einsparung gefunden. Das bedeutet nicht, dass der Plan bereits optimal ist.</p>')+'<p class="small muted">Spartipps verändern keine gebuchten Termine, Zahlungen oder Fälligkeiten. Selbstkochen wird nur mit bestätigter Küche vorgeschlagen. Puffer entfernen ist keine Einsparung.</p></section>';
 }
 /* Bestehende Verpflichtungen dürfen automatische Spartipps nicht verändern. */
@@ -1766,8 +1790,12 @@ document.addEventListener('click',async e=>{
    case 'puffer': t.puffer=num(val,0);save(t);break;
    case 'tip': sheetSaving(t,+val);return;
    case 'tip-confirm':{try{applySavingPreview(t,UI.savingDraft);save(t);closeSheet();render()}catch(err){alertMsg(err.message)}return}
-   case 'xc-add':{const ti=$('#xc-t').value.trim(),c=num($('#xc-c').value,0);if(!ti||!c){alertMsg('Bitte Bezeichnung und Betrag eintragen.');return}t.extraCosts=(t.extraCosts||[]).concat([{id:uid('k'),t:ti,c}]);save(t);break}
-   case 'xc-del': t.extraCosts=(t.extraCosts||[]).filter(x=>x.id!==val);save(t);break;
+   case 'xc-add':{try{const e=costEntryFromForm({title:$('#xc-t').value,amount:$('#xc-c').value},uid('k'));t.extraCosts=(t.extraCosts||[]).concat([e]);save(t);}catch(err){alertMsg(err.message);return}break;}
+   case 'xc-edit':sheetCostEntry(t,val);return;
+   case 'xc-preview':{try{if(UI.costEntrySource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Posten erneut öffnen.');sheetCostEntryPreview(t,costEntryPreview(t,val,{title:$('#ce-title').value,amount:$('#ce-amount').value,note:$('#ce-note').value}));}catch(err){alertMsg(err.message)}return;}
+   case 'xc-del':{try{sheetCostEntryPreview(t,costEntryPreview(t,val,null,true));}catch(err){alertMsg(err.message)}return;
+   }
+   case 'xc-confirm':{try{applyCostEntry(t,UI.costEntryDraft);save(t);UI.costEntryDraft=null;closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'cc-add':{const ti=$('#cc-t').value.trim();if(!ti)return;t.customChecks=(t.customChecks||[]).concat([{id:uid('k'),t:ti}]);save(t);break}
    case 'cc-del': t.customChecks=(t.customChecks||[]).filter(x=>x.id!==val);if(t.check)delete t.check['c-'+val];save(t);break;
    default: return;
@@ -2609,7 +2637,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

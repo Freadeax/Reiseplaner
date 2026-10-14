@@ -13,6 +13,29 @@ const context = {
 vm.createContext(context);
 vm.runInContext(code, context);
 const a = context.window.__app;
+
+/* Eigene Kosten: keine stille Änderung/Entfernung bestehender finanzieller Verpflichtungen. */
+{
+  const tr=a.newTrip({puffer:10});tr.extraCosts=[a.costEntryFromForm({title:'Parken',amount:'25'},'kpark')];
+  assert.throws(()=>a.costEntryFromForm({title:'X',amount:''},'kbad'));
+  assert.throws(()=>a.costEntryFromForm({title:'X',amount:'-1'},'kbad'));
+  assert.throws(()=>a.costEntryFromForm({title:'X',amount:'NaN'},'kbad'));
+  assert.equal(a.costEntryFromForm({title:'X',amount:'0'},'kzero').c,0);
+  const before=JSON.stringify(tr),draft=a.costEntryPreview(tr,'kpark',{title:'Parken',amount:'35',note:'Zwei Tage'});
+  assert.equal(JSON.stringify(tr),before);
+  assert(draft.after>draft.before);
+  a.applyCostEntry(tr,draft);assert.equal(tr.extraCosts[0].c,35);assert.equal(tr.extraCosts[0].id,'kpark');
+  assert.throws(()=>a.applyCostEntry(tr,draft),/geändert/);
+  for(const e of [{status:'gebucht',paid:0},{status:'angefragt',paid:0},{status:'offen',paid:1},{status:'offen',paid:0,due:'2026-12-01'}]){
+    tr.ledger={'xc:kpark':e};
+    assert.throws(()=>a.costEntryPreview(tr,'kpark',null,true),/Nicht entfernt/);
+    assert.throws(()=>a.costEntryPreview(tr,'kpark',{title:'Parken',amount:'40'}),/geschützt/);
+    const note=a.costEntryPreview(tr,'kpark',{title:'Parken',amount:'35',note:'Beleg im Auto'});assert.equal(note.candidate.extraCosts[0].note,'Beleg im Auto');
+  }
+  delete tr.ledger;const remove=a.costEntryPreview(tr,'kpark',null,true);
+  tr.ledger={'xc:kpark':{status:'gebucht',paid:0}};assert.throws(()=>a.applyCostEntry(tr,remove),/geändert/);
+  delete tr.ledger;a.applyCostEntry(tr,a.costEntryPreview(tr,'kpark',null,true));assert.equal(tr.extraCosts.length,0);
+}
 const at = s => new Date(s + 'T12:00:00'); // lokale Mittagszeit, unabhängig von der Zeitzone
 const dayIso = off => { const n = new Date(); return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate() + off)).toISOString().slice(0, 10); };
 const kursLine = tr => a.cost(tr).lines.filter(l => l.key === 'kurs');
