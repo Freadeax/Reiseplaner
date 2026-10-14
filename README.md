@@ -45,7 +45,19 @@ Unbekannte Merkmale erfüllen kein Muss. Offene Pflichtgebühren erfüllen kein 
 
 Anbieterzugänge, Quellen und nächste Integrationsschritte: [docs/PROVIDER_INTEGRATION.md](docs/PROVIDER_INTEGRATION.md).
 
-## Wichtige Grenzen
+## Passwortgeschützte Sicherungen
+
+Über **Mit Passwort sichern** könnt ihr alle Reisen oder eine einzelne Reise als verschlüsselte JSON-Datei herunterladen. Mindestens 12 Zeichen verwenden, besser eine lange, einzigartige Passphrase. Datei und Passwort getrennt aufbewahren: Es gibt keine Passwort-Wiederherstellung.
+
+Die Verarbeitung bleibt im Browser. AES-256-GCM verschlüsselt den Inhalt; der Schlüssel wird mit PBKDF2-SHA-256 (600.000 Durchläufe) und zufälligem Salz abgeleitet. Jede Datei erhält einen neuen zufälligen Initialisierungsvektor. Falsches Passwort und beschädigte Dateien werden abgelehnt, bevor etwas importiert wird.
+
+**Wichtig:** Nur die Exportdatei ist verschlüsselt. Die lokalen Reisen, Sicherungspunkte und gewöhnlichen JSON-Exporte bleiben unverschlüsselt. Die Funktion benötigt Web Crypto, üblicherweise über HTTPS oder localhost; ohne Unterstützung wird sie nicht durch eine unsichere Ersatzlösung ersetzt. Passwortschutz ist keine Cloud-Synchronisation und keine Absicherung eines bereits kompromittierten Geräts. Kein unabhängiges Sicherheitsaudit.
+
+Zum Wiederherstellen **Sicherung importieren** wählen und das Passwort eingeben. Danach zeigt die Vorschau neue, identische und abweichende Reisen mit derselben ID sowie Angebote/Profile. Erst die anschließende Entscheidung importiert neue Reisen oder erstellt zusätzliche Kopien. Bestehende Reisen werden nicht überschrieben. Bei Speicherfehlern wird der Import zurückgenommen und nicht als erfolgreich gemeldet.
+
+Das innere Reiseformat bleibt v2 (v1 wird weiterhin akzeptiert). Die separate verschlüsselte Hülle hat Version 1; ältere Appstände können diese nicht öffnen. Maximal 5 MB Reiseinhalt bzw. 8 MB verschlüsselte Datei. Weitere technische Details: [docs/BACKUP_SECURITY.md](docs/BACKUP_SECURITY.md).
+
+## Weitere Grenzen
 
 - Reisekosten sind zunächst **Planwerte**, kein bestätigter Gesamtpreis. Fehlende Pflichtkosten werden als offen angezeigt.
 - Die Daten liegen im Browser-Speicher des jeweiligen Geräts. Es gibt **keine automatische Synchronisation** zwischen PC und Handy. Nutze den Export für Sicherungen und den manuellen Transfer.
@@ -77,4 +89,5 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | `AGENTS.md` | Arbeitsregeln für künftige Coding-KIs |
 
 Beiträge und Fehlerberichte sind willkommen. Bitte keine privaten Reisepläne, Buchungsnummern oder exportierten Sicherungsdateien ins öffentliche Repository stellen. Eine Open-Source-Lizenz wurde noch nicht festgelegt.
+
 

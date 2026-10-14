@@ -583,13 +583,19 @@ function validateBackup(raw){
   return raw.trips.map(migrateTrip);
 }
 function importTrips(raw,conflictMode){
-  const trips=validateBackup(raw), added=[];
+  if(Store.corruptRaw!==null)throw new Error('Import gesperrt: zuerst beschädigte Rohdaten sichern.');
+  if(!['skip','copy'].includes(conflictMode))throw new Error('Unbekannte Importentscheidung.');
+  const trips=validateBackup(raw), added=[], previous=Store.trips, next=clone(previous);
   for(const original of trips){
-    if(Store.get(original.id)&&conflictMode==='skip')continue;
+    if(next[original.id]&&conflictMode==='skip')continue;
     const t=clone(original);
-    if(Store.get(t.id)){t.id=uid('t');t.title=(t.title.slice(0,72)+' (Import)').slice(0,80);t.status='idee'}
-    Store.put(t,true);added.push(t.id);
+    if(next[t.id]){do{t.id=uid('t')}while(next[t.id]);t.title=(t.title.slice(0,72)+' (Import)').slice(0,80);t.status='idee'}
+    t.updated=Date.now();next[t.id]=t;added.push(t.id);
   }
+  if(!added.length)return added;
+  Store.trips=next;
+  if(!Store.saveLocal()){Store.trips=previous;throw new Error('Import nicht gespeichert. Bestehende Reisen blieben erhalten. Speicherproblem lösen und erneut versuchen.');}
+  if(Store.mode==='db')added.forEach(id=>Store.flush(id));
   return added;
 }
 function downloadBackup(trips){
@@ -784,7 +790,7 @@ function vReisen(){
    '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
    '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
-   '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
+   '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-secure-act="all"'+(list.length?'':' disabled')+'>Mit Passwort sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
    '<section class="block"><h2>So funktioniert’s</h2><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></section>';
 }
 function tripForm(t,prefix){
@@ -837,7 +843,7 @@ function tUeber(t){
    '<div class="card"><span class="eyebrow">Angebot</span><h3>'+esc(pk?pk.name:'Frei geplant')+'</h3><p class="small muted">'+esc(pk?pk.pitch:'Pakete als Startpunkt im Bereich Angebote')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-angebote">Angebote</button></div></div>'+
   '</div></section>'+
   '<section class="block"><h2>Nächste Schritte</h2>'+(open.length?'<div class="checks-list">'+open.slice(0,5).map(i=>'<label class="chk info"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>').join('')+'</div>':'<p class="muted">Keine offenen Buchungen.</p>')+'</section>'+
-  '<section class="block"><h2>Reise verwalten</h2><div class="row"><button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button>'+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
+  '<section class="block"><h2>Reise verwalten</h2><div class="row"><button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button><button type="button" class="btn ghost sm" data-secure-act="trip">Mit Passwort sichern</button>'+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
 }
 function tAngebote(t){
   if(t.catalog!=='allgaeu') return '<section class="block"><div class="empty"><b>Für diese Reise gibt es noch keine fertigen Angebote</b><span>Angebote gibt es bisher für den Katalog „Allgäu & Tirol im Winter“. Plant frei über Unterkunft und Unternehmungen.</span><button type="button" class="btn ghost" data-go="r-'+t.id+'-unternehmen">Zu den Unternehmungen</button></div></section>';
@@ -1047,8 +1053,8 @@ function renderDock(){
 }
 
 /* ================= Blätter ================= */
-function openSheet(html){$('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';const s=$('.sheet');if(s)s.focus&&s.setAttribute('tabindex','-1')}
-function closeSheet(){$('#sheet-root').innerHTML=''}
+function openSheet(html){UI.secureJob=(UI.secureJob||0)+1;$('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';const s=$('.sheet');if(s)s.focus&&s.setAttribute('tabindex','-1')}
+function closeSheet(){UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;$('#sheet-root').innerHTML=''}
 function sheetAct(t,id,preDay,preSlot){
   const a=actOf(t,id); if(!a) return;
   const days=daysOf(t), c=actCost(t,a), planned=sortedItems(t).filter(i=>i.act===id);
@@ -1091,7 +1097,8 @@ function sheetEdit(t){
 function sheetImport(){
   const trips=UI.importDraft;if(!trips)return;
   const conflicts=trips.filter(t=>Store.get(t.id)).length;
-  openSheet('<span class="eyebrow">Sicherung prüfen</span><h2>'+trips.length+' Reisen gefunden</h2><p class="small muted">'+trips.map(t=>esc(t.title)).join(' · ')+'</p><p>'+conflicts+' davon haben bereits dieselbe Reise-ID auf diesem Gerät. Bestehende Reisen werden nicht überschrieben.</p><div class="row"><button type="button" class="btn" data-act="import-skip">Nur neue Reisen importieren</button>'+(conflicts?'<button type="button" class="btn ghost" data-act="import-copy">Vorhandene zusätzlich als Kopie importieren</button>':'')+'<button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');
+  const rows=importPreview(trips);
+  openSheet('<span class="eyebrow">Sicherung prüfen · '+(UI.importProtected?'Passwortschutz geöffnet':'Unverschlüsselte Datei')+'</span><h2>'+trips.length+' Reisen gefunden</h2><p class="small muted">'+esc(UI.importInfo||'')+'</p><p>'+conflicts+' davon haben bereits dieselbe Reise-ID auf diesem Gerät. Bestehende Reisen werden nicht überschrieben.</p>'+rows.map(r=>'<article class="panel"><h3>'+esc(r.title)+'</h3><p>'+esc(r.state)+(r.changed.length?' · Abweichungen: '+esc(r.changed.join(', ')):'')+'</p><p class="small">'+esc(r.range)+' · '+r.persons+' Personen · '+r.items+' Programmpunkte · '+r.offers+' Angebote · '+r.profiles+' Suchprofile</p></article>').join('')+'<p class="small muted">„Als Kopie“ erhält auch identische Reisen zusätzlich. Die ursprüngliche Reise bleibt unverändert. Kein automatisches Zusammenführen von Buchungen oder Angeboten.</p><div class="row"><button type="button" class="btn" data-act="import-skip">Nur neue Reisen importieren</button>'+(conflicts?'<button type="button" class="btn ghost" data-act="import-copy">Vorhandene zusätzlich als Kopie importieren</button>':'')+'<button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div><p id="import-error" role="alert"></p>');
 }
 
 /* ================= Ereignisse ================= */
@@ -1117,7 +1124,7 @@ document.addEventListener('click',async e=>{
   if(act==='backup-all'){downloadBackup(Store.list());return}
   if(act==='import-open'){$('#import-file').click();return}
   if(act==='import-skip'||act==='import-copy'){
-    const added=importTrips(backupData(UI.importDraft),act==='import-skip'?'skip':'copy');UI.importDraft=null;closeSheet();render();alertMsg(added.length+' Reisen importiert. Bestehende Reisen blieben unverändert.');return;
+    try{const added=importTrips(backupData(UI.importDraft),act==='import-skip'?'skip':'copy');UI.importDraft=null;closeSheet();render();alertMsg(added.length+' Reisen importiert. Bestehende Reisen blieben unverändert.');}catch(err){const box=$('#import-error');if(box)box.textContent=err.message;else alertMsg(err.message);}return;
   }
   const invalid=[...document.querySelectorAll('input[type=number]')].find(x=>x.value!==''&&!x.checkValidity());if(invalid){invalid.reportValidity();return;}
   if(act==='check'||act==='online'||act==='card-confirm'||act==='mappe-notes') return; /* über change */
@@ -1194,8 +1201,7 @@ document.addEventListener('change',e=>{
   if(Store.corruptRaw!==null)return;
   if(el.id==='import-file'){
     const file=el.files&&el.files[0];el.value='';if(!file)return;
-    if(file.size>5*1024*1024){alertMsg('Sicherung ist zu groß (maximal 5 MB).');return}
-    file.text().then(txt=>{UI.importDraft=validateBackup(JSON.parse(txt));sheetImport()}).catch(err=>{UI.importDraft=null;alertMsg('Import nicht möglich: '+err.message)});return;
+    readBackupFile(file);return;
   }
   if(el.matches('[data-act="check"]')&&t){t.check=t.check||{};if(el.checked)t.check[el.getAttribute('data-val')]=true;else delete t.check[el.getAttribute('data-val')];save(t);render();return}
   if(el.matches('[data-act="card-confirm"]')&&t){t.cardConfirmed=el.checked;save(t);render();return}
@@ -1305,7 +1311,7 @@ function tSuche(t){
  '<section class="block"><div class="between"><h2>4 · Konkrete Angebote sammeln</h2><button class="btn" data-search-act="offer-new">+ Angebot erfassen</button></div><p class="small muted">'+matches.length+' passende von '+all.length+' erfassten Angeboten. Preisangaben beziehen sich auf die im Angebot gespeicherten Personen und Daten. „Verfügbar“ und „geprüft“ stammen aus eurer Erfassung, nicht aus einer Live-Abfrage.</p>'+(matches.length?'<div class="grid wide">'+matches.map(x=>offerCard(t,x.o,x.e,today)).join('')+'</div>':'<div class="empty"><b>'+ (all.length?'Kein Angebot erfüllt alle Filter.':'Eure Vergleichsliste ist noch leer.')+'</b><span>Erfasst ein Angebot vom Anbieter oder prüft die Muss-Kriterien. Die Vorgaben werden nicht automatisch gelockert.</span></div>')+(all.length&&!matches.length?'<details class="panel"><summary>Warum passen die Angebote nicht?</summary>'+all.map(o=>{const e=offerEvaluation(o,t,q);return '<p><b>'+esc(o.name)+'</b>: '+esc([...e.failed,...e.unknown.map(s=>s+' unbekannt')].join(' · '))+'</p>'}).join('')+'</details>':'')+'</section>'+
  '<section class="block"><h2>5 · Direkt vergleichen</h2><p class="small muted">Markiert bis zu vier Angebote. Unterschiedliche Zeiträume und Belegungen sind ausdrücklich gekennzeichnet. Bekannte Unterkunftskosten allein sind kein Gesamtpreis der Reise.</p>'+comparisonTable(t,comp)+'</section>'+
  '<section class="block"><h2>Eine kreative Abkürzung</h2><div class="grid"><article class="card"><h3>FeWo + Thermentag</h3><p>Küche nutzen, einen besonderen Wellness-Tag einplanen. Zusätzliche Fahrt, Eintritt und Parken als eigene Posten erfassen.</p></article><article class="card"><h3>Nachbarort statt Hotspot</h3><p>Im Nachbarort wohnen und gezielt ausfliegen. Preisvorteile erst nach Fahrtkosten, Maut und Parkplatz vergleichen.</p></article><article class="card"><h3>Ruhe als Programmpunkt</h3><p>Ein Highlight, freie Nachmittage und ein Plan B für Regen. Schneesport bleibt optional; Schnee ist nicht garantiert.</p></article></div></section>'+
- '<section class="block"><h2>Eure Daten gehören euch</h2><p>Suchprofile, Angebote, Merkliste und Zahlungsangaben sind in der Reise-Sicherung enthalten. Lokale Sicherungspunkte helfen bei Änderungen, ersetzen aber keine heruntergeladene Sicherung.</p><div class="row"><button class="btn" data-search-act="backup">Alle Reisen als Datei sichern</button><button class="btn ghost" data-search-act="history">Lokale Sicherungspunkte</button></div><p class="small muted">Keine automatische Synchronisation zwischen Geräten. Eine Sicherungsdatei kann private Notizen und Angebotslinks enthalten.</p>'+(Store.historyError?'<p role="alert">Lokale Sicherungspunkte konnten nicht gespeichert werden. Bitte eine Datei herunterladen.</p>':'')+'</section>';
+ '<section class="block"><h2>Eure Daten gehören euch</h2><p>Suchprofile, Angebote, Merkliste und Zahlungsangaben sind in der Reise-Sicherung enthalten. Lokale Sicherungspunkte helfen bei Änderungen, ersetzen aber keine heruntergeladene Sicherung.</p><div class="row"><button class="btn" data-search-act="backup">Alle Reisen als Datei sichern</button><button class="btn ghost" data-secure-act="all">Mit Passwort sichern</button><button class="btn ghost" data-search-act="history">Lokale Sicherungspunkte</button></div><p class="small muted">Keine automatische Synchronisation zwischen Geräten. Eine Sicherungsdatei kann private Notizen und Angebotslinks enthalten.</p>'+(Store.historyError?'<p role="alert">Lokale Sicherungspunkte konnten nicht gespeichert werden. Bitte eine Datei herunterladen.</p>':'')+'</section>';
 }
 function applyOffer(t,o){
  validateOffer(o);if(!offerCurrent(o,t)||o.availability==='unavailable')throw new Error('Zeitraum, Personen, Gültigkeit oder Verfügbarkeit passen nicht.');
@@ -1360,9 +1366,75 @@ document.addEventListener('click',e=>{
  }catch(err){const box=$('#offer-error');if(box)box.textContent=err.message;else alertMsg(err.message);}
 });
 
+/* Optionale verschlüsselte Exportdatei: keine Änderung des lokalen Reiseformats. */
+const SECURE_FORMAT='reiseplaner-encrypted-backup', SECURE_ITERATIONS=600000, MAX_BACKUP_BYTES=5*1024*1024, MAX_SECURE_FILE_BYTES=8*1024*1024;
+function hasBackupCrypto(){return typeof crypto!=='undefined'&&crypto.subtle&&typeof crypto.getRandomValues==='function'&&typeof TextEncoder!=='undefined'&&typeof TextDecoder!=='undefined';}
+function requireBackupCrypto(){if(!hasBackupCrypto())throw new Error('Passwortschutz ist hier nicht verfügbar. Planer über HTTPS oder localhost öffnen; Klartext-Sicherung bleibt möglich.');}
+function bytesBase64(bytes){let out='';for(let i=0;i<bytes.length;i+=8192)out+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(out);}
+function base64Bytes(value,max){if(typeof value!=='string'||value.length>Math.ceil(max/3)*4||!value.length||value.length%4||!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value))throw new Error('Verschlüsselte Sicherung hat ungültige Daten.');const raw=atob(value),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));if(bytes.length>max||bytesBase64(bytes)!==value)throw new Error('Verschlüsselte Sicherung hat ungültige Daten.');return bytes;}
+function secureHeader(raw){return new TextEncoder().encode(JSON.stringify([raw.format,raw.version,raw.cipher,raw.kdf,raw.iterations,raw.salt,raw.iv]));}
+function validateSecureBackup(raw){
+ if(!raw||raw.format!==SECURE_FORMAT||raw.version!==1||raw.cipher!=='AES-256-GCM'||raw.kdf!=='PBKDF2-SHA-256'||raw.iterations!==SECURE_ITERATIONS)throw new Error('Unbekanntes Passwortschutz-Format oder unzulässige Kryptoparameter.');
+ const salt=base64Bytes(raw.salt,16),iv=base64Bytes(raw.iv,12),ciphertext=base64Bytes(raw.ciphertext,MAX_BACKUP_BYTES+16);
+ if(salt.length!==16||iv.length!==12||ciphertext.length<16)throw new Error('Verschlüsselte Sicherung ist unvollständig.');
+ return {salt,iv,ciphertext};
+}
+async function backupKey(password,salt){
+ requireBackupCrypto();if(typeof password!=='string'||!password.length||password.length>1024)throw new Error('Bitte ein Passwort eingeben (maximal 1024 Zeichen).');
+ const bytes=new TextEncoder().encode(password);
+ try{const material=await crypto.subtle.importKey('raw',bytes,'PBKDF2',false,['deriveKey']);return await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt,iterations:SECURE_ITERATIONS},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}finally{bytes.fill(0);}
+}
+async function encryptBackup(raw,password){
+ requireBackupCrypto();validateBackup(raw);if(typeof password!=='string'||password.length<12||password.length>1024)throw new Error('Für eine neue Sicherung mindestens 12 Zeichen verwenden; eine lange, einzigartige Passphrase ist besser.');
+ const plain=new TextEncoder().encode(JSON.stringify(raw));if(plain.length>MAX_BACKUP_BYTES)throw new Error('Sicherung ist zu groß (Inhalt maximal 5 MB).');
+ const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+ const envelope={format:SECURE_FORMAT,version:1,cipher:'AES-256-GCM',kdf:'PBKDF2-SHA-256',iterations:SECURE_ITERATIONS,salt:bytesBase64(salt),iv:bytesBase64(iv)};
+ try{const key=await backupKey(password,salt);const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:secureHeader(envelope),tagLength:128},key,plain);envelope.ciphertext=bytesBase64(new Uint8Array(encrypted));return envelope;}finally{plain.fill(0);}
+}
+async function decryptBackup(raw,password){
+ requireBackupCrypto();const {salt,iv,ciphertext}=validateSecureBackup(raw);const key=await backupKey(password,salt);let plain;
+ try{plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:secureHeader(raw),tagLength:128},key,ciphertext));}catch(err){throw new Error('Passwort falsch oder Sicherungsdatei beschädigt. Es wurde nichts importiert.');}
+ try{if(plain.length>MAX_BACKUP_BYTES)throw new Error('Entschlüsselter Inhalt ist zu groß.');const data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(plain));validateBackup(data);return data;}finally{plain.fill(0);}
+}
+function stableBackupValue(x){if(Array.isArray(x))return x.map(stableBackupValue);if(x&&typeof x==='object')return Object.fromEntries(Object.keys(x).sort().filter(k=>k!=='updated').map(k=>[k,stableBackupValue(x[k])]));return x;}
+function importPreview(trips){
+ const fields={title:'Titel',start:'Anreise',end:'Abreise',persons:'Personen',budget:'Budget',notes:'Notizen',stayId:'Unterkunft',items:'Tagesplan',offers:'Angebote',searchProfiles:'Suchprofile',search:'Suchfilter',check:'Checkliste'};
+ return trips.map(t=>{const old=Store.get(t.id),incoming=migrateTrip(t),existing=old?migrateTrip(old):null,changed=existing?Object.entries(fields).filter(([k])=>JSON.stringify(stableBackupValue(existing[k]))!==JSON.stringify(stableBackupValue(incoming[k]))).map(([,label])=>label):[];
+ const same=existing&&JSON.stringify(stableBackupValue(existing))===JSON.stringify(stableBackupValue(incoming));
+ return {id:t.id,title:t.title,range:rangeText(t),persons:t.persons,items:t.items.length,offers:(t.offers||[]).length,profiles:(t.searchProfiles||[]).length,state:!old?'Neue Reise':same?'Bereits vorhanden · identischer Inhalt':'Bereits vorhanden · anderer Inhalt',changed};});
+}
+function acceptImport(raw,protectedFile){
+ UI.importDraft=validateBackup(raw);UI.importProtected=!!protectedFile;UI.importInfo='Sicherungsformat v'+raw.version+(raw.version===1?' · wird auf v2 übernommen':'')+(typeof raw.exportedAt==='string'?' · Export: '+raw.exportedAt.slice(0,40):'');sheetImport();
+}
+async function readBackupFile(file){
+ UI.secureJob=(UI.secureJob||0)+1;const read=UI.importRead=(UI.importRead||0)+1;UI.importDraft=null;UI.encryptedImport=null;
+ if(file.size>MAX_SECURE_FILE_BYTES){alertMsg('Datei zu groß: maximal 8 MB, entschlüsselter Inhalt maximal 5 MB.');return;}
+ try{const txt=await file.text();if(read!==UI.importRead)return;const raw=JSON.parse(txt);
+ if(raw.format===SECURE_FORMAT){requireBackupCrypto();validateSecureBackup(raw);UI.encryptedImport=raw;openSheet('<h2>Passwortgeschützte Sicherung öffnen</h2><p>Die Datei wird nur in diesem Browser geöffnet. Danach könnt ihr die Reisen und Konflikte prüfen, bevor etwas importiert wird.</p><label class="fld"><span>Passwort der Sicherung</span><input type="password" id="secure-import-password" autocomplete="off" maxlength="1024"></label><div class="row"><button class="btn" data-secure-act="decrypt">Entschlüsseln & prüfen</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button></div><p id="secure-error" role="alert"></p>');}
+ else{if(file.size>MAX_BACKUP_BYTES)throw new Error('Unverschlüsselte Sicherung ist zu groß (maximal 5 MB).');acceptImport(raw,false);}
+ }catch(err){if(read===UI.importRead){UI.importDraft=null;UI.encryptedImport=null;alertMsg('Import nicht möglich: '+err.message);}}
+}
+function secureBackupSheet(trips){
+ try{requireBackupCrypto();const payload=backupData(trips);validateBackup(payload);UI.securePayload=payload;
+ openSheet('<h2>Reisen mit Passwort sichern</h2><p>'+trips.length+' Reisen einschließlich Notizen, Angeboten und Suchprofilen. Verwendet eine lange, einzigartige Passphrase. Ohne Passwort lässt sich die Datei nicht wiederherstellen.</p><p class="small muted">Nur die heruntergeladene Datei wird verschlüsselt. Reisedaten und Sicherungspunkte im Browser bleiben unverschlüsselt. Das Passwort wird nicht gespeichert.</p><label class="fld"><span>Neues Passwort (mindestens 12 Zeichen)</span><input type="password" id="secure-export-password" minlength="12" maxlength="1024" autocomplete="new-password"></label><label class="fld"><span>Passwort wiederholen</span><input type="password" id="secure-export-repeat" maxlength="1024" autocomplete="new-password"></label><label><input type="checkbox" id="secure-understood"> Ich bewahre das Passwort getrennt auf. Es gibt keine Passwort-Wiederherstellung.</label><div class="row"><button class="btn" data-secure-act="encrypt">Verschlüsselte Datei herunterladen</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button></div><p id="secure-error" role="alert"></p>');
+ }catch(err){alertMsg(err.message);}
+}
+document.addEventListener('click',async e=>{
+ const b=e.target.closest('[data-secure-act]');if(!b)return;e.preventDefault();const act=b.getAttribute('data-secure-act');if(Store.corruptRaw!==null)return;
+ if(act==='all'){secureBackupSheet(Store.list());return;}
+ if(act==='trip'){const t=cur();if(t)secureBackupSheet([t]);return;}
+ if(b.disabled)return;const job=UI.secureJob||0,box=$('#secure-error');b.disabled=true;
+ try{
+ if(act==='encrypt'){let password=$('#secure-export-password').value;const repeat=$('#secure-export-repeat').value;if(password!==repeat)throw new Error('Die Passwörter stimmen nicht überein.');if(!$('#secure-understood').checked)throw new Error('Bitte den Hinweis zur Passwort-Wiederherstellung bestätigen.');
+ const payload=UI.securePayload;const promise=encryptBackup(payload,password);password='';$('#secure-export-password').value='';$('#secure-export-repeat').value='';if(box)box.textContent='Sicherung wird verschlüsselt …';const encrypted=await promise;if(job!==(UI.secureJob||0))return;
+ downloadText(JSON.stringify(encrypted),'Reiseplaner-Passwort-Sicherung-'+new Date().toISOString().slice(0,10)+'.json','application/json');closeSheet();alertMsg('Verschlüsselte Datei zum Download bereit. Datei und Passwort getrennt aufbewahren.');}
+ if(act==='decrypt'){let password=$('#secure-import-password').value;const envelope=UI.encryptedImport;const promise=decryptBackup(envelope,password);password='';$('#secure-import-password').value='';if(box)box.textContent='Datei wird entschlüsselt …';const raw=await promise;if(job!==(UI.secureJob||0))return;UI.encryptedImport=null;acceptImport(raw,true);}
+ }catch(err){if(job===(UI.secureJob||0)&&box)box.textContent=err.message;}finally{if(job===(UI.secureJob||0))b.disabled=false;}
+});
+
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
@@ -1371,4 +1443,5 @@ try{if(typeof navigator!=='undefined'&&navigator.serviceWorker&&typeof location!
 </script>
 
 </body></html>
+
 

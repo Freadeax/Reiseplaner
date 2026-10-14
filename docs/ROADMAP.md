@@ -1,5 +1,9 @@
 # Roadmap
 
+## Ergänzung Datensicherung · 14.10.2026
+
+Passwortgeschützte Exportdateien und lesbare Konfliktvorschau implementiert (#4). Import-Speicherfehler melden keinen falschen Erfolg mehr. Kein Eingriff in Claudes Saisonpreise #3. Nächste Prüfungen: Chromium-CI, echter iPhone-/Safari-Rundlauf, Austausch einer passwortgeschützten Datei zwischen zwei Geräten. Browser-Daten bleiben unverschlüsselt, keine automatische Synchronisation. Technische Beschreibung in BACKUP_SECURITY.md.
+
 Die Reihenfolge schützt zuerst Daten, Geld und Termine. Ein Punkt gilt erst nach Code- und Browserprüfung als abgeschlossen.
 
 1. **Lauffähigkeit belegen:** Start, Navigation, Reiseanlage, Import/Export und Fehlerzustände in einem echten Browser sowie auf einem iPhone prüfen. Fehler aus der ChatGPT-Dateivorschau klar von App-Fehlern trennen.
@@ -28,3 +32,4 @@ Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und G
 - Sicherung v2 + v1-Migration, lokale Sicherungspunkte und Schutz vor erkannten Fremdänderungen implementiert. Keine Cloud-Synchronisation.
 - Nächste Schritte: neuen Chromium-Klicktest am Push prüfen; iPhone/Safari; Suchlinkparameter direkt beim Anbieter prüfen; Claudes angekündigte allgemeine Startseite/Beispiele.
 - Live-Suche erst mit Anbieterzugängen, serverseitiger Normalisierung und Datenzugriffskonzept; Details in PROVIDER_INTEGRATION.md.
+

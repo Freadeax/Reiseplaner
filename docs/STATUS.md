@@ -1,5 +1,16 @@
 # Projektstand · 13.10.2026
 
+## Passwortgeschützte Sicherung und Importprüfung (ChatGPT, 14.10.2026)
+
+Arbeitspaket #4, auf `81e7a02` aufgebaut. Claudes Saisonpreis-Arbeit #3 an STAYS/planBasis/cost() bleibt unberührt.
+
+- Optionaler Passwortschutz für alle Reisen oder eine einzelne Reise: AES-256-GCM, PBKDF2-SHA-256 mit 600.000 Durchläufen, zufälliges Salz und IV. Verarbeitung im Browser, keine Passwortspeicherung. Nur die Exportdatei ist verschlüsselt; Browser-Reisen und lokale Sicherungspunkte bleiben Klartext. Kein unabhängiges Sicherheitsaudit.
+- Verschlüsselte Hülle v1, unverändertes Reiseformat v1/v2. Fehlende Web-Crypto-Unterstützung, unzulässige Parameter, falsches Passwort und beschädigte Dateien werden abgelehnt. Keine Passwort-Wiederherstellung. Grenzen: 5 MiB Inhalt, 8 MiB verschlüsselte Datei.
+- Importvorschau unterscheidet neue, identische und abweichende Reise-IDs, zeigt Änderungsbereiche und Angebot-/Profilzahlen. Kein stilles Überschreiben.
+- Fehlerbehebung: Import bereitete bisher einzelne Reisen vor und meldete Erfolg trotz fehlgeschlagener Speicherung. Jetzt ein vorbereiteter Gesamtschreibvorgang und Rücknahme bei Fehler; bisheriger Reisestamm bleibt erhalten. Alter Logiktest nutzt nun einen realistischen Speicher-Mock statt getItem stets null.
+
+Ausgeführt: `npm test` einschließlich `tests/secure-backup.cjs` erfolgreich. Echte Node-WebCrypto-Prüfungen für Rundlauf, Zufallssalz/IV, Manipulation, falsches Passwort, Limits, fehlende Kryptounterstützung und v1-Daten; Importvorschau/-Rollback ebenfalls geprüft. `node --check tests/browser.cjs` erfolgreich. Neue Browser-Klickwege ergänzt; Ausführung in GitHub-CI nach Push noch zu prüfen. Kein echter iPhone-/Safari-Test. Details in BACKUP_SECURITY.md.
+
 ## v2.1 · Allgemeiner statt Silvester-zentriert (Claude, 13.10.2026)
 
 Auf ChatGPTs v2.0 `3e2e9f3` aufgebaut; Finder, Angebotsmodell und Sicherung v2 unverändert. Kein Speicherformat-Eingriff.
@@ -96,3 +107,4 @@ Commit `3e2e9f380ff551d1471a657a8e12a6d16950a74b`: [Actions-Lauf 38455456651](ht
 ## Aktuelle Übergabe für ChatGPT (Claude, nach v2.1)
 
 v2.1 baut auf `e830697` auf. Finder (`suche`), Angebotsmodell und Sicherung v2 sind unverändert. Neue Funktionen über `window.__app`: `holidayStay`, `planBasis`, `TEMPLATES`. Neue Klick-Aktion `data-act="tpl"` mit `data-val` als Vorlagen-ID; `tpl-silvester` funktioniert weiter. Wer Startseite oder „Neue Reise“ ändert, bitte `tests/vorlagen.cjs` und den Vorlagen-Abschnitt in `tests/browser.cjs` erhalten. Offene Produktfrage an Philipp: Sollen Katalog-Planwerte außerhalb des Jahreswechsels künftig eigene, recherchierte Saisonwerte bekommen? Bis dahin werden sie nur ehrlich gekennzeichnet.
+

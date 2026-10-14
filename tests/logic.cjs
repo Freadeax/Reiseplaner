@@ -7,7 +7,7 @@ code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.c
 const context = {
   window: { addEventListener() {} },
   document: { addEventListener() {}, querySelector() { return null; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild() {} } },
-  localStorage: { getItem() { return null; }, setItem() {} },
+  localStorage: { data: new Map(), getItem(k) { return this.data.get(k) ?? null; }, setItem(k,v) { this.data.set(k,v); } },
   setTimeout, clearTimeout, console,
 };
 vm.createContext(context);
@@ -127,3 +127,4 @@ a.applyType(fx, 'tag'); assert.equal(fx.end, '2027-06-05');
 a.applyType(fx, 'stadt'); assert.equal(fx.end, '2027-06-08');
 const keep = a.newTrip({ type: 'stadt', nights: 5 }); a.applyType(keep, 'strand'); assert.equal(keep.nights, 5, 'Dauer bleibt bei Wechsel zwischen Mehrtagesarten');
 console.log('Tagesausflug mit 0 Nächten und Dauer bei Typwahl geprüft.');
+

@@ -213,6 +213,29 @@ async function run(browser, base, name, ctxOpts, now) {
   const [bk] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="backup-all"]')]);
   const backupFile = await bk.path();
   assert.equal(JSON.parse(fs.readFileSync(backupFile, 'utf8')).trips.length, 2);
+  /* Passwortschutz: Export, falsches Passwort, lokale Daten unverändert, Vorschau. */
+  await p.click('[data-secure-act="all"]');
+  await p.fill('#secure-export-password', 'Testpassphrase 123!');
+  await p.fill('#secure-export-repeat', 'Testpassphrase 123!');
+  await p.check('#secure-understood');
+  const [encryptedDownload] = await Promise.all([p.waitForEvent('download'), p.click('[data-secure-act="encrypt"]')]);
+  const encryptedBytes = fs.readFileSync(await encryptedDownload.path());
+  const encrypted = JSON.parse(encryptedBytes);
+  assert.equal(encrypted.format, 'reiseplaner-encrypted-backup');
+  assert(!encryptedBytes.toString().includes('Finder Testhotel'), name + ': Export enthält privaten Klartext');
+  const beforeEncryptedImport = await p.evaluate(() => localStorage.getItem('rp-trips'));
+  await p.setInputFiles('#import-file', { name: 'geschuetzt.json', mimeType: 'application/json', buffer: encryptedBytes });
+  await p.fill('#secure-import-password', 'Falsches Passwort');
+  await p.click('[data-secure-act="decrypt"]');
+  await p.waitForSelector('#secure-error:has-text("Passwort falsch")');
+  assert.equal(await p.evaluate(() => localStorage.getItem('rp-trips')), beforeEncryptedImport, name + ': Falsches Passwort hat Daten geändert');
+  await p.fill('#secure-import-password', 'Testpassphrase 123!');
+  await p.click('[data-secure-act="decrypt"]');
+  await p.waitForSelector('text=Passwortschutz geöffnet');
+  assert((await p.textContent('.sheet')).includes('identischer Inhalt'), name + ': Importvorschau fehlt');
+  await noOverflow(p, name + ' Passwort-Importvorschau');
+  await p.click('[data-act="import-skip"]');
+  assert.equal(await p.locator('.card.click').count(), 2, name + ': Verschlüsselter Import dupliziert');
   await p.setInputFiles('#import-file', { name: 'b.json', mimeType: 'application/json', buffer: fs.readFileSync(backupFile) });
   await p.click('[data-act="import-skip"]');
   assert.equal(await p.locator('.card.click').count(), 2, name + ': Import hat dupliziert');
@@ -307,4 +330,5 @@ async function offline(browser, base) {
   if (errors.length) { console.error('JavaScript-Fehler:\n' + errors.join('\n')); process.exit(1); }
   console.log('Browser-Klicktest (Chromium: Desktop, Mobilbreite, 320 px dunkel) bestanden.');
 })().catch(e => { console.error(e); process.exit(1); });
+
 
