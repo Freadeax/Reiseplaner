@@ -1,6 +1,28 @@
 # Projektstand · 14.10.2026
 
 
+
+## Betriebsstand · 14.10.2026, abends (Claude, Issue #6)
+
+Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten Abschnitt.
+
+| Teil | Stand | Nachweis |
+| --- | --- | --- |
+| Website | **Online:** `https://freadeax.github.io/Reiseplaner/` (GitHub Pages, Quelle „GitHub Actions“) | HTTP 200; Workflow-Lauf 38583057320 für `3acfe22` vollständig grün, einschließlich `deploy` |
+| Artefakt | Nur Website-Dateien; Doku, Tests und SQL nicht abrufbar (404); keine Secret- oder service_role-Schlüssel | per `curl` auf der Live-Seite geprüft |
+| Website-Konfiguration | **Fehler:** GitHub-Variable `RP_SUPABASE_URL` endet auf `.supabase.com` statt `.supabase.co`, daher erreicht die Live-Seite Supabase nicht. Der Build bricht bei dieser Endung jetzt ab | `config.js` der Live-Seite |
+| Supabase-Projekt | `sqkszjurzobltvdluiwh`. Auth: Registrierung an, E-Mail-Bestätigung Pflicht (`mailer_autoconfirm: false`), E-Mail-Anmeldung aktiv. Site- und Redirect-URL laut Philipp eingetragen | `/auth/v1/settings` mit Publishable Key |
+| Datenbankschema | **Noch nicht eingespielt.** Die GitHub-Integration (Working directory `.`, Deploy to production, `main`) hat trotz zwei Pushes nichts angewendet. Ersatz: `supabase/manual/apply-20261014120000-reiseplaner_core.sql` im SQL-Editor | REST `PGRST205` |
+| E-Mail | Eingebauter Supabase-Versand, nur an Mitglieder des Projektteams und etwa 2 pro Stunde. Cloudflare soll laut Philipp nur für E-Mail dienen. Cloudflare Email Sending versendet an beliebige Empfänger nur im Bezahltarif (Workers Paid), deshalb Vorschlag: eigene Domain mit DNS bei Cloudflare plus SMTP-Dienst mit Gratistarif. Entscheidung offen | Cloudflare-Doku, Kommentar in #6 |
+
+**Nächste Schritte und wer sie übernimmt:**
+1. **Philipp:** GitHub-Variable `RP_SUPABASE_URL` auf `https://sqkszjurzobltvdluiwh.supabase.co` korrigieren.
+2. **Philipp:** Im Supabase-SQL-Editor `supabase/manual/apply-20261014120000-reiseplaner_core.sql` einmal ausführen.
+3. **Claude:** Neu veröffentlichen, Tabellen und Rechte über die Produktions-API prüfen, Ergebnis hier und in #6 eintragen.
+4. **Philipp:** Auf der Live-Seite mit eigener E-Mail registrieren, bestätigen, eine Reise anlegen und den Passwort-Reset testen, auch auf dem iPhone.
+5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
+6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
+
 ## v3.0 · GitHub Pages + Supabase (Claude, 14.10.2026, Issue #6)
 
 Ausgangspunkt `d7112a3`. Vor dem Push mit ChatGPTs `1c67ff5` (öffentliches Produkt, neutrale Standardwerte, Export ohne Passwort) zusammengeführt. Mit `docs/PUBLIC_PRODUCT.md` abgeglichen.

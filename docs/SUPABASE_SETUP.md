@@ -50,6 +50,7 @@ Ein Besitzerwechsel ist noch nicht umgesetzt. Der Eigentümer kann nicht entfern
 - Projekt-URL: `https://sqkszjurzobltvdluiwh.supabase.co` (Projekt-Ref `sqkszjurzobltvdluiwh`). Die URL ist öffentlich und steht auch in der Website-Konfiguration.
 - **Migrationen über die Supabase-GitHub-Integration:** Repository `Freadeax/Reiseplaner`, Working directory `.`, „Deploy to production“ an, Produktionszweig `main`. Neue Dateien in `supabase/migrations/` werden bei jedem Push auf `main` eingespielt. Auth- und API-Einstellungen aus `config.toml` ignoriert die Integration standardmäßig, sie werden im Dashboard gepflegt. **Migrationen deshalb nicht zusätzlich im SQL-Editor ausführen.**
 - Branching (Vorschau-Datenbanken) ist im Gratistarif nicht verfügbar und wird nicht gebraucht.
+- **Beobachtung 14.10.2026:** Die Integration hat die Migration nicht eingespielt. Das gilt für einen Doku-Push (`9f230f6`) wie für einen Push, der die Migrationsdatei ändert (`3acfe22`), auch nach 25 Minuten noch nicht (REST-API: `PGRST205`, Tabelle nicht gefunden). Ersatzweg: **`supabase/manual/apply-20261014120000-reiseplaner_core.sql` einmal im SQL-Editor ausführen.** Die Datei läuft in einer Transaktion und trägt die Migration in `supabase_migrations.schema_migrations` ein, damit Integration und `db push` sie nicht doppelt ausführen. Lokal auf einer frischen Datenbank geprüft: Tabellen angelegt, Historie verbucht, zweiter Lauf bricht ohne Änderung ab, `test:db` grün.
 
 ## Ersteinrichtung (Philipp, einmalig, Gratistarif)
 

@@ -26,6 +26,7 @@ function fail(msg) { console.error('Build abgebrochen: ' + msg); process.exit(1)
 function jwtRole(k) { try { return JSON.parse(Buffer.from(k.split('.')[1], 'base64url').toString()).role; } catch (e) { return null; } }
 
 if (!!url !== !!key) fail('RP_SUPABASE_URL und RP_SUPABASE_PUBLISHABLE_KEY nur gemeinsam setzen.');
+if (/\.supabase\.com$/i.test(url)) fail('RP_SUPABASE_URL endet auf .supabase.com. Projektadressen enden auf .supabase.co (ohne m), z. B. https://<ref>.supabase.co');
 if (url && !/^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(url) && !/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(url)) fail('RP_SUPABASE_URL ist keine gültige https-Projektadresse.');
 if (key) {
   if (/^sb_secret_/.test(key)) fail('Secret Key erkannt. Im Frontend ist nur der Publishable Key erlaubt.');
