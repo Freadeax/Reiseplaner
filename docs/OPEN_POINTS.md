@@ -26,7 +26,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 | Passwortschutz für normale Sicherung? | Durch neuere Entscheidung ohne Passwort ersetzt; Altimport bleibt |
 | Silvester-Beispiel über Budget ändern? | Weiter offen. Keine automatische Kürzung oder Änderung von Zeitraum/Budget; konkrete Angebote fehlen |
 | Welche Domain und welcher SMTP-Dienst? | Offen; DNS/SMTP-Konfiguration und Versand an echte externe Nutzer fehlen |
-| Wer hat das Produktionsschema eingespielt? | Herkunft unbestätigt; Schema laut Claude vorhanden. Nicht erneut ausführen |
+| Wer hat das Produktionsschema eingespielt? | **Geklärt:** die GitHub-Integration (verzögert), nicht der SQL-Editor (Philipp, 14.10.). Die Katalog-Migrationen kamen ebenfalls über die Integration. Nicht erneut ausführen |
 | Funktioniert Produktion mit echten Konten/iPhone? | Noch kein dokumentierter Abnahmenachweis |
 
 ## Priorisierte nächste Arbeiten
