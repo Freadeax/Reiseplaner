@@ -1223,10 +1223,37 @@ function stackBar(c){
   const tot=c.total||1, keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
   return '<div class="sbar" role="img" aria-label="Kosten nach Kategorie">'+keys.map(k=>'<i style="width:'+(c.byCat[k]/tot*100)+'%;background:'+COSTCAT[k][1]+'"></i>').join('')+'</div><div class="legend">'+keys.map(k=>'<span><i style="background:'+COSTCAT[k][1]+'"></i>'+COSTCAT[k][0]+' <b class="num">'+eur(c.byCat[k])+'</b></span>').join('')+'</div>';
 }
+/* Abgeleitete Orientierung ohne Fortschrittsprozente oder automatische Planänderung. */
+function planningNextSteps(t){
+ const out=[],c=cost(t),f=financeSummary(t),o=activeOffer(t),load=dayLoad(t),oc=openCosts(t);
+ const add=(id,priority,title,reason,tab,action='')=>out.push({id,priority,title,reason,tab,action});
+ const late=f.due.filter(r=>r.overdue),soon=f.due.filter(r=>!r.overdue&&r.days<=14);
+ if(late.length)add('payments',10,'Überfällige Zahlung klären',late.length+' Posten mit offenem Betrag und vergangener Fälligkeit. Keine Zahlung wird automatisch ausgelöst.','kosten');
+ else if(soon.length)add('payments',15,'Anstehende Zahlung prüfen',soon.length+' Posten werden innerhalb von 14 Tagen fällig.','kosten');
+ if(f.detachedPaid>0)add('detached',12,'Zahlungen für entfernte Posten klären',eur(f.detachedPaid)+' sind keinem aktuellen Planposten zugeordnet. Erstattung oder verbleibende Kosten gesondert klären.','kosten');
+ if(!placeOf(t)&&!String(t.dest||'').trim()&&!t.destGeo&&!(t.legs||[]).length)add('destination',20,'Ein Reiseziel wählen','Unterkunft, Ideen und Anfahrt lassen sich anschließend passend vergleichen.','unterkunft');
+ if(t.dateMode!=='fix'||!pd(t.start)||!pd(t.end))add('dates',25,'Zeitraum konkretisieren','Ein offener oder flexibler Zeitraum reicht zum Ideen sammeln. Vor Angeboten und Buchungen konkrete Daten wählen.','','edit-trip');
+ if(o&&(!offerCurrent(o,t)||o.availability!=='available'))add('offer',30,'Ausgewähltes Angebot erneut prüfen','Datum, Personen, Gültigkeit und Verfügbarkeit müssen zum Aufenthalt passen.','suche');
+ if(nightsOf(t)>0&&!stayOf(t))add('stay',35,'Eine Unterkunft vergleichen','Für die Übernachtungen fehlt eine Unterkunft. Noch kein vollständiger Gesamtpreis.','suche');
+ if(!String(t.origin||'').trim())add('origin',40,'Abfahrtsort ergänzen','Ohne Startort ist die Anfahrt nicht vollständig planbar.','','edit-trip');
+ if(t.travel==='auto'&&(!routeKm(t)||t.kmSrc==='schaetzung'&&t.routeKm==null))add('route',45,'Fahrstrecke prüfen',routeKm(t)?'Die Kilometer sind geschätzt. Echte Strecke, Parken und Maut prüfen.':'Hin- und Rückfahrt brauchen eine Strecke ab eurem Startort.','kosten');
+ if(num(t.budget,0)>0&&c.total>num(t.budget,0))add('budget',18,'Plan liegt über dem Budget',eur(c.total-num(t.budget,0))+' über der Vorgabe – zusätzlich können noch Kosten offen sein.','kosten');
+ else if(!num(t.budget,0))add('budget',55,'Gesamtbudget festlegen','Eine Obergrenze hilft beim Vergleich; Kosten ohne Budget sind weiterhin Planwerte.','','edit-trip');
+ if(oc.length)add('costs',50,'Offene Kosten und Gebühren prüfen',oc.slice(0,3).join(' · ')+(oc.length>3?' · '+(oc.length-3)+' weitere Hinweise in den Kosten':''),'kosten');
+ const busy=load.filter(d=>d.over),unknown=load.reduce((n,d)=>n+d.unknown,0);
+ if(busy.length)add('load',32,'Überladene Tage entlasten',busy.length+' Tag(e) haben mehr Programm als nach geschätzter Fahrtzeit verfügbar ist. Pausen und Wege zusätzlich prüfen.','plan');
+ if(unknown)add('duration',65,'Dauer der Unternehmungen prüfen',unknown+' eingeplante Punkt(e) ohne bekannte Dauer. Freie Zeit ist dadurch nicht bestätigt.','unternehmen');
+ if(!(t.items||[]).length)add('ideas',80,'Ein Highlight sammeln','Optional: eine passende Idee wählen und Erholungszeit frei lassen. Ihr müsst den Tagesplan nicht füllen.','unternehmen');
+ return out.sort((a,b)=>a.priority-b.priority||a.id.localeCompare(b.id));
+}
+function nextStepsBlock(t){
+ const rows=planningNextSteps(t),row=x=>'<article class="card"><h3>'+esc(x.title)+'</h3><p class="small">'+esc(x.reason)+'</p><div class="foot"><button type="button" class="btn ghost sm" '+(x.action?'data-act="'+x.action+'"':'data-go="r-'+esc(t.id)+'-'+x.tab+'"')+'>Ansehen</button></div></article>';
+ return '<section class="block" data-next-steps><div class="between"><h2>Was jetzt sinnvoll ist</h2><span class="badge">Aus eurem aktuellen Plan</span></div><p class="small muted">Die wichtigsten nächsten Schritte zuerst. Hinweise sind keine Buchungsfreigabe und ändern euren Plan nicht.</p>'+(rows.length?'<div class="grid">'+rows.slice(0,3).map(row).join('')+'</div>'+(rows.length>3?'<details class="panel"><summary><b>'+ (rows.length-3)+' weitere Hinweise</b></summary><div class="grid">'+rows.slice(3).map(row).join('')+'</div></details>':''):'<p>Keine zusätzlichen Schritte aus diesen Kriterien. Öffnungen, Tarife, genaue Zeiten und Buchungsbedingungen trotzdem beim Anbieter prüfen.</p>')+'</section>';
+}
 function tUeber(t){
   const c=cost(t), b=num(t.budget,0), pl=placeOf(t), st=stayOf(t), ch=checks(t), pk=PKGS.find(p=>p.id===t.packageId);
   const open=[];checklist(t)[0][1].forEach(i=>{if(!(t.check&&t.check[i[0]]))open.push(i)});
-  return todayBlock(t)+'<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
+  return todayBlock(t)+nextStepsBlock(t)+'<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
   '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+'</small></div>'+
   '<div class="kpi"><small>Dauer</small><b class="num">'+c.N+' Nächte</b><small>'+c.P+' Personen</small></div>'+
   '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
@@ -2645,7 +2672,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

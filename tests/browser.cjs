@@ -378,6 +378,8 @@ async function run(browser, base, name, ctxOpts, now) {
   /* Unterwegs-Ansicht: simuliertes Datum 02.05.2027 liegt in der Reise */
   await p.click('.tab[data-go$="-ueber"]');
   const today = await viewText(p);
+  assert(today.includes('Was jetzt sinnvoll ist'), name + ': nächste Planungsschritte fehlen');
+  assert(await p.locator('[data-next-steps] button[data-go$="-kosten"]').count() > 0, name + ': Kostenaktion fehlt');
   assert(today.includes('unterwegs · Tag 2 von 6') && today.includes('Heute ·'), name + ': Phase/Heute fehlt');
   assert(/Heute ·[\s\S]*Stephansdom[\s\S]*Morgen ·/.test(today), name + ': heutiger Punkt fehlt im Heute-Block');
 

@@ -1,5 +1,11 @@
 # Projektstand · 14.10.2026
 
+## Serie Paket 3: Nächste Planungsschritte (ChatGPT, #8)
+
+Basis a39c46d, vor Veröffentlichung Claudes e06171d integriert; Konflikt nur im Testexport, beide Funktionslisten erhalten. Mappe/Kalender/Teilentext und openHoursText-Korrektur unverändert übernommen. Claude bestätigt Browserabnahme der Pakete 1 und 2 auf e06171d. Reiseübersicht zeigt „Was jetzt sinnvoll ist“: die drei wichtigsten abgeleiteten Aktionen zuerst, weitere Punkte vollständig aufklappbar. Fällige/überfällige und nicht mehr zugeordnete Zahlungen, Budgetüberschreitung, Ziel, Datum, Angebot, Unterkunft, Abfahrtsort, Fahrstrecke, offene Kosten, überladene Tage und unbekannte Dauer. Jeder Punkt führt in den betroffenen Reiter oder die Eckdaten. Keine Fortschrittsquote/Buchungsfreigabe, keine automatische Planänderung; freie Tage müssen nicht gefüllt werden. Tagesausflug ohne Hotelaufgabe. Kein neues Speicherfeld/Auth/DB/Sync-Eingriff.
+
+Node-Regressionsfälle und Browser-Skript ergänzt; npm test vollständig grün, Gast-Build/Artefaktprüfung, Browser-Skript-Syntax und diff --check bestanden. Neue Chromium-Abnahme offen, lokal Browserbinary fehlt. Keine neue iPhone-Prüfung.
+
 ## Serie Paket 2: Eigene Kostenposten (ChatGPT, #8)
 
 Basis Paket 1 be96924. Eigene Kostenposten bearbeiten mit Betrag/Bezeichnung/Notiz und Vorschau, Abbrechen oder Übernehmen. Entfernen ebenfalls erst nach Vorschau. Anfrage/Buchung/Zahlung/Fälligkeit sperrt Entfernen und Änderung des Betrags/der Bezeichnung; Notiz bleibt ergänzbar. Zahlungsbuchdaten bleiben erhalten, gebuchte Beträge behalten Vorrang. Leere, negative und nicht endliche Beträge abgewiesen, explizite 0 erlaubt. Stabile Posten-ID erhalten, alte Vorschau bei Reiseänderung gesperrt. Keine Erstattung/Storno ausgelöst, keine neuen Speicherfelder/Auth/DB/Sync-Änderung.

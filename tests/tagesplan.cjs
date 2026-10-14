@@ -14,6 +14,30 @@ const ctx = { window: win, document: { addEventListener() {}, querySelector() { 
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
 
+/* Nächste Schritte: rein abgeleitet, dringende Zahlungen zuerst, Tagesausflüge ohne Hotelpflicht. */
+{
+  const t=a.newTrip({nights:0,budget:0,origin:'',dest:''}),before=JSON.stringify(t);
+  const steps=a.planningNextSteps(t);
+  assert(steps.some(x=>x.id==='destination'));assert(steps.some(x=>x.id==='dates'));assert(steps.some(x=>x.id==='budget'));
+  assert(!steps.some(x=>x.id==='stay'),'Tagesausflug braucht keine Unterkunft');
+  assert.equal(JSON.stringify(t),before);
+  const own=a.customActFromForm({title:'Offene Idee',cat:'eigen',cost:'',hours:'',per:'pp'},'cnext');
+  t.customActs=[own];t.items=[{uid:'next1',act:own.id,day:0,slot:'morgen'}];
+  t.extraCosts=[{id:'kurgent',t:'Eintritt',c:20}];t.ledger={'xc:kurgent':{status:'gebucht',amount:20,paid:0,due:'2020-01-01'}};
+  const urgent=a.planningNextSteps(t);
+  assert.equal(urgent[0].id,'payments');
+  assert(urgent.some(x=>x.id==='costs'));assert(urgent.some(x=>x.id==='duration'));
+  assert(!urgent.some(x=>x.id==='ideas'),'geplantes Programm nicht künstlich auffüllen');
+  assert(a.nextStepsBlock(t).includes('data-next-steps'));
+  assert(a.nextStepsBlock(t).includes('weitere Hinweise'));
+  assert(a.nextStepsBlock(t).includes('data-go="r-'+t.id+'-kosten"'));
+  t.ledger['xc:kurgent'].paid=20;
+  assert(!a.planningNextSteps(t).some(x=>x.id==='payments'),'bezahlte Posten sind nicht überfällig');
+  t.items=[];t.customActs=[];t.dest='Museum <script>';assert(!a.planningNextSteps(t).some(x=>x.id==='destination'));
+  const rich=a.newTrip({dateMode:'fix',start:'2027-05-01',end:'2027-05-02',dest:'Berlin',origin:'Ulm',travel:'bahn',ticket:20,budget:1});
+  assert(a.planningNextSteps(rich).some(x=>x.id==='budget'&&x.reason.includes('über der Vorgabe')));
+}
+
 /* Unterkunfts- und Ortswechsel: unverändernde Vorschau, kein Verlust gebundener Aufenthalte. */
 {
   const t=a.silvesterTemplate();t.check.stay=true;
