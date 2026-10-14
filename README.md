@@ -1,6 +1,6 @@
 # Reiseplaner
 
-Ein persönlicher Planer für Ausflüge, Wochenenden und längere Reisen. Er verbindet Zeitraum, Ort, Unterkunft, Tagesplan, Packliste und eine nachvollziehbare Kostenschätzung in einer Oberfläche für Handy und Desktop.
+Ein Reiseplaner für alle, für Ausflüge, Wochenenden und längere Reisen. Er verbindet Zeitraum, Ort, Unterkunft, Tagesplan, Packliste und eine nachvollziehbare Kostenschätzung in einer Oberfläche für Handy und Desktop.
 
 > **Projektstatus:** Frühe Entwicklung. Die Beispielunterkünfte, Aktivitäten, Tarife und Öffnungszeiten sind keine live geprüften Angebote. Für Buchungsentscheidungen müssen Datum, Belegung, Preis und Bedingungen direkt beim Anbieter geprüft werden.
 
@@ -47,17 +47,11 @@ Unbekannte Merkmale erfüllen kein Muss. Offene Pflichtgebühren erfüllen kein 
 
 Anbieterzugänge, Quellen und nächste Integrationsschritte: [docs/PROVIDER_INTEGRATION.md](docs/PROVIDER_INTEGRATION.md).
 
-## Passwortgeschützte Sicherungen
+## Konten und dauerhafte Speicherung
 
-Über **Mit Passwort sichern** könnt ihr alle Reisen oder eine einzelne Reise als verschlüsselte JSON-Datei herunterladen. Mindestens 12 Zeichen verwenden, besser eine lange, einzigartige Passphrase. Datei und Passwort getrennt aufbewahren: Es gibt keine Passwort-Wiederherstellung.
+Produktziel ist eine öffentliche Anwendung mit eigenen Konten, privaten Reisen und gezielter gemeinsamer Planung. Hosting und Supabase-Anbindung werden in Issue #6 entwickelt; das Ziel allein ist kein Nachweis einer funktionierenden Anmeldung oder Synchronisation. Umfang, Rollenmodell und Freigabekriterien stehen in [docs/PUBLIC_PRODUCT.md](docs/PUBLIC_PRODUCT.md).
 
-Die Verarbeitung bleibt im Browser. AES-256-GCM verschlüsselt den Inhalt; der Schlüssel wird mit PBKDF2-SHA-256 (600.000 Durchläufe) und zufälligem Salz abgeleitet. Jede Datei erhält einen neuen zufälligen Initialisierungsvektor. Falsches Passwort und beschädigte Dateien werden abgelehnt, bevor etwas importiert wird.
-
-**Wichtig:** Nur die Exportdatei ist verschlüsselt. Die lokalen Reisen, Sicherungspunkte und gewöhnlichen JSON-Exporte bleiben unverschlüsselt. Die Funktion benötigt Web Crypto, üblicherweise über HTTPS oder localhost; ohne Unterstützung wird sie nicht durch eine unsichere Ersatzlösung ersetzt. Passwortschutz ist keine Cloud-Synchronisation und keine Absicherung eines bereits kompromittierten Geräts. Kein unabhängiges Sicherheitsaudit.
-
-Zum Wiederherstellen **Sicherung importieren** wählen und das Passwort eingeben. Danach zeigt die Vorschau neue, identische und abweichende Reisen mit derselben ID sowie Angebote/Profile. Erst die anschließende Entscheidung importiert neue Reisen oder erstellt zusätzliche Kopien. Bestehende Reisen werden nicht überschrieben. Bei Speicherfehlern wird der Import zurückgenommen und nicht als erfolgreich gemeldet.
-
-Das innere Reiseformat bleibt v2 (v1 wird weiterhin akzeptiert). Die separate verschlüsselte Hülle hat Version 1; ältere Appstände können diese nicht öffnen. Maximal 5 MB Reiseinhalt bzw. 8 MB verschlüsselte Datei. Weitere technische Details: [docs/BACKUP_SECURITY.md](docs/BACKUP_SECURITY.md).
+**Sichern und importieren benötigt normalerweise kein Passwort.** Die Exportdatei enthält eure Reisepläne einschließlich privater Notizen. Bereits passwortgeschützte Altdateien bleiben mit dem damaligen Passwort importierbar. Details zu diesem Altformat stehen in [docs/BACKUP_SECURITY.md](docs/BACKUP_SECURITY.md). Die Export-Schaltflächen für Passwortschutz wurden aus dem normalen Ablauf entfernt; Anmeldung ist davon unabhängig.
 
 ## Weitere Grenzen
 

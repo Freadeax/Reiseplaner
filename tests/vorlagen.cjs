@@ -53,3 +53,17 @@ silv.day = 0;
 const msg = a.checks(moved).find(x => x[1].includes('gilt nur am'));
 assert(msg && msg[1].includes('31.12.'), 'Meldung nennt das Datum');
 console.log('Startvorlagen, zeitraumgerechte Planwert-Kennzeichnung und datumsgebundene Meldungen geprüft.');
+
+// Öffentliche Defaults dürfen keine fremde Startstrecke berechnen.
+const neutral=a.newTrip({catalog:'allgaeu',place:'oberjoch'});
+assert.equal(neutral.origin,'');
+assert.equal(a.routeKm(neutral),0);
+assert(a.openCosts(neutral).includes('Fahrstrecke fehlt'));
+for(const tpl of a.TEMPLATES.filter(x=>x.id!=='silvester'))assert.equal(tpl.make().origin,'');
+const sample=a.silvesterTemplate();
+assert.equal(sample.origin,'73110 Hattenhofen');
+assert(a.routeKm(sample)>0);
+const existing=a.newTrip({origin:'Berlin',routeKm:400});
+assert.equal(a.validateBackup(a.backupData([existing]))[0].origin,'Berlin');
+assert.equal(a.routeKm(existing),400);
+console.log('Öffentliche Defaults, fehlende Strecke, Beispielbasis und bestehender Startort geprüft.');

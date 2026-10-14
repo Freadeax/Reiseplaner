@@ -233,16 +233,14 @@ async function run(browser, base, name, ctxOpts, now) {
   const [bk] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="backup-all"]')]);
   const backupFile = await bk.path();
   assert.equal(JSON.parse(fs.readFileSync(backupFile, 'utf8')).trips.length, 2);
-  /* Passwortschutz: Export, falsches Passwort, lokale Daten unverändert, Vorschau. */
-  await p.click('[data-secure-act="all"]');
-  await p.fill('#secure-export-password', 'Testpassphrase 123!');
-  await p.fill('#secure-export-repeat', 'Testpassphrase 123!');
-  await p.check('#secure-understood');
-  const [encryptedDownload] = await Promise.all([p.waitForEvent('download'), p.click('[data-secure-act="encrypt"]')]);
-  const encryptedBytes = fs.readFileSync(await encryptedDownload.path());
-  const encrypted = JSON.parse(encryptedBytes);
+  /* Altdateien bleiben importierbar; neue Sicherungen brauchen kein Passwort. */
+  assert.equal(await p.locator('[data-secure-act="all"]').count(), 0, name + ': Passwortexport weiterhin im Hauptablauf');
+  const encrypted = await p.evaluate(async () => {
+    const a=window.__app;
+    return a.encryptBackup(a.backupData(a.Store.list()), 'Testpassphrase 123!');
+  });
+  const encryptedBytes = Buffer.from(JSON.stringify(encrypted));
   assert.equal(encrypted.format, 'reiseplaner-encrypted-backup');
-  assert(!encryptedBytes.toString().includes('Finder Testhotel'), name + ': Export enthält privaten Klartext');
   const beforeEncryptedImport = await p.evaluate(() => localStorage.getItem('rp-trips'));
   await p.setInputFiles('#import-file', { name: 'geschuetzt.json', mimeType: 'application/json', buffer: encryptedBytes });
   await p.fill('#secure-import-password', 'Falsches Passwort');

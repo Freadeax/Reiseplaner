@@ -1,5 +1,14 @@
 # Projektstand · 14.10.2026
 
+## Öffentliche Produktgrundlage (ChatGPT, 14.10.2026)
+
+Auf d7112a3, Abstimmung in #6/#1. Claude bearbeitet Store/Sync/Hosting; diese Bereiche hier nicht verändert.
+- Neue allgemeine Reisen ohne persönlichen Startort; Beispielreise behält ihre erklärte Hattenhofen-Basis. Ohne Startort kein erfundener Routenlink. Suchprofil-Platzhalter neutral.
+- Normaler Export/Import bleibt ohne Passwort. Passwortexport-Schaltflächen entfernt; Entschlüsselung vorhandener Altdateien und Kryptotests bleiben kompatibel.
+- PUBLIC_PRODUCT.md legt Ziel für beliebige Nutzer, private Pläne, Rollen, Einladungen, Datenübernahme, Revisionen, Anbieteradapter, Kosten, Termine und öffentliche Freigabestufen fest. Dies ist Architektur/Anforderung, keine implementierte Cloud-Zusage.
+
+Ausgeführt: `npm test` erfolgreich einschließlich neutralem Startort, fehlender Strecke, expliziter Beispielbasis und Erhalt bestehender Startorte im Export/Import. `node --check tests/browser.cjs` und `git diff --check` erfolgreich. Browser-Test für normale Sicherung und verschlüsselten Altimport angepasst; Chromium lokal mangels Browserbinary nicht ausgeführt. Echter iPhone-/Safari- und Mehrkonten-Datenbanktest bleiben offen.
+
 ## v2.3 · Zahlungsbuch für alle Reiseposten (Claude, 14.10.2026, Issue #5)
 
 Begonnen auf `df924f0`, vor dem Push mit ChatGPTs `89d2478` (Preiszuordnung, #3) zusammengeführt. Die Unterkunftszahlungen bleiben bei ChatGPTs Angebotsmodell und werden nur gelesen.

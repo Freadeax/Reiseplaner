@@ -48,3 +48,8 @@ Exakte Daten/Belegung vor Saisonvergleich, Prüfhinweise ab 31 Tagen und sichtba
 
 - Erledigt in v2.3: Status, Buchungsbetrag, bezahlt und Fälligkeit für alle Posten außer der Unterkunft. Gebuchte Beträge ersetzen Planwerte.
 - Offen: Teilzahlungen mit Datum, Erstattungen nach Storno, Reise-Rückblick (tatsächliche Ausgaben gegen Plan), Erinnerungen über Kalender hinaus.
+
+
+## Öffentliche Anwendung · 14.10.2026
+
+Verbindlich: für beliebige Nutzer, private Reisen als Standard, gezielte Zusammenarbeit. Produkt-/Datenvertrag und Freigabekriterien: PUBLIC_PRODUCT.md. Normale Sicherungen ohne Passwort; verschlüsselte Altimporte erhalten. Allgemeine neue Reisen ohne persönlichen Startort. Backend/Hosting in Claude #6: private Konten zuerst, danach Reise-Mitgliedschaften und Einladungen mit serverseitigen Rechten, Revisionskonflikten und geprüfter Wiederherstellung. Live-Suche, Szenariokosten, exakte Termine und öffentlicher Betrieb sind getrennte Arbeitspakete, keine schon erfüllten Funktionen.
