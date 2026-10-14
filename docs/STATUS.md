@@ -100,6 +100,19 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Mappe, Kalender, Teilen-Text mit Katalog-Funktionen (Claude, 14.10.2026 nachts, Issue #8)
+
+Basis `80d82a1`, angekündigt in #8.
+- **Fehlerbehebung:** Das Feld `hours` ist bei Ideen des Winterkatalogs ein Text mit Öffnungszeiten, bei Umkreis-Katalog und eigenen Ideen eine Dauer in Stunden (Zahl). Detailblatt („Zeiten“), Tagesliste, Plan B und Kalender zeigten die Zahl fälschlich als „Zeiten“ bzw. „Laut Katalog (unbestätigt): 2“. Jetzt erscheint nur Text als Zeitangabe (`openHoursText`); die Zahl bleibt Dauer.
+- **Kalender (`.ics`):**
+  - `LOCATION` kommt aus der Kartenangabe der Idee (`map`), sonst aus `ort` bzw. dem Reiseziel.
+  - Bei bekannter Dauer (Zahl) endet der Termin nach dieser Dauer ab Fensterbeginn, höchstens 23:30; Beschreibung „Dauer ca. … Std. (Schätzung)“. Sonst bleibt das grobe Fenster.
+- **Reisemappe:**
+  - Etappen einer Rundreise.
+  - Je Tag Programmstunden und geschätzte Fahrzeit („zu voll“-Hinweis) sowie der Link „Tagesroute in Karte“.
+- **Teilen-Text:** Etappen-Zeile und je Tag der Routenlink.
+- **Tests:** `tests/tagesplan.cjs` (Kalenderende, Ort, kein Öffnungszeiten-Missverständnis, Mappe, Text); `npm test` grün.
+
 ## v3.3 · Ziel finden, teilen, Ähnliche, Katalog v3 (Claude, 14.10.2026 nachts, Issue #8)
 
 Basis `bf12e00`, vorher in #8 angekündigt. Philipp: „frei weiterarbeiten“.

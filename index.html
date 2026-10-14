@@ -792,6 +792,9 @@ function icsFold(line){
     if(len+n>(out.length?74:75)){out.push(cur);cur='';len=0}cur+=ch;len+=n}
   out.push(cur);return out.join('\r\n ');
 }
+/* Feld hours: bei Ideen des Winterkatalogs Text mit Öffnungszeiten, bei Umkreis-Katalog und eigenen Ideen Dauer in Stunden (Zahl).
+   Nur der Text ist eine Zeitangabe zum Anzeigen; die Zahl liest actHours() als Dauer. */
+function openHoursText(a){return a&&typeof a.hours==='string'?a.hours:''}
 function icsData(t,now){
   const a=pd(t.start),b=pd(t.end);
   if(t.dateMode!=='fix'||!a||!b||b<a)return null;
@@ -804,10 +807,12 @@ function icsData(t,now){
   ev(t.id+'-reise',['DTSTART;VALUE=DATE:'+dt(a),'DTEND;VALUE=DATE:'+dt(new Date(b.getTime()+864e5)),'SUMMARY:'+icsEsc(t.title),
     where?'LOCATION:'+icsEsc(where):'','DESCRIPTION:'+icsEsc('Unterkunft: '+(st?st.name:'noch offen')+'\nAus dem Reiseplaner exportiert. Planstand, keine Buchungsbestätigung.'),'TRANSP:TRANSPARENT']);
   sortedItems(t).forEach(it=>{const x=actOf(t,it.act),d=days[it.day];if(!x)return;if(!d||!d.date){skipped++;return}
-    const w=SLOTTIME[it.slot]||SLOTTIME.nachm,u=actUrl(x);
-    ev(t.id+'-'+it.uid,['DTSTART:'+dt(d.date)+'T'+w[0]+'00','DTEND:'+dt(d.date)+'T'+w[1]+'00','SUMMARY:'+icsEsc(x.t),
-      (x.ort||where)?'LOCATION:'+icsEsc(x.ort||where):'',
-      'DESCRIPTION:'+icsEsc('Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.'+(x.dur?'\nDauer: '+x.dur:'')+(x.hours?'\nLaut Katalog (unbestätigt): '+x.hours:'')),
+    const w=SLOTTIME[it.slot]||SLOTTIME.nachm,u=actUrl(x),h=typeof x.hours==='number'&&x.hours>0?x.hours:null;
+    /* bekannte Dauer (Zahl) bestimmt das Ende ab Fensterbeginn, höchstens bis 23:30; sonst das grobe Fenster */
+    const endM=h?Math.min(23*60+30,(+w[0].slice(0,2))*60+(+w[0].slice(2))+Math.round(h*60)):null,end=endM?String(Math.floor(endM/60)).padStart(2,'0')+String(endM%60).padStart(2,'0'):w[1];
+    ev(t.id+'-'+it.uid,['DTSTART:'+dt(d.date)+'T'+w[0]+'00','DTEND:'+dt(d.date)+'T'+end+'00','SUMMARY:'+icsEsc(x.t),
+      (x.map||x.ort||where)?'LOCATION:'+icsEsc(x.map||x.ort||where):'',
+      'DESCRIPTION:'+icsEsc('Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.'+(h?'\nDauer ca. '+String(h).replace('.',',')+' Std. (Schätzung)':'')+(x.dur&&!h?'\nDauer: '+x.dur:'')+(openHoursText(x)?'\nLaut Katalog (unbestätigt): '+openHoursText(x):'')),
       u?'URL:'+u:'','STATUS:TENTATIVE','TRANSP:TRANSPARENT'])});
   Object.keys(t.ledger||{}).length&&financeSummary(t).due.forEach(d=>{const x=pd(d.due);ev(t.id+'-due-'+d.key.replace(/[^A-Za-z0-9-]/g,'-'),['DTSTART;VALUE=DATE:'+dt(x),'DTEND;VALUE=DATE:'+dt(new Date(x.getTime()+864e5)),'SUMMARY:'+icsEsc('Zahlung fällig: '+d.label+' ('+eur(d.open)+')'),'DESCRIPTION:'+icsEsc('Aus dem Zahlungsbuch der Reise „'+t.title+'“. Betrag laut eurer Erfassung.'),'TRANSP:TRANSPARENT'])});
   L.push('END:VCALENDAR');
@@ -819,10 +824,11 @@ function tripText(t,opts){
   L.push(t.title,rangeText(t)+' · '+c.P+(c.P===1?' Person':' Personen'));
   L.push('Ziel: '+(pl?pl.name:(t.dest||'noch offen')));
   L.push('Unterkunft: '+(st?st.name+(st.ort?' ('+st.ort+')':''):'noch offen'));
+  if(Array.isArray(t.legs)&&t.legs.length)L.push('Etappen: '+t.legs.map(l=>l.name+' ('+num(l.nights,1)+' N.)').join(' → '));
   L.push('','Tagesplan:');
   let any=false;
   days.forEach(d=>{const its=dayItems(t,d.i);if(!its.length)return;any=true;
-    L.push('• '+d.label+': '+its.map(it=>SLOTNAME[it.slot]+' '+actOf(t,it.act).t).join(' · '))});
+    L.push('• '+d.label+': '+its.map(it=>SLOTNAME[it.slot]+' '+actOf(t,it.act).t).join(' · '));const ru=dayRouteUrl(t,d.i);if(ru)L.push('  Route: '+ru)});
   if(!any)L.push('• noch nichts eingeplant');
   const late=sortedItems(t).filter(it=>it.day>=days.length&&actOf(t,it.act)).length;
   if(late)L.push('• '+late+' Punkt(e) liegen nach dem letzten Reisetag');
@@ -1550,11 +1556,11 @@ function dayList(t,d,last){
   if(d.i===last&&last>0)fixed.push('Packen & Abreise');
   if(!its.length&&!fixed.length)return '<p class="muted small">Nichts eingeplant.</p>';
   return '<ul class="plain">'+fixed.map(x=>'<li><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
-    return '<li><span class="eyebrow">'+esc(SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(a.hours?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(a.hours)+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
+    return '<li><span class="eyebrow">'+esc(SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
 }
 function rainBlock(t,i){
   const ideas=rainIdeas(t,i,3);if(!ideas.length)return '';
-  return '<details class="panel"><summary><b>Plan B bei schlechtem Wetter</b> <small class="muted">'+ideas.length+' Ideen drinnen</small></summary><ul class="plain">'+ideas.map(a=>'<li>'+esc(a.t)+' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>'+(a.hours?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(a.hours)+'</small>':'')+(a.warn?'<br><small class="muted">! '+esc(a.warn)+'</small>':'')+' <button type="button" class="lnk noprint" data-act="rain-plan" data-val="'+esc(a.id)+'|'+i+'">Einplanen</button></li>').join('')+'</ul><p class="small muted">Nur Ideen aus dem Katalog mit Merkmal „drinnen“. Öffnung und Wetter selbst prüfen.</p></details>';
+  return '<details class="panel"><summary><b>Plan B bei schlechtem Wetter</b> <small class="muted">'+ideas.length+' Ideen drinnen</small></summary><ul class="plain">'+ideas.map(a=>'<li>'+esc(a.t)+' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>'+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(a.warn?'<br><small class="muted">! '+esc(a.warn)+'</small>':'')+' <button type="button" class="lnk noprint" data-act="rain-plan" data-val="'+esc(a.id)+'|'+i+'">Einplanen</button></li>').join('')+'</ul><p class="small muted">Nur Ideen aus dem Katalog mit Merkmal „drinnen“. Öffnung und Wetter selbst prüfen.</p></details>';
 }
 function todayBlock(t){
   const ph=tripPhase(t);if(!ph||ph.phase!=='unterwegs')return '';
@@ -1578,8 +1584,10 @@ function tMappe(t){
    '<dl class="facts"><dt>Zeitraum</dt><dd>'+esc(rangeText(t))+'</dd><dt>Personen</dt><dd>'+c.P+'</dd><dt>Ziel</dt><dd>'+esc(pl?pl.name+' · '+pl.region:(t.dest||'noch offen'))+'</dd>'+
    '<dt>Anreise</dt><dd>'+esc(({auto:'Auto',bahn:'Bahn'})[t.travel]||'Ticket')+(t.origin?' ab '+esc(t.origin):'')+'</dd>'+
    '<dt>Unterkunft</dt><dd>'+(st?esc(st.name)+(st.ort?', '+esc(st.ort):'')+' · '+(num(t.stayQuote,0)>0?'Angebot '+eur(t.stayQuote):'nur Planwert'):'noch offen')+'</dd>'+
-   '<dt>Status</dt><dd>'+esc(STATUS[t.status]||'')+'</dd></dl></section>'+
-   '<section class="block mappe"><h3>Tagesplan</h3><div class="mdays">'+days.map(d=>{const rb=rainIdeas(t,d.i,2);return '<div class="mday"><h4>'+esc(d.label)+(d.i===0?' · Anreise':d.i===last&&last>0?' · Abreise':'')+'</h4>'+dayList(t,d,last)+(rb.length?'<p class="small muted">Plan B drinnen: '+esc(rb.map(a=>a.t).join(' · '))+'</p>':'')+'</div>'}).join('')+'</div>'+
+   '<dt>Status</dt><dd>'+esc(STATUS[t.status]||'')+'</dd></dl>'+
+   (Array.isArray(t.legs)&&t.legs.length?'<h3>Etappen</h3><ol class="steps">'+t.legs.map(l=>'<li>'+esc(l.name)+' · '+num(l.nights,1)+' Nacht/Nächte · Anfahrt ≈ '+num(l.roadKm,0)+' km (geschätzt)</li>').join('')+'</ol>':'')+'</section>'+
+   '<section class="block mappe"><h3>Tagesplan</h3><div class="mdays">'+days.map(d=>{const rb=rainIdeas(t,d.i,2),ld=dayLoad(t)[d.i],ru=dayRouteUrl(t,d.i);return '<div class="mday"><h4>'+esc(d.label)+(d.i===0?' · Anreise':d.i===last&&last>0?' · Abreise':'')+'</h4>'+dayList(t,d,last)+
+     (ld&&(ld.planned||ld.drive)?'<p class="small muted">Programm ≈ '+String(ld.planned).replace('.',',')+' Std.'+(ld.drive?', Fahrt ca. '+String(Math.round(ld.drive/6)/10).replace('.',',')+' Std.':'')+(ld.over?' · zu voll':'')+'</p>':'')+(ru?'<p class="small">'+lk(ru,'Tagesroute in Karte')+'</p>':'')+(rb.length?'<p class="small muted">Plan B drinnen: '+esc(rb.map(a=>a.t).join(' · '))+'</p>':'')+'</div>'}).join('')+'</div>'+
    '<p class="small muted">Zeitfenster sind grob. Öffnungszeiten aus dem Katalog sind nicht für eure Daten geprüft.</p></section>'+
    (warn.length?'<section class="block mappe"><h3>Hinweise aus dem Plan-Check</h3><ul class="plain">'+warn.map(x=>'<li>! '+esc(x[1])+'</li>').join('')+'</ul></section>':'')+
    '<section class="block mappe"><h3>Kosten · Planwerte</h3><div class="tbl-wrap"><table><tbody>'+keys.map(k=>'<tr><td>'+esc(COSTCAT[k][0])+'</td><td class="r">'+eur(c.byCat[k])+'</td></tr>').join('')+
@@ -1626,7 +1634,7 @@ function sheetAct(t,id,preDay,preSlot){
   const dSlot=preSlot||a.slot||'nachm';
   openSheet('<span class="eyebrow">'+esc(CAT[a.cat||'eigen'])+(a.ort?' · '+esc(a.ort):'')+'</span><h2>'+esc(a.t)+'</h2><p>'+esc(a.s||a.note||'')+'</p>'+
    '<div class="badges">'+(a.dur?'<span class="badge">'+esc(a.dur)+'</span>':'')+(a.indoor?'<span class="badge">drinnen</span>':'')+(a.book?'<span class="badge">vorher buchen</span>':'')+(a.custom?'':srcBadge(a.src))+'</div>'+
-   '<div class="kpis"><div class="kpi"><small>Kosten für euch</small><b class="num" style="font-size:1.2rem">'+esc(c.txt)+'</b></div>'+(a.hours?'<div class="kpi"><small>Zeiten</small><b style="font-size:1.05rem">'+esc(a.hours)+'</b></div>':'')+'</div>'+
+   '<div class="kpis"><div class="kpi"><small>Kosten für euch</small><b class="num" style="font-size:1.2rem">'+esc(c.txt)+'</b></div>'+(openHoursText(a)?'<div class="kpi"><small>Zeiten</small><b style="font-size:1.05rem">'+esc(openHoursText(a))+'</b></div>':'')+'</div>'+
    (a.warn?'<div class="note" style="background:var(--surface-2)"><b style="color:var(--bad)">Hinweis</b><p>'+esc(a.warn)+'</p></div>':'')+
    (a.steps&&a.steps.length?'<h4>Ablauf</h4><ol class="steps">'+a.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'')+
    (a.tips&&a.tips.length?'<h4>Tipps</h4><ul class="plain">'+a.tips.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':'')+
@@ -2637,7 +2645,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

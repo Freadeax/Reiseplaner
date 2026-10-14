@@ -267,6 +267,26 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   const bk = { format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(Object.assign({}, legsT().tt, { id: 'tgeo1', originGeo: { lat: 99, lon: 0 } })))] };
   assert.throws(() => a.validateBackup(bk), /Abfahrtsorts/);
 }
+/* Mappe, Kalender, Teilen-Text: Dauer als Zahl ist keine Öffnungszeit; Ort aus map; Etappen und Tagesroute */
+{
+  assert.equal(a.openHoursText({ hours: 'vormittags, täglich' }), 'vormittags, täglich');
+  assert.equal(a.openHoursText({ hours: 2.5 }), '', 'Dauer wird nicht als Öffnungszeit angezeigt');
+  const tt = trip({ dateMode: 'fix', start: '2027-05-01', end: '2027-05-03', dest: 'Bad Urach',
+    legs: [{ place: 'x', name: 'Bad Urach', lat: 48.49, lon: 9.4, nights: 2, roadKm: 40 }] });
+  const w = act('Wasserfall', null, { hours: 2.5, map: 'Uracher Wasserfall, Bad Urach' }), old = act('Alt', null, { hours: 'vormittags, täglich', dur: '3 Std.' });
+  tt.customActs = [w, old]; tt.items = [{ uid: 'k1', act: w.id, day: 1, slot: 'morgen' }, { uid: 'k2', act: old.id, day: 1, slot: 'nachm' }];
+  const ics = a.icsData(tt, new Date('2027-04-01T00:00:00Z')).text.replace(/\r\n /g, '');
+  const evW = ics.split('BEGIN:VEVENT').find(e => e.includes('SUMMARY:Wasserfall'));
+  assert(/DTSTART:20270502T090000/.test(evW) && /DTEND:20270502T113000/.test(evW), 'Ende aus Dauer 2,5 Std.');
+  assert(/LOCATION:Uracher Wasserfall\\, Bad Urach/.test(evW), 'Ort aus Kartenangabe');
+  assert(evW.includes('Dauer ca. 2\\,5 Std.') && !/Laut Katalog/.test(evW));
+  const evOld = ics.split('BEGIN:VEVENT').find(e => e.includes('SUMMARY:Alt'));
+  assert(/DTEND:20270502T180000/.test(evOld) && /Laut Katalog \(unbestätigt\): vormittags/.test(evOld), 'Textzeiten bleiben Hinweis, Fenster unverändert');
+  const txt = a.tripText(tt);
+  assert(/Etappen: Bad Urach \(2 N\.\)/.test(txt) && /Route: https:\/\/www\.google\.com\/maps\/dir/.test(txt));
+  const mp = a.tMappe(tt);
+  assert(/<h3>Etappen<\/h3>/.test(mp) && /Tagesroute in Karte/.test(mp) && /Programm ≈ 5,5 Std\./.test(mp));
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';
@@ -280,4 +300,4 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.catYear({ places: [] }), '');
   a.catState().month = '';
 }
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz) geprüft.');
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text geprüft.');
