@@ -83,7 +83,7 @@ npm run test:e2e                  # Chromium gegen die gebaute Website unter /Re
 supabase stop
 ```
 
-`supabase/config.toml` gilt nur lokal (E-Mails landen in Mailpit, http://127.0.0.1:54324). Die Produktionswerte werden im Dashboard gesetzt.
+`supabase/config.toml` gilt nur lokal (E-Mails landen in Mailpit, http://127.0.0.1:55324). Die Produktionswerte werden im Dashboard gesetzt.
 
 ## Änderungen am Schema
 
