@@ -109,6 +109,51 @@ assert(act.custom && act.costOpen === true && act.cost === 0 && act.catalogSpot 
 assert(/prüfen/.test(act.note));
 assert.equal(C.toAct(Object.assign({}, DATA.places[0].spots[0], { kind: 'therme' }), DATA.places[0], fakeUid).cat, 'wellness');
 
+/* v3.2: Packhinweise, Dauer aus Text, Rundreise, Nächte, Textsuche, Sortierung, Karte, Tageskapazität, Lücken */
+assert.deepEqual(C.bringFor('unterwelt').length, 2); assert(C.bringFor('therme').some(x => /Badesachen/.test(x)));
+assert.deepEqual(C.bringFor('gibtsnicht'), []);
+const act2 = C.toAct(Object.assign({}, DATA.places[0].spots[0], { kind: 'unterwelt' }), DATA.places[0], fakeUid);
+assert(act2.bring.some(x => /Jacke/.test(x)) && act2.hours === DATA.places[0].spots[0].hours);
+assert.equal(C.parseHours('ca. 2,5 Std.'), 2.5); assert.equal(C.parseHours('90 Min.'), 1.5); assert.equal(C.parseHours('1 Std. 30 Min.'), 1.5);
+assert.equal(C.parseHours('3 Std.'), 3); assert.equal(C.parseHours('abends'), null); assert.equal(C.parseHours(null), null);
+{ /* Rundreise: kürzeste Reihenfolge, Heimfahrt, Nächte */
+  const pts = ['berlin', 'dresden', 'prag', 'leipzig'].map(id => all.find(p => p.id === id));
+  const r = C.roundTrip(goe, pts);
+  assert.equal(r.order.length, 4); assert.equal(r.legs.length, 5, 'Etappen plus Heimfahrt');
+  assert.equal(r.legs[r.legs.length - 1].to, goe);
+  assert.equal(r.roadKm, r.legs.reduce((s, l) => s + l.roadKm, 0));
+  const perm = a => a.length < 2 ? [a] : a.flatMap((x, i) => perm(a.slice(0, i).concat(a.slice(i + 1))).map(q => [x].concat(q)));
+  const len = o => { let s = 0, c = goe; o.forEach(p => { s += C.airKm(c, p); c = p; }); return s + C.airKm(c, goe); };
+  const best = Math.min(...perm(pts).map(len));
+  assert(Math.abs(len(r.order) - best) < 0.5, 'Reihenfolge ist die kürzeste (4 Ziele, alle Varianten geprüft)');
+  const n = C.splitNights(r.order, 7); assert.equal(n.reduce((a, b) => a + b, 0), 7); assert(n.every(x => x >= 1));
+  assert.deepEqual(C.splitNights(r.order, 2), [1, 1, 1, 1], 'mindestens eine Nacht je Ziel');
+}
+{ /* Textsuche über Ziel und Attraktionen, mehrere Wörter = alle */
+  const harz = all.find(p => p.id === 'harz');
+  assert(C.textMatch(harz, 'Brocken')); assert(C.textMatch(harz, 'hängebrücke wernigerode')); assert(!C.textMatch(harz, 'Brocken Eiffelturm')); assert(C.textMatch(harz, '  '));
+  const rk = C.rank(far, {});
+  const nah = C.sortRanked(rk, 'nah'), weit = C.sortRanked(rk, 'weit');
+  assert(nah[0].place.airKm <= nah[nah.length - 1].place.airKm && weit[0].place.airKm >= weit[weit.length - 1].place.airKm);
+  assert.equal(C.sortRanked(rk, 'passend')[0], rk[0]);
+}
+{ /* Karte: Start in der Mitte, alles im Bild, Norden oben */
+  const L = C.mapLayout(goe, far.places, 340, 230);
+  assert.deepEqual(L.origin, { x: 170, y: 115 });
+  assert(L.points.every(q => q.x >= 0 && q.x <= 340 && q.y >= 0 && q.y <= 230), 'alle Punkte im Bild');
+  const hamburg = L.points.find(q => q.id === 'hamburg'); if (hamburg) assert(hamburg.y < 115, 'Norden oben');
+  assert(L.rings.length >= 1);
+}
+assert.equal(C.dayCapacity(0, 3, 120), 8); assert.equal(C.dayCapacity(1, 3, 120), 10); assert.equal(C.dayCapacity(0, 1, 60), 8);
+{ /* Lücken füllen: belegte Felder bleiben frei, Bereich je Etappe */
+  const sp3 = [sp('x1', 2), sp('x2', 2), sp('x3', 2)];
+  const p1 = C.dayPlan(sp3, 2, ['1|morgen', '1|nachm']);
+  assert(!p1.some(i => i.day === 1 && (i.slot === 'morgen' || i.slot === 'nachm')), 'belegte Felder bleiben unberührt');
+  const p2 = C.dayPlan(sp3, 4, [], { from: 2, to: 3 });
+  assert(p2.length && p2.every(i => i.day >= 2 && i.day <= 3), 'nur Tage der Etappe');
+}
+assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele und Länder');
+
 /* App: Übernahme in eine Reise, Kosten „Preis offen“, Plan-Check, Sicherung bleibt gültig */
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];

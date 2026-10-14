@@ -4,7 +4,7 @@
    ungefähre Lagepunkte für die Entfernungsrechnung. Monate sind typische Reisezeiten bzw. übliche
    Saison und für konkrete Daten nicht geprüft. Nach Änderungen: node scripts/catalog-sql.mjs */
 window.RP_CATALOG = {
-"version": 1,
+"version": 2,
 "checked": "2026-10-14",
 "places": [
 {"id":"bad-urach","name":"Bad Urach & Schwäbische Alb","region":"Baden-Württemberg","country":"DE","lat":48.491,"lon":9.399,
@@ -585,6 +585,338 @@ window.RP_CATALOG = {
   {"id":"amsterdam-noord","name":"Fähre nach Amsterdam-Noord","kind":"wasser","lat":52.379,"lon":4.900,"hours":2,"family":true,"summary":"Fähre über das IJ zu Kreativvierteln."},
   {"id":"amsterdam-zaanseschans","name":"Zaanse Schans","kind":"kultur","lat":52.474,"lon":4.817,"hours":2.5,"family":true,"summary":"Windmühlen und Holzhäuser."},
   {"id":"amsterdam-annefrank","name":"Anne Frank Huis","kind":"kultur","lat":52.375,"lon":4.884,"hours":1.5,"indoor":true,"summary":"Versteck der Familie Frank; nur mit Online-Ticket."}
+ ]},
+{"id":"sylt","name":"Sylt","region":"Schleswig-Holstein","country":"DE","lat":54.906,"lon":8.308,
+ "kinds":["wasser","natur","familie","therme"],"months":[5,6,7,8,9,10],"nights":[2,7],
+ "summary":"Dünen, Kliffs und Wattenmeer auf der nördlichsten Insel Deutschlands.",
+ "angle":"Ostseite statt Westerland: Morsum-Kliff und Wattseite sind stiller als die Promenade.",
+ "spots":[
+  {"id":"sylt-roteskliff","name":"Rotes Kliff Kampen","kind":"natur","lat":54.966,"lon":8.343,"hours":2,"family":true,"summary":"Steilküste mit rötlichem Sand und Blick über die Nordsee."},
+  {"id":"sylt-morsum","name":"Morsum-Kliff","kind":"natur","lat":54.874,"lon":8.437,"hours":2,"family":true,"summary":"Naturschutzgebiet mit freigelegten Erdschichten und Heide."},
+  {"id":"sylt-ellenbogen","name":"Ellenbogen bei List","kind":"natur","lat":55.040,"lon":8.420,"hours":3,"family":true,"summary":"Nordspitze mit Leuchttürmen und Wanderdünen; Privatstraße, Zufahrt vor Ort prüfen."},
+  {"id":"sylt-naturgewalten","name":"Erlebniszentrum Naturgewalten List","kind":"familie","lat":55.017,"lon":8.432,"hours":2,"indoor":true,"family":true,"summary":"Ausstellung zu Wind, Wetter und Wattenmeer."},
+  {"id":"sylt-welle","name":"Sylter Welle Westerland","kind":"therme","lat":54.911,"lon":8.306,"hours":3,"indoor":true,"family":true,"summary":"Erlebnisbad am Strand, gut bei Schietwetter."}
+ ]},
+{"id":"bremen","name":"Bremen & Bremerhaven","region":"Bremen","country":"DE","lat":53.076,"lon":8.807,
+ "kinds":["stadt","kultur","technik","familie"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Roland, Schnoor und Böttcherstraße, dazu Klima- und Auswandererwelten an der Weser.",
+ "angle":"Einmal um die Welt in einem Tag: das Klimahaus folgt dem 8. Längengrad durch alle Klimazonen.",
+ "spots":[
+  {"id":"bremen-rathaus","name":"Rathaus, Roland & Marktplatz","kind":"stadt","lat":53.076,"lon":8.807,"hours":1.5,"family":true,"summary":"Welterbe-Ensemble mit den Stadtmusikanten nebenan."},
+  {"id":"bremen-schnoor","name":"Schnoor-Viertel","kind":"stadt","lat":53.073,"lon":8.811,"hours":1.5,"family":true,"summary":"Enge Gassen mit kleinen Häusern aus dem 15. bis 18. Jahrhundert."},
+  {"id":"bremen-boettcherstrasse","name":"Böttcherstraße","kind":"kultur","lat":53.075,"lon":8.805,"hours":1,"summary":"Backstein-Expressionismus mit Glockenspiel."},
+  {"id":"bremen-universum","name":"Universum Bremen","kind":"familie","lat":53.110,"lon":8.858,"hours":3,"indoor":true,"family":true,"summary":"Science-Center zum Mitmachen."},
+  {"id":"bremen-klimahaus","name":"Klimahaus Bremerhaven","kind":"technik","lat":53.548,"lon":8.576,"hours":4,"indoor":true,"family":true,"summary":"Reise durch die Klimazonen der Erde."},
+  {"id":"bremen-auswandererhaus","name":"Deutsches Auswandererhaus","kind":"kultur","lat":53.546,"lon":8.574,"hours":2.5,"indoor":true,"family":true,"summary":"Geschichte der Auswanderung über Bremerhaven."}
+ ]},
+{"id":"norddeich","name":"Ostfriesische Küste (Norddeich & Greetsiel)","region":"Niedersachsen","country":"DE","lat":53.611,"lon":7.159,
+ "kinds":["wasser","natur","familie"],"months":[4,5,6,7,8,9,10],"nights":[2,7],
+ "summary":"Wattenmeer, Fischerdörfer und Fähren zu den Inseln.",
+ "angle":"Inseltag ohne Auto: morgens mit der Fähre nach Norderney, abends zurück.",
+ "spots":[
+  {"id":"norddeich-seehundstation","name":"Seehundstation Norddeich","kind":"familie","lat":53.608,"lon":7.150,"hours":1.5,"family":true,"summary":"Aufzuchtstation mit Ausstellung zum Wattenmeer."},
+  {"id":"norddeich-greetsiel","name":"Greetsiel & Zwillingsmühlen","kind":"stadt","lat":53.502,"lon":7.099,"hours":2,"family":true,"summary":"Fischerdorf mit Krabbenkuttern im Hafen."},
+  {"id":"norddeich-pilsum","name":"Pilsumer Leuchtturm","kind":"natur","lat":53.481,"lon":7.054,"hours":1,"family":true,"summary":"Gelb-roter Leuchtturm auf dem Deich."},
+  {"id":"norddeich-norderney","name":"Tagesausflug Norderney","kind":"wasser","lat":53.707,"lon":7.157,"hours":6,"family":true,"summary":"Fähre ab Norddeich Mole; Fahrplan nach Gezeiten prüfen."},
+  {"id":"norddeich-watt","name":"Geführte Wattwanderung","kind":"natur","lat":53.620,"lon":7.180,"hours":2.5,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Nur mit Führung, Termine nach Gezeiten."}
+ ]},
+{"id":"muenster","name":"Münster & Münsterland","region":"Nordrhein-Westfalen","country":"DE","lat":51.962,"lon":7.626,
+ "kinds":["stadt","kultur","burg","genuss"],"months":[3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Fahrradstadt mit Prinzipalmarkt und über hundert Wasserburgen im Umland.",
+ "angle":"Leeze statt Auto: per Leihrad von der Altstadt zu Wasserburgen im Umland.",
+ "spots":[
+  {"id":"muenster-prinzipalmarkt","name":"Prinzipalmarkt & Rathaus des Westfälischen Friedens","kind":"stadt","lat":51.962,"lon":7.628,"hours":2,"family":true,"summary":"Giebelhäuser mit Bogengängen und historischer Friedenssaal."},
+  {"id":"muenster-lwl","name":"LWL-Museum für Kunst und Kultur","kind":"kultur","lat":51.963,"lon":7.623,"hours":2,"indoor":true,"summary":"Kunst vom Mittelalter bis heute am Domplatz."},
+  {"id":"muenster-aasee","name":"Aasee","kind":"wasser","lat":51.955,"lon":7.613,"hours":1.5,"family":true,"summary":"See mitten in der Stadt mit Rundweg."},
+  {"id":"muenster-huelshoff","name":"Burg Hülshoff","kind":"burg","lat":51.966,"lon":7.493,"hours":1.5,"family":true,"summary":"Wasserburg, Geburtshaus von Annette von Droste-Hülshoff."},
+  {"id":"muenster-vischering","name":"Burg Vischering","kind":"burg","lat":51.776,"lon":7.443,"hours":1.5,"family":true,"summary":"Bilderbuch-Wasserburg in Lüdinghausen."}
+ ]},
+{"id":"aachen","name":"Aachen & Dreiländereck","region":"Nordrhein-Westfalen","country":"DE","lat":50.776,"lon":6.084,
+ "kinds":["stadt","kultur","therme","genuss"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[0,2],
+ "summary":"Kaiserstadt mit Dom, Thermalquellen und drei Ländern in Laufweite.",
+ "angle":"Einmal um einen Grenzstein laufen und dabei durch Deutschland, die Niederlande und Belgien gehen.",
+ "spots":[
+  {"id":"aachen-dom","name":"Aachener Dom","kind":"kultur","lat":50.775,"lon":6.084,"hours":1.5,"indoor":true,"summary":"Erstes deutsches Welterbe, Pfalzkapelle Karls des Großen."},
+  {"id":"aachen-carolus","name":"Carolus Thermen","kind":"therme","lat":50.784,"lon":6.093,"hours":3,"indoor":true,"summary":"Thermalbad mit Aachener Quellwasser."},
+  {"id":"aachen-dreilaenderpunkt","name":"Dreiländerpunkt Vaals","kind":"natur","lat":50.754,"lon":6.021,"hours":2,"family":true,"summary":"Grenzpunkt auf dem Vaalserberg mit Labyrinth und Aussichtsturm."},
+  {"id":"aachen-printen","name":"Printen probieren","kind":"genuss","lat":50.776,"lon":6.083,"hours":0.5,"indoor":true,"family":true,"summary":"Aachener Gebäckspezialität in einer Altstadt-Bäckerei."}
+ ]},
+{"id":"teutoburgerwald","name":"Teutoburger Wald (Detmold)","region":"Nordrhein-Westfalen","country":"DE","lat":51.938,"lon":8.877,
+ "kinds":["natur","kultur","familie"],"months":[3,4,5,6,7,8,9,10,11],"nights":[1,3],
+ "summary":"Sandsteinfelsen, Hermannsdenkmal und das größte Freilichtmuseum Deutschlands.",
+ "angle":"Externsteine zum Sonnenaufgang – die Felsen sind seit Jahrhunderten ein Ort für Legenden.",
+ "spots":[
+  {"id":"teutoburgerwald-externsteine","name":"Externsteine","kind":"natur","lat":51.869,"lon":8.917,"hours":2,"family":true,"summary":"Markante Sandsteinfelsen mit Treppen und Aussicht."},
+  {"id":"teutoburgerwald-hermann","name":"Hermannsdenkmal","kind":"kultur","lat":51.912,"lon":8.840,"hours":1.5,"family":true,"summary":"Riesenstatue auf der Grotenburg."},
+  {"id":"teutoburgerwald-freilicht","name":"LWL-Freilichtmuseum Detmold","kind":"kultur","lat":51.919,"lon":8.866,"hours":4,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Historische Dörfer mit Tieren; übliche Saison Frühjahr bis Herbst."},
+  {"id":"teutoburgerwald-adlerwarte","name":"Adlerwarte Berlebeck","kind":"familie","lat":51.893,"lon":8.869,"hours":2,"family":true,"summary":"Greifvögel mit Flugvorführungen; Zeiten vor Ort prüfen."}
+ ]},
+{"id":"erzgebirge","name":"Erzgebirge (Seiffen & Fichtelberg)","region":"Sachsen","country":"DE","lat":50.648,"lon":13.453,
+ "kinds":["winter","kultur","familie","unterwelt","berge"],"months":[1,2,3,6,7,8,9,10,11,12],"nights":[1,4],
+ "summary":"Spielzeugdorf, Bergbau-Geschichte und Schnee am Fichtelberg.",
+ "angle":"Erst in die Grube, dann in die Schauwerkstatt: Wie aus Bergleuten Holzkünstler wurden.",
+ "spots":[
+  {"id":"erzgebirge-spielzeugmuseum","name":"Erzgebirgisches Spielzeugmuseum Seiffen","kind":"kultur","lat":50.648,"lon":13.452,"hours":1.5,"indoor":true,"family":true,"summary":"Holzspielzeug, Pyramiden und Räuchermänner."},
+  {"id":"erzgebirge-schauwerkstatt","name":"Schauwerkstatt Seiffen","kind":"kultur","lat":50.646,"lon":13.449,"hours":1,"indoor":true,"family":true,"summary":"Drechslern bei der Arbeit zusehen."},
+  {"id":"erzgebirge-fichtelberg","name":"Fichtelberg Oberwiesenthal","kind":"berge","lat":50.430,"lon":12.954,"hours":4,"family":true,"summary":"Höchster Berg Sachsens, im Winter Skigebiet, Schwebebahn."},
+  {"id":"erzgebirge-freiberg","name":"Silberbergwerk Freiberg","kind":"unterwelt","lat":50.917,"lon":13.342,"hours":2.5,"indoor":true,"summary":"Lehr- und Besucherbergwerk; Führungen prüfen."},
+  {"id":"erzgebirge-greifensteine","name":"Greifensteine","kind":"natur","lat":50.627,"lon":12.932,"hours":2,"family":true,"summary":"Granitfelsen mit Aussicht und Naturbühne."}
+ ]},
+{"id":"usedom","name":"Usedom (Kaiserbäder)","region":"Mecklenburg-Vorpommern","country":"DE","lat":53.955,"lon":14.168,
+ "kinds":["wasser","technik","familie","natur"],"months":[5,6,7,8,9],"nights":[3,7],
+ "summary":"Bäderarchitektur, lange Seebrücken und Raketengeschichte im Norden der Insel.",
+ "angle":"Zu Fuß über die Promenade nach Polen – die Kaiserbäder gehen nahtlos in Świnoujście über.",
+ "spots":[
+  {"id":"usedom-ahlbeck","name":"Seebrücke Ahlbeck","kind":"wasser","lat":53.944,"lon":14.193,"hours":1,"family":true,"summary":"Älteste erhaltene Seebrücke Deutschlands."},
+  {"id":"usedom-promenade","name":"Strandpromenade der Kaiserbäder","kind":"wasser","lat":53.950,"lon":14.180,"hours":3,"family":true,"summary":"Lange Promenade bis über die polnische Grenze."},
+  {"id":"usedom-peenemuende","name":"Historisch-Technisches Museum Peenemünde","kind":"technik","lat":54.143,"lon":13.778,"hours":3,"indoor":true,"summary":"Ehemalige Heeresversuchsanstalt, Geschichte und Folgen der Raketenentwicklung."},
+  {"id":"usedom-achterwasser","name":"Achterwasser & Lieper Winkel","kind":"natur","lat":53.910,"lon":14.010,"hours":3,"family":true,"summary":"Ruhige Bodden-Seite der Insel."}
+ ]},
+{"id":"stralsund","name":"Stralsund & Hiddensee","region":"Mecklenburg-Vorpommern","country":"DE","lat":54.315,"lon":13.090,
+ "kinds":["stadt","wasser","kultur","natur","familie"],"months":[4,5,6,7,8,9,10],"nights":[1,4],
+ "summary":"Backsteingotik am Strelasund und eine autofreie Insel.",
+ "angle":"Hiddensee: Fahrrad statt Auto, Leuchtturm Dornbusch statt Promenade.",
+ "spots":[
+  {"id":"stralsund-ozeaneum","name":"Ozeaneum","kind":"familie","lat":54.316,"lon":13.097,"hours":3,"indoor":true,"family":true,"summary":"Meeresmuseum mit großen Aquarien zu Nord- und Ostsee."},
+  {"id":"stralsund-altstadt","name":"Altstadt & Alter Markt","kind":"stadt","lat":54.315,"lon":13.093,"hours":2,"family":true,"summary":"Welterbe-Altstadt mit Rathausfassade."},
+  {"id":"stralsund-gorchfock","name":"Gorch Fock I","kind":"technik","lat":54.317,"lon":13.098,"hours":1,"family":true,"summary":"Historisches Segelschulschiff im Hafen."},
+  {"id":"stralsund-hiddensee","name":"Hiddensee","kind":"natur","lat":54.560,"lon":13.110,"hours":7,"family":true,"summary":"Autofreie Insel, Schiff ab Stralsund oder Schaprode."}
+ ]},
+{"id":"schwerin","name":"Schwerin & Seenland","region":"Mecklenburg-Vorpommern","country":"DE","lat":53.629,"lon":11.414,
+ "kinds":["burg","wasser","stadt"],"months":[4,5,6,7,8,9,10],"nights":[1,2],
+ "summary":"Märchenschloss auf einer Insel, umgeben von Seen.",
+ "angle":"Schloss vom Wasser aus: mit dem Ausflugsschiff einmal um die Schlossinsel.",
+ "spots":[
+  {"id":"schwerin-schloss","name":"Schweriner Schloss","kind":"burg","lat":53.624,"lon":11.419,"hours":2.5,"family":true,"summary":"Schloss auf der Insel im Schweriner See mit Garten."},
+  {"id":"schwerin-altstadt","name":"Altstadt & Dom","kind":"stadt","lat":53.630,"lon":11.414,"hours":1.5,"family":true,"summary":"Kleine Residenzstadt mit Domturm."},
+  {"id":"schwerin-see","name":"Schifffahrt Schweriner See","kind":"wasser","lat":53.625,"lon":11.420,"hours":1.5,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Rundfahrten in der Saison."}
+ ]},
+{"id":"dessau-woerlitz","name":"Dessau-Wörlitz & Wittenberg","region":"Sachsen-Anhalt","country":"DE","lat":51.840,"lon":12.330,
+ "kinds":["kultur","natur","technik"],"months":[4,5,6,7,8,9,10],"nights":[1,3],
+ "summary":"Englische Gärten, Bauhaus und die Lutherstadt.",
+ "angle":"Gartenreich mit der Gondel erkunden und am Nachmittag im Bauhaus die Moderne sehen.",
+ "spots":[
+  {"id":"dessau-woerlitz-park","name":"Wörlitzer Park","kind":"natur","lat":51.843,"lon":12.420,"hours":3,"family":true,"summary":"Landschaftsgarten mit Gondelfahrten in der Saison."},
+  {"id":"dessau-woerlitz-bauhaus","name":"Bauhausgebäude Dessau","kind":"kultur","lat":51.839,"lon":12.227,"hours":2,"indoor":true,"summary":"Ikone der Moderne, Führungen."},
+  {"id":"dessau-woerlitz-ferropolis","name":"Ferropolis","kind":"technik","lat":51.787,"lon":12.440,"hours":2,"family":true,"summary":"Stadt aus Eisen: Tagebaugroßgeräte auf einer Halbinsel."},
+  {"id":"dessau-woerlitz-wittenberg","name":"Lutherstadt Wittenberg","kind":"stadt","lat":51.866,"lon":12.649,"hours":3,"family":true,"summary":"Schlosskirche, Lutherhaus und Marktplatz."}
+ ]},
+{"id":"saale-unstrut","name":"Naumburg & Saale-Unstrut","region":"Sachsen-Anhalt","country":"DE","lat":51.152,"lon":11.810,
+ "kinds":["genuss","kultur","natur"],"months":[4,5,6,7,8,9,10],"nights":[1,3],
+ "summary":"Nördlichstes Qualitätsweinbaugebiet Deutschlands mit Dom und Himmelsscheibe.",
+ "angle":"Von der Himmelsscheibe bis zum Sekt: 3.600 Jahre Region an einem Wochenende.",
+ "spots":[
+  {"id":"saale-unstrut-dom","name":"Naumburger Dom","kind":"kultur","lat":51.155,"lon":11.804,"hours":1.5,"indoor":true,"summary":"Welterbe mit den Stifterfiguren, darunter Uta."},
+  {"id":"saale-unstrut-freyburg","name":"Sektkellerei Freyburg","kind":"genuss","lat":51.212,"lon":11.770,"hours":1.5,"indoor":true,"summary":"Historische Kellerei mit Führungen."},
+  {"id":"saale-unstrut-nebra","name":"Arche Nebra","kind":"kultur","lat":51.284,"lon":11.520,"hours":2,"indoor":true,"family":true,"summary":"Besucherzentrum zur Himmelsscheibe am Fundort."},
+  {"id":"saale-unstrut-weinberge","name":"Weinberge an Saale und Unstrut","kind":"natur","lat":51.180,"lon":11.760,"hours":3,"summary":"Terrassen und Weinbergshäuschen entlang der Flüsse."}
+ ]},
+{"id":"goerlitz","name":"Görlitz & Zittauer Gebirge","region":"Sachsen","country":"DE","lat":51.152,"lon":14.987,
+ "kinds":["stadt","kultur","natur","burg"],"months":[3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Filmkulisse aus allen Epochen und ein kleines Felsengebirge.",
+ "angle":"Über die Altstadtbrücke nach Polen zum Abendessen – Görlitz und Zgorzelec sind eine Doppelstadt.",
+ "spots":[
+  {"id":"goerlitz-altstadt","name":"Altstadt Görlitz","kind":"stadt","lat":51.156,"lon":14.990,"hours":2.5,"family":true,"summary":"Gotik, Renaissance und Barock, oft als Filmkulisse genutzt."},
+  {"id":"goerlitz-landeskrone","name":"Landeskrone","kind":"natur","lat":51.137,"lon":14.937,"hours":2,"family":true,"summary":"Hausberg mit Blick über die Lausitz."},
+  {"id":"goerlitz-oybin","name":"Berg und Klosterruine Oybin","kind":"burg","lat":50.842,"lon":14.743,"hours":3,"family":true,"summary":"Felsenburg und Klosterruine im Zittauer Gebirge."},
+  {"id":"goerlitz-einsiedel","name":"Kulturinsel Einsiedel","kind":"familie","lat":51.081,"lon":14.951,"hours":4,"family":true,"summary":"Abenteuerpark mit Baumhäusern; Saison prüfen."}
+ ]},
+{"id":"frankfurt","name":"Frankfurt am Main","region":"Hessen","country":"DE","lat":50.110,"lon":8.682,
+ "kinds":["stadt","kultur","genuss"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,2],
+ "summary":"Skyline, Museumsufer und Apfelwein in Sachsenhausen.",
+ "angle":"Gegensätze an einem Tag: Römerberg-Fachwerk am Morgen, Hochhausblick am Abend.",
+ "spots":[
+  {"id":"frankfurt-roemer","name":"Römerberg & Altstadt","kind":"stadt","lat":50.110,"lon":8.682,"hours":1.5,"family":true,"summary":"Rathaus Römer und rekonstruierte Neue Altstadt."},
+  {"id":"frankfurt-maintower","name":"Main Tower Aussicht","kind":"berge","lat":50.112,"lon":8.672,"hours":1,"family":true,"summary":"Öffentliche Plattform über der Skyline; wetterabhängig."},
+  {"id":"frankfurt-staedel","name":"Städel Museum","kind":"kultur","lat":50.103,"lon":8.674,"hours":3,"indoor":true,"summary":"Kunst aus 700 Jahren am Museumsufer."},
+  {"id":"frankfurt-palmengarten","name":"Palmengarten","kind":"natur","lat":50.123,"lon":8.657,"hours":2,"family":true,"summary":"Botanischer Garten mit Tropenhäusern."},
+  {"id":"frankfurt-apfelwein","name":"Apfelweinlokal in Sachsenhausen","kind":"genuss","lat":50.103,"lon":8.689,"hours":2,"slot":"abend","indoor":true,"summary":"Ebbelwoi und Grüne Soße."}
+ ]},
+{"id":"odenwald","name":"Odenwald & Bergstraße","region":"Hessen","country":"DE","lat":49.677,"lon":9.004,
+ "kinds":["natur","burg","kultur","familie"],"months":[3,4,5,6,7,8,9,10,11],"nights":[1,3],
+ "summary":"Felsenmeer, Burgen an der Bergstraße und ein Welterbe-Kloster.",
+ "angle":"Im Felsenmeer von Block zu Block klettern – Kinder lieben es, Erwachsene auch.",
+ "spots":[
+  {"id":"odenwald-felsenmeer","name":"Felsenmeer Lautertal","kind":"natur","lat":49.718,"lon":8.730,"hours":2.5,"family":true,"summary":"Blockmeer aus Granit mit Römerspuren."},
+  {"id":"odenwald-michelstadt","name":"Rathaus Michelstadt","kind":"stadt","lat":49.677,"lon":9.004,"hours":1.5,"family":true,"summary":"Fachwerkrathaus auf Holzpfeilern."},
+  {"id":"odenwald-lorsch","name":"Kloster Lorsch","kind":"kultur","lat":49.654,"lon":8.568,"hours":1.5,"family":true,"summary":"Welterbe mit karolingischer Königshalle."},
+  {"id":"odenwald-frankenstein","name":"Burg Frankenstein","kind":"burg","lat":49.793,"lon":8.669,"hours":1.5,"family":true,"summary":"Burgruine mit Blick über die Rheinebene."}
+ ]},
+{"id":"wuerzburg","name":"Würzburg & Mainfranken","region":"Bayern","country":"DE","lat":49.792,"lon":9.953,
+ "kinds":["stadt","kultur","genuss","burg"],"months":[3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Residenz, Festung und Frankenwein in Bocksbeuteln.",
+ "angle":"Brückenschoppen: mit einem Glas Silvaner auf der Alten Mainbrücke stehen – sehr würzburgerisch.",
+ "spots":[
+  {"id":"wuerzburg-residenz","name":"Würzburger Residenz","kind":"kultur","lat":49.793,"lon":9.939,"hours":2,"indoor":true,"summary":"Welterbe-Schloss mit Treppenhausfresko von Tiepolo."},
+  {"id":"wuerzburg-marienberg","name":"Festung Marienberg","kind":"burg","lat":49.790,"lon":9.920,"hours":2,"family":true,"summary":"Festung über dem Main mit Fürstengarten."},
+  {"id":"wuerzburg-mainbruecke","name":"Alte Mainbrücke","kind":"genuss","lat":49.793,"lon":9.926,"hours":1,"slot":"abend","summary":"Steinbrücke mit Heiligenfiguren, abends beliebt."},
+  {"id":"wuerzburg-volkach","name":"Volkacher Mainschleife","kind":"natur","lat":49.860,"lon":10.230,"hours":3,"family":true,"summary":"Weinberge in der Flussschleife, Wallfahrtskirche Maria im Weingarten."}
+ ]},
+{"id":"oberstdorf","name":"Oberstdorf & Kleinwalsertal","region":"Bayern","country":"DE","lat":47.410,"lon":10.279,
+ "kinds":["berge","winter","natur","familie"],"months":[1,2,3,5,6,7,8,9,10,12],"nights":[2,6],
+ "summary":"Südlichster Ort Deutschlands mit Klamm, Skiflugschanze und Gipfeln.",
+ "angle":"Von der Breitachklamm zur Skiflugschanze – im Sommer steht man oben, wo sonst Springer abheben.",
+ "spots":[
+  {"id":"oberstdorf-breitachklamm","name":"Breitachklamm","kind":"natur","lat":47.385,"lon":10.262,"hours":2.5,"family":true,"summary":"Tiefe Felsenschlucht, im Winter mit Eis."},
+  {"id":"oberstdorf-nebelhorn","name":"Nebelhornbahn","kind":"berge","lat":47.420,"lon":10.340,"hours":4,"family":true,"summary":"Seilbahn mit Gipfelblick über viele Alpengipfel."},
+  {"id":"oberstdorf-skiflug","name":"Heini-Klopfer-Skiflugschanze","kind":"technik","lat":47.389,"lon":10.275,"hours":1.5,"family":true,"months":[5,6,7,8,9,10],"summary":"Aufzug zum Schanzenturm in der Sommersaison; prüfen."},
+  {"id":"oberstdorf-christlessee","name":"Christlessee","kind":"wasser","lat":47.383,"lon":10.287,"hours":1.5,"family":true,"summary":"Kleiner, klarer Bergsee im Trettachtal."}
+ ]},
+{"id":"baden-baden","name":"Baden-Baden & Nordschwarzwald","region":"Baden-Württemberg","country":"DE","lat":48.763,"lon":8.240,
+ "kinds":["therme","kultur","natur","berge"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Bäderstadt mit Kurhaus, Thermen und Schwarzwaldhochstraße.",
+ "angle":"Römisch-irisches Ritual statt Spaßbad: im Friedrichsbad läuft man eine feste Abfolge von Stationen.",
+ "spots":[
+  {"id":"baden-baden-friedrichsbad","name":"Friedrichsbad","kind":"therme","lat":48.764,"lon":8.243,"hours":3,"indoor":true,"summary":"Historisches Bad mit römisch-irischem Badeablauf; Badeordnung beachten."},
+  {"id":"baden-baden-caracalla","name":"Caracalla Therme","kind":"therme","lat":48.764,"lon":8.244,"hours":3,"indoor":true,"summary":"Thermalbad mit Innen- und Außenbecken."},
+  {"id":"baden-baden-merkur","name":"Merkurbergbahn","kind":"berge","lat":48.761,"lon":8.271,"hours":2,"family":true,"summary":"Standseilbahn auf den Hausberg."},
+  {"id":"baden-baden-lichtentaler","name":"Lichtentaler Allee","kind":"natur","lat":48.755,"lon":8.243,"hours":1.5,"family":true,"summary":"Parkallee entlang der Oos."},
+  {"id":"baden-baden-mummelsee","name":"Mummelsee","kind":"wasser","lat":48.598,"lon":8.201,"hours":1.5,"family":true,"summary":"Karsee an der Schwarzwaldhochstraße mit Sagen."}
+ ]},
+{"id":"luxemburg","name":"Luxemburg","region":"Luxemburg","country":"LU","lat":49.611,"lon":6.130,
+ "kinds":["stadt","burg","unterwelt","natur"],"months":[3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Festungsstadt über Schluchten, dazu Felsenlandschaft und Burgen im Norden.",
+ "angle":"Kasematten unter der Altstadt, Müllerthal-Felsen am Nachmittag – ein Land in einem Wochenende.",
+ "spots":[
+  {"id":"luxemburg-kasematten","name":"Bock-Kasematten","kind":"unterwelt","lat":49.612,"lon":6.137,"hours":1.5,"indoor":true,"family":true,"summary":"Felsgänge der früheren Festung."},
+  {"id":"luxemburg-grund","name":"Altstadt & Grund","kind":"stadt","lat":49.609,"lon":6.135,"hours":2,"family":true,"summary":"Oberstadt und Unterstadt im Alzettetal, verbunden per Aufzug."},
+  {"id":"luxemburg-muellerthal","name":"Müllerthal-Trail","kind":"natur","lat":49.790,"lon":6.290,"hours":4,"family":true,"summary":"Felsen, Schluchten und Bäche in der „Kleinen Luxemburger Schweiz“."},
+  {"id":"luxemburg-vianden","name":"Burg Vianden","kind":"burg","lat":49.935,"lon":6.208,"hours":2,"family":true,"summary":"Große Burg über der Our."}
+ ]},
+{"id":"bruegge","name":"Brügge & Gent","region":"Flandern","country":"BE","lat":51.209,"lon":3.224,
+ "kinds":["stadt","kultur","genuss","wasser"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[2,4],
+ "summary":"Kanäle, Belfriede und flämische Malerei.",
+ "angle":"Brügge am Morgen, Gent am Abend – Gent ist größer, lebendiger und abends schön beleuchtet.",
+ "spots":[
+  {"id":"bruegge-belfried","name":"Belfried & Markt Brügge","kind":"stadt","lat":51.209,"lon":3.224,"hours":1.5,"family":true,"summary":"Glockenturm mit Aufstieg am Hauptplatz."},
+  {"id":"bruegge-boot","name":"Bootsfahrt auf den Reien","kind":"wasser","lat":51.206,"lon":3.226,"hours":1,"family":true,"summary":"Kanalrundfahrt durch die Altstadt."},
+  {"id":"bruegge-groeninge","name":"Groeningemuseum","kind":"kultur","lat":51.205,"lon":3.226,"hours":1.5,"indoor":true,"summary":"Flämische Primitive wie Jan van Eyck."},
+  {"id":"bruegge-gent","name":"Gent: Altar & Graslei","kind":"kultur","lat":51.054,"lon":3.722,"hours":4,"family":true,"summary":"Genter Altar in der Kathedrale und Kai an der Leie."},
+  {"id":"bruegge-pralinen","name":"Pralinen und belgisches Bier","kind":"genuss","lat":51.208,"lon":3.225,"hours":1,"slot":"abend","indoor":true,"summary":"Chocolatiers und Bierlokale in der Altstadt."}
+ ]},
+{"id":"kopenhagen","name":"Kopenhagen","region":"Seeland","country":"DK","lat":55.676,"lon":12.568,
+ "kinds":["stadt","kultur","familie","wasser"],"months":[4,5,6,7,8,9,10,12],"nights":[2,4],
+ "summary":"Hafenstadt mit Radwegen, Tivoli und Design.",
+ "angle":"Im Hafen schwimmen: Kopenhagen hat Hafenbäder mitten in der Stadt.",
+ "spots":[
+  {"id":"kopenhagen-nyhavn","name":"Nyhavn","kind":"stadt","lat":55.680,"lon":12.590,"hours":1,"family":true,"summary":"Bunte Häuser am Kanal, Start vieler Bootstouren."},
+  {"id":"kopenhagen-tivoli","name":"Tivoli","kind":"familie","lat":55.674,"lon":12.568,"hours":4,"family":true,"summary":"Historischer Vergnügungspark; Saisonzeiten prüfen."},
+  {"id":"kopenhagen-rundetaarn","name":"Rundetårn","kind":"kultur","lat":55.681,"lon":12.576,"hours":1,"family":true,"summary":"Turm mit spiralförmiger Rampe statt Treppe."},
+  {"id":"kopenhagen-louisiana","name":"Louisiana Museum","kind":"kultur","lat":55.969,"lon":12.543,"hours":3,"indoor":true,"summary":"Moderne Kunst direkt am Øresund."},
+  {"id":"kopenhagen-hafenbad","name":"Hafenbad Islands Brygge","kind":"wasser","lat":55.664,"lon":12.578,"hours":1.5,"family":true,"months":[6,7,8],"summary":"Freibad im Hafenbecken im Sommer."}
+ ]},
+{"id":"breslau","name":"Breslau (Wrocław)","region":"Niederschlesien","country":"PL","lat":51.110,"lon":17.032,
+ "kinds":["stadt","kultur","familie"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[2,4],
+ "summary":"Bunter Marktplatz, Dominsel und hunderte kleine Bronzezwerge.",
+ "angle":"Zwergenjagd: die kleinen Bronzefiguren sind überall in der Stadt verteilt.",
+ "spots":[
+  {"id":"breslau-rynek","name":"Rynek & Rathaus","kind":"stadt","lat":51.110,"lon":17.032,"hours":2,"family":true,"summary":"Großer Marktplatz mit gotischem Rathaus."},
+  {"id":"breslau-zwerge","name":"Zwergen-Spaziergang","kind":"familie","lat":51.111,"lon":17.030,"hours":2,"family":true,"summary":"Bronzezwerge in der Altstadt suchen."},
+  {"id":"breslau-dominsel","name":"Dominsel (Ostrów Tumski)","kind":"kultur","lat":51.114,"lon":17.046,"hours":1.5,"slot":"abend","family":true,"summary":"Ältester Stadtteil, abends mit Gaslaternen."},
+  {"id":"breslau-jahrhunderthalle","name":"Jahrhunderthalle","kind":"technik","lat":51.107,"lon":17.077,"hours":1.5,"summary":"Welterbe-Stahlbetonbau mit Brunnen nebenan."}
+ ]},
+{"id":"danzig","name":"Danzig (Gdańsk) & Dreistadt","region":"Pommern","country":"PL","lat":54.352,"lon":18.646,
+ "kinds":["stadt","kultur","wasser","burg"],"months":[4,5,6,7,8,9,10],"nights":[2,5],
+ "summary":"Hansestadt mit Rechtstadt, Ostseebad Sopot und der Marienburg.",
+ "angle":"Größte Backsteinburg der Welt als Tagesausflug: die Marienburg an der Nogat.",
+ "spots":[
+  {"id":"danzig-langemarkt","name":"Langer Markt & Rechtstadt","kind":"stadt","lat":54.348,"lon":18.653,"hours":2,"family":true,"summary":"Prachtstraße mit Neptunbrunnen und Krantor."},
+  {"id":"danzig-solidarnosc","name":"Europäisches Solidarność-Zentrum","kind":"kultur","lat":54.361,"lon":18.649,"hours":2,"indoor":true,"summary":"Museum zur Gewerkschaft und zum Ende des Ostblocks."},
+  {"id":"danzig-sopot","name":"Seebrücke Sopot","kind":"wasser","lat":54.447,"lon":18.571,"hours":2,"family":true,"summary":"Lange Holzseebrücke im Ostseebad."},
+  {"id":"danzig-malbork","name":"Marienburg (Malbork)","kind":"burg","lat":54.040,"lon":19.028,"hours":4,"family":true,"summary":"Ordensburg aus Backstein, Welterbe."}
+ ]},
+{"id":"salzkammergut","name":"Salzkammergut (Hallstatt & Wolfgangsee)","region":"Oberösterreich","country":"AT","lat":47.562,"lon":13.649,
+ "kinds":["wasser","berge","unterwelt","kultur"],"months":[5,6,7,8,9,10,12],"nights":[2,5],
+ "summary":"Seen, Salzbergwerk und Eishöhlen im Dachsteingebirge.",
+ "angle":"Hallstatt früh oder spät: tagsüber voll, am Abend still am See.",
+ "spots":[
+  {"id":"salzkammergut-hallstatt","name":"Hallstatt Marktplatz & Ufer","kind":"stadt","lat":47.562,"lon":13.649,"hours":2,"family":true,"summary":"Welterbe-Ort am See; Besucherlenkung beachten."},
+  {"id":"salzkammergut-salzwelten","name":"Salzwelten Hallstatt","kind":"unterwelt","lat":47.563,"lon":13.637,"hours":3,"indoor":true,"family":true,"months":[4,5,6,7,8,9,10,11],"summary":"Ältestes Salzbergwerk der Welt mit Rutschen; Saison prüfen."},
+  {"id":"salzkammergut-eishoehle","name":"Dachstein-Rieseneishöhle","kind":"unterwelt","lat":47.529,"lon":13.700,"hours":3,"months":[5,6,7,8,9,10],"summary":"Eishöhle per Seilbahn; nur im Sommerhalbjahr."},
+  {"id":"salzkammergut-5fingers","name":"Aussichtsplattform 5fingers","kind":"berge","lat":47.531,"lon":13.692,"hours":2.5,"months":[5,6,7,8,9,10],"summary":"Plattform über dem Abgrund am Krippenstein."},
+  {"id":"salzkammergut-wolfgangsee","name":"Wolfgangsee & Schafbergbahn","kind":"wasser","lat":47.737,"lon":13.446,"hours":4,"family":true,"months":[5,6,7,8,9,10],"summary":"Schiff und Zahnradbahn auf den Schafberg in der Saison."}
+ ]},
+{"id":"tegernsee","name":"Tegernsee & Schliersee","region":"Bayern","country":"DE","lat":47.712,"lon":11.758,
+ "kinds":["wasser","berge","genuss","winter"],"months":[1,2,5,6,7,8,9,10,12],"nights":[1,4],
+ "summary":"Voralpenseen mit Bräustüberl, Wallberg und Spitzingsee.",
+ "angle":"Rodeln vom Wallberg im Winter, Schwimmen im Tegernsee im Sommer – derselbe Ort, zwei Reisen.",
+ "spots":[
+  {"id":"tegernsee-braeustueberl","name":"Herzogliches Bräustüberl","kind":"genuss","lat":47.709,"lon":11.758,"hours":1.5,"indoor":true,"summary":"Wirtshaus im ehemaligen Kloster."},
+  {"id":"tegernsee-wallberg","name":"Wallbergbahn","kind":"berge","lat":47.665,"lon":11.792,"hours":3,"family":true,"summary":"Seilbahn mit Blick über den See; im Winter Naturrodelbahn."},
+  {"id":"tegernsee-schliersee","name":"Schliersee","kind":"wasser","lat":47.736,"lon":11.861,"hours":2,"family":true,"summary":"Kleiner See mit Insel Wörth und Uferweg."},
+  {"id":"tegernsee-spitzingsee","name":"Spitzingsee","kind":"wasser","lat":47.665,"lon":11.882,"hours":2,"family":true,"summary":"Hochgelegener See, im Winter Skigebiet."}
+ ]},
+{"id":"interlaken","name":"Interlaken & Berner Oberland","region":"Schweiz","country":"CH","lat":46.686,"lon":7.863,
+ "kinds":["berge","wasser","natur","winter"],"months":[1,2,3,6,7,8,9,10,12],"nights":[2,5],
+ "summary":"Zwischen zwei Seen unter Eiger, Mönch und Jungfrau.",
+ "angle":"Wasserfälle im Berg: die Trümmelbachfälle stürzen im Inneren des Felsens herab.",
+ "spots":[
+  {"id":"interlaken-harder","name":"Harder Kulm","kind":"berge","lat":46.697,"lon":7.851,"hours":2,"family":true,"summary":"Standseilbahn zum Aussichtspunkt über beiden Seen."},
+  {"id":"interlaken-truemmelbach","name":"Trümmelbachfälle","kind":"natur","lat":46.567,"lon":7.913,"hours":1.5,"family":true,"months":[4,5,6,7,8,9,10,11],"summary":"Gletscherwasserfälle im Berg; Saisonbetrieb."},
+  {"id":"interlaken-giessbach","name":"Giessbachfälle","kind":"natur","lat":46.736,"lon":8.021,"hours":2,"family":true,"summary":"Wasserfälle über dem Brienzersee, per Schiff erreichbar."},
+  {"id":"interlaken-brienzersee","name":"Schiff auf dem Brienzersee","kind":"wasser","lat":46.692,"lon":7.870,"hours":2,"family":true,"summary":"Türkiser See, Schiffe nach Fahrplan."},
+  {"id":"interlaken-aareschlucht","name":"Aareschlucht","kind":"natur","lat":46.719,"lon":8.205,"hours":2,"family":true,"months":[4,5,6,7,8,9,10,11],"summary":"Steg durch eine enge Kalkschlucht bei Meiringen."}
+ ]},
+{"id":"zuerich","name":"Zürich & Zürichsee","region":"Schweiz","country":"CH","lat":47.377,"lon":8.540,
+ "kinds":["stadt","kultur","wasser","genuss"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Altstadt an der Limmat, Seepromenade und Hausberg.",
+ "angle":"Schokolade nach Seefahrt: mit dem Schiff nach Kilchberg zum Lindt-Museum.",
+ "spots":[
+  {"id":"zuerich-altstadt","name":"Altstadt & Lindenhof","kind":"stadt","lat":47.373,"lon":8.541,"hours":2,"family":true,"summary":"Gassen an der Limmat mit Blick vom Lindenhof."},
+  {"id":"zuerich-uetliberg","name":"Uetliberg","kind":"berge","lat":47.349,"lon":8.491,"hours":3,"family":true,"summary":"Hausberg mit Bahnanschluss und Aussichtsturm."},
+  {"id":"zuerich-kunsthaus","name":"Kunsthaus Zürich","kind":"kultur","lat":47.370,"lon":8.548,"hours":2.5,"indoor":true,"summary":"Große Kunstsammlung der Schweiz."},
+  {"id":"zuerich-lindt","name":"Lindt Home of Chocolate","kind":"genuss","lat":47.315,"lon":8.553,"hours":2,"indoor":true,"family":true,"summary":"Schokoladenmuseum in Kilchberg; Zeitfenster prüfen."},
+  {"id":"zuerich-see","name":"Schiff auf dem Zürichsee","kind":"wasser","lat":47.366,"lon":8.544,"hours":1.5,"family":true,"summary":"Kursschiffe ab Bürkliplatz."}
+ ]},
+{"id":"groeden","name":"Gröden & Seiser Alm","region":"Südtirol","country":"IT","lat":46.574,"lon":11.672,
+ "kinds":["berge","winter","natur","kultur"],"months":[1,2,3,6,7,8,9,10,12],"nights":[3,7],
+ "summary":"Dolomiten-Tal mit Holzschnitzertradition, Almen und Skikarussell.",
+ "angle":"Seceda-Grat im Morgenlicht – die gezackte Kante gehört zu den markantesten Ansichten der Dolomiten.",
+ "spots":[
+  {"id":"groeden-seceda","name":"Seceda","kind":"berge","lat":46.600,"lon":11.723,"hours":4,"family":true,"summary":"Seilbahn zum Grat mit Blick auf die Geislerspitzen."},
+  {"id":"groeden-seiseralm","name":"Seiser Alm","kind":"natur","lat":46.540,"lon":11.620,"hours":5,"family":true,"summary":"Größte Hochalm Europas, Zufahrtsregeln prüfen."},
+  {"id":"groeden-stulrich","name":"St. Ulrich & Holzschnitzkunst","kind":"kultur","lat":46.577,"lon":11.675,"hours":1.5,"indoor":true,"family":true,"summary":"Werkstätten und Museum Gherdëina."},
+  {"id":"groeden-sellaronda","name":"Sellaronda","kind":"winter","lat":46.540,"lon":11.760,"hours":7,"months":[12,1,2,3],"summary":"Skirunde um das Sellamassiv; Schnee und Lifte prüfen."}
+ ]},
+{"id":"woerthersee","name":"Wörthersee & Klagenfurt","region":"Kärnten","country":"AT","lat":46.620,"lon":14.150,
+ "kinds":["wasser","familie","natur","kultur"],"months":[5,6,7,8,9,10],"nights":[2,7],
+ "summary":"Warmer Alpensee mit Aussichtsturm, Miniaturwelt und Schluchten.",
+ "angle":"Mit der Rutsche vom Pyramidenkogel – einer der höchsten Holzaussichtstürme hat eine überdachte Röhrenrutsche.",
+ "spots":[
+  {"id":"woerthersee-pyramidenkogel","name":"Pyramidenkogel","kind":"berge","lat":46.608,"lon":14.143,"hours":2,"family":true,"summary":"Holzaussichtsturm mit Rutsche."},
+  {"id":"woerthersee-minimundus","name":"Minimundus Klagenfurt","kind":"familie","lat":46.618,"lon":14.268,"hours":2.5,"family":true,"months":[4,5,6,7,8,9,10],"summary":"Miniaturwelt mit Modellen berühmter Bauwerke."},
+  {"id":"woerthersee-baden","name":"Baden im Wörthersee","kind":"wasser","lat":46.620,"lon":14.100,"hours":3,"family":true,"months":[6,7,8,9],"summary":"Strandbäder rund um den See."},
+  {"id":"woerthersee-tscheppa","name":"Tscheppaschlucht","kind":"natur","lat":46.520,"lon":14.290,"hours":2.5,"family":true,"months":[5,6,7,8,9,10],"summary":"Schlucht mit Stegen und Wasserfällen."}
+ ]},
+{"id":"comer-see","name":"Comer See","region":"Lombardei","country":"IT","lat":45.986,"lon":9.259,
+ "kinds":["wasser","kultur","natur","genuss"],"months":[4,5,6,7,8,9,10],"nights":[2,6],
+ "summary":"Villen, Gärten und Fähren zwischen Bellagio, Varenna und Como.",
+ "angle":"See-Hopping per Linienfähre: drei Orte an einem Tag ohne Auto.",
+ "spots":[
+  {"id":"comer-see-bellagio","name":"Bellagio","kind":"stadt","lat":45.986,"lon":9.259,"hours":2,"family":true,"summary":"Ort an der Spitze zwischen den Seearmen."},
+  {"id":"comer-see-carlotta","name":"Villa Carlotta","kind":"kultur","lat":45.986,"lon":9.231,"hours":2,"family":true,"summary":"Villa mit Gärten und Skulpturen in Tremezzo."},
+  {"id":"comer-see-varenna","name":"Varenna","kind":"stadt","lat":46.010,"lon":9.284,"hours":2,"family":true,"summary":"Bunte Häuser und Uferweg."},
+  {"id":"comer-see-brunate","name":"Standseilbahn Como–Brunate","kind":"berge","lat":45.816,"lon":9.087,"hours":2,"family":true,"summary":"Bahn auf den Aussichtsbalkon über Como."}
+ ]},
+{"id":"krumau","name":"Český Krumlov & Lipno","region":"Südböhmen","country":"CZ","lat":48.811,"lon":14.315,
+ "kinds":["stadt","burg","wasser","natur"],"months":[4,5,6,7,8,9,10,12],"nights":[1,3],
+ "summary":"Schlossstadt in der Moldauschleife und Stausee mit Baumwipfelpfad.",
+ "angle":"Auf der Moldau mit dem Schlauchboot durch die Altstadt treiben – es gibt dafür eigene Bootsrutschen am Wehr.",
+ "spots":[
+  {"id":"krumau-schloss","name":"Schloss Český Krumlov","kind":"burg","lat":48.812,"lon":14.315,"hours":2.5,"family":true,"summary":"Große Schlossanlage mit Barocktheater und Turm."},
+  {"id":"krumau-altstadt","name":"Altstadt in der Moldauschleife","kind":"stadt","lat":48.810,"lon":14.316,"hours":2,"family":true,"summary":"Welterbe-Altstadt."},
+  {"id":"krumau-moldau","name":"Bootstour auf der Moldau","kind":"wasser","lat":48.805,"lon":14.320,"hours":3,"family":true,"months":[5,6,7,8,9],"summary":"Kanu oder Schlauchboot beim Verleih."},
+  {"id":"krumau-lipno","name":"Baumwipfelpfad Lipno","kind":"natur","lat":48.636,"lon":14.225,"hours":2,"family":true,"summary":"Pfad mit Aussichtsturm über dem Lipno-Stausee."}
+ ]},
+{"id":"karlsbad","name":"Karlsbad (Karlovy Vary)","region":"Westböhmen","country":"CZ","lat":50.231,"lon":12.871,
+ "kinds":["therme","stadt","kultur","burg"],"months":[1,2,3,4,5,6,7,8,9,10,11,12],"nights":[1,3],
+ "summary":"Kurstadt mit Kolonnaden und heißen Quellen.",
+ "angle":"Trinkkur zum Ausprobieren: mit einem Schnabelbecher von Quelle zu Quelle durch die Kolonnaden.",
+ "spots":[
+  {"id":"karlsbad-kolonnaden","name":"Kolonnaden & Quellen","kind":"therme","lat":50.226,"lon":12.881,"hours":2,"family":true,"summary":"Mühlbrunn- und Sprudelkolonnade mit Trinkquellen."},
+  {"id":"karlsbad-diana","name":"Aussichtsturm Diana","kind":"berge","lat":50.222,"lon":12.875,"hours":1.5,"family":true,"summary":"Standseilbahn zum Turm über der Stadt."},
+  {"id":"karlsbad-becherovka","name":"Jan Becher Museum","kind":"genuss","lat":50.230,"lon":12.869,"hours":1,"indoor":true,"summary":"Geschichte des Kräuterlikörs."},
+  {"id":"karlsbad-loket","name":"Burg Loket","kind":"burg","lat":50.186,"lon":12.754,"hours":2,"family":true,"summary":"Burg über der Ohře-Schleife."}
  ]}
 ]
 };

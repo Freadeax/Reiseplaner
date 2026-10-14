@@ -54,6 +54,59 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## v3.2 · Suche & Tagesplan (Claude, 14.10.2026 abends, Issue #8)
+
+Ausgangsstand `e36cd65` (ChatGPT, Buchungsschutz), seitdem keine fremden Änderungen. Auftrag Philipp: Such- und Planpunkte erweitern, vorerst ohne Konto-Anbindung. Philipps eigener iPhone-Test war laut ihm erfolgreich (dokumentiert von ChatGPT).
+
+**Umgesetzt:**
+- **Katalog v2:**
+  - 86 Ziele und 395 Attraktionen in 11 Ländern (zuvor 54/255). Neu u. a. Sylt, Bremen, Ostfriesland, Münster, Aachen, Teutoburger Wald, Erzgebirge, Usedom, Stralsund, Görlitz, Frankfurt, Würzburg, Oberstdorf, Baden-Baden, Luxemburg, Brügge, Kopenhagen, Breslau, Danzig, Salzkammergut, Berner Oberland, Gröden, Comer See und Krumau.
+  - Neue Seed-Migration `20261014200000_catalog_seed_v2.sql` mit Upsert; ältere Versionen werden entfernt.
+  - Notfall-Datei `supabase/manual/apply-catalog-v2.sql`, jetzt **ohne** Schema (das ist in der Produktion schon da). `apply-catalog-v1.sql` gelöscht.
+  - Keine Preise und keine Öffnungszeiten (Generator-Prüfung).
+- **Entdecken:**
+  - Merkliste „Irgendwann mal“ (`rp-merkliste`, nur im Browser), mit Entfernung vom aktuellen Start und Hinweis, ob das Ziel in den gewählten Monat passt.
+  - Textsuche über Ziel und Attraktionen; Sortierung nach „passend“, „nah“, „weit“ oder „meiste Ideen“.
+  - **Mini-Karte** als SVG ohne Kartendienst: Luftlinien-Kreise, die ersten 20 Ziele nummeriert wie in der Liste, antippbar.
+  - **Saisonstreifen** mit 12 Monaten (Text und Häkchen, nicht nur Farbe).
+  - **Rundreise:**
+    - 2–6 Ziele; Reihenfolge nach nächstem Nachbarn plus 2-opt (bei 4 Zielen gegen alle Varianten getestet).
+    - Etappen und Heimfahrt mit geschätzten km und Zeiten; Nächte je Etappe änderbar; Warnung bei Etappen über 5 Std.
+    - Ergebnis ist eine Reise vom Typ „Rundreise“:
+      - Etappen in `legs`;
+      - „Weiterfahrt nach …“ als eigener Punkt (`transit`);
+      - Tagesgerüst je Etappe auf deren Tage beschränkt;
+      - im Feld „Entfernung“ steht die halbe Gesamtstrecke, weil die App Hin- und Rückweg rechnet (steht in den Notizen).
+- **Tagesplan:**
+  - **Auslastung je Tag:** Programmstunden gegen verfügbare Stunden. Grundlage sind 10 Std. am Tag; am An- und Abreisetag sowie an Wechseltagen wird die geschätzte Fahrzeit (Ø 80 km/h) abgezogen. Unbekannte Dauern werden gezählt, nicht geraten. Der Plan-Check warnt bei überladenen Tagen.
+  - **Tage tauschen** über ein Blatt. Blockiert, wenn ChatGPTs `commitmentIssues` einen gebuchten oder bezahlten Termin betroffen sieht.
+  - **Lücken füllen:** Katalog-Ideen bis 35 km um das Ziel bzw. jede Etappe. Saison wird nach Reisemonat gefiltert; Vorschlag nur in freie Zeitfenster. Bestätigung mit Häkchen; gesperrt, wenn sich der Plan zwischendurch geändert hat.
+  - **Tagesroute:** Google-Maps-Link mit allen Stationen des Tages, Start und Ziel an der Unterkunft bzw. am Reiseziel.
+  - **Packhinweise:** Neu übernommene Katalog-Ideen tragen `bring` nach Thema, z. B. Höhle → Jacke, Therme → Badesachen. Die bestehende Packliste zeigt sie mit „für: …“.
+  - **Überblick:** Etappen einer Rundreise.
+- **Reiseformat:** nur optionale Felder, kein neues `schemaVersion`. `validateExtras` prüft die neuen Felder; ältere App-Versionen ignorieren sie.
+  - An der Reise: `legs`.
+  - An eigenen Unternehmungen: `hours`, `bring`, `transit`.
+- **Version:** Service-Worker-Cache `reiseplaner-v4`, Kopfzeile v3.2.
+
+**Ausgeführte Tests (Container, Docker, Supabase CLI 2.120.0, Chromium):**
+- `npm test` grün, darin neu `tests/tagesplan.cjs` und `tests/catalog.cjs` erweitert. Abgedeckt sind:
+  - Rundreise kürzeste Reihenfolge, Nächteverteilung, Textsuche, Sortierung, Kartenlayout, Tageskapazität, Lücken nur in freien Feldern bzw. Etappentagen;
+  - Fahrzeit für Auto, Bahn, Tagesausflug und Rundreise; Auslastung und Plan-Check;
+  - Tausch mit Buchungsschutz, Tagesroute, Sicherung von `legs`, `bring` und `hours`, Packliste, Saisonstreifen und Karte.
+- `npm run test:browser` grün:
+  - Desktop und 320 px dunkel: Tag tauschen, Lücken füllen, Merkliste, Textfilter, Karte, Rundreise mit Weiterfahrt, Etappen und Packhinweisen;
+  - kein horizontales Scrollen.
+- `supabase db reset` mit allen 4 Migrationen, `supabase db lint` ohne Befund, `npm run test:db` grün (Datenbank = App für Katalog v2), `npm run test:e2e` grün („Version 2“).
+- `apply-catalog-v2.sql` zweimal hintereinander auf der lokalen Datenbank: 86/395, alles auf Version 2, Historie einmal verbucht.
+- Screenshots 390 px gesichtet.
+
+**Grenzen:**
+- Fahrzeiten, Etappen-km und Tageskapazität sind Schätzungen ohne Routing; die 10 Std. sind eine Planannahme.
+- Lücken füllen und Rundreise schlagen nur Katalog-Ideen vor.
+- Bereits früher übernommene Ideen haben keine Packhinweise (`bring`).
+- Ob die Integration v2 in der Produktion einspielt, wird nach dem Push geprüft.
+
 ## v3.1 · Umkreis-Katalog „Entdecken“ (Claude, 14.10.2026, Issue #7)
 
 Ausgangsstand `8bf665f`. Auftrag Philipp: ein fester Katalog auf der Datenbank, der Orte und Attraktionen anhand von Abfahrtsort und Kilometern vorschlägt. Mehr Tiefe, kreativ weitergedacht.

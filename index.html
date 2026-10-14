@@ -1,4 +1,7 @@
 <!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>
+.catmap{margin:0;display:flex;flex-direction:column;gap:4px}.catmap svg{width:100%;max-width:520px;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}.catmap .ring{fill:none;stroke:var(--line);stroke-dasharray:3 3}.catmap .rl{font:10px var(--f-mono);fill:var(--muted)}.catmap .home{fill:var(--bad)}.catmap .pt{fill:var(--spruce);stroke:var(--bg);stroke-width:1.5}.catmap .pn{font:bold 9px var(--f-mono);fill:var(--bg);text-anchor:middle}.catmap a:focus .pt{stroke:var(--warn);stroke-width:3}
+.season{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;max-width:420px}.season span{text-align:center;font:600 .72rem var(--f-mono);padding:4px 0;border-radius:4px;background:var(--surface-2);color:var(--muted);display:flex;flex-direction:column;line-height:1.1}.season span.on{background:var(--spruce-soft);color:var(--spruce);outline:1px solid var(--spruce)}.season i{font-style:normal;font-size:.62rem}
+.dhead{flex-wrap:wrap}.dload{flex-basis:100%;font:600 .68rem var(--f-mono);color:var(--muted);line-height:1.35}.dload.over{color:var(--bad)}.dtools{flex-basis:100%;display:flex;gap:4px;flex-wrap:wrap}.dtools .lnk{min-height:32px;padding:4px 8px;font-size:.8rem}
 .finder-hero{background:var(--spruce-soft);padding:24px;border:1px solid var(--line);border-radius:var(--r)}.criteria{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:16px 0}.profile-chip{display:inline-flex;gap:4px}.tbl td{max-width:260px;overflow-wrap:anywhere}.finder-hero .badge{white-space:normal}input,select,textarea{max-width:100%}.sheet .form{margin-bottom:12px}
 :root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta name="theme-color" content="#345D4C"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Reiseplaner"></head><body>
 <title>Reiseplaner</title>
@@ -263,7 +266,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v3.1</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v3.2</span></button>
     <button type="button" class="lnk" data-go="entdecken">Entdecken</button>
     <button type="button" class="sync" id="sync" data-go="konto" aria-label="Konto und Speicherstatus"><i></i><span>Nur in diesem Browser</span></button>
   </header>
@@ -608,6 +611,7 @@ function checks(t){
   if(ue.length&&kd.length&&ue[0].day<kd[0]) out.push(['info','Übungstag liegt vor dem ersten Kurstag','plan']);
   const occ={};items.forEach(it=>{const k=it.day+it.slot;occ[k]=(occ[k]||0)+1});
   Object.keys(occ).forEach(k=>{if(occ[k]>1){const d=days[+k.match(/^\d+/)[0]];out.push(['info',(d?d.label:'')+' '+SLOTNAME[k.replace(/^\d+/,'')]+': '+occ[k]+' Dinge gleichzeitig geplant','plan'])}});
+  dayLoad(t).forEach(L=>{if(L.over){const d=days[L.day];out.push(['warn',(d?d.label:'Tag')+': ca. '+String(L.planned).replace('.',',')+' Std. Programm, verfügbar ca. '+String(L.cap).replace('.',',')+' Std.'+(L.drive?' (nach ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std. Fahrt, geschätzt)':'')+'. Einen Punkt verschieben oder tauschen.','plan'])}});
   if(num(t.budget,0)>0&&c.total>num(t.budget,0)) out.push(['warn',eur(c.total-num(t.budget,0))+' über eurem Budget, siehe Spartipps','kosten']);
   if(t.ledger&&Object.keys(t.ledger).length){const fs=financeSummary(t);
     fs.due.forEach(d=>{if(d.overdue)out.push(['warn','Zahlung überfällig: '+d.label+' · '+eur(d.open)+' seit '+fmtLong(pd(d.due)),'kosten']);else if(d.days<=14)out.push(['info','Zahlung fällig am '+fmtLong(pd(d.due))+': '+d.label+' · '+eur(d.open),'kosten'])});
@@ -1220,6 +1224,7 @@ function tUeber(t){
   '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
   stackBar(c)+(c.saved?'<p class="small" style="color:var(--ok)">Durch die Gästekarte spart ihr beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
   '<section class="block"><h2>Plan-Check</h2><div class="checks-list">'+ch.map(x=>'<div class="chk '+x[0]+'"><b>'+(x[0]==='warn'?'!':x[0]==='ok'?'OK':'i')+'</b><span>'+esc(x[1])+'</span><button type="button" class="lnk" style="margin-left:auto" data-go="r-'+t.id+'-'+x[2]+'">Ansehen</button></div>').join('')+'</div></section>'+
+  (Array.isArray(t.legs)&&t.legs.length?'<section class="block"><h2>Etappen</h2><ol class="steps">'+t.legs.map((l,i)=>'<li><b>'+esc(l.name)+'</b> · '+num(l.nights,1)+' Nacht/Nächte <span class="small muted">(Anfahrt ≈ '+num(l.roadKm,0)+' km, geschätzt)</span> '+lk(mp(l.name),'Karte')+'</li>').join('')+'</ol></section>':'')+
   '<section class="block"><h2>Euer Plan</h2><div class="grid">'+
    '<div class="card"><span class="eyebrow">Ort</span><h3>'+esc(pl?pl.name:(t.dest||'Noch offen'))+'</h3><p class="small muted">'+esc(pl?pl.short:'')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
    '<div class="card"><span class="eyebrow">Unterkunft</span><h3>'+esc(st?st.name:'Noch keine')+'</h3><p class="small muted">'+esc(st?(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):''):'Im Bereich Ort & Unterkunft wählen')+'</p><div class="foot">'+(st&&st.url?lk(st.url,'Inserat'):'')+'<button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
@@ -1312,10 +1317,14 @@ function tPlan(t){
   const items=sortedItems(t);
   const isWarn=(it,a,d)=>{if(!d)return true;if(a.onlyDate&&d.md&&d.md!==a.onlyDate)return true;if(a.dow&&d.date&&!a.dow.includes(d.date.getUTCDay()))return true;if((a.rules||[]).some(r=>d.md===r.date&&r.bad.includes(it.slot)))return true;if(a.kitchen&&st&&!st.kitchen)return true;if(a.needSauna&&st&&!st.sauna)return true;return false};
   const special=d=>d.md==='12-31'?'Silvester':d.md==='01-01'?'Neujahr':d.md==='12-24'?'Heiligabend':'';
-  return '<section class="block"><div class="between"><h2>Tagesplan</h2><div class="row">'+(UI.confirm==='clear'?'<span class="small">Plan leeren?</span><button type="button" class="btn warn sm" data-act="clear-yes">Ja</button><button type="button" class="btn ghost sm" data-act="clear-no">Nein</button>':'<button type="button" class="btn ghost sm" data-act="clear">Plan leeren</button>')+'</div></div>'+
+  const load=dayLoad(t);
+  return '<section class="block"><div class="between"><h2>Tagesplan</h2><div class="row">'+(UI.confirm==='clear'?'<span class="small">Plan leeren?</span><button type="button" class="btn warn sm" data-act="clear-yes">Ja</button><button type="button" class="btn ghost sm" data-act="clear-no">Nein</button>':'<button type="button" class="btn ghost sm" data-act="clear">Plan leeren</button>')+(t.destGeo&&CATX?'<button type="button" class="btn ghost sm" data-act="plan-fill">Lücken füllen</button>':'')+'</div></div>'+
   '<p class="lead muted small">Wischen für weitere Tage. Antippen eines Punktes zum Verschieben oder Entfernen, „+“ zum Hinzufügen. Gelb umrandet = Konflikt.</p>'+
   '<div class="board">'+days.map(d=>{const sp=special(d);
-    return '<div class="dcol"><div class="dhead"><b>'+esc(d.label)+'</b><span class="eyebrow">'+(d.i===0?'Anreise':d.i===days.length-1?'Abreise':sp)+(d.i===0&&sp||d.i===days.length-1&&sp?' · '+sp:'')+'</span></div>'+
+    const L=load[d.i],ru=dayRouteUrl(t,d.i);
+    return '<div class="dcol"><div class="dhead"><b>'+esc(d.label)+'</b><span class="eyebrow">'+(d.i===0?'Anreise':d.i===days.length-1?'Abreise':sp)+(d.i===0&&sp||d.i===days.length-1&&sp?' · '+sp:'')+'</span>'+
+    (L.planned||L.unknown||L.drive?'<span class="dload'+(L.over?' over':'')+'">'+(L.over?'! zu voll: ':'')+'≈ '+String(L.planned).replace('.',',')+' von '+String(L.cap).replace('.',',')+' Std.'+(L.drive?' · Fahrt ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std.':'')+(L.unknown?' · '+L.unknown+'× Dauer offen':'')+'</span>':'')+
+    '<span class="dtools">'+(days.length>1?'<button type="button" class="lnk" data-act="day-swap-open" data-val="'+d.i+'" aria-label="'+esc(d.label)+' mit anderem Tag tauschen">⇄ Tauschen</button>':'')+(ru?lk(ru,'Tagesroute'):'')+'</span></div>'+
     SLOTS.map(([k,lab])=>{const its=items.filter(it=>it.day===d.i&&it.slot===k);
       let fixed='';
       if(d.i===0&&k==='morgen') fixed='<div class="item fixed">Anreise'+(pl?' · '+esc(pl.time):'')+'<small>ab '+esc(t.origin||'')+'</small></div>';
@@ -1599,6 +1608,10 @@ document.addEventListener('click',async e=>{
    case 'item': sheetItem(t,val);return;
    case 'item-move':{const it=t.items.find(i=>i.uid===val);if(it){it.day=+$('#mv-day').value;it.slot=$('#mv-slot').value;t.packageId='';save(t)}closeSheet();break}
    case 'item-del': t.items=(t.items||[]).filter(i=>i.uid!==val);t.packageId='';save(t);closeSheet();break;
+   case 'day-swap-open': sheetSwap(t,+val);return;
+   case 'day-swap':{const [a,b2]=val.split('|').map(Number);const cand=swapDays(t,a,b2);const iss=typeof commitmentIssues==='function'?commitmentIssues(t,cand):[];if(iss.length){alertMsg('Nicht getauscht: '+iss.join(' · '));return}t.items=cand.items;t.packageId='';save(t);closeSheet();break}
+   case 'plan-fill': planFillSheet(t);return;
+   case 'plan-fill-do':{try{const n=planFillApply(t);if(!n){alertMsg('Nichts ausgewählt.');return}t.packageId='';save(t);closeSheet();UI.fillDraft=null;render();alertMsg(n+' Ideen eingeplant. Preise sind noch offen.')}catch(err){alertMsg(err.message)}return}
    case 'clear': UI.confirm='clear';break;
    case 'clear-yes': t.items=[];t.packageId='';UI.confirm=null;save(t);break;
    case 'clear-no': UI.confirm=null;break;
@@ -1723,7 +1736,8 @@ function validateExtras(t){
  validateLedger(t.ledger);
  if(t.kmSrc!=null&&t.kmSrc!=='schaetzung')throw new Error('Ungültige Herkunft der Fahrstrecke.');
  if(t.destGeo!=null&&!(t.destGeo&&typeof t.destGeo==='object'&&Math.abs(+t.destGeo.lat)<=90&&Math.abs(+t.destGeo.lon)<=180&&Number.isFinite(+t.destGeo.lat)&&Number.isFinite(+t.destGeo.lon)))throw new Error('Ungültige Zielkoordinaten.');
- (t.customActs||[]).forEach(a=>{if(!a||typeof a!=='object'||a.costOpen!=null&&typeof a.costOpen!=='boolean'||a.km!=null&&!(Number.isFinite(+a.km)&&+a.km>=0&&+a.km<=1e5))throw new Error('Ungültige eigene Unternehmung.')});
+ (t.customActs||[]).forEach(a=>{if(!a||typeof a!=='object'||a.costOpen!=null&&typeof a.costOpen!=='boolean'||a.km!=null&&!(Number.isFinite(+a.km)&&+a.km>=0&&+a.km<=1e5)||a.hours!=null&&!(Number.isFinite(+a.hours)&&+a.hours>=0&&+a.hours<=24)||a.transit!=null&&typeof a.transit!=='boolean'||a.bring!=null&&!(Array.isArray(a.bring)&&a.bring.length<=10&&a.bring.every(x=>typeof x==='string'&&x.length<=80)))throw new Error('Ungültige eigene Unternehmung.')});
+ if(t.legs!=null&&!(Array.isArray(t.legs)&&t.legs.length<=12&&t.legs.every(l=>l&&typeof l==='object'&&typeof l.name==='string'&&l.name.length<=120&&Math.abs(+l.lat)<=90&&Math.abs(+l.lon)<=180&&Number.isFinite(+l.lat)&&Number.isFinite(+l.lon)&&Number.isInteger(+l.nights)&&+l.nights>=0&&+l.nights<=60&&Number.isFinite(+l.roadKm)&&+l.roadKm>=0)))throw new Error('Ungültige Etappen der Rundreise.');
  if(t.searchProfiles!=null){if(!Array.isArray(t.searchProfiles)||t.searchProfiles.length>30)throw new Error('Zu viele Profile.');t.searchProfiles.forEach(p=>{if(!p||typeof p.name!=='string'||p.name.length>80||!/^p[a-z0-9]+$/i.test(p.id))throw new Error('Profil ungültig.');validateSearch(p.filters)});}
 }
 function activeOffer(t){const o=(t.offers||[]).find(o=>o.id===t.activeOfferId);return o&&o.stayId===t.stayId?o:null;}
@@ -1973,7 +1987,7 @@ function catState(){
       range:typeof p.range==='string'?p.range:d.range,minKm:Number.isFinite(+p.minKm)?+p.minKm:d.minKm,maxKm:Number.isFinite(+p.maxKm)&&+p.maxKm>0?+p.maxKm:d.maxKm,
       kinds:Array.isArray(p.kinds)?p.kinds.filter(k=>CATX&&CATX.KINDS[k]):[],month:/^([1-9]|1[0-2])?$/.test(String(p.month||''))?String(p.month||''):'',
       nights:/^\d{0,2}$/.test(String(p.nights??''))?String(p.nights??''):'',family:!!p.family,rainy:!!p.rainy},
-      {res:null,busy:false,err:'',geoHits:null,geoBusy:false,index:{}});}
+      {res:null,busy:false,err:'',geoHits:null,geoBusy:false,index:{},q:'',sort:'passend',extra:{},tour:[]});}
   return UI.cat;
 }
 function catSavePrefs(){const s=catState();try{localStorage.setItem(CAT_PREF_KEY,JSON.stringify({origin:s.origin,range:s.range,minKm:s.minKm,maxKm:s.maxKm,kinds:s.kinds,month:s.month,nights:s.nights,family:s.family,rainy:s.rainy}))}catch(e){}}
@@ -2003,13 +2017,44 @@ function catSourceLine(r){
   return '<p class="small muted">Quelle: '+(r.source==='db'?'Online-Katalog (Datenbank), Version '+r.version:'Offline-Kopie in der App, Version '+r.version+(r.dbErr?' · Datenbank: '+esc(r.dbErr):''))+
    '. Kilometer und Fahrzeit sind Schätzungen (Luftlinie × '+String(CATX.ROAD_FACTOR).replace('.',',')+', Ø '+CATX.AVG_KMH+' km/h), keine Routenberechnung. Ideen ohne Preise und Öffnungszeiten: vor der Fahrt beim Anbieter prüfen.</p>';
 }
-function catCard(x){
-  const p=x.place;
-  return '<div class="card"><span class="eyebrow">'+esc(p.region)+(p.country&&p.country!=='DE'?' · '+esc(p.country):'')+'</span><h3>'+esc(p.name)+'</h3>'+
+function catCard(x,i){
+  const p=x.place,fav=catFavs().some(f=>f.id===p.id),inTour=catState().tour.some(q=>q.id===p.id);
+  return '<div class="card" id="cat-card-'+esc(p.id)+'"><div class="between"><span class="eyebrow">'+(i!=null?'<b class="num">'+(i+1)+'</b> · ':'')+esc(p.region)+(p.country&&p.country!=='DE'?' · '+esc(p.country):'')+'</span><button type="button" class="chipbtn" data-act="cat-fav" data-val="'+esc(p.id)+'" aria-pressed="'+fav+'" aria-label="'+(fav?'Von der Merkliste nehmen':'Auf die Merkliste')+'">'+(fav?'♥ gemerkt':'♡ merken')+'</button></div><h3>'+esc(p.name)+'</h3>'+
    '<p class="small"><b>≈ '+x.roadKm+' km · ca. '+esc(CATX.durText(x.minutes))+'</b> <span class="muted">(geschätzt, Luftlinie '+String(p.airKm).replace('.',',')+' km)</span></p>'+
    '<div class="badges">'+x.why.map(w=>'<span class="badge ok">'+esc(w)+'</span>').join('')+(x.season===false?'<span class="badge est">eher Nebensaison</span>':'')+(x.nightsFit===false?'<span class="badge est">Dauer: '+p.nights[0]+'–'+p.nights[1]+' Nächte üblich</span>':'')+'<span class="badge">'+x.spots.length+' Ideen</span></div>'+
    '<p class="small">'+esc(p.summary)+'</p>'+(p.angle?'<p class="small"><b>Ums Eck gedacht:</b> '+esc(p.angle)+'</p>':'')+
-   '<div class="foot"><button type="button" class="btn sm" data-act="cat-open" data-val="'+esc(p.id)+'">Ansehen & planen</button>'+lk(mp(p.name),'Karte')+'</div></div>';
+   '<div class="foot"><button type="button" class="btn sm" data-act="cat-open" data-val="'+esc(p.id)+'">Ansehen & planen</button>'+chipb('cat-tour',p.id,inTour?'✓ in Rundreise':'+ Rundreise',inTour)+lk(mp(p.name),'Karte')+'</div></div>';
+}
+/* Merkliste „Irgendwann mal“: nur in diesem Browser, keine Reisedaten */
+const CAT_FAV_KEY='rp-merkliste';
+function catFavs(){try{const l=JSON.parse(localStorage.getItem(CAT_FAV_KEY)||'[]');return Array.isArray(l)?l.filter(f=>f&&typeof f.id==='string'&&CATX&&CATX.validPoint(f)).slice(0,100):[]}catch(e){return []}}
+function catFavToggle(p){let l=catFavs();if(l.some(f=>f.id===p.id))l=l.filter(f=>f.id!==p.id);else l.unshift({id:p.id,name:String(p.name).slice(0,120),region:String(p.region||'').slice(0,80),lat:+p.lat,lon:+p.lon,months:(p.months||[]).slice(0,12),added:iso(todayUTC())});try{localStorage.setItem(CAT_FAV_KEY,JSON.stringify(l.slice(0,100)))}catch(e){alertMsg('Merkliste konnte in diesem Browser nicht gespeichert werden.')}}
+function catFind(id){const s=catState();return (s.res&&s.res.ranked.find(r=>r.place.id===id))||s.extra[id]||null}
+/* Ein einzelnes Ziel (Merkliste, Rundreise) nachladen und wie ein Suchtreffer bewerten */
+async function catLoadPlace(id,lat,lon){
+  const s=catState();if(catFind(id))return catFind(id);
+  const r=await catalogQuery({lat,lon,maxKm:10,minKm:0});const p=r.places.find(q=>q.id===id);
+  if(!p)throw new Error('Ziel ist nicht mehr im Katalog.');
+  p.airKm=Math.round(CATX.airKm(s.origin,p)*10)/10;
+  const x=CATX.rank({version:r.version,places:[p]},catPrefs())[0];x.version=r.version;x.source=r.source;s.extra[id]=x;return x;
+}
+function catPrefs(){const s=catState();return {kinds:s.kinds,month:s.month,nights:s.nights===''?null:+s.nights,family:s.family,rainy:s.rainy}}
+/* Mini-Karte der Treffer: Start in der Mitte, Kreise im Kilometerabstand (Luftlinie). Kein Kartendienst, funktioniert offline. */
+function catMap(list,origin){
+  if(!list.length)return '';
+  const more=list.length>20;list=list.slice(0,20);
+  const W=340,H=230,L=CATX.mapLayout(origin,list.map(x=>x.place),W,H);
+  return '<figure class="catmap"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Lage der Ziele rund um den Abfahrtsort; Nummern wie in der Liste">'+
+   L.rings.map(r=>'<circle cx="'+L.origin.x+'" cy="'+L.origin.y+'" r="'+r.r.toFixed(1)+'" class="ring"/><text x="'+(L.origin.x+3)+'" y="'+(L.origin.y-r.r+11).toFixed(1)+'" class="rl">'+r.km+' km</text>').join('')+
+   '<circle cx="'+L.origin.x+'" cy="'+L.origin.y+'" r="5" class="home"/>'+
+   L.points.map((q,i)=>'<a href="#cat-card-'+esc(q.id)+'" data-act="cat-open" data-val="'+esc(q.id)+'"><circle cx="'+q.x+'" cy="'+q.y+'" r="9" class="pt"/><text x="'+q.x+'" y="'+(q.y+3.5)+'" class="pn">'+(i+1)+'</text></a>').join('')+
+   '</svg><figcaption class="small muted">Luftlinien-Kreise um euren Start (●). Nummer antippen öffnet das Ziel.'+(more?' Die Karte zeigt die ersten 20 Ziele der Liste.':'')+'</figcaption></figure>';
+}
+/* Zwölf Monate mit Text, nicht nur Farbe */
+function catSeasonStrip(months,label){
+  if(!months||!months.length)return '';
+  const good=new Set(months.map(Number));
+  return '<div class="season" aria-label="'+esc(label||'Gute Reisemonate')+': '+esc([...good].sort((a,b)=>a-b).map(m=>MONTHS[m-1]).join(', '))+'">'+MONTHS.map((m,i)=>'<span class="'+(good.has(i+1)?'on':'')+'" title="'+m+(good.has(i+1)?': gute Reisezeit':'')+'">'+m.slice(0,1)+(good.has(i+1)?'<i>✓</i>':'')+'</span>').join('')+'</div>';
 }
 function vEntdecken(){
   const s=catState();
@@ -2034,11 +2079,19 @@ function vEntdecken(){
    '<label class="fld"><span>Dauer</span><select data-cf="nights">'+[['','egal'],['0','Tagesausflug'],['1','1 Nacht'],['2','2 Nächte'],['3','3 Nächte'],['5','4–5 Nächte'],['7','eine Woche']].map(x=>'<option value="'+x[0]+'"'+(x[0]===s.nights?' selected':'')+'>'+x[1]+'</option>').join('')+'</select></label></div>'+
    '<div class="row">'+chipb('cat-family','1','Mit Kindern',s.family)+chipb('cat-rainy','1','Auch bei Schlechtwetter',s.rainy)+'</div></div>'+
    '<div class="row"><button type="button" class="btn" data-act="cat-search"'+(o&&!s.busy?'':' disabled')+'>Ziele finden</button><button type="button" class="btn ghost" data-act="cat-surprise"'+(o&&!s.busy?'':' disabled')+'>Überrasch mich</button>'+(o?'':'<span class="small muted">Erst einen Abfahrtsort wählen.</span>')+'</div></section>';
+  const favs=catFavs();
+  if(s.tour.length)out+='<section class="block"><div class="note" role="status"><b>Rundreise: '+s.tour.length+' von 6 Zielen</b><p>'+s.tour.map(q=>esc(q.name)).join(' · ')+'</p><div class="row"><button type="button" class="btn sm" data-act="cat-tour-open"'+(s.tour.length>=2&&o?'':' disabled')+'>Rundreise planen</button><button type="button" class="btn ghost sm" data-act="cat-tour-clear">Auswahl leeren</button>'+(s.tour.length<2?'<span class="small">Mindestens zwei Ziele wählen.</span>':'')+'</div></div></section>';
+  if(favs.length)out+='<section class="block"><details class="panel"'+(s.res?'':' open')+'><summary><b>Merkliste „Irgendwann mal“</b> <small class="muted">'+favs.length+' Ziel(e), nur in diesem Browser</small></summary><div class="checks-list">'+
+    favs.map(f=>{const d=o?CATX.roadKm(CATX.airKm(o,f)):null,sf=s.month&&f.months&&f.months.length?f.months.includes(+s.month):null;return '<div class="chk info"><span><strong>'+esc(f.name)+'</strong> <span class="small muted">'+esc(f.region)+(d!=null?' · ≈ '+d+' km':'')+'</span>'+(sf===true?' <span class="badge ok">passt in den '+esc(MONTHS[+s.month-1])+'</span>':sf===false?' <span class="badge est">eher nicht im '+esc(MONTHS[+s.month-1])+'</span>':'')+'</span><span class="row" style="margin-left:auto"><button type="button" class="btn ghost sm" data-act="cat-fav-open" data-val="'+esc(f.id)+'"'+(o?'':' disabled')+'>Ansehen</button><button type="button" class="lnk" data-act="cat-fav" data-val="'+esc(f.id)+'">Entfernen</button></span></div>'}).join('')+
+    '</div>'+(o?'':'<p class="small muted">Für Entfernungen und Planung erst einen Abfahrtsort wählen.</p>')+'</details></section>';
   if(s.busy)out+='<section class="block"><p role="status">Suche läuft …</p></section>';
   else if(s.err)out+='<section class="block"><div class="note" role="alert"><b>Suche nicht möglich</b><p>'+esc(s.err)+'</p></div></section>';
   else if(res){
+    const shown=CATX.sortRanked(res.ranked.filter(x=>CATX.textMatch(x.place,s.q)),s.sort);
     out+='<section class="block" id="cat-results"><h2>'+(res.ranked.length?res.ranked.length+' Ziele zwischen '+s.minKm+' und '+s.maxKm+' km':'Keine Ziele in diesem Bereich')+'</h2>'+catSourceLine(res)+
-     (res.ranked.length?'<div class="grid">'+res.ranked.map(catCard).join('')+'</div>':'<div class="empty"><b>Nichts gefunden</b><span>Kilometerbereich vergrößern oder Themen abwählen. Der Katalog wächst; eigene Ziele lassen sich jederzeit als Reise anlegen.</span><button type="button" class="btn ghost" data-go="neu">Eigene Reise anlegen</button></div>')+'</section>';
+     (res.ranked.length?'<div class="form"><label class="fld"><span>In den Treffern suchen</span><input type="search" data-cf="q" maxlength="60" value="'+esc(s.q)+'" placeholder="z. B. Höhle, Wasserfall, Schloss"></label><label class="fld"><span>Sortieren</span><select data-cf="sort">'+[['passend','Am besten passend'],['nah','Am nächsten'],['weit','Am weitesten'],['ideen','Meiste Ideen']].map(x=>'<option value="'+x[0]+'"'+(s.sort===x[0]?' selected':'')+'>'+x[1]+'</option>').join('')+'</select></label></div>'+
+      (s.q&&shown.length!==res.ranked.length?'<p class="small">'+shown.length+' von '+res.ranked.length+' Zielen passen zu „'+esc(s.q)+'“.</p>':'')+catMap(shown,s.origin):'')+
+     (res.ranked.length?(shown.length?'<div class="grid">'+shown.map(catCard).join('')+'</div>':'<div class="empty"><b>Kein Treffer für „'+esc(s.q)+'“</b><button type="button" class="btn ghost" data-act="cat-q-clear">Suchwort entfernen</button></div>'):'<div class="empty"><b>Nichts gefunden</b><span>Kilometerbereich vergrößern oder Themen abwählen. Der Katalog wächst; eigene Ziele lassen sich jederzeit als Reise anlegen.</span><button type="button" class="btn ghost" data-go="neu">Eigene Reise anlegen</button></div>')+'</section>';
   }
   return out;
 }
@@ -2049,14 +2102,14 @@ function catSpotRow(e,checked){
    '<span class="badges">'+(sp.indoor?'<span class="badge">drinnen</span>':'')+(sp.family?'<span class="badge">mit Kindern</span>':'')+(season===false?'<span class="badge est">übliche Saison: '+sp.months.map(m=>MONTHS[m-1].slice(0,3)).join(', ')+'</span>':'')+(sp.months.length&&season!==false?'<span class="badge est">Saisonbetrieb, prüfen</span>':'')+'</span> '+lk(mp(sp.name+', '+e.place.name),'Karte')+'</span></label>';
 }
 function catOpen(id){
-  const s=catState(),x=s.res&&s.res.ranked.find(r=>r.place.id===id);if(!x)return;
+  const s=catState(),x=catFind(id);if(!x)return;
   const p=x.place;s.index={};s.openId=id;
   const pre=CATX.dayPlan(x.spots.filter(sp=>!s.family||sp.family),Math.max(0,num(s.nights===''?p.nights[0]:s.nights,0)));
   const want=new Set(pre.map(i=>i.spotId).slice(0,Math.max(3,pre.length)));
   x.spots.forEach(sp=>{s.index[sp.id]={spot:sp,place:p,kind:'dest'}});
   const nights=s.nights===''?Math.max(p.nights[0],Math.min(2,p.nights[1])):+s.nights;
   const editable=Store.list().filter(t=>!Store.isAccount()||Store.canEdit(t.id));
-  openSheet('<span class="eyebrow">'+esc(p.region)+'</span><h2>'+esc(p.name)+'</h2><p>'+esc(p.summary)+'</p>'+(p.angle?'<div class="note"><b>Ums Eck gedacht</b><p>'+esc(p.angle)+'</p></div>':'')+
+  openSheet('<span class="eyebrow">'+esc(p.region)+'</span><h2>'+esc(p.name)+'</h2><p>'+esc(p.summary)+'</p>'+catSeasonStrip(p.months,'Gute Reisemonate (typisch, nicht für eure Daten geprüft)')+'<p class="small muted">Typische Reisezeit: '+p.nights[0]+'–'+p.nights[1]+' Nächte.</p>'+(p.angle?'<div class="note"><b>Ums Eck gedacht</b><p>'+esc(p.angle)+'</p></div>':'')+
    '<p class="small"><b>≈ '+x.roadKm+' km Fahrstrecke, ca. '+esc(CATX.durText(x.minutes))+'</b> ab '+esc(s.origin.label)+' <span class="muted">(Schätzung)</span> '+lk(route(s.origin.label,p.name),'Route prüfen')+'</p>'+
    '<h3>Vor Ort</h3><p class="small muted">Vorausgewählt ist, was in eure Reisezeit und Dauer passt. Häkchen setzen oder entfernen.</p><div class="checks-list">'+x.spots.map(sp=>catSpotRow({spot:sp,place:p,kind:'dest'},want.has(sp.id))).join('')+
    (x.closed?'<p class="small muted">'+x.closed+' weitere Idee(n) sind im gewählten Monat üblicherweise geschlossen und ausgeblendet.</p>':'')+'</div>'+
@@ -2102,12 +2155,12 @@ function catTripType(p,nights,month){
   return nights<=2?'wochenende':'rund';
 }
 function catCreate(){
-  const s=catState(),x=s.res&&s.res.ranked.find(r=>r.place.id===s.openId);if(!x)return;
+  const s=catState(),x=catFind(s.openId);if(!x)return;
   const p=x.place,nights=Math.max(0,Math.min(30,Math.round(num($('#cat-n').value,0)))),persons=Math.max(1,Math.min(20,Math.round(num($('#cat-p').value,2))));
   const picked=catPicked();
   const t=newTrip({title:p.name,type:catTripType(p,nights,s.month),nights,persons,budget:0,origin:s.origin.label,dest:p.name+(p.region?', '+p.region:''),travel:'auto',km:x.roadKm,kmSrc:'schaetzung',
-    destGeo:{lat:p.lat,lon:p.lon,place:p.id,v:s.res.version},
-    notes:'Aus dem Umkreis-Katalog (Version '+s.res.version+', '+(s.res.source==='db'?'Datenbank':'Offline-Kopie')+'). '+p.summary+(p.angle?'\nIdee: '+p.angle:'')+'\nFahrstrecke '+x.roadKm+' km ist eine Schätzung; Preise und Öffnungszeiten vor Ort prüfen.'});
+    destGeo:{lat:p.lat,lon:p.lon,place:p.id,v:x.version},
+    notes:'Aus dem Umkreis-Katalog (Version '+x.version+', '+(x.source==='db'?'Datenbank':'Offline-Kopie')+'). '+p.summary+(p.angle?'\nIdee: '+p.angle:'')+'\nFahrstrecke '+x.roadKm+' km ist eine Schätzung; Preise und Öffnungszeiten vor Ort prüfen.'});
   if(s.month){t.dateMode='flex';t.month=catNextMonth(s.month)}
   const r=catApply(t,picked,nights);
   t.id=uid('t');save(t,true);closeSheet();go('r-'+t.id+'-plan');
@@ -2120,12 +2173,53 @@ function catAdd(){
   const r=catApply(t,picked,nightsOf(t));save(t);closeSheet();go('r-'+t.id+'-plan');
   alertMsg(r.acts+' Ideen zur Reise „'+t.title+'“ hinzugefügt.');
 }
+/* Rundreise: Reihenfolge nach kürzestem Weg (Schätzung), Nächte je Etappe, eine Reise mit Etappen und Tagesgerüst */
+function catTourPlan(){
+  const s=catState(),r=CATX.roundTrip(s.origin,s.tour);
+  const nights=s.tourNights&&s.tourNights.length===r.order.length&&s.tourOrder===r.order.map(p=>p.id).join(',')?s.tourNights:CATX.splitNights(r.order,r.order.reduce((n,p)=>n+Math.max(1,p.nights[0]),0));
+  s.tourOrder=r.order.map(p=>p.id).join(',');s.tourNights=nights;return Object.assign(r,{nights});
+}
+function catTourSheet(){
+  const s=catState();if(s.tour.length<2||!s.origin)return;
+  const r=catTourPlan(),total=r.nights.reduce((a,b)=>a+b,0);
+  openSheet('<span class="eyebrow">Rundreise</span><h2>'+r.order.length+' Ziele ab '+esc(s.origin.label)+'</h2><p class="small muted">Reihenfolge nach kürzester Gesamtstrecke (Luftlinie), Kilometer und Fahrzeiten geschätzt (× '+String(CATX.ROAD_FACTOR).replace('.',',')+', Ø '+CATX.AVG_KMH+' km/h).</p>'+
+   '<ol class="steps">'+r.legs.map((l,i)=>'<li><b>'+esc(i===0?s.origin.label:l.from.name)+' → '+esc(i===r.legs.length-1?s.origin.label+' (Heimfahrt)':l.to.name)+'</b><br><span class="small">≈ '+l.roadKm+' km · ca. '+esc(CATX.durText(l.minutes))+'</span>'+
+     (i<r.order.length?'<label class="fld" style="margin-top:6px"><span>Nächte in '+esc(l.to.name)+'</span><input type="number" min="1" max="21" data-tn="'+i+'" value="'+r.nights[i]+'"></label>':'')+'</li>').join('')+'</ol>'+
+   '<div class="kpis"><div class="kpi"><small>Gesamtstrecke</small><b class="num">≈ '+r.roadKm+' km</b><small>Schätzung</small></div><div class="kpi"><small>Reine Fahrzeit</small><b class="num">ca. '+esc(CATX.durText(r.minutes))+'</b><small>ohne Pausen</small></div><div class="kpi"><small>Dauer</small><b class="num">'+total+' Nächte</b><small>'+(total+1)+' Tage</small></div></div>'+
+   (r.legs.some(l=>l.minutes>300)?'<div class="note"><b>Lange Etappe</b><p>Mindestens eine Etappe dauert über 5 Stunden. Einen Zwischenstopp oder eine zusätzliche Nacht einplanen.</p></div>':'')+
+   '<div class="form"><label class="fld"><span>Personen</span><input type="number" min="1" max="20" id="cat-tp" value="2"></label></div>'+
+   '<div class="row"><button type="button" class="btn" data-act="cat-tour-create">Als Rundreise anlegen</button></div><p class="small muted">Je Etappe werden passende Ideen automatisch auf die Tage verteilt. Weiterfahrten stehen als eigener Punkt im Tagesplan. Preise bleiben offen.</p>');
+}
+function catTourCreate(){
+  const s=catState(),r=catTourPlan(),P=Math.max(1,Math.min(20,Math.round(num(($('#cat-tp')||{}).value,2))));
+  const nights=r.nights.reduce((a,b)=>a+b,0);
+  const t=newTrip({title:'Rundreise: '+r.order.map(p=>p.name.split(/[ (&]/)[0]).join(' – ').slice(0,70),type:'rund',nights,persons:P,budget:0,origin:s.origin.label,dest:r.order.map(p=>p.name).join(' → ').slice(0,200),travel:'auto',
+    km:Math.round(r.roadKm/2),kmSrc:'schaetzung',destGeo:{lat:r.order[0].lat,lon:r.order[0].lon,place:r.order[0].id,v:(catFind(r.order[0].id)||{}).version||0},
+    legs:r.order.map((p,i)=>({place:p.id,name:p.name.slice(0,120),lat:p.lat,lon:p.lon,nights:r.nights[i],roadKm:r.legs[i].roadKm})),
+    notes:'Rundreise aus dem Umkreis-Katalog. Gesamtstrecke ≈ '+r.roadKm+' km einschließlich Heimfahrt (Schätzung, Luftlinie × 1,3); im Feld „Entfernung“ steht die Hälfte, weil die App Hin- und Rückweg rechnet.\n'+r.legs.map((l,i)=>(i===0?s.origin.label:l.from.name)+' → '+(i===r.legs.length-1?s.origin.label:l.to.name)+': ≈ '+l.roadKm+' km').join('\n')});
+  if(s.month){t.dateMode='flex';t.month=catNextMonth(s.month)}
+  let start=0;const prefs=catPrefs();
+  r.order.forEach((p,i)=>{
+    const x=catFind(p.id)||CATX.rank({version:0,places:[p]},prefs)[0];
+    const to=i===r.order.length-1?nights:start+r.nights[i]-1;
+    const occ=(t.items||[]).map(it=>it.day+'|'+it.slot);
+    if(i>0){const mv={id:uid('c'),custom:true,t:'Weiterfahrt nach '+p.name,cat:'eigen',cost:0,per:'grp',dur:'ca. '+CATX.durText(r.legs[i].minutes),link:'',note:'Etappe ≈ '+r.legs[i].roadKm+' km (geschätzt). Die Kilometer sind schon in der Anreise der Reise enthalten.',slot:'morgen',map:p.name,ort:p.name,transit:true,hours:Math.round(r.legs[i].minutes/6)/10};
+      t.customActs.push(mv);t.items.push({uid:uid('i'),act:mv.id,day:start,slot:'morgen'});occ.push(start+'|morgen')}
+    const spots=x.spots.filter(sp=>!s.family||sp.family);
+    const acts={};spots.forEach(sp=>{acts[sp.id]=CATX.toAct(sp,p,uid)});
+    const plan=CATX.dayPlan(spots,nights,occ,{from:start,to});
+    plan.forEach(it=>{const a=acts[it.spotId];t.customActs.push(a);t.items.push({uid:uid('i'),act:a.id,day:it.day,slot:it.slot})});
+    start+=r.nights[i];
+  });
+  t.id=uid('t');save(t,true);closeSheet();s.tour=[];go('r-'+t.id+'-plan');
+  alertMsg('Rundreise angelegt: '+r.order.length+' Etappen, '+t.items.length+' Punkte im Tagesplan. Preise und genaue Fahrzeiten sind noch offen.');
+}
 async function catSearch(surprise){
   const s=catState();if(!s.origin)return;
   s.busy=true;s.err='';render();
   try{
     const r=await catalogQuery({lat:s.origin.lat,lon:s.origin.lon,maxKm:s.maxKm,minKm:s.minKm,kinds:s.kinds});
-    r.ranked=CATX.rank(r,{kinds:s.kinds,month:s.month,nights:s.nights===''?null:+s.nights,family:s.family,rainy:s.rainy});
+    r.ranked=CATX.rank(r,catPrefs());r.ranked.forEach(x=>{x.version=r.version;x.source=r.source});s.extra={};
     s.res=r;
   }catch(e){s.err=e.message;s.res=null}
   s.busy=false;catSavePrefs();render();
@@ -2176,7 +2270,14 @@ document.addEventListener('click',e=>{
     case 'cat-rainy':s.rainy=!s.rainy;s.res=null;catSavePrefs();render();return;
     case 'cat-search':catSearch(false);return;
     case 'cat-surprise':catSearch(true);return;
-    case 'cat-open':catOpen(val);return;
+    case 'cat-open':e.preventDefault();catOpen(val);return;
+    case 'cat-fav':{const x=catFind(val),f=catFavs().find(q=>q.id===val);const p=x?x.place:f;if(p){catFavToggle(p);render()}return}
+    case 'cat-fav-open':{const f=catFavs().find(q=>q.id===val);if(!f||!s.origin)return;catLoadPlace(f.id,f.lat,f.lon).then(()=>catOpen(f.id)).catch(err=>alertMsg(err.message));return}
+    case 'cat-tour':{const x=catFind(val);if(!x)return;if(s.tour.some(q=>q.id===val))s.tour=s.tour.filter(q=>q.id!==val);else if(s.tour.length>=6){alertMsg('Höchstens 6 Ziele pro Rundreise.');return}else s.tour=s.tour.concat([x.place]);render();return}
+    case 'cat-tour-clear':s.tour=[];render();return;
+    case 'cat-tour-open':catTourSheet();return;
+    case 'cat-tour-create':catTourCreate();return;
+    case 'cat-q-clear':s.q='';render();return;
     case 'cat-create':catCreate();return;
     case 'cat-add':catAdd();return;
     case 'cat-trip-ideas':{const t=cur();if(t)catTripIdeas(t);return}
@@ -2188,15 +2289,79 @@ document.addEventListener('change',e=>{
   if(el.id==='cat-city'&&el.value!==''){const o=CATX.ORIGINS[+el.value];if(o)catSetOrigin(o);return}
   const f=el.getAttribute&&el.getAttribute('data-cf');if(!f)return;
   const s=catState();
+  if(f==='q'||f==='sort'){s[f]=f==='q'?String(el.value||'').slice(0,60):el.value;render();return}
   if(f==='minKm'||f==='maxKm'){const v=Math.max(0,Math.min(CATX.MAX_KM,Math.round(num(el.value,0))));s[f]=f==='maxKm'?Math.max(10,v):v;if(s.minKm>=s.maxKm){if(f==='minKm')s.maxKm=Math.min(CATX.MAX_KM,s.minKm+50);else s.minKm=Math.max(0,s.maxKm-50)}s.range=''}
   else if(f==='month'||f==='nights')s[f]=el.value;
   s.res=null;catSavePrefs();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='cat-q'){e.preventDefault();catGeoSearch(e.target.value)}});
+document.addEventListener('change',e=>{const el=e.target;if(!el.getAttribute||el.getAttribute('data-tn')==null)return;const s=catState(),i=+el.getAttribute('data-tn');if(s.tourNights&&s.tourNights[i]!=null){s.tourNights[i]=Math.max(1,Math.min(21,Math.round(num(el.value,1))));catTourSheet()}});
+
+/* ================= Tagesplan: realistische Tage, Tausch, Lücken, Tagesroute (Issue #8) ================= */
+const DRIVE_KMH=80, DAY_HOURS=10;
+function actHours(a){if(!a)return null;const h=num(a.hours,0);if(h>0)return h;if(CATX)return CATX.parseHours(a.dur);const m=String(a.dur||'').replace(',','.').match(/(\d+(?:\.\d+)?)\s*std/i);return m?+m[1]:null}
+/* Fahrminuten je Tag: Anreise, Etappen (Rundreise), Heimfahrt. Straßen-km aus der Reise, Ø 80 km/h, Schätzung. */
+function driveByDay(t){
+  const n=daysOf(t).length,out=new Array(n).fill(0);if(t.travel!=='auto')return out;
+  const km=routeKm(t),min=k=>Math.round(k/DRIVE_KMH*60);
+  if(Array.isArray(t.legs)&&t.legs.length){let d=0;const inc=t.legs.reduce((x,l)=>x+num(l.roadKm,0),0);
+    t.legs.forEach((l,i)=>{if(d<n)out[d]+=min(num(l.roadKm,0));d+=Math.max(1,Math.round(num(l.nights,1)))});
+    out[n-1]+=min(Math.max(0,km*2-inc));return out}
+  if(n===1){out[0]=2*min(km);return out}
+  out[0]=min(km);out[n-1]+=min(km);return out;
+}
+function dayLoad(t){
+  const days=daysOf(t),drive=driveByDay(t);
+  return days.map(d=>{let planned=0,unknown=0;
+    (t.items||[]).filter(it=>it.day===d.i).forEach(it=>{const a=actOf(t,it.act);if(!a||a.transit)return;const h=actHours(a);if(h==null)unknown++;else planned+=h});
+    const cap=Math.max(0,DAY_HOURS-drive[d.i]/60);
+    return {day:d.i,planned:Math.round(planned*10)/10,unknown,drive:drive[d.i],cap:Math.round(cap*10)/10,over:planned>cap+0.25};
+  });
+}
+/* Kartenlink mit allen Stationen eines Tages (Reihenfolge wie im Plan), Start und Ziel = Unterkunft bzw. Reiseziel */
+function dayRouteUrl(t,day){
+  const st=stayOf(t),base=(st&&(st.ort||st.name))||t.dest||'';
+  const stops=sortedItems(t).filter(it=>it.day===day).map(it=>actOf(t,it.act)).filter(a=>a&&!a.transit&&(a.map||a.ort)).map(a=>a.map||a.ort);
+  const uniq=[...new Set(stops)].slice(0,9);
+  if(!uniq.length||!base)return '';
+  return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(base)+'&destination='+encodeURIComponent(base)+'&waypoints='+encodeURIComponent(uniq.join('|'))+'&travelmode=driving';
+}
+function swapDays(t,a,b){const c=clone(t);(c.items||[]).forEach(it=>{if(it.day===a)it.day=b;else if(it.day===b)it.day=a});c.packageId='';return c}
+function sheetSwap(t,day){
+  const days=daysOf(t);
+  openSheet('<h2>'+esc(days[day].label)+' tauschen</h2><p class="small muted">Alle Punkte dieses Tages wechseln mit einem anderen Tag, z. B. wenn das Wetter umschlägt. Gebuchte oder bezahlte Termine werden nicht verschoben. Anreise- und Abreisetag behalten ihre Fahrten.</p>'+
+   '<div class="checks-list">'+days.filter(d=>d.i!==day).map(d=>{const n=(t.items||[]).filter(it=>it.day===d.i).length;return '<button type="button" class="chk info" style="cursor:pointer;text-align:left" data-act="day-swap" data-val="'+day+'|'+d.i+'"><span><strong>mit '+esc(d.label)+'</strong> <span class="small muted">'+n+' Punkt(e)</span></span></button>'}).join('')+'</div>');
+}
+async function planFillSheet(t){
+  const g=t.destGeo;if(!g||!CATX)return;
+  openSheet('<span class="eyebrow">Lücken füllen</span><h2>Freie Zeitfenster mit Ideen aus der Umgebung</h2><div id="fill-box"><p role="status">Suche …</p></div>');
+  try{
+    const pts=Array.isArray(t.legs)&&t.legs.length?t.legs:[g];
+    const have=new Set((t.customActs||[]).map(a=>a.catalogSpot).filter(Boolean));
+    const month=t.dateMode==='fix'&&pd(t.start)?pd(t.start).getUTCMonth()+1:t.dateMode==='flex'&&t.month?+t.month.slice(5,7):null;
+    const found=new Map();let src=null;
+    for(const q of pts){const r=await catalogQuery({lat:+q.lat,lon:+q.lon,maxKm:60,minKm:0});src=src||r;
+      r.places.forEach(pl=>pl.spots.forEach(sp=>{if(have.has(sp.id)||found.has(sp.id)||CATX.spotSeason(sp,month)===false)return;const d=CATX.airKm(q,sp);if(d<=35)found.set(sp.id,{spot:sp,place:pl,d})}))}
+    const list=[...found.values()].sort((a,b)=>a.d-b.d).slice(0,24);
+    const occ=(t.items||[]).map(it=>it.day+'|'+it.slot);
+    const prop=CATX.dayPlan(list.map(e=>e.spot),nightsOf(t),occ);
+    const days=daysOf(t);
+    UI.fillDraft={tripId:t.id,source:JSON.stringify(t.items||[]),items:prop.map(pr=>({pr,e:found.get(pr.spotId)}))};
+    const box=$('#fill-box');if(!box)return;
+    box.innerHTML=prop.length?catSourceLine(src)+'<div class="checks-list">'+UI.fillDraft.items.map((x,i)=>'<label class="chk info"><input type="checkbox" data-fill="'+i+'" checked> <span><strong>'+esc((days[x.pr.day]||{}).label||'')+' · '+esc(SLOTNAME[x.pr.slot])+':</strong> '+esc(x.e.spot.name)+' <span class="small muted">'+esc(x.e.place.name)+(x.e.d>2?' · ≈ '+CATX.roadKm(x.e.d)+' km':'')+'</span><br><small>'+esc(x.e.spot.summary)+'</small></span></label>').join('')+'</div><div class="row"><button type="button" class="btn" data-act="plan-fill-do">Ausgewählte einplanen</button></div>':'<p>Keine freien Zeitfenster oder keine passenden Ideen in der Nähe.</p>';
+  }catch(e){const box=$('#fill-box');if(box)box.innerHTML='<p>'+esc(e.message)+'</p>'}
+}
+function planFillApply(t){
+  const d=UI.fillDraft;if(!d||d.tripId!==t.id)return 0;
+  if(d.source!==JSON.stringify(t.items||[]))throw new Error('Der Tagesplan hat sich inzwischen geändert. Bitte „Lücken füllen“ neu öffnen.');
+  const pick=[...document.querySelectorAll('[data-fill]')].filter(c=>c.checked).map(c=>d.items[+c.getAttribute('data-fill')]).filter(Boolean);
+  pick.forEach(x=>{const a=CATX.toAct(x.e.spot,x.e.place,uid);if(x.e.d>2){a.km=CATX.roadKm(x.e.d)*2;a.note+=' Ausflug, hin und zurück ca. '+a.km+' km (geschätzt).'}t.customActs=(t.customActs||[]).concat([a]);t.items=(t.items||[]).concat([{uid:uid('i'),act:a.id,day:x.pr.day,slot:x.pr.slot}])});
+  return pick.length;
+}
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

@@ -95,6 +95,49 @@ async function entdecken(browser, base, name, ctxOpts) {
   const before = await p.$$eval('[data-act="act-view"]', l => l.length);
   await p.click('[data-act="cat-trip-add"]');
   assert.equal(await p.$$eval('[data-act="act-view"]', l => l.length), before + 1, name + ': weitere Idee hinzugefügt');
+  /* v3.2 Tagesplan: Auslastung sichtbar, Tag tauschen über ein Blatt, Lücken füllen mit Katalog-Ideen */
+  await p.click('.tab[data-go$="-plan"]');
+  assert((await p.textContent('.board')).includes('Std.'), name + ': Auslastung je Tag');
+  const day0 = await p.$$eval('.dcol', cols => cols[0].querySelectorAll('.item:not(.fixed)').length);
+  await p.click('[data-act="day-swap-open"][data-val="0"]');
+  await p.click('[data-act="day-swap"][data-val="0|1"]');
+  const day1after = await p.$$eval('.dcol', cols => cols[1].querySelectorAll('.item:not(.fixed)').length);
+  assert.equal(day1after, day0, name + ': Tag getauscht');
+  const before2 = await p.$$eval('.item[data-act="item"]', l => l.length);
+  await p.click('[data-act="plan-fill"]');
+  await p.waitForSelector('#fill-box input[data-fill], #fill-box p:not([role])');
+  if (await p.$('#fill-box input[data-fill]')) {
+    await p.click('[data-act="plan-fill-do"]');
+    assert((await p.$$eval('.item[data-act="item"]', l => l.length)) > before2, name + ': Lücken gefüllt');
+  }
+  await noOverflow(p, name + ' Tagesplan v3.2');
+  /* v3.2 Entdecken: Merkliste, Textfilter, Karte, Rundreise */
+  await p.click('header [data-go="entdecken"]');
+  await p.click('[data-act="cat-search"]');
+  await p.waitForSelector('#cat-results .catmap svg');
+  await p.click('[data-act="cat-fav"][data-val="bad-urach"]');
+  assert((await viewText(p)).includes('Merkliste „Irgendwann mal“'), name + ': Merkliste');
+  await p.fill('[data-cf="q"]', 'Wasserfall'); await p.press('[data-cf="q"]', 'Enter');
+  await p.waitForSelector('text=/passen zu „Wasserfall“/');
+  await p.click('[data-act="cat-q-clear"] >> nth=0').catch(() => {});
+  await p.fill('[data-cf="q"]', ''); await p.press('[data-cf="q"]', 'Enter');
+  await p.click('[data-act="cat-range"][data-val="lang"]');
+  await p.click('[data-act="cat-search"]');
+  await p.waitForSelector('#cat-results [data-act="cat-tour"]');
+  const tourIds = await p.$$eval('#cat-results [data-act="cat-tour"]', l => l.slice(0, 3).map(b => b.getAttribute('data-val')));
+  for (const id of tourIds) await p.click('[data-act="cat-tour"][data-val="' + id + '"]');
+  await p.click('[data-act="cat-tour-open"]');
+  await p.waitForSelector('.sheet input[data-tn]');
+  assert((await p.textContent('.sheet')).includes('Heimfahrt'), name + ': Rundreise mit Heimfahrt');
+  await p.click('[data-act="cat-tour-create"]');
+  await p.waitForSelector('.tabs');
+  assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': Rundreise im Tagesplan');
+  assert((await p.textContent('.board')).includes('Weiterfahrt nach'), name + ': Weiterfahrt eingeplant');
+  await p.click('.tab[data-go$="-ueber"]');
+  assert((await viewText(p)).includes('Etappen'), name + ': Etappen im Überblick');
+  await p.click('.tab[data-go$="-check"]');
+  assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packhinweise aus dem Katalog');
+  await noOverflow(p, name + ' Rundreise');
   /* Weite Strecke mit Zwischenstopps; Filter bleiben nach Neuladen erhalten */
   await p.click('header [data-go="entdecken"]');
   await p.click('[data-act="cat-kind"][data-val="burg"]');

@@ -19,7 +19,11 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 ## Was bereits geht
 
 - Reisen mit festem, flexiblem oder offenem Zeitraum anlegen und bearbeiten, leer oder mit einer Vorlage (Wochenende, Städtereise, Tagesausflug, Sommer-, Winterurlaub; Silvester als ausgefülltes Beispiel)
-- **Entdecken (Umkreis-Katalog, v3.1):** Abfahrtsort per Standort, Ortssuche oder Städteliste wählen, Kilometerbereich (z. B. „Wochenende 80–350 km“ oder frei von–bis), Themen, Monat, Dauer, „Mit Kindern“ und „Auch bei Schlechtwetter“. Der Katalog schlägt aus 54 Zielen in Deutschland und den Nachbarländern mit 255 Attraktionen passende Ziele vor, mit Zwischenstopps auf dem Weg und Ausflügen vom Ziel. „Überrasch mich“ wählt zufällig unter den besten Treffern. Auf Knopfdruck entsteht eine Reise mit verteiltem Tagesgerüst. Keine Preise und keine Öffnungszeiten: übernommene Ideen stehen auf „Preis offen“, bis ihr einen Betrag eintragt. Kilometer und Fahrzeit sind gekennzeichnete Schätzungen (Luftlinie × 1,3)
+- **Entdecken (Umkreis-Katalog, v3.1):** Abfahrtsort per Standort, Ortssuche oder Städteliste wählen, Kilometerbereich (z. B. „Wochenende 80–350 km“ oder frei von–bis), Themen, Monat, Dauer, „Mit Kindern“ und „Auch bei Schlechtwetter“. Der Katalog schlägt aus 86 Zielen in Deutschland und zehn Nachbarländern mit 395 Attraktionen passende Ziele vor, mit Zwischenstopps auf dem Weg und Ausflügen vom Ziel. „Überrasch mich“ wählt zufällig unter den besten Treffern. Auf Knopfdruck entsteht eine Reise mit verteiltem Tagesgerüst. Keine Preise und keine Öffnungszeiten: übernommene Ideen stehen auf „Preis offen“, bis ihr einen Betrag eintragt. Kilometer und Fahrzeit sind gekennzeichnete Schätzungen (Luftlinie × 1,3)
+- **Seit v3.2:**
+  - Entdecken: Merkliste „Irgendwann mal“ (nur im Browser), Textsuche und Sortierung in den Treffern, Mini-Karte mit Luftlinien-Kreisen, Saisonstreifen je Ziel.
+  - **Rundreise bauen:** 2–6 Ziele, kürzeste Reihenfolge, Etappen-km und Fahrzeiten geschätzt, Nächte je Etappe.
+  - Tagesplan: Auslastung je Tag mit geschätzter Fahrzeit, Warnung bei überladenen Tagen, Tage tauschen (gebuchte Termine bleiben geschützt), „Lücken füllen“ mit Ideen aus der Umgebung, Tagesroute als Kartenlink, Packhinweise aus Katalog-Themen in der Packliste.
 - Beispielkatalog für vier Winterregionen mit Unterkünften und Aktivitäten
 - Tagesplan, Kostenübersicht, Pack- und Buchungscheckliste
 - Eigene Unterkunft, Aktivität und Kostenposten ergänzen

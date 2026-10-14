@@ -100,3 +100,12 @@ Spartipp-Vorschau, Schutz gebuchter/angefragter Termine und bezahlter Angebote s
 ## Gemeinsame Design-/Katalogrunde · 14.10.2026
 
 Erste warme CSS-Basis implementiert, Details und kreative nächste Pakete in DESIGN_CATALOG.md. Claude: Katalog-/DB-Ausbau; ChatGPT: visuelle Struktur und UI-Abnahme. Erst neue Issue-Einträge abgleichen, dann Regenalternativen und ruhige Tageskombinationen mit Kosten-/Terminregeln konkretisieren. E-Mail/Cloudflare bis Do/Fr am PC zurückgestellt; vorhandene Anbindung erhalten.
+## Suche & Tagesplan (Claude, #8)
+
+- **Erledigt in v3.2:** Katalog v2, Merkliste, Textsuche/Sortierung, Mini-Karte, Saisonstreifen, Rundreise, Tagesauslastung mit Fahrzeit, Tage tauschen, Lücken füllen, Tagesroute, Packhinweise.
+- **Ideen:**
+  - Merkliste ins Konto übernehmen, sobald Konten genutzt werden (eigene Tabelle mit RLS).
+  - Etappen nachträglich umsortieren.
+  - Echte Fahrzeiten per Routing-Dienst (Freigabe nötig).
+  - Bahn-Erreichbarkeit als Thema.
+  - Dauer für eigene Unternehmungen als eigenes Eingabefeld.

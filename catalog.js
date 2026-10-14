@@ -152,13 +152,18 @@
   /* Tagesgerüst: Ideen auf Tage und Zeitfenster verteilen. Tag 0 = Anreise (erst nachmittags), letzter Tag = Abreise
      (nur vormittags). Lange Ideen (≥ 4 Std.) belegen Vormittag und Nachmittag. Abend-Ideen in den Abend.
      Drinnen-Ideen eher nachmittags, damit sie bei Regen getauscht werden können. Gibt [{spotId, day, slot}] zurück. */
-  function dayPlan(spots, nights) {
+  /* occupied (optional): ['Tag|Zeitfenster', …] schon belegte Felder, z. B. aus einem bestehenden Plan („Lücken füllen“).
+     range (optional): {from, to} nur diese Tage verwenden (Etappen einer Rundreise). */
+  function dayPlan(spots, nights, occupied, range) {
     var days = Math.max(1, Math.round(+nights || 0) + 1), last = days - 1;
-    var free = [];
+    var free = [], occ = {};
+    (occupied || []).forEach(function (k) { occ[k] = true; });
     for (var d = 0; d < days; d++) {
       var slots = { morgen: true, nachm: true, abend: true };
       if (days > 1 && d === 0) slots.morgen = false;
       if (days > 1 && d === last) { slots.nachm = false; slots.abend = false; }
+      if (range && (d < range.from || d > range.to)) slots = { morgen: false, nachm: false, abend: false };
+      Object.keys(slots).forEach(function (k) { if (occ[d + '|' + k]) slots[k] = false; });
       free.push(slots);
     }
     var list = spots.slice().sort(function (a, b) { return (b.hours >= 4) - (a.hours >= 4) || a.indoor - b.indoor; });
@@ -176,18 +181,103 @@
     return out;
   }
 
+  /* Packhinweise je Thema; landen über das Feld bring in der bestehenden Packliste der App. Allgemeine Hinweise, keine Vorschriften. */
+  var BRING = {
+    natur: ['Feste Schuhe', 'Regenjacke'], berge: ['Feste Schuhe', 'Warme Schicht für oben'], wasser: ['Badesachen & Handtuch', 'Sonnenschutz'],
+    therme: ['Badesachen & Handtuch', 'Badeschlappen'], unterwelt: ['Jacke (in Höhlen und Stollen ist es kühl)', 'Feste Schuhe'],
+    winter: ['Warme Kleidung, Handschuhe, Mütze'], familie: ['Snacks & Getränke für Kinder'], burg: ['Bequeme Schuhe'], stadt: ['Bequeme Schuhe'],
+    kultur: [], genuss: [], technik: []
+  };
+  function bringFor(kind) { return (BRING[kind] || []).slice(); }
+
+  /* Dauer aus Freitext wie „ca. 2,5 Std.“, „90 Min.“, „1 Std. 30 Min.“; null wenn unbekannt */
+  function parseHours(txt) {
+    if (txt == null) return null;
+    var t = String(txt).replace(',', '.'), h = t.match(/(\d+(?:\.\d+)?)\s*(?:std|h\b|stunde)/i), m = t.match(/(\d+)\s*min/i);
+    if (!h && !m) return null;
+    return (h ? +h[1] : 0) + (m ? +m[1] / 60 : 0);
+  }
+
+  /* Rundreise: Reihenfolge nach nächstem Nachbarn ab Start, danach 2-opt-Verbesserung; Rückkehr zum Start.
+     Liefert {order:[Ziel…], legs:[{from,to,airKm,roadKm,minutes}], roadKm, minutes}. Alles Schätzungen. */
+  function roundTrip(origin, places) {
+    var rest = places.slice(), order = [], cur = origin;
+    while (rest.length) {
+      var bi = 0, bd = Infinity;
+      rest.forEach(function (p, i) { var d = airKm(cur, p); if (d < bd) { bd = d; bi = i; } });
+      cur = rest.splice(bi, 1)[0]; order.push(cur);
+    }
+    var len = function (o) { var s = 0, c = origin; o.forEach(function (p) { s += airKm(c, p); c = p; }); return s + airKm(c, origin); };
+    var improved = true, guard = 0;
+    while (improved && guard++ < 50) {
+      improved = false;
+      for (var i = 0; i < order.length - 1; i++) for (var j = i + 1; j < order.length; j++) {
+        var cand = order.slice(0, i).concat(order.slice(i, j + 1).reverse(), order.slice(j + 1));
+        if (len(cand) + 1e-9 < len(order)) { order = cand; improved = true; }
+      }
+    }
+    var legs = [], c = origin, pts = order.concat([origin]);
+    pts.forEach(function (p) { var a = airKm(c, p); legs.push({ from: c, to: p, airKm: round1(a), roadKm: roadKm(a), minutes: driveMin(a) }); c = p; });
+    return { order: order, legs: legs, roadKm: legs.reduce(function (s, l) { return s + l.roadKm; }, 0), minutes: legs.reduce(function (s, l) { return s + l.minutes; }, 0) };
+  }
+  /* Nächte auf Etappen verteilen: jedes Ziel mindestens 1 Nacht, Rest nach üblicher Mindestdauer und gleichmäßig. */
+  function splitNights(order, total) {
+    var n = order.map(function () { return 1; }), left = Math.max(0, Math.round(+total || 0) - order.length);
+    order.forEach(function (p, i) { var want = Math.max(0, (p.nights ? p.nights[0] : 1) - 1); var give = Math.min(want, left); n[i] += give; left -= give; });
+    for (var i = 0; left > 0; i = (i + 1) % order.length) { n[i]++; left--; }
+    return n;
+  }
+
+  /* Text-Filter über Name, Region, Beschreibung, Idee und Attraktionen */
+  function textMatch(p, q) {
+    q = String(q || '').trim().toLowerCase(); if (!q) return true;
+    var hay = [p.name, p.region, p.country, p.summary, p.angle].concat(p.spots.map(function (s) { return s.name + ' ' + s.summary; })).join(' ').toLowerCase();
+    return q.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
+  }
+  function sortRanked(ranked, mode) {
+    var r = ranked.slice();
+    if (mode === 'nah') r.sort(function (a, b) { return a.place.airKm - b.place.airKm; });
+    else if (mode === 'weit') r.sort(function (a, b) { return b.place.airKm - a.place.airKm; });
+    else if (mode === 'ideen') r.sort(function (a, b) { return b.spots.length - a.spots.length || b.score - a.score; });
+    return r;
+  }
+
+  /* Mini-Karte: gleichabstandstreue Projektion um den Start (Kosinus-Korrektur), passend in w×h mit Rand.
+     Liefert {origin:{x,y}, points:[{id,x,y}], kmPerPx, rings:[{km,r}]} für ein SVG ohne Kartendienst. */
+  function mapLayout(origin, places, w, h, pad) {
+    pad = pad == null ? 18 : pad;
+    var k = Math.cos(rad(origin.lat)), xy = function (p) { return { x: (p.lon - origin.lon) * k * 111.32, y: -(p.lat - origin.lat) * 110.57 }; };
+    var pts = places.map(function (p) { var q = xy(p); q.id = p.id; return q; });
+    var ext = pts.reduce(function (m, q) { return Math.max(m, Math.abs(q.x), Math.abs(q.y)); }, 20);
+    var scale = Math.min((w / 2 - pad) / ext, (h / 2 - pad) / ext);
+    var cx = w / 2, cy = h / 2;
+    var step = [25, 50, 100, 200, 300, 500, 750, 1000].find(function (s) { return ext / s <= 4; }) || 1000;
+    var rings = []; for (var r = step; r <= ext * 1.05; r += step) rings.push({ km: r, r: r * scale });
+    return { origin: { x: cx, y: cy }, points: pts.map(function (q) { return { id: q.id, x: Math.round((cx + q.x * scale) * 10) / 10, y: Math.round((cy + q.y * scale) * 10) / 10 }; }), kmPerPx: 1 / scale, rings: rings };
+  }
+
+  /* Belastung eines Tages: verfügbare Stunden (Standard 10) minus Fahrzeit am An- bzw. Abreisetag. */
+  function dayCapacity(dayIndex, days, driveMinutes) {
+    var cap = 10;
+    if (days > 1 && (dayIndex === 0 || dayIndex === days - 1)) cap -= (driveMinutes || 0) / 60;
+    if (days === 1) cap -= 2 * (driveMinutes || 0) / 60;
+    return Math.max(0, Math.round(cap * 10) / 10);
+  }
+
   /* Attraktion als eigene Unternehmung der Reise. Kosten sind offen, nicht kostenlos. */
   function toAct(s, place, uidFn) {
     return { id: uidFn('c'), custom: true, t: s.name, cat: KIND_CAT[s.kind] || 'ausflug', cost: 0, costOpen: true, per: 'pp',
       dur: s.hours >= 1 ? 'ca. ' + String(s.hours).replace('.', ',') + ' Std.' : 'ca. ' + Math.round(s.hours * 60) + ' Min.',
       link: '', note: s.summary + (s.tip ? ' Tipp: ' + s.tip : '') + ' (Katalog: ' + place.name + '. Preis, Öffnungszeiten und Saison vor Ort prüfen.)',
-      slot: s.slot || (s.indoor ? 'nachm' : 'morgen'), indoor: !!s.indoor, catalogSpot: s.id, ort: place.name, map: s.name + ', ' + place.name };
+      slot: s.slot || (s.indoor ? 'nachm' : 'morgen'), indoor: !!s.indoor, catalogSpot: s.id, ort: place.name, map: s.name + ', ' + place.name,
+      hours: s.hours, bring: bringFor(s.kind) };
   }
 
   var api = { ROAD_FACTOR: ROAD_FACTOR, AVG_KMH: AVG_KMH, MAX_KM: MAX_KM, KINDS: KINDS, KIND_CAT: KIND_CAT, RANGES: RANGES, ORIGINS: ORIGINS,
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
-    stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct };
+    stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
+    roundTrip: roundTrip, splitNights: splitNights, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);

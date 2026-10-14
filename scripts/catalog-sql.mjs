@@ -94,17 +94,19 @@ export function seedSql(c) {
     'delete from public.catalog_places where catalog_version <> ' + v + ';\n';
 }
 
-function manualSql(schema, seed, seedName) {
+function manualSql(schema, seed, seedName, version) {
   const hist = (ver, name) => "insert into supabase_migrations.schema_migrations (version, name) values ('" + ver + "', '" + name + "') on conflict (version) do nothing;";
   const [sv, ...sn] = SCHEMA.replace('.sql', '').split('_'), [dv, ...dn] = seedName.replace('.sql', '').split('_');
-  return '-- NUR FALLS NÖTIG im Supabase-Dashboard unter "SQL Editor" ausführen: wenn die GitHub-Integration den Katalog\n' +
-    '-- nicht eingespielt hat (REST meldet für catalog_search PGRST202 bzw. für catalog_places PGRST205).\n' +
-    '-- ERZEUGT von scripts/catalog-sql.mjs. Läuft in einer Transaktion und trägt beide Migrationen in die Historie ein,\n' +
-    '-- damit Integration und `supabase db push` sie nicht doppelt ausführen. Ist das Schema schon da, bricht die Datei\n' +
-    '-- beim ersten create table ohne Änderung ab.\n\nbegin;\n\n' + schema + '\n' + seed + '\n' +
+  /* Version 1 bringt das Schema mit; ab Version 2 liegt es schon in der Datenbank, die Datei enthält nur die Daten. */
+  const withSchema = version === 1;
+  return '-- NUR FALLS NÖTIG im Supabase-Dashboard unter "SQL Editor" ausführen: wenn die GitHub-Integration die Migration\n' +
+    '-- ' + seedName + ' nach etwa einer Stunde nicht eingespielt hat (Katalog meldet weiter die alte Version).\n' +
+    '-- ERZEUGT von scripts/catalog-sql.mjs. Läuft in einer Transaktion und trägt die Migration in die Historie ein,\n' +
+    '-- damit Integration und `supabase db push` sie nicht doppelt ausführen.' + (withSchema ? ' Ist das Schema schon da, bricht die Datei\n-- beim ersten create table ohne Änderung ab.' : ' Wiederholtes Ausführen ändert nichts (Upsert).') + '\n\nbegin;\n\n' +
+    (withSchema ? schema + '\n' : '') + seed + '\n' +
     'create schema if not exists supabase_migrations;\n' +
     'create table if not exists supabase_migrations.schema_migrations (version text not null primary key, statements text[], name text);\n' +
-    hist(sv, sn.join('_')) + '\n' + hist(dv, dn.join('_')) + '\n\ncommit;\n';
+    (withSchema ? hist(sv, sn.join('_')) + '\n' : '') + hist(dv, dn.join('_')) + '\n\ncommit;\n';
 }
 
 async function main() {
@@ -123,7 +125,7 @@ async function main() {
   const seed = seedSql(c);
   const schema = await fs.readFile(path.join(MIG, SCHEMA), 'utf8');
   const manualName = path.join(root, 'supabase', 'manual', 'apply-catalog-v' + c.version + '.sql');
-  const want = [[path.join(MIG, seedName), seed], [manualName, manualSql(schema, seed, seedName)]];
+  const want = [[path.join(MIG, seedName), seed], [manualName, manualSql(schema, seed, seedName, c.version)]];
   let stale = [];
   for (const [f, content] of want) {
     let have = null; try { have = await fs.readFile(f, 'utf8'); } catch (e) {}

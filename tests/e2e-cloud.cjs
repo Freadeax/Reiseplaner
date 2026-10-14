@@ -77,7 +77,7 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     /* Umkreis-Katalog ohne Anmeldung aus der Datenbank (#7) */
     await p0.goto(BASE + '#entdecken'); await p0.selectOption('#cat-city', { label: 'Stuttgart' });
     await p0.click('[data-act="cat-search"]'); await p0.waitForSelector('#cat-results');
-    assert((await p0.textContent('#cat-results')).includes('Online-Katalog (Datenbank), Version 1'), 'Katalog kommt aus der Datenbank');
+    assert((await p0.textContent('#cat-results')).includes('Online-Katalog (Datenbank), Version 2'), 'Katalog kommt aus der Datenbank');
     await p0.goto('http://127.0.0.1:' + PORT + '/Reiseplaner/irgendwas#konto'); await p0.waitForURL(BASE + '#konto'); assert((await p0.textContent('#view')).includes('Anmelden'), '404 leitet zur App');
     await c0.close();
 
