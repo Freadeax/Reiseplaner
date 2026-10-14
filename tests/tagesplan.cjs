@@ -311,6 +311,18 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   const mp = a.tMappe(tt);
   assert(/<h3>Etappen<\/h3>/.test(mp) && /Tagesroute in Karte/.test(mp) && /Programm ≈ 5,5 Std\./.test(mp));
 }
+/* Heute unterwegs: Route, Stunden, Regen-Alternative nur für Katalog-Draußen-Ideen */
+{
+  const D = o => { const n = new Date(); return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate() + o)).toISOString().slice(0, 10); };
+  const tt = trip({ dateMode: 'fix', start: D(-1), end: D(1), dest: 'Bad Urach' });
+  const out = act('Wasserfall', null, { hours: 2, map: 'Uracher Wasserfall, Bad Urach', catalogSpot: 'bad-urach-wasserfall' }), inn = act('Therme', null, { hours: 3, indoor: true, catalogSpot: 'bad-urach-albthermen' }), own = act('Eigenes', 1);
+  tt.customActs = [out, inn, own];
+  tt.items = [{ uid: 'h1', act: out.id, day: 1, slot: 'morgen' }, { uid: 'h2', act: inn.id, day: 1, slot: 'nachm' }, { uid: 'h3', act: own.id, day: 1, slot: 'abend' }];
+  const html = a.todayBlock(tt);
+  assert(/Heute/.test(html) && /Route für heute/.test(html), 'Route im Heute-Block');
+  assert(/Programm ≈ 6 Std\./.test(html), 'Stunden des Tages');
+  assert(/data-act="item" data-val="h1"/.test(html) && !/data-val="h2"/.test(html) && !/Regen-Alternative: Eigenes/.test(html), 'nur Katalog-Draußen-Ideen');
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';

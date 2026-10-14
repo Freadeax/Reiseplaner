@@ -1592,7 +1592,12 @@ function rainBlock(t,i){
 function todayBlock(t){
   const ph=tripPhase(t);if(!ph||ph.phase!=='unterwegs')return '';
   const days=daysOf(t),d=days[ph.day],next=days[ph.day+1],last=days.length-1;
-  return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+'</div>'+
+  const L=dayLoad(t)[ph.day],ru=dayRouteUrl(t,ph.day);
+  /* Draußen-Ideen aus dem Katalog: direkter Weg zum Regenzwilling im Punkt-Blatt (Tausch dort geschützt) */
+  const outs=dayItems(t,ph.day).map(it=>({it,a:actOf(t,it.act)})).filter(x=>x.a&&x.a.catalogSpot&&!x.a.indoor&&!x.a.transit&&CATX);
+  return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+
+   (L&&(L.planned||L.drive)?'<p class="small muted">Programm ≈ '+String(L.planned).replace('.',',')+' Std.'+(L.drive?' · Fahrt ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std.':'')+(L.over?' · <b>zu voll</b>, einen Punkt verschieben':'')+'</p>':'')+
+   (ru||outs.length?'<div class="row">'+(ru?lk(ru,'Route für heute'):'')+outs.map(x=>'<button type="button" class="btn ghost sm" data-act="item" data-val="'+esc(x.it.uid)+'">☂ Regen-Alternative: '+esc(x.a.t)+'</button>').join('')+'</div>':'')+'</div>'+
    rainBlock(t,ph.day)+
    (next?'<h3>Morgen · '+esc(next.label)+'</h3><div class="panel">'+dayList(t,next,last)+'</div>':'')+
    '<div class="row"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-plan">Ganzer Tagesplan</button><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-mappe">Reisemappe</button></div></section>';

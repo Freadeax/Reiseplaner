@@ -106,6 +106,14 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Heute unterwegs mit Katalog-Funktionen (Claude, 14.10.2026 nachts, Issue #8)
+
+Basis `1059e62`, angekündigt in #8. Der Heute-Block (nur bei festen Daten während der Reise) zeigt jetzt:
+- Programmstunden und geschätzte Fahrzeit des Tages mit „zu voll“-Hinweis.
+- Den Link „Route für heute“.
+- Für geplante Draußen-Ideen aus dem Katalog je einen Knopf „☂ Regen-Alternative“. Er öffnet das Punkt-Blatt mit dem Regenzwilling; der Tausch bleibt dort geschützt.
+- **Tests:** `tests/tagesplan.cjs` (Reise um das heutige Datum herum) und Browsertest. `npm test` und Chromium grün.
+
 ## Zielvergleich (Claude, 14.10.2026 nachts, Issue #8)
 
 Basis `a96b7ad`, angekündigt in #8.
