@@ -105,7 +105,13 @@ Ausgangsstand `e36cd65` (ChatGPT, Buchungsschutz), seitdem keine fremden Änderu
 - Fahrzeiten, Etappen-km und Tageskapazität sind Schätzungen ohne Routing; die 10 Std. sind eine Planannahme.
 - Lücken füllen und Rundreise schlagen nur Katalog-Ideen vor.
 - Bereits früher übernommene Ideen haben keine Packhinweise (`bring`).
-- Ob die Integration v2 in der Produktion einspielt, wird nach dem Push geprüft.
+- Produktion geprüft: CI-Lauf 38625482845 für `482cd7d` grün einschließlich `deploy`. Die Integration hat v2 eingespielt (REST: 86 Ziele, 395 Attraktionen), die Live-Seite zeigt „Online-Katalog (Datenbank), Version 2“ ohne JS-Fehler.
+
+**Nachtrag Regenzwilling** (Vorschlag 2 aus `docs/DESIGN_CATALOG.md`, nach `482cd7d`):
+- Im Blatt eines geplanten Draußen-Punkts aus dem Katalog gibt es „☂ Regenzwilling“: bis zu drei Drinnen-Ideen im Umkreis von 30 km, saisonpassend, ohne bereits geplante.
+- Erst „Bei Regen stattdessen“ plant die Alternative an derselben Stelle ein, mit offenem Preis. Die Draußen-Idee bleibt als Idee erhalten, es entstehen keine doppelten Pflichtkosten.
+- Gesperrt bei gebuchten oder bezahlten Terminen (`commitmentIssues`) und bei zwischenzeitlich geändertem Plan.
+- Getestet in `tests/catalog.cjs` und `tests/tagesplan.cjs`; der Browsertest tauscht wirklich (Desktop und 320 px).
 
 ## v3.1 · Umkreis-Katalog „Entdecken“ (Claude, 14.10.2026, Issue #7)
 

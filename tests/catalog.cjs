@@ -153,6 +153,16 @@ assert.equal(C.dayCapacity(0, 3, 120), 8); assert.equal(C.dayCapacity(1, 3, 120)
   assert(p2.length && p2.every(i => i.day >= 2 && i.day <= 3), 'nur Tage der Etappe');
 }
 assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele und Länder');
+{ /* Regenzwilling: nächste Drinnen-Idee, nicht sie selbst, Saison und Ausschluss beachtet */
+  const fall = C.findSpot(all, 'bad-urach-wasserfall');
+  assert.equal(fall.place.id, 'bad-urach');
+  const tw = C.rainTwins(fall.spot, all, {});
+  assert(tw.length >= 1 && tw.every(x => x.spot.indoor && x.airKm <= 30), 'nur Drinnen-Ideen im Umkreis');
+  assert.equal(tw[0].spot.id, 'bad-urach-albthermen', 'nächste zuerst');
+  assert(!C.rainTwins(fall.spot, all, { exclude: { 'bad-urach-albthermen': true } }).some(x => x.spot.id === 'bad-urach-albthermen'));
+  assert(!C.rainTwins(fall.spot, all, { month: 1 }).some(x => x.spot.id === 'bad-urach-baerenhoehle'), 'Bärenhöhle im Januar nicht');
+  assert.equal(C.findSpot(all, 'gibt-es-nicht'), null);
+}
 
 /* App: Übernahme in eine Reise, Kosten „Preis offen“, Plan-Check, Sicherung bleibt gültig */
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');

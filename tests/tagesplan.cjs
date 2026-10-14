@@ -78,10 +78,28 @@ t.customActs = [cave]; t.items = [{ uid: 'p1', act: cave.id, day: 1, slot: 'nach
 const packs = a.checklist(t).find(g => /für eure Unternehmungen/.test(g[0]));
 assert(packs && packs[1].some(x => /Jacke/.test(x[1]) && /Tropfsteinhöhle/.test(x[2])), 'Packhinweis mit Herkunft');
 
+/* Regenzwilling tauschen: gleiche Stelle im Plan, neue Idee mit offenem Preis, alte bleibt als Idee; gebucht = gesperrt */
+{
+  const all = require('vm'); void all;
+  t = trip();
+  const out = C.toAct({ id: 'bad-urach-wasserfall', name: 'Uracher Wasserfall', kind: 'natur', hours: 2, summary: 'x', months: [] }, { name: 'Bad Urach' }, uid);
+  t.customActs = [out]; t.items = [{ uid: 'w1', act: out.id, day: 1, slot: 'morgen' }];
+  const twin = { spot: { id: 'bad-urach-albthermen', name: 'AlbThermen', kind: 'therme', hours: 3, indoor: true, summary: 'Thermalbad', months: [] }, place: { name: 'Bad Urach' }, airKm: 1.8, roadKm: 2 };
+  const draft = { u: 'w1', trip: t.id, source: JSON.stringify(t.items), list: [twin] };
+  const na = a.rainSwap(t, draft, 0);
+  assert.equal(t.items.length, 1); assert.equal(t.items[0].act, na.id); assert.equal(t.items[0].day, 1); assert.equal(t.items[0].slot, 'morgen');
+  assert(t.customActs.some(c => c.id === out.id), 'Draußen-Idee bleibt als Idee erhalten');
+  assert.equal(a.actCost(t, na).txt, 'Preis offen, vor Ort prüfen');
+  assert.throws(() => a.rainSwap(t, draft, 0), /geändert/, 'veralteter Vorschlag wird abgelehnt');
+  const t2 = trip(); t2.customActs = [out]; t2.items = [{ uid: 'w2', act: out.id, day: 1, slot: 'morgen' }];
+  t2.ledger = { ['act:' + out.id]: { status: 'gebucht', amount: 10, paid: 10 } };
+  assert.throws(() => a.rainSwap(t2, { u: 'w2', trip: t2.id, source: JSON.stringify(t2.items), list: [twin] }, 0), /Nicht getauscht/);
+  assert.equal(t2.items[0].act, out.id, 'gebuchter Termin unverändert');
+}
 /* Mini-Karte und Saisonstreifen: Text statt nur Farbe */
 const strip = a.catSeasonStrip([5, 6, 7], 'Gute Reisemonate');
 assert(/aria-label="Gute Reisemonate: Mai, Juni, Juli"/.test(strip) && (strip.match(/✓/g) || []).length === 3);
 assert.equal(a.catSeasonStrip([]), '');
 const mapHtml = a.catMap([{ place: { id: 'harz', lat: 51.8, lon: 10.8 } }, { place: { id: 'berlin', lat: 52.5, lon: 13.4 } }], { lat: 48.7, lon: 9.65 });
 assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/text>/.test(mapHtml));
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen und Karte geprüft.');
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte und Regenzwilling (Tausch, Erhalt, Buchungsschutz) geprüft.');

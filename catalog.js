@@ -264,6 +264,26 @@
     return Math.max(0, Math.round(cap * 10) / 10);
   }
 
+  /* Regenzwilling: nächste Drinnen-Ideen zu einer Draußen-Idee, im Umkreis, in der Saison, ohne schon geplante.
+     Nur Vorschlag; erst ein bewusster Tausch plant die Alternative ein (keine doppelten Pflichtkosten). */
+  function rainTwins(spot, places, opt) {
+    opt = opt || {};
+    var out = [], ex = opt.exclude || {};
+    places.forEach(function (raw) {
+      var p = raw.spots && raw.id ? raw : normPlace(raw);
+      p.spots.forEach(function (s) {
+        if (!s.indoor || s.id === spot.id || ex[s.id] || spotSeason(s, opt.month) === false) return;
+        var d = airKm(spot, s); if (d <= (opt.radius || 30)) out.push({ spot: s, place: p, airKm: round1(d), roadKm: roadKm(d) });
+      });
+    });
+    return out.sort(function (a, b) { return a.airKm - b.airKm; }).slice(0, opt.max || 3);
+  }
+  function findSpot(places, id) {
+    for (var i = 0; i < places.length; i++) { var p = places[i].spots && places[i].id ? places[i] : normPlace(places[i]);
+      for (var j = 0; j < p.spots.length; j++) if (p.spots[j].id === id) return { spot: p.spots[j], place: p }; }
+    return null;
+  }
+
   /* Attraktion als eigene Unternehmung der Reise. Kosten sind offen, nicht kostenlos. */
   function toAct(s, place, uidFn) {
     return { id: uidFn('c'), custom: true, t: s.name, cat: KIND_CAT[s.kind] || 'ausflug', cost: 0, costOpen: true, per: 'pp',
@@ -277,7 +297,7 @@
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
-    roundTrip: roundTrip, splitNights: splitNights, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
+    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);

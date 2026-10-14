@@ -1507,7 +1507,31 @@ function sheetSlot(t,day,slot){
 function sheetItem(t,u){
   const it=(t.items||[]).find(i=>i.uid===u); if(!it) return; const a=actOf(t,it.act), days=daysOf(t);
   openSheet('<span class="eyebrow">Im Tagesplan</span><h2>'+esc(a?a.t:'')+'</h2><div class="form"><label class="fld"><span>Tag</span><select id="mv-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===it.day?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="mv-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===it.slot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div>'+
-   '<div class="row"><button type="button" class="btn" data-act="item-move" data-val="'+u+'">Verschieben</button><button type="button" class="btn ghost" data-act="act-view" data-val="'+esc(it.act)+'">Details</button><button type="button" class="btn warn" data-act="item-del" data-val="'+u+'">Entfernen</button></div>');
+   '<div class="row"><button type="button" class="btn" data-act="item-move" data-val="'+u+'">Verschieben</button><button type="button" class="btn ghost" data-act="act-view" data-val="'+esc(it.act)+'">Details</button><button type="button" class="btn warn" data-act="item-del" data-val="'+u+'">Entfernen</button></div>'+
+   (a&&a.catalogSpot&&!a.indoor&&CATX?'<div class="panel" id="rain-twin"><h4>☂ Regenzwilling</h4><p class="small muted">Drinnen-Alternativen in der Nähe. Sie werden nur eingeplant, wenn ihr tauscht; die Draußen-Idee bleibt in der Ideenliste.</p><div class="row"><button type="button" class="btn ghost sm" data-act="rain-twin" data-val="'+u+'">Alternativen zeigen</button></div></div>':''));
+}
+/* Regenzwilling (Vorschlag aus DESIGN_CATALOG.md): Alternativen aus dem Katalog, Tausch nur bewusst und ohne gebuchte Termine */
+async function rainTwinShow(t,u){
+  const it=(t.items||[]).find(i=>i.uid===u),a=it&&actOf(t,it.act),box=$('#rain-twin');if(!a||!box)return;
+  try{
+    const data=await catLoadLocal(),places=data.places.map(CATX.normPlace),hit=CATX.findSpot(places,a.catalogSpot);
+    if(!hit)throw new Error('Idee nicht mehr im Katalog.');
+    const month=t.dateMode==='fix'&&pd(t.start)?pd(t.start).getUTCMonth()+1:t.dateMode==='flex'&&t.month?+t.month.slice(5,7):null;
+    const ex={};(t.customActs||[]).forEach(c=>{if(c.catalogSpot&&(t.items||[]).some(i=>i.act===c.id))ex[c.catalogSpot]=true});
+    const list=CATX.rainTwins(hit.spot,places,{month,exclude:ex});
+    UI.rainDraft={u,trip:t.id,source:JSON.stringify(t.items||[]),list};
+    box.innerHTML='<h4>☂ Regenzwilling für „'+esc(a.t)+'“</h4>'+(list.length?'<div class="checks-list">'+list.map((x,i)=>'<div class="chk info"><span><strong>'+esc(x.spot.name)+'</strong> <span class="small muted">'+esc(x.place.name)+' · ≈ '+x.roadKm+' km von der Draußen-Idee · ca. '+String(x.spot.hours).replace('.',',')+' Std.</span><br><small>'+esc(x.spot.summary)+'</small></span><button type="button" class="btn sm" style="margin-left:auto" data-act="rain-swap" data-val="'+i+'">Bei Regen stattdessen</button></div>').join('')+'</div>':'<p class="small">Keine Drinnen-Idee aus dem Katalog im Umkreis von 30 km. Plan B im Überblick zeigt eigene Drinnen-Ideen.</p>');
+  }catch(e){box.innerHTML='<p class="small">'+esc(e.message)+'</p>'}
+}
+function rainSwap(t,draft,index){
+  if(!draft||draft.trip!==t.id||draft.source!==JSON.stringify(t.items||[]))throw new Error('Der Tagesplan hat sich geändert. Bitte neu öffnen.');
+  const x=draft.list[index],it=(t.items||[]).find(i=>i.uid===draft.u);if(!x||!it)throw new Error('Alternative nicht mehr verfügbar.');
+  const old=actOf(t,it.act),c=clone(t),na=CATX.toAct(x.spot,x.place,uid);
+  na.km=num(old&&old.km,0)+(x.airKm>2?x.roadKm*2:0);na.note+=' Regen-Alternative zu „'+(old?old.t:'')+'“.';
+  c.customActs=(c.customActs||[]).concat([na]);c.items.find(i=>i.uid===it.uid).act=na.id;
+  const iss=typeof commitmentIssues==='function'?commitmentIssues(t,c):[];
+  if(iss.length)throw new Error('Nicht getauscht: '+iss.join(' · '));
+  t.customActs=c.customActs;t.items=c.items;t.packageId='';return na;
 }
 function sheetPkg(t,id){
   const p=PKGS.find(x=>x.id===id), tmp=applyPkg(clone(t),p), days=daysOf(tmp), st=STAYS.find(s=>s.id===p.stay), c=cost(tmp);
@@ -1608,6 +1632,8 @@ document.addEventListener('click',async e=>{
    case 'item': sheetItem(t,val);return;
    case 'item-move':{const it=t.items.find(i=>i.uid===val);if(it){it.day=+$('#mv-day').value;it.slot=$('#mv-slot').value;t.packageId='';save(t)}closeSheet();break}
    case 'item-del': t.items=(t.items||[]).filter(i=>i.uid!==val);t.packageId='';save(t);closeSheet();break;
+   case 'rain-twin': rainTwinShow(t,val);return;
+   case 'rain-swap':{try{const na=rainSwap(t,UI.rainDraft,+val);save(t);closeSheet();UI.rainDraft=null;render();alertMsg('Getauscht: '+na.t+'. Die Draußen-Idee bleibt in der Ideenliste; Preis noch offen.')}catch(err){alertMsg(err.message)}return}
    case 'day-swap-open': sheetSwap(t,+val);return;
    case 'day-swap':{const [a,b2]=val.split('|').map(Number);const cand=swapDays(t,a,b2);const iss=typeof commitmentIssues==='function'?commitmentIssues(t,cand):[];if(iss.length){alertMsg('Nicht getauscht: '+iss.join(' · '));return}t.items=cand.items;t.packageId='';save(t);closeSheet();break}
    case 'plan-fill': planFillSheet(t);return;
@@ -2361,7 +2387,7 @@ function planFillApply(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

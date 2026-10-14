@@ -106,11 +106,21 @@ async function entdecken(browser, base, name, ctxOpts) {
   const before2 = await p.$$eval('.item[data-act="item"]', l => l.length);
   await p.click('[data-act="plan-fill"]');
   await p.waitForSelector('#fill-box input[data-fill], #fill-box p:not([role])');
-  if (await p.$('#fill-box input[data-fill]')) {
+  assert(await p.$('#fill-box input[data-fill]'), name + ': Lücken-Vorschläge'); {
     await p.click('[data-act="plan-fill-do"]');
     assert((await p.$$eval('.item[data-act="item"]', l => l.length)) > before2, name + ': Lücken gefüllt');
   }
   await noOverflow(p, name + ' Tagesplan v3.2');
+  /* Regenzwilling: Draußen-Punkt antippen, Alternative zeigen und tauschen */
+  const outdoor = await p.$$eval('.item[data-act="item"]', l => l.map(b => b.textContent));
+  const wf = outdoor.findIndex(x => /Wasserfall|Hohenurach|Lichtenstein/.test(x));
+  assert(wf >= 0, name + ': Draußen-Punkt im Plan'); {
+    await p.click('.item[data-act="item"] >> nth=' + wf);
+    await p.click('[data-act="rain-twin"]');
+    await p.waitForSelector('[data-act="rain-swap"]');
+    await p.click('[data-act="rain-swap"] >> nth=0');
+    assert((await p.textContent('.board')).match(/AlbThermen|Bärenhöhle|Thermen/), name + ': Regenzwilling eingeplant');
+  }
   /* v3.2 Entdecken: Merkliste, Textfilter, Karte, Rundreise */
   await p.click('header [data-go="entdecken"]');
   await p.click('[data-act="cat-search"]');

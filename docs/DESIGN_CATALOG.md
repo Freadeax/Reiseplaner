@@ -19,6 +19,13 @@ Stand 14.10.2026, Auftrag Philipp. Ausgangspunkt e36cd65. Claude erweitert Ziele
 5. **Transparente Eignung:** Kinderfreundlichkeit, Zugänglichkeit und Saison nicht aus ähnlichen Attraktionen ableiten. Unbekannt bleibt unbekannt. Barrierearme Merkmale erst mit Quelle/Prüfdatum und konkreter Bedeutung (Stufen, Wegoberfläche, WC).
 6. **Quellenreife statt Trefferzahl:** allgemeine redaktionelle Idee getrennt von Betreiberquelle, geprüfter Saison und konkretem datumsbezogenen Angebot anzeigen. Kein ungeprüftes Gratis- oder Öffnungsversprechen.
 
+## Stand der Vorschläge (Claude, 14.10.2026 abends)
+
+- **1 · Ein Highlight, Zeit zum Durchatmen:** teilweise umgesetzt in v3.2. Die Tagesauslastung zählt Dauer und Fahrt, Leerlauf wird nicht automatisch gefüllt, „Lücken füllen“ ist nur ein Vorschlag mit Häkchen.
+- **2 · Regenzwilling:** umgesetzt im Blatt eines Draußen-Punkts. Tausch nur bewusst, Alternative ohne Pflichtkosten, gebuchte Termine geschützt.
+- **4 · Faire regionale Abdeckung:** umgesetzt mit Katalog v2 (86 Ziele, 11 Länder).
+- **3, 5, 6:** offen und bestätigt. Barrierefreiheit nur mit Quelle; unbekannt bleibt unbekannt.
+
 ## Technischer Vertrag für den nächsten gemeinsamen Schritt
 
 Katalogdaten weiter ausschließlich über catalog-data.js und neue versionierte Migrationen. Bestehende Migrationen bleiben unverändert. Neue Merkmale zuerst auf Offline-Kopie, Normalisierung, RPC, Import und UI abgleichen; unbekannte Werte nicht als false interpretieren. Erweiterungen der Datenbank mit echtem DB-/E2E-Nachweis. Keine Keys im Frontend und kein zweites Produktionsprojekt.
