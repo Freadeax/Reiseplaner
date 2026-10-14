@@ -1,5 +1,28 @@
 # Projektstand · 13.10.2026
 
+
+## v2.2 · Saisonpreise aus Portalabfragen (Claude, 14.10.2026, Issue #3)
+
+Auf `7a7c45b` (ChatGPT, passwortgeschützte Sicherungen) aufgebaut. Keine Änderung an Reise-Speicherformat, Finder, Angebotsmodell oder Sicherung; Katalogdaten liegen im Code.
+
+- **Recherche am 14.10.2026:** Live-Preisabfragen der Buchungsportale für 2 Erwachsene, 4 Nächte Mo–Fr, 7–15 Zeiträume von Nov. 2026 bis Okt. 2027. Belegt für 5 von 13 Katalog-Unterkünften (`PRICE_SAMPLES` mit Quelle, Zeitraum, Inklusivleistungen, Abfragedatum):
+  - Fügenschuh's FeWo 2: 680 € ganzjährig, auch zum Jahreswechsel, inkl. Endreinigung.
+  - „Schön Hier“: 460–500 €, inkl. 60 € Endreinigung vor Ort.
+  - Rosemarie: 467,23 € (Nov.).
+  - Braito: 496–543 €.
+  - Bilgeri: 491–514 €.
+- **Nicht belegbar:** Holidu liefert nur geschätzte Preise (`isExact:false`). Die Allgäuer Feratel-Inserate buchen über `deskline.net`, das aus der Recherche-Umgebung gesperrt ist.
+- **Haus Haug:** Auf allen hinterlegten Portalen HTTP 404 (`STAY_GONE`).
+- **Fehlerbehebung Kosten:** Die Silvester-Beispielreise rechnete die Unterkunft mit 4 × 110 € = 440 €; der Portalpreis für exakt diesen Zeitraum ist 680 €. „Schön Hier“ war ebenfalls zu niedrig (380 € statt 460–500 €).
+- **Logik:**
+  - `tripSeason`: Jahreswechsel 24.12.–06.01., Winter, Frühling, Sommer bis 15.09., Herbst; zählt die Mehrheit der Nächte, bei „nur Monat“ die Monatsmitte, bei offenem Datum unbekannt.
+  - `stayNight` nimmt den höchsten Nachtwert der Saison, um nicht zu unterschätzen.
+  - Bei exakt gleichen Daten und gleicher Personenzahl heißt der Wert „Portalpreis“ (Quelle „Angabe“), sonst „Vergleichswert … für eure Daten nicht abgefragt“ (Richtwert). Ohne Abfrage gilt der bisherige gekennzeichnete Schätzwert.
+  - Eigenes Angebot bzw. `stayQuote` haben Vorrang.
+  - Bei abweichender Personenzahl erscheint ein offener Punkt. Verschwundene Inserate erzeugen eine Warnung, verlieren den Inserat-Link und werden nicht mehr als Spartipp empfohlen. Der Spartipp vergleicht jetzt `stayNight` statt `plan`.
+- **Tests:** Neu ist `tests/saisonpreise.cjs`. `npm test` und `npm run test:browser` sind grün. Kein iPhone-/Safari-Test.
+- **Grenzen:** Preise sind Momentaufnahmen vom 14.10.2026 ohne Verfügbarkeitszusage. Für 8 Unterkünfte gibt es weiterhin nur Schätzwerte. Kinder, Haustiere und andere Belegungen wurden nicht abgefragt.
+
 ## Passwortgeschützte Sicherung und Importprüfung (ChatGPT, 14.10.2026)
 
 Arbeitspaket #4, auf `81e7a02` aufgebaut. Claudes Saisonpreis-Arbeit #3 an STAYS/planBasis/cost() bleibt unberührt.

@@ -33,3 +33,9 @@ Unterkunfts- und Aktivitätsdaten brauchen künftig Quellen mit Prüfdatum und G
 - Nächste Schritte: neuen Chromium-Klicktest am Push prüfen; iPhone/Safari; Suchlinkparameter direkt beim Anbieter prüfen; Claudes angekündigte allgemeine Startseite/Beispiele.
 - Live-Suche erst mit Anbieterzugängen, serverseitiger Normalisierung und Datenzugriffskonzept; Details in PROVIDER_INTEGRATION.md.
 
+## Saisonpreise (Claude, #3)
+
+- Feratel-/Deskline-Inserate (Berktold, Schwandenhof, BergBuddies, Haus im Wäldle, Alpenrösle) aus einer Umgebung mit Zugriff auf `deskline.net` abfragen oder beim Gastgeber anfragen.
+- Holidu-Inserate nur mit exaktem Partnerpreis übernehmen.
+- Stichproben regelmäßig erneuern (Prüfdatum steht in `PRICE_CHECKED`). Ältere Werte als veraltet kennzeichnen.
+- Ersatz für das verschwundene Inserat Haus Haug wählen.

@@ -218,7 +218,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.1</span></button>
+    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v2.2</span></button>
     <span class="sync" id="sync"><i></i><span>Nur in diesem Browser</span></span>
   </header>
   <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -288,6 +288,25 @@ const STAYS=[
  {id:'tt-braito',place:'tannheim',name:'Gästehaus Apart Braito',ort:'Grän-Haldensee',info:'Appartement mit Sauna',ab:'ab 97 € / Nacht',plan:112,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://booking.alpen-guide.de/app/de/detail/6-72312',map:'Apart Braito Grän'},
  {id:'tt-bilgeri',place:'tannheim',name:'Haus Bilgeri Appartements',ort:'Tannheim',info:'Appartements mit Sauna',ab:'ab 114 € / Nacht',plan:131,card:false,sauna:true,kitchen:true,breakfast:false,url:'https://booking.alpen-guide.de/app/de/detail/6-72044',map:'Haus Bilgeri Tannheim'}
 ];
+/* Preisabfragen bei den Buchungsportalen (Live-Preis für konkrete Daten), Stand 14.10.2026.
+   Je Eintrag: Anreise, Abreise, Gesamtpreis für 2 Erwachsene. Momentaufnahmen, keine Verfügbarkeits- oder Preiszusage.
+   Nur exakte Portalpreise; Holidu (nur geschätzter Preis) und Deskline-Inserate (aus der Recherche-Umgebung nicht erreichbar) fehlen bewusst. */
+const PRICE_CHECKED='2026-10-14';
+const PRICE_SAMPLES={
+ 'oj-fuegen':{src:'https://www.traum-ferienwohnungen.de/98418/',incl:'inkl. Endreinigung, Bettwäsche, Handtücher; Kurbeitrag extra',
+   s:[['2026-12-30','2027-01-03',680],['2027-01-11','2027-01-15',680],['2027-02-01','2027-02-05',680],['2027-03-08','2027-03-12',680],['2027-05-10','2027-05-14',680],['2027-08-02','2027-08-06',680],['2027-10-04','2027-10-08',680]]},
+ 'os-schoen':{src:'https://www.traum-ferienwohnungen.de/ferienwohnung/275444/',incl:'inkl. 60 € Endreinigung (vor Ort zu zahlen); Kurbeitrag extra; für 30.12.–03.01. kein Preis abrufbar',
+   s:[['2027-01-11','2027-01-15',500],['2027-02-01','2027-02-05',500],['2027-03-08','2027-03-12',460],['2027-05-10','2027-05-14',500],['2027-08-02','2027-08-06',500],['2027-10-04','2027-10-08',460]]},
+ 'tt-rosemarie':{src:'https://booking.alpen-guide.de/app/de/detail/6-72364',incl:'Appartement 2 (30 m², 1–2 Pers.); Kurtaxe vor Ort; Endreinigung nicht gesondert ausgewiesen',
+   s:[['2026-11-02','2026-11-06',467.23]]},
+ 'tt-braito':{src:'https://booking.alpen-guide.de/app/de/detail/6-72312',incl:'günstigstes Apartment (Nr. 2); Kurtaxe vor Ort; Endreinigung nicht gesondert ausgewiesen',
+   s:[['2027-03-08','2027-03-12',543.29],['2027-05-10','2027-05-14',496.32],['2027-10-04','2027-10-08',496.32]]},
+ 'tt-bilgeri':{src:'https://booking.alpen-guide.de/app/de/detail/6-72044',incl:'günstigstes freies Appartement; Kurtaxe vor Ort; Endreinigung nicht gesondert ausgewiesen',
+   s:[['2026-11-02','2026-11-06',514.2],['2027-03-08','2027-03-12',490.71],['2027-05-10','2027-05-14',514.2],['2027-07-12','2027-07-16',514.2],['2027-10-04','2027-10-08',514.2]]}
+};
+/* Inserate, die bei der Prüfung nicht mehr auffindbar waren (HTTP 404 auf allen hinterlegten Portalen). */
+const STAY_GONE={'oj-haug':'2026-10-14'};
+STAYS.forEach(st=>{const x=PRICE_SAMPLES[st.id];st.samples=x?x.s.map(r=>({from:r[0],to:r[1],total:r[2],adults:2,src:x.src,incl:x.incl,checked:PRICE_CHECKED})):[];if(STAY_GONE[st.id])st.gone=STAY_GONE[st.id]});
 /* Unternehmungen */
 const L=(l,u)=>[l,u];
 const ACTS={};
@@ -426,7 +445,7 @@ function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.
 function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
 function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offerAmounts(o).unknown.map(k=>k+' offen'));if(!offerCurrent(o,t))out.push('Ausgewähltes Angebot passt nicht mehr zu Daten/Personen oder ist abgelaufen');if(o.availability!=='available')out.push('Verfügbarkeit des Angebots unbestätigt');}
  if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt');}
- else if(!o){if(!(num(t.stayQuote,0)>0))out.push('Konkretes Unterkunftsangebot fehlt');out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
+ else if(!o){const st=stayOf(t);if(st.gone)out.push(st.name+': Inserat nicht mehr auffindbar, andere Unterkunft wählen');if(!(num(t.stayQuote,0)>0)){out.push('Konkretes Unterkunftsangebot fehlt');const sn=stayNight(t,st);if(sn.sample&&Math.round(num(t.persons,2))!==sn.sample.adults)out.push('Unterkunftspreis gilt laut Abfrage für '+sn.sample.adults+' Erwachsene, für '+Math.round(num(t.persons,2))+' Personen beim Anbieter prüfen');}out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
  if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
  if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
  if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
@@ -449,7 +468,7 @@ function cost(t){
     const offer=activeOffer(t);
     if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est');}
     else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok');
-    else{const pn=num(st.plan!=null?st.plan:st.priceNight,0);add('unterkunft',st.name,(st.ab?st.ab+' · ':'')+'Planwert '+eur(pn)+' / Nacht × '+N+(st.custom?'':' ('+planBasis(t)+')'),pn*N,st.custom?'ok':'est')}
+    else{const sn=stayNight(t,st);add('unterkunft',st.name,(st.custom?'Planwert '+eur(sn.pn)+' / Nacht':sn.txt)+' · × '+N+' Nächte',sn.pn*N,sn.src)}
   }
   /* Anreise */
   if(t.travel==='auto'){
@@ -497,7 +516,8 @@ function cost(t){
 function checks(t){
   const out=[], st=stayOf(t), days=daysOf(t), c=cost(t);
   if(!st){if(nightsOf(t)>0)out.push(['warn','Noch keine Unterkunft gewählt','unterkunft'])}
-  else if(st.card==='?'&&!t.cardConfirmed) out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
+  if(st&&st.gone) out.push(['warn',st.name+': Inserat war am '+fmtLong(pd(st.gone))+' auf den hinterlegten Portalen nicht mehr auffindbar','unterkunft']);
+  if(st&&st.card==='?'&&!t.cardConfirmed) out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
   if(st&&st.card&&!t.cardConfirmed)out.push(['warn','Gästekarte für diesen Aufenthalt unbestätigt: keine Rabatte eingerechnet','unterkunft']);
   out.push(['info','Zeitfenster sind grob: Fahrtzeiten, Check-in und genaue Termine noch prüfen','plan']);
   const items=sortedItems(t);
@@ -608,6 +628,30 @@ function holidayStay(t){
   if(t.dateMode==='fix'){const days=daysOf(t);if(days.length&&days[0].date)return days.some(d=>inWin(d.md))}
   if(t.dateMode==='flex'&&/^\d{4}-\d{2}$/.test(t.month||'')){const m=t.month.slice(5,7);return m==='12'||m==='01'?null:false}
   return null;
+}
+const SEASONS={jahreswechsel:'Jahreswechsel',winter:'Winter',fruehling:'Frühling',sommer:'Sommer',herbst:'Herbst'};
+function seasonOfMd(md){if(md>='12-24'||md<='01-06')return 'jahreswechsel';if(md<='03-31'||md>='12-01')return 'winter';if(md<='06-30')return 'fruehling';if(md<='09-15')return 'sommer';return 'herbst'}
+/* Saison der Reise: Mehrheit der Übernachtungen; Zeitraum nur Monat → Monatsmitte; offen → unbekannt (null). */
+function tripSeason(t){
+  if(t.dateMode==='fix'){const days=daysOf(t);if(days.length&&days[0].date){const n=Math.max(1,days.length-1),cnt={};days.slice(0,n).forEach(d=>{const k=seasonOfMd(d.md);cnt[k]=(cnt[k]||0)+1});return Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]}}
+  if(t.dateMode==='flex'&&/^\d{4}-\d{2}$/.test(t.month||''))return seasonOfMd(t.month.slice(5,7)+'-15');
+  return null;
+}
+const nightsBetween=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+const shortRange=(a,b)=>{const x=pd(a),y=pd(b);return String(x.getUTCDate()).padStart(2,'0')+'.'+String(x.getUTCMonth()+1).padStart(2,'0')+'.–'+fmtLong(y)};
+/* Nachtpreis einer Katalog-Unterkunft für diese Reise: höchster Wert aus Portalabfragen derselben Saison
+   (nicht unterschätzen), sonst der gekennzeichnete Jahreswechsel-Schätzwert. */
+function stayNight(t,st){
+  const plan=num(st.plan!=null?st.plan:st.priceNight,0);
+  if(st.custom)return {pn:plan,src:'ok',txt:'eure Angabe',sample:null};
+  const season=tripSeason(t),hits=(st.samples||[]).filter(x=>season&&seasonOfMd(x.from.slice(5))===season);
+  if(hits.length){
+    const best=hits.map(x=>({x,pn:x.total/nightsBetween(x.from,x.to)})).sort((a,b)=>b.pn-a.pn)[0],x=best.x;
+    const exact=t.dateMode==='fix'&&t.start===x.from&&t.end===x.to&&Math.round(num(t.persons,2))===x.adults;
+    return {pn:best.pn,src:exact?'ok':'est',sample:x,
+      txt:(exact?'Portalpreis':'Vergleichswert '+SEASONS[season])+': Abfrage vom '+fmtLong(pd(x.checked))+' für '+shortRange(x.from,x.to)+', '+x.adults+' Erw., '+eur(x.total)+' für '+nightsBetween(x.from,x.to)+' Nächte · '+x.incl+(exact?'':' · für eure Daten nicht abgefragt')};
+  }
+  return {pn:plan,src:'est',sample:null,txt:(st.ab?st.ab+' · ':'')+'Planwert '+eur(plan)+' / Nacht ('+planBasis(t)+')'};
 }
 function planBasis(t){const h=holidayStay(t);return h===true?'Jahreswechsel: Inserat +15 %, geschätzt':h===false?'Schätzwert für den Jahreswechsel, für eure Daten nicht geprüft':'Schätzwert für den Jahreswechsel, Reisedaten noch offen'}
 const mdText=md=>md?md.slice(3,5)+'.'+md.slice(0,2)+'.':'';
@@ -865,10 +909,10 @@ function tAngebote(t){
 function stayCard(t,s){
   const sel=t.stayId===s.id, N=nightsOf(t);
   const perks=[s.card===true?'<span class="badge plus">Gästekarte</span>':s.card==='?'?'<span class="badge est">Gästekarte erfragen</span>':'',s.sauna?'<span class="badge ok">Sauna</span>':'',s.kitchen?'<span class="badge">Küche</span>':'',s.breakfast?'<span class="badge">Frühstück</span>':''].join('');
-  const pn=num(s.plan!=null?s.plan:s.priceNight,0);
+  const sn=stayNight(t,s),pn=sn.pn;
   return '<div class="card'+(sel?' sel':'')+'"><span class="eyebrow">'+esc(s.ort||'')+'</span><h3>'+esc(s.name)+'</h3><p class="small">'+esc(s.info||'')+'</p><div class="badges">'+perks+'</div>'+
-  '<p class="small muted">'+esc(s.ab||'eigener Eintrag')+'</p><div class="between"><span class="price num">'+eur(pn*N)+'</span><span class="small muted">'+N+' Nächte · Planwert</span></div>'+
-  '<div class="foot">'+(sel?'<span class="badge ok">ausgewählt</span>':'<button type="button" class="btn sm" data-act="stay" data-val="'+esc(s.id)+'">Auswählen</button>')+(s.url?lk(s.url,'Inserat'):'')+(s.map?lk(mp(s.map),'Karte'):'')+(s.custom?'<button type="button" class="btn ghost sm" data-act="stay-del" data-val="'+esc(s.id)+'">Entfernen</button>':'')+'</div></div>';
+  (s.gone?'<p class="small" style="color:var(--bad)"><b>! Inserat am '+esc(fmtLong(pd(s.gone)))+' nicht mehr auffindbar</b></p>':'')+'<p class="small muted">'+esc(s.custom?(s.ab||'eigener Eintrag'):sn.txt)+'</p><div class="between"><span class="price num">'+eur(pn*N)+'</span><span class="small muted">'+N+' Nächte · '+(sn.sample?'laut Abfrage':'Planwert')+'</span></div>'+
+  '<div class="foot">'+(sel?'<span class="badge ok">ausgewählt</span>':'<button type="button" class="btn sm" data-act="stay" data-val="'+esc(s.id)+'">Auswählen</button>')+(s.url&&!s.gone?lk(s.url,'Inserat'):'')+(s.map?lk(mp(s.map),'Karte'):'')+(s.custom?'<button type="button" class="btn ghost sm" data-act="stay-del" data-val="'+esc(s.id)+'">Entfernen</button>':'')+'</div></div>';
 }
 function inquiry(t){
   const st=stayOf(t), pl=placeOf(t), a=pd(t.start), b=pd(t.end);
@@ -890,7 +934,7 @@ function tUnterkunft(t){
   const f=UI.sflt; if(f.sauna)stays=stays.filter(s=>s.sauna);if(f.card)stays=stays.filter(s=>s.card===true);if(f.kitchen)stays=stays.filter(s=>s.kitchen);
   stays.sort((a,b)=>num(a.plan!=null?a.plan:a.priceNight,0)-num(b.plan!=null?b.plan:b.priceNight,0));
   html+='<section class="block"><h2>'+(t.catalog==='allgaeu'?'2 · ':'')+'Unterkunft</h2>'+
-   (t.catalog==='allgaeu'&&!pl?'<p class="muted">Erst einen Ort wählen.</p>':'<p class="lead muted small">Katalog-Planwerte sind Inseratspreise +15 %, geschätzt für den Jahreswechsel. '+(holidayStay(t)===true?'Euer Zeitraum liegt in dieser Zeit.':'Für eure Reisedaten sind sie nicht geprüft und können deutlich abweichen.')+' Sobald ihr ein Angebot habt, tragt den echten Preis unten ein.</p><div class="row">'+chipb('sflt','sauna','Mit Sauna',f.sauna)+chipb('sflt','card','Gästekarte sicher',f.card)+chipb('sflt','kitchen','Mit Küche',f.kitchen)+'</div>'+
+   (t.catalog==='allgaeu'&&!pl?'<p class="muted">Erst einen Ort wählen.</p>':'<p class="lead muted small">Wo vorhanden, stammen die Preise aus Portalabfragen vom '+fmtLong(pd(PRICE_CHECKED))+' (2 Erwachsene, Vergleichszeitraum derselben Saison). Sonst stehen Planwerte, geschätzt für den Jahreswechsel'+(holidayStay(t)===true?'':', die für eure Daten deutlich abweichen können')+'. Preise ändern sich; sobald ihr ein Angebot habt, tragt den echten Preis unten ein.</p><div class="row">'+chipb('sflt','sauna','Mit Sauna',f.sauna)+chipb('sflt','card','Gästekarte sicher',f.card)+chipb('sflt','kitchen','Mit Küche',f.kitchen)+'</div>'+
    (stays.length?'<div class="grid">'+stays.map(s=>stayCard(t,s)).join('')+'</div>':'<div class="empty">Keine Unterkunft passt zu den Filtern.</div>')+
    (pl?'<div class="row">'+pl.portal.map(x=>lk(x[1],x[0])).join('')+'</div>':''))+
    '<details class="panel"><summary><b>+ Eigene Unterkunft eintragen</b></summary><div class="form" id="cs-form"><label class="fld"><span>Name</span><input type="text" id="cs-name"></label><label class="fld"><span>Ort</span><input type="text" id="cs-ort"></label><label class="fld"><span>Preis pro Nacht (€)</span><input type="number" min="0" id="cs-price"></label><label class="fld"><span>Link</span><input type="url" id="cs-url" placeholder="https://"></label></div><div class="row"><label class="small"><input type="checkbox" id="cs-sauna"> Sauna</label><label class="small"><input type="checkbox" id="cs-kitchen" checked> Küche</label><label class="small"><input type="checkbox" id="cs-bf"> Frühstück</label><label class="small"><input type="checkbox" id="cs-card"> Gästekarte</label></div><button type="button" class="btn sm" data-act="stay-add">Hinzufügen</button></details></section>';
@@ -962,7 +1006,7 @@ function savingTips(t){
   const base=cost(t).total, out=[], st=stayOf(t), pl=placeOf(t);
   const tryT=(label,fn)=>{const c=clone(t);if(fn(c)===false)return;const s=base-cost(c).total;if(s>=5)out.push({t:label,save:s,fn})};
   const needs=k=>(t.items||[]).some(i=>actOf(t,i.act)&&actOf(t,i.act)[k]);
-  if(pl){const cheapest=STAYS.filter(s=>s.place===t.place&&(s.kitchen||!needs('kitchen'))&&(s.sauna||!needs('needSauna'))).sort((a,b)=>a.plan-b.plan)[0];
+  if(pl){const cheapest=STAYS.filter(s=>s.place===t.place&&(s.kitchen||!needs('kitchen'))&&(s.sauna||!needs('needSauna'))).filter(s=>!s.gone).sort((a,b)=>stayNight(t,a).pn-stayNight(t,b).pn)[0];
     if(cheapest&&st&&cheapest.id!==st.id&&!num(t.stayQuote,0)) tryT('Günstigste passende Unterkunft: '+cheapest.name,c=>{resetStay(c);c.stayId=cheapest.id})}
   const kurs=sortedItems(t).filter(i=>actOf(t,i.act)&&actOf(t,i.act).kurs);
   if(kurs.length>=2) tryT('Nur 1 Kurstag statt '+kurs.length+' (Rest als Übungstag)',c=>{const last=kurs[kurs.length-1];c.items=c.items.filter(i=>i.uid!==last.uid);const ue=Object.values(ACTS).find(a=>a.pass&&a.place===t.place);if(ue&&!c.items.some(i=>i.act===ue.id))c.items.push({uid:uid('i'),act:ue.id,day:last.day,slot:'morgen'})});
@@ -1434,7 +1478,7 @@ document.addEventListener('click',async e=>{
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 if(Store.corruptRaw===null)Store.connect();
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
