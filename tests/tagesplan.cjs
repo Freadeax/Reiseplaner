@@ -131,4 +131,17 @@ assert(/aria-label="Gute Reisemonate: Mai, Juni, Juli"/.test(strip) && (strip.ma
 assert.equal(a.catSeasonStrip([]), '');
 const mapHtml = a.catMap([{ place: { id: 'harz', lat: 51.8, lon: 10.8 } }, { place: { id: 'berlin', lat: 52.5, lon: 13.4 } }], { lat: 48.7, lon: 9.65 });
 assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/text>/.test(mapHtml));
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte und Regenzwilling (Tausch, Erhalt, Buchungsschutz) geprüft.');
+/* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
+{
+  a.catState().month = '7';
+  const res = { places: [{ id: 'a', name: 'Sommerziel', months: [6, 7, 8], kinds: ['wasser'], airKm: 50 }, { id: 'b', name: 'Winterziel', months: [12, 1, 2], kinds: ['winter'], airKm: 80 }, { id: 'c', name: 'Ganzjahr', months: [1,2,3,4,5,6,7,8,9,10,11,12], kinds: ['stadt'], airKm: 20 }] };
+  const y = a.catYear(res);
+  assert(/data-val="7" aria-pressed="true"/.test(y), 'gewählter Monat markiert');
+  const row = m => y.split('data-val="' + m + '"')[1].split('</tr>')[0];
+  assert(/> 2<\/td>/.test(row(7)) && /Sommerziel/.test(row(7)) && !/Winterziel/.test(row(7)));
+  assert(/> 2<\/td>/.test(row(1)) && /Winterziel/.test(row(1)));
+  assert(/> 1<\/td>/.test(row(4)));
+  assert.equal(a.catYear({ places: [] }), '');
+  a.catState().month = '';
+}
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) und Jahresüberblick geprüft.');

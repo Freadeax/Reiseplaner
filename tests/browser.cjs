@@ -134,6 +134,12 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('[data-act="cat-search"]');
   await p.waitForSelector('#cat-results .catmap svg');
   await p.click('[data-act="cat-fav"][data-val="bad-urach"]');
+  await p.click('summary:has-text("Wann wohin?")');
+  await p.click('[data-act="cat-month"][data-val="1"]');
+  assert.equal(await p.getAttribute('[data-act="cat-month"][data-val="1"]', 'aria-pressed'), 'true', name + ': Monat übernommen');
+  assert.equal(await p.inputValue('[data-cf="month"]'), '1', name + ': Monatsfilter gesetzt');
+  await p.click('summary:has-text("Wann wohin?")');
+  await p.click('[data-act="cat-month"][data-val="1"]');
   assert((await viewText(p)).includes('Merkliste „Irgendwann mal“'), name + ': Merkliste');
   await p.fill('[data-cf="q"]', 'Wasserfall'); await p.press('[data-cf="q"]', 'Enter');
   await p.waitForSelector('text=/passen zu „Wasserfall“/');
