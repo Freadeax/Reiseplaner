@@ -6,7 +6,7 @@ Ein Reiseplaner für alle, für Ausflüge, Wochenenden und längere Reisen. Er v
 
 ## Starten
 
-**Website:** Laut Betriebsnachweis vom 14.10.2026 online unter `https://freadeax.github.io/Reiseplaner/`. Die letzte Übergabe meldet einen Konfigurationsfehler der Supabase-URL; Login braucht dessen Korrektur. Aktuelle Betriebsgrenzen stehen in [docs/STATUS.md](docs/STATUS.md).
+**Website:** online unter `https://freadeax.github.io/Reiseplaner/`, verbunden mit dem Supabase-Projekt. Am 14.10.2026 abends geprüft: Live-`config.js` mit `.supabase.co`, Katalog kommt aus der Datenbank. Anmeldung mit echten Konten, SMTP und iPhone sind noch nicht abgenommen. Aktuelle Betriebsgrenzen stehen in [docs/STATUS.md](docs/STATUS.md).
 
 Die App bleibt buildlos: `index.html` plus `config.js` und `cloud.js`. Lokal im Browser öffnen oder einen kleinen Webserver starten:
 

@@ -33,7 +33,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 
 | Priorität | Arbeit | Stand / Abnahme |
 | --- | --- | --- |
-| P0 | GitHub-Variable RP_SUPABASE_URL und Live-Konfiguration | Letzter Claude-Nachweis: .supabase.com falsch, .supabase.co erforderlich. Neue Prüfung nötig; keine Einstellung in diesem Paket geändert |
+| ~~P0~~ | GitHub-Variable RP_SUPABASE_URL und Live-Konfiguration | **Erledigt** (Claude, 14.10. abends): Live-`config.js` zeigt `.supabase.co`, Lauf 38610561776 mit `deploy` grün. Umkreis-Katalog in der Produktion (54/255, nur lesbar), Live-Seite nutzt die Datenbank |
 | P0 | Auth-E-Mail | Domain/SMTP festlegen, Bestätigung und Reset mit externen Adressen nachweisen. Kein Dienst in diesem Paket aktiviert |
 | P0 | Produktion und echte Geräte | Zwei Konten, private Reisen, Rollen, Einladung, Rechteentzug, Konflikt, Offline, Abmelden; iPhone/Safari, Homescreen, Druck und Kalenderimport |
 | P1 | Betreiberbackup | Ablauf und isolierte Restore-Probe; Benutzerexport ersetzt dies nicht |
