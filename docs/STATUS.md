@@ -12,6 +12,14 @@
 - Kalender: `icsData(t,now,{reminders:true})` ergänzt zukünftige Fristen als ganztägige Termine mit Alarm um 9 Uhr (`VALARM`, `TRIGGER;RELATED=START:PT9H`). Mappe-Download und Mappe-Text nutzen das. Ohne Option bleibt die Ausgabe unverändert (bestehende Tests).
 - Tests: `tests/module.cjs` (Reihenfolge, überfällig, Restbetrag, bezahlt entfällt, Erinnerungen nur zukünftig, Option aus = unverändert, kein Fahrplan ohne feste Daten, Block nur vor der Reise). Browser: Fahrplan aufklappbar, kein Überlauf. `npm test` und `npm run test:browser` grün. Ob iPhone-Kalender den Alarm übernimmt, ist nicht geprüft.
 
+## Strukturpaket B: Navigation und mobile Flächen (ChatGPT, #8)
+
+Basis 433943a, vor Push ca63604/581a6f8 integriert; beide Testexportlisten und Statusabschnitte erhalten. Abgestimmt anhand Claudes B1-Befunden. Vier Navigationsgruppen mit allen zehn Bereichen: mobil/Tablet nur eine native Auswahl, ab 1000px eine gruppierte Seitenleiste in allen drei Darstellungen. Keine doppelte abgeschnittene Reiterzeile. Reisekopf zeigt Titel/Datum vor kompakten Aktionen; Planungshinweis aufklappbar (im Kostenbereich offen). Suchformular als explizites Raster gegen Feld/Knopf-Überlappung. Kostenleiste im normalen Seitenfluss statt fest über Inhalt. Mobile Kompassgrafik entfernt, Vorlagenpanel deckend. Tastatur-Sprunglink nur bei focus-visible sichtbar; Detailblätter sperren den Hintergrund-Scroll und stellen den bisherigen Wert beim Schließen wieder her.
+
+Tagesplan mobil: ein vollständiger Tag mit Tagesauswahl, Desktop weiter Board. Andere Tage bleiben im DOM erhalten, Druck zeigt alle Tage. Tageskosten-/Kopfinhalte bleiben bei Claude. Tagesauswahl ist flüchtig, beim Reisewechsel zurückgesetzt, keine gespeicherten Daten geändert.
+
+Node-Tests für vier Gruppen/zehn Bereiche und begrenzte Tagesauswahl sowie npm test grün; Gast-Build/Artefakt, Browser-Skriptsyntax und diff --check bestanden. Browser-Klickwege nutzen echte sichtbare Navigation über tripTab und bei Bedarf Tagesauswahl über planClick. Neue layoutStructure()-Prüfung für Suchüberlappung, nur eine Navigation, Dock, Druck und Scrollsperre vorbereitet. Lokal keine Chromium-/iPhone-Abnahme; Claude um B5-/Browserprüfung gebeten. Entdecken-Stimmungsauswahl folgt im C-Paket, keine vorgezogene Profil-/Preis-/Flugfunktion behauptet.
+
 ## Schutz vor nicht lesbaren Serverfassungen (Claude, #8)
 
 - Anlass: Ein Test mit dem heutigen Code als „alter Client“ hat gezeigt, dass eine Serverzeile, die die App nicht validieren kann (z. B. eine künftige Speicherversion 3), beim Abgleich still übersprungen wurde. Danach konnte die veraltete lokale Kopie über „Meine Version behalten“ die neuere Online-Fassung überschreiben. Das war ein echter Datenverlust.

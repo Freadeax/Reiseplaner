@@ -369,6 +369,37 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
  .check-row{align-items:stretch}.check-row>.lnk{padding-inline:8px;font-size:.8rem}.module-tools{padding:12px}
 }
 
+/* Struktur B: eigene Inhaltsflächen, vier Bereiche und keine Kostenüberdeckung. */
+@media screen{
+ :root{--space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px}
+ html{scrollbar-gutter:stable}.wrap{padding-bottom:var(--space-3)}
+ .dock{position:static;inset:auto;box-shadow:none;background:var(--surface);padding:16px 24px calc(16px + env(safe-area-inset-bottom,0px))}
+ .dock .in{max-width:1132px;flex-wrap:wrap}.dock .nm{max-width:100%;white-space:normal}.dock .sum{font-size:1.1rem}.dock .bar{min-width:100px}
+ .shelf-tools form{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(150px,190px);gap:12px;align-items:end}
+ .shelf-tools form>.fld{min-width:0}.shelf-tools form input{min-width:0;width:100%}
+ .home-hero .panel{background:var(--surface);position:relative;z-index:2}.home-hero .hero-art{top:20px;bottom:auto;right:24px;width:24%;opacity:.12}
+ .trip-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.trip-actions select{width:auto;min-width:0}
+ .plan-notice{margin-block:12px;background:var(--surface);border:1px solid var(--line)}.plan-notice summary{cursor:pointer}.plan-notice:not([open]){padding-block:0}.plan-notice p{padding-bottom:12px}
+ .plan-day-picker{display:none}
+ .skip-link:not(:focus-visible){clip-path:inset(50%);width:1px;height:1px;overflow:hidden;padding:0;border:0}.skip-link:focus-visible{clip-path:none;transform:none;width:auto;height:auto;padding:12px;border:2px solid var(--spruce)}
+ .tab-group{display:flex;flex-direction:column;gap:6px}.tab-group>.eyebrow{padding:8px 10px 2px}.tabs .tab{width:100%;white-space:normal;text-align:left}
+}
+@media screen and (min-width:1000px){
+ .trip-workspace{display:grid;grid-template-columns:210px minmax(0,1fr);gap:0 24px;align-items:start}.trip-workspace>.trip-header{grid-column:1/-1}
+ .trip-workspace>.tabs{display:flex;flex-direction:column;position:sticky;top:16px;margin:0;padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:visible}
+ .trip-workspace>.tabs .tab-links{display:flex;flex-direction:column;overflow:visible;gap:16px}.trip-workspace>.tabs .area-picker{display:none}.trip-content>section.block:first-child{margin-top:0}
+}
+@media screen and (max-width:999px){
+ .tabs{display:block;position:static;margin:0;padding:8px 0;background:var(--bg)}.tabs .tab-links{display:none}.tabs .area-picker{display:flex;align-items:center;gap:12px;width:100%;color:var(--muted);font-size:.85rem}.area-picker select{flex:1;min-width:0;width:auto;background:var(--surface)}
+}
+@media screen and (max-width:600px){
+ .shelf-tools form{grid-template-columns:minmax(0,1fr) auto;gap:12px}.shelf-tools form>.fld:last-child{grid-column:1/-1;width:100%}.home-hero .hero-art{display:none}
+ .trip-header{padding:14px!important;gap:10px!important}.trip-header h1{font-size:1.65rem;line-height:1.2}.trip-header .eyebrow{font-size:.68rem}
+ .trip-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.trip-actions>*{min-width:0;width:100%;font-size:.8rem;padding:8px 4px;justify-content:center}
+ .trip-content>section.block{padding:16px 12px}.trip-content .form{grid-template-columns:minmax(0,1fr)}
+ .plan-day-picker{display:flex;align-items:center;gap:12px;min-width:0}.plan-day-picker select{flex:1;min-width:0;width:auto}
+ .board{display:block;overflow:visible;width:100%;min-width:0}.board>.dcol:not(.day-selected){display:none}.board>.dcol{width:100%;max-width:100%}.dhead{min-width:0}.dload{overflow-wrap:anywhere}.dtools{gap:8px}
+}
 /* Audit-Nacharbeit: durchgehend erreichbare Bedienelemente, auch bei Touch. */
 @media screen{
  .shelf-tools{gap:16px}.shelf-tools form{align-items:end}.shelf-tools input[type=search]{background:var(--bg)}
@@ -752,7 +783,7 @@ function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offe
   if(c.passDays.size>3&&!(pl.cardPass&&t.cardConfirmed===true))out.push('Skipass über 3 Tage: Mehrtagestarif prüfen');}
  return out;
 }
-function costNotice(t){return '<div class="note"><b>Vorläufige Planung · kein bestätigter Gesamtpreis</b><p class="small">'+(openCosts(t).length?esc(openCosts(t).join(' · '))+'. ':'')+'Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></div>';}
+function costNotice(t){const open=openCosts(t);return '<details class="note plan-notice"'+(UI.tab==='kosten'?' open':'')+'><summary><b>Planwerte · '+(open.length?open.length+' offene Angaben':'Angaben prüfen')+'</b></summary><p class="small">Vorläufige Planung · kein bestätigter Gesamtpreis. '+(open.length?esc(open.join(' · '))+'. ':'')+'Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></details>';}
 /* Kosten */
 function cost(t){
   const P=Math.max(1,Math.round(num(t.persons,2))), N=nightsOf(t), pl=placeOf(t), st=stayOf(t), lines=[];
@@ -1488,6 +1519,7 @@ document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout
 /* ================= Zustand & Routing ================= */
 const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',aq:'',aplanned:'',asort:'',checkFilter:'all',checkQuery:'',tripQuery:'',tripFilter:'all',tripSort:'next',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
 const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
+const AREA_GROUPS=[['Planen',['ueber','unternehmen']],['Buchen & Kosten',['suche','angebote','unterkunft','kosten']],['Unterwegs',['plan','check']],['Unterlagen',['notiz','mappe']]];
 const MODULE_INFO={
  ueber:['Orientieren','Das Wichtigste und eure nächsten Schritte.'],
  suche:['Planen','Konkrete Angebote sammeln und unter gleichen Bedingungen vergleichen.'],
@@ -1505,8 +1537,9 @@ function moduleGuide(t){
  if(UI.tab==='ueber'||UI.tab==='mappe')return '';
  return '<aside class="module-guide noprint" aria-label="Bereichsorientierung"><span class="eyebrow">'+info[0]+'</span><p>'+info[1]+'</p></aside>';
 }
-function areaPicker(t){return '<label class="area-picker noprint"><span>Bereich wechseln</span><select id="trip-area" aria-label="Reisebereich wählen">'+TABS.map(([key,name])=>'<option value="'+key+'"'+(UI.tab===key?' selected':'')+'>'+name+'</option>').join('')+'</select></label>'}
+function areaPicker(t){return '<label class="area-picker noprint"><span>Bereich</span><select id="trip-area" aria-label="Reisebereich wählen">'+AREA_GROUPS.map(([group,keys])=>'<optgroup label="'+group+'">'+keys.map(key=>'<option value="'+key+'"'+(UI.tab===key?' selected':'')+'>'+TABS.find(x=>x[0]===key)[1]+'</option>').join('')+'</optgroup>').join('')+'</select></label>'}
 function go(h,keepScroll){
+  const previousTrip=UI.tid;
   h=(h||'').replace(/^#/,'');
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
   else if(h==='konto'){UI.view='konto'}
@@ -1514,6 +1547,7 @@ function go(h,keepScroll){
   else if(/^ziel-[a-z0-9-]{2,40}$/.test(h)){UI.view='entdecken';UI.openZiel=h.slice(5)}
   else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){if(UI.tid!==id){UI.checkFilter='all';UI.checkQuery='';UI.aq='';UI.aplanned=''}UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
+  if(previousTrip!==UI.tid)UI.planDay=0;
   const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.openZiel?'ziel-'+UI.openZiel:UI.view;
   try{history.replaceState(null,'','#'+target)}catch(e){}
   closeSheet();render();if(!keepScroll)try{window.scrollTo(0,0)}catch(e){}
@@ -1609,11 +1643,12 @@ function vNeu(){
 }
 function tripHead(t){
   const ph=tripPhase(t);
-  return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'"><div class="between noprint"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
+  return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'">'+
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
-  (ph&&ph.phase==='vor'?'<p class="muted">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p><b>'+esc(phaseText(ph))+'</b></p>':'')+'</section>'+
-  '<nav class="tabs" aria-label="Bereiche">'+areaPicker(t)+'<div class="tab-links">'+TABS.map(x=>{let n='';if(x[0]==='plan')n=(t.items||[]).length;if(x[0]==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
-    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+x[0]+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div></nav>';
+  (ph&&ph.phase==='vor'?'<p class="muted small">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
+  '<div class="trip-actions noprint"><button type="button" class="lnk" data-go="reisen">← Reisen</button><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></section>'+
+  '<nav class="tabs" aria-label="Bereiche">'+areaPicker(t)+'<div class="tab-links">'+AREA_GROUPS.map(([group,keys])=>'<div class="tab-group"><span class="eyebrow">'+group+'</span>'+keys.map(key=>{const x=TABS.find(tab=>tab[0]===key);let n='';if(key==='plan')n=(t.items||[]).length;if(key==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
+    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+key+'"'+(UI.tab===key?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div>').join('')+'</div></nav>';
 }
 function stackBar(c){
   const tot=c.total||1, keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
@@ -1876,6 +1911,7 @@ function tUnternehmen(t){
     '<p class="small"><b>'+esc(c.txt)+'</b></p><div class="foot"><button type="button" class="btn sm" data-act="plan-act" data-val="'+esc(a.id)+'">+ Einplanen</button><button type="button" class="btn ghost sm" data-act="act-view" data-val="'+esc(a.id)+'">Details</button></div></div>'}).join('')+'</div>':'<div class="empty">Nichts passt zu den Filtern.</div>')+
   '<details class="panel"><summary><b>+ Eigene Unternehmung anlegen</b></summary><div class="form"><label class="fld"><span>Titel</span><input type="text" id="ca-t" maxlength="80"></label><label class="fld"><span>Kategorie</span><select id="ca-cat">'+Object.keys(CAT).map(k=>'<option value="'+k+'"'+(k==='eigen'?' selected':'')+'>'+CAT[k]+'</option>').join('')+'</select></label><label class="fld"><span>Preis (€), wenn bekannt</span><input type="number" min="0" step="0.01" id="ca-cost" placeholder="leer = Preis offen"></label><label class="fld"><span>Kosten gelten</span><select id="ca-per"><option value="pp">pro Person</option><option value="grp">gesamt</option></select></label><label class="fld"><span>Dauer in Stunden</span><input type="number" min="0.25" max="24" step="0.25" id="ca-hours" placeholder="z. B. 1,5; leer = unbekannt"></label><label class="fld"><span>Link</span><input type="url" id="ca-link" placeholder="https://"></label></div><div class="row"><label><input type="checkbox" id="ca-free"> Ist ausdrücklich kostenlos</label><label><input type="checkbox" id="ca-indoor"> Drinnen / bei Regen geeignet</label></div><p class="small muted">Ein leerer Preis bleibt offen. Dauer und Packhinweise ergänzen Tagesauslastung und Packliste; Öffnung und Eignung bitte selbst prüfen.</p><label class="fld"><span>Mitnehmen – ein Hinweis pro Zeile (max. 10)</span><textarea id="ca-bring" placeholder="z. B. Badesachen&#10;Handtuch" style="min-height:90px"></textarea></label><label class="fld"><span>Notiz</span><input type="text" id="ca-note"></label><button type="button" class="btn sm" data-act="act-add">Anlegen</button></details></section>';
 }
+function planDayPicker(t){const days=daysOf(t);UI.planDay=Math.max(0,Math.min(days.length-1,Number.isInteger(UI.planDay)?UI.planDay:0));return '<label class="plan-day-picker noprint"><span>Reisetag</span><select id="plan-day" aria-label="Reisetag wählen">'+days.map(d=>'<option value="'+d.i+'"'+(UI.planDay===d.i?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label>'}
 function tPlan(t){
   const days=daysOf(t), st=stayOf(t), pl=placeOf(t), warnIds=new Set();
   const items=sortedItems(t);
@@ -1885,9 +1921,9 @@ function tPlan(t){
   if(!window.RP_CATALOG&&CATX&&(t.customActs||[]).some(a=>a.catalogSpot&&!a.geo)&&(t.items||[]).some(i=>i.time))catLoadLocal().then(()=>{if(cur()&&cur().id===t.id&&UI.tab==='plan')render()}).catch(()=>{});
   return '<section class="block"><div class="between"><h2>Tagesplan</h2><div class="row">'+(UI.confirm==='clear'?'<span class="small">Plan leeren?</span><button type="button" class="btn warn sm" data-act="clear-yes">Ja</button><button type="button" class="btn ghost sm" data-act="clear-no">Nein</button>':'<button type="button" class="btn ghost sm" data-act="clear">Plan leeren</button>')+(t.destGeo&&CATX?'<button type="button" class="btn ghost sm" data-act="plan-fill">Lücken füllen</button>':'')+'</div></div>'+
   '<p class="lead muted small">Wischen für weitere Tage. Antippen eines Punktes zum Verschieben oder Entfernen, „+“ zum Hinzufügen. Gelb umrandet = Konflikt.</p>'+
-  '<div class="board">'+days.map(d=>{const sp=special(d);
+  planDayPicker(t)+'<div class="board">'+days.map(d=>{const sp=special(d);
     const L=load[d.i],ru=dayRouteUrl(t,d.i);
-    return '<div class="dcol"><div class="dhead"><b>'+esc(d.label)+'</b><span class="eyebrow">'+(d.i===0?'Anreise':d.i===days.length-1?'Abreise':sp)+(d.i===0&&sp||d.i===days.length-1&&sp?' · '+sp:'')+'</span>'+
+    return '<div class="dcol'+(UI.planDay===d.i?' day-selected':'')+'" data-day="'+d.i+'"><div class="dhead"><b>'+esc(d.label)+'</b><span class="eyebrow">'+(d.i===0?'Anreise':d.i===days.length-1?'Abreise':sp)+(d.i===0&&sp||d.i===days.length-1&&sp?' · '+sp:'')+'</span>'+
     (L.planned||L.unknown||L.drive?'<span class="dload'+(L.over?' over':'')+'">'+(L.over?'! zu voll: ':'')+'≈ '+String(L.planned).replace('.',',')+' von '+String(L.cap).replace('.',',')+' Std.'+(L.drive?' · Fahrt ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std.':'')+(L.unknown?' · '+L.unknown+'× Dauer offen':'')+'</span>':'')+
     (()=>{const dc=dcost[d.i],fs=freeSlots(t,d.i);return '<span class="small muted dcost">'+(dc&&dc.total?'Programm ≈ '+eur(dc.total)+(dc.shared?' (davon '+eur(dc.shared)+' anteilig)':''):'Programm ohne Kosten')+(dc&&dc.open?' · '+dc.open+'× Preis offen':'')+(fs.length&&fs.length<SLOTS.length?' · frei: '+esc(fs.join(', ')):fs.length===SLOTS.length?' · ganzer Tag frei':'')+'</span>'})()+
     '<span class="dtools">'+(days.length>1?'<button type="button" class="lnk" data-act="day-swap-open" data-val="'+d.i+'" aria-label="'+esc(d.label)+' mit anderem Tag tauschen">⇄ Tauschen</button>':'')+(ru?lk(ru,'Tagesroute'):'')+'</span></div>'+
@@ -2179,7 +2215,7 @@ function renderDock(){
 }
 
 /* ================= Blätter ================= */
-let sheetOpener=null;
+let sheetOpener=null,sheetScroll=null;
 /* Nur an den Dialoggrenzen umschalten; die normale Tab-Reihenfolge bleibt erhalten. */
 function sheetTabTarget(nodes,current,backwards){
  if(!nodes.length)return null;
@@ -2191,6 +2227,7 @@ function sheetTabTarget(nodes,current,backwards){
 }
 function openSheet(html){
  if(!$('.sheet'))sheetOpener=document.activeElement||null;
+ if(document.body&&document.body.style&&sheetScroll===null){sheetScroll=document.body.style.overflow||'';document.body.style.overflow='hidden'}
  UI.secureJob=(UI.secureJob||0)+1;
  $('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';
  const s=$('.sheet');if(!s)return;
@@ -2201,6 +2238,7 @@ function openSheet(html){
 function closeSheet(){
  UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
  $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
+ if(sheetScroll!==null&&document.body&&document.body.style){document.body.style.overflow=sheetScroll;sheetScroll=null}
  if(opener&&opener.isConnected!==false&&opener.focus)opener.focus();
  else if(opener){const view=$('#view');if(view&&view.focus)view.focus()}
 }
@@ -2448,6 +2486,7 @@ document.addEventListener('submit',e=>{
  UI.checkQuery=String($('#check-q').value||'').slice(0,120);render();const field=$('#check-q');if(field)field.focus();
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='plan-day'){UI.planDay=Number(e.target.value);render();const picker=$('#plan-day');if(picker)picker.focus();return}
  if(e.target.id==='trip-sort'){UI.tripSort=['next','name','recent'].includes(e.target.value)?e.target.value:'next';render();return}
  if(e.target.id!=='trip-area')return;const t=cur(),tab=e.target.value;
  if(t&&TABS.some(x=>x[0]===tab)){go('r-'+t.id+'-'+tab);const content=$('#view');if(content)content.focus();}
@@ -3309,6 +3348,7 @@ Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
 Object.assign(window.__app,{departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

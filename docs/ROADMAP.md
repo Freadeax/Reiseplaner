@@ -1,5 +1,9 @@
 # Roadmap
 
+## Gemeinsamer Plan B/C · 15.10.2026
+
+ChatGPT: Strukturpaket B mit vier Navigationsgruppen, eigenem Platz für Kostenleiste, Suchraster, kompaktem Kopf/Planungshinweis und mobilem Einzeltag implementiert; Chromium-Abnahme durch Claude offen. Danach C1/C4/C6 (Stimmungskarten, Schnellprofile, optionale Auswahlhilfe) auf Claudes rankProfile/checkProfile-Schnittstelle. Claude: B5, D1/D2, A4 und C2/C5; keine gegenseitigen Überschreibungen. Einzelheiten in PLAN_WEITERENTWICKLUNG.md und Issue #8.
+
 ## Gemeinsamer Plan · 15.10.2026
 
 Philipps Auftrag (Reisearten inkl. Fliegen, Oberflächenstruktur, neue Auswahl „Worauf habt ihr Lust?“, Claudes 11 Ideen) ist systematisch in [PLAN_WEITERENTWICKLUNG.md](PLAN_WEITERENTWICKLUNG.md) geordnet (Abschnitte A–E, Aufteilung zur Abstimmung in #8).

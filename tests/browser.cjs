@@ -33,6 +33,17 @@ function serve() {
 
 const OUT = process.env.SHOT_DIR || '';
 const errors = [];
+// Die sichtbare Navigation verwenden: mobile Auswahl oder Desktop-Seitenleiste.
+async function tripTab(p,tab){
+ if(await p.isVisible('#trip-area'))await p.selectOption('#trip-area',tab);
+ else await p.click('.tab[data-go$="-'+tab+'"]');
+}
+async function planClick(p,selector){
+ const target=p.locator(selector).first();
+ const day=await target.evaluate(el=>{const col=el.closest('.dcol[data-day]');return col?col.getAttribute('data-day'):null});
+ if(day!==null&&await p.isVisible('#plan-day'))await p.selectOption('#plan-day',day);
+ await p.click(selector);
+}
 async function shot(p, name) { if (OUT) await p.screenshot({ path: path.join(OUT, name + '.png'), fullPage: true }); }
 async function noOverflow(p, where) {
   const sw = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -89,16 +100,16 @@ async function entdecken(browser, base, name, ctxOpts) {
   assert(items >= 2, name + ': Tagesgerüst angelegt');
   await noOverflow(p, name + ' Katalogreise Tagesplan');
   /* Genaue Uhrzeit über das Punkt-Blatt: Zeitfenster folgt, Uhrzeit sichtbar */
-  await p.click('.item[data-act="item"] >> nth=0');
+  await planClick(p,'.item[data-act="item"] >> nth=0');
   await p.fill('#mv-time', '15:15');
   await p.click('[data-act="item-move"]');
   assert((await p.textContent('.board')).includes('15:15'), name + ': Uhrzeit im Plan');
   const slotOf = await p.$$eval('.dslot', sl => { const h = sl.find(x => x.textContent.includes('15:15')); return h ? h.querySelector('.lbl').textContent : ''; });
   assert.equal(slotOf, 'Nachmittag', name + ': Fenster folgt der Uhrzeit');
-  await p.click('.tab[data-go$="-ueber"]');
+  await tripTab(p,'ueber');
   txt = await viewText(p);
   assert(txt.includes('Fahrstrecke geschätzt') && txt.includes('ohne Preis'), name + ': Plan-Check meldet Schätzung und offene Preise');
-  await p.click('.tab[data-go$="-unternehmen"]');
+  await tripTab(p,'unternehmen');
   assert((await viewText(p)).includes('Preis offen, vor Ort prüfen'), name + ': offener Preis statt kostenlos');
   await p.click('[data-act="act-view"] >> nth=0');
   await p.fill('#ap-cost', '7');
@@ -111,10 +122,10 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('[data-act="cat-trip-add"]');
   assert.equal(await p.$$eval('[data-act="act-view"]', l => l.length), before + 1, name + ': weitere Idee hinzugefügt');
   /* v3.2 Tagesplan: Auslastung sichtbar, Tag tauschen über ein Blatt, Lücken füllen mit Katalog-Ideen */
-  await p.click('.tab[data-go$="-plan"]');
+  await tripTab(p,'plan');
   assert((await p.textContent('.board')).includes('Std.'), name + ': Auslastung je Tag');
   const day0 = await p.$$eval('.dcol', cols => cols[0].querySelectorAll('.item:not(.fixed)').length);
-  await p.click('[data-act="day-swap-open"][data-val="0"]');
+  await planClick(p,'[data-act="day-swap-open"][data-val="0"]');
   await p.click('[data-act="day-swap"][data-val="0|1"]');
   const day1after = await p.$$eval('.dcol', cols => cols[1].querySelectorAll('.item:not(.fixed)').length);
   assert.equal(day1after, day0, name + ': Tag getauscht');
@@ -130,7 +141,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   const outdoor = await p.$$eval('.item[data-act="item"]', l => l.map(b => b.textContent));
   const wf = outdoor.findIndex(x => /Wasserfall|Hohenurach|Lichtenstein/.test(x));
   assert(wf >= 0, name + ': Draußen-Punkt im Plan'); {
-    await p.click('.item[data-act="item"] >> nth=' + wf);
+    await planClick(p,'.item[data-act="item"] >> nth=' + wf);
     await p.click('[data-act="rain-twin"]');
     await p.waitForSelector('[data-act="rain-swap"]');
     await p.click('[data-act="rain-swap"] >> nth=0');
@@ -173,7 +184,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.waitForSelector('.tabs');
   assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': Rundreise im Tagesplan');
   assert((await p.textContent('.board')).includes('Weiterfahrt nach'), name + ': Weiterfahrt eingeplant');
-  await p.click('.tab[data-go$="-ueber"]');
+  await tripTab(p,'ueber');
   assert((await viewText(p)).includes('Etappen'), name + ': Etappen im Überblick');
   const legNames = async () => p.$$eval('h2:has-text("Etappen") + ol li b', l => l.map(b => b.textContent));
   const beforeLegs = await legNames();
@@ -182,10 +193,10 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('[data-act="leg-apply"]');
   const afterLegs = await legNames();
   assert.deepEqual(afterLegs.slice(0, 2), [beforeLegs[1], beforeLegs[0]], name + ': Etappen getauscht');
-  await p.click('.tab[data-go$="-plan"]');
+  await tripTab(p,'plan');
   assert((await p.textContent('.board')).includes('Weiterfahrt nach ' + beforeLegs[0]), name + ': Weiterfahrt neu');
-  await p.click('.tab[data-go$="-ueber"]');
-  await p.click('.tab[data-go$="-check"]');
+  await tripTab(p,'ueber');
+  await tripTab(p,'check');
   assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packhinweise aus dem Katalog');
   await noOverflow(p, name + ' Rundreise');
   /* Zielvergleich: zwei Ziele markieren, nebeneinander ansehen */
@@ -263,7 +274,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert((await viewText(p)).includes('Testpension'), name + ': Unterkunft nach Abbrechen verloren');
 
   /* Eigene Unternehmung anlegen und einplanen */
-  await p.click('.tab[data-go$="-unternehmen"]');
+  await tripTab(p,'unternehmen');
   await p.click('summary:has-text("Eigene Unternehmung")');
   await p.fill('#ca-t', 'Stephansdom');
   await p.fill('#ca-cost', '6');
@@ -294,18 +305,18 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.selectOption('#pl-day', '1');
   await p.selectOption('#pl-slot', 'morgen');
   await p.click('[data-act="plan-do"]');
-  await p.click('.tab[data-go$="-plan"]');
+  await tripTab(p,'plan');
   assert((await viewText(p)).includes('Stephansdom'), name + ': Punkt nicht im Tagesplan');
   await noOverflow(p, name + ' Tagesplan');
   /* Verschieben über das Blatt, nicht per Drag-and-drop */
-  await p.click('.item[data-act="item"]');
+  await planClick(p,'.item[data-act="item"]');
   await p.selectOption('#mv-slot', 'abend');
   await p.click('[data-act="item-move"]');
   const slots = await p.$$eval('.dcol', cols => cols.map(c => c.textContent));
   assert(slots[1].includes('Stephansdom'), name + ': Verschieben fehlgeschlagen');
 
   /* Kosten: 3 Personen × 6 € = 18 € */
-  await p.click('.tab[data-go$="-kosten"]');
+  await tripTab(p,'kosten');
   assert((await viewText(p)).includes('Drei Kostenszenarien'), name + ': Szenariovergleich fehlt');
   assert((await viewText(p)).includes('18 €'), name + ': Kosten der eigenen Unternehmung fehlen');
   assert((await viewText(p)).includes('300 €'), name + ': Unterkunft 3 Nächte × 100 € fehlt');
@@ -365,8 +376,8 @@ async function run(browser, base, name, ctxOpts, now) {
   /* Manuelle Planaktionen dürfen die bezahlte Buchung nicht verschieben/entfernen. */
   const bookedPlan = () => p.evaluate(() => JSON.parse(localStorage.getItem('rp-trips'))[location.hash.split('-')[1]].items);
   const protectedItems = JSON.stringify(await bookedPlan());
-  await p.click('.tab[data-go$="-plan"]');
-  await p.click('.item[data-act="item"]');
+  await tripTab(p,'plan');
+  await planClick(p,'.item[data-act="item"]');
   await p.selectOption('#mv-day', '2');
   await p.click('[data-act="item-move"]');
   assert.equal(JSON.stringify(await bookedPlan()), protectedItems, name + ': bezahlter Termin wurde verschoben');
@@ -380,7 +391,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="clear-no"]');
 
   /* Checkliste */
-  await p.click('.tab[data-go$="-check"]');
+  await tripTab(p,'check');
   await p.fill('#cc-t', 'Reisepass prüfen');
   await p.click('[data-act="cc-add"]');
   const box = p.locator('label:has-text("Reisepass prüfen") input');
@@ -388,9 +399,9 @@ async function run(browser, base, name, ctxOpts, now) {
   assert(await box.isChecked(), name + ': Checkliste nicht abgehakt');
 
   /* Notizen und Mappe */
-  await p.click('.tab[data-go$="-notiz"]');
+  await tripTab(p,'notiz');
   await p.fill('[data-f="notes"]', 'Buchung ABC-123');
-  await p.click('.tab[data-go$="-mappe"]');
+  await tripTab(p,'mappe');
   assert(!(await viewText(p)).includes('ABC-123'), name + ': Notizen ohne Häkchen in der Mappe');
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="mappe-ics"]')]);
   const ics = fs.readFileSync(await dl.path(), 'utf8');
@@ -405,7 +416,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert((await viewText(p)).includes('5 Nächte'), name + ': Eckdaten nicht übernommen');
 
   /* Unterwegs-Ansicht: simuliertes Datum 02.05.2027 liegt in der Reise */
-  await p.click('.tab[data-go$="-ueber"]');
+  await tripTab(p,'ueber');
   const today = await viewText(p);
   assert(today.includes('Was jetzt sinnvoll ist'), name + ': nächste Planungsschritte fehlen');
   assert(await p.locator('[data-next-steps] button[data-go$="-kosten"]').count() > 0, name + ': Kostenaktion fehlt');
@@ -426,7 +437,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="pkg-ask"] >> nth=0');
   await p.click('[data-act="pkg-apply"]');
   assert(/-plan$/.test(p.url()), name + ': Angebot nicht übernommen');
-  await p.click('.tab[data-go$="-ueber"]');
+  await tripTab(p,'ueber');
   assert((await viewText(p)).includes('unterwegs · Tag 2 von 5'), name + ': Phase der Katalogreise');
   await shot(p, name + '-heute');
   await p.click('summary:has-text("Plan B")');
@@ -438,15 +449,15 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.inputValue('#pl-day'), '1', name + ': Plan B nicht auf heute vorbelegt');
   await p.click('[data-act="plan-do"]');
   assert.equal(await count(), before + 1, name + ': Plan B nicht eingeplant');
-  await p.click('.tab[data-go$="-check"]');
+  await tripTab(p,'check');
   assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packliste aus dem Plan fehlt');
   for (const tab of ['ueber', 'angebote', 'unterkunft', 'unternehmen', 'plan', 'kosten', 'check', 'notiz', 'mappe']) {
-    await p.click('.tab[data-go$="-' + tab + '"]');
+    await tripTab(p,tab);
     await noOverflow(p, name + ' Reiter ' + tab);
   }
 
   /* Suchzentrale: Anbieterlinks, Muss/Wunsch, Profile, Angebot, Vergleich und Zahlungen. */
-  await p.click('.tab[data-go$="-suche"]');
+  await tripTab(p,'suche');
   assert((await viewText(p)).includes('Airbnb') && (await viewText(p)).includes('CHECK24'), name + ': Anbieter fehlen');
   await p.fill('[data-search="destination"]', 'Oberjoch');
   await p.press('[data-search="destination"]', 'Tab');
@@ -474,9 +485,9 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.selectOption('[data-criterion="kitchen"]', 'any');
   await p.click('[data-search-act="offer-use"]');
   await p.click('[data-search-act="offer-use-yes"]');
-  await p.click('.tab[data-go$="-kosten"]');
+  await tripTab(p,'kosten');
   assert((await viewText(p)).includes('Unterkunft: Buchung & Zahlungen') && (await viewText(p)).includes('420 €'), name + ': Zahlungsansicht fehlt');
-  await p.click('.tab[data-go$="-suche"]');
+  await tripTab(p,'suche');
   await p.click('[data-search-act="history"]');
   assert((await p.textContent('.sheet')).includes('Als Datei herunterladen'), name + ': Sicherungspunkte fehlen');
   await p.click('[data-act="sheet-x"]');
@@ -539,7 +550,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.fill('#draft [data-f="start"]', '2027-06-05');
   await p.fill('#draft [data-f="end"]', '2027-06-05');
   await p.click('[data-act="create"]');
-  await p.click('.tab[data-go$="-ueber"]');
+  await tripTab(p,'ueber');
   const dayView = await viewText(p);
   assert(dayView.includes('0 Nächte') && !dayView.includes('Unterkunft fehlt') && !dayView.includes('Noch keine Unterkunft'), name + ': Tagesausflug');
 
@@ -549,7 +560,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.locator('[data-act="tpl"]').count() >= 5, true, name + ': zu wenige Vorlagen');
   await p.click('[data-act="tpl"][data-val="stadt"]');
   assert(/-unterkunft$/.test(p.url()), name + ': Städtereise-Vorlage nicht bei der Unterkunft');
-  await p.click('.tab[data-go$="-ueber"]');
+  await tripTab(p,'ueber');
   const tplView = await viewText(p);
   assert(tplView.includes('Städtereise') && tplView.includes('3 Nächte'), name + ': Städtereise-Vorlage');
   await p.click('[data-go="reisen"] >> nth=0');
@@ -583,7 +594,7 @@ async function completion(browser, base, name, ctxOpts) {
   await p.fill('#ae-hours','2');await p.click('[data-act="act-edit-preview"]');
   await p.click('[data-act="act-change-confirm"]');
   assert.equal(await p.locator('[data-next-step="duration"]').count(),0,name+': Dauer nach Eingabe noch als Aufgabe');
-  await p.click('.tab[data-go$="-unternehmen"]');
+  await tripTab(p,'unternehmen');
   await p.click('[data-act="fmissing"][data-val="price"]');
   assert((await viewText(p)).includes('0 von 1 Ideen sichtbar'),name+': Preisfilter zählt falsch');
   await p.click('[data-act="activity-filters-reset"]');
@@ -639,9 +650,9 @@ async function appearances(browser,base,name,ctxOpts){
   if(mode==='studio'&&ctxOpts.viewport.width>=1000){
    assert.equal(await p.$eval('.trip-workspace>.tabs',el=>getComputedStyle(el).flexDirection),'column');
   }
-  await p.click('.tabs [data-go$="-plan"]');await noOverflow(p,name+' Plan '+mode);
-  await p.click('.tabs [data-go$="-kosten"]');await noOverflow(p,name+' Kosten '+mode);
-  await p.click('.tabs [data-go$="-mappe"]');
+  await tripTab(p,'plan');await noOverflow(p,name+' Plan '+mode);
+  await tripTab(p,'kosten');await noOverflow(p,name+' Kosten '+mode);
+  await tripTab(p,'mappe');
   await p.emulateMedia({media:'print'});
   assert.equal(await p.$eval('.tabs',el=>getComputedStyle(el).display),'none');
   await p.emulateMedia({media:'screen'});
@@ -804,6 +815,27 @@ async function routeEndpointFlow(browser,base,name,ctxOpts){
  await noOverflow(p,name+' Ortswechsel');await ctx.close();console.log(name+': Ortswechsel mit Abbruch/Übernahme und offenen Routenwerten geprüft.');
 }
 
+async function layoutStructure(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();p.on('pageerror',e=>errors.push(name+' Struktur: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);a.go('reisen');return t.id});
+ const overlap=await p.evaluate(()=>{const a=document.querySelector('#trip-q').getBoundingClientRect(),b=document.querySelector('#trip-search button').getBoundingClientRect();return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top});
+ assert(!overlap,name+': Suche überlappt Knopf');
+ await p.click('.trip-card[data-go="r-'+id+'-ueber"]');
+ assert.equal(await p.locator('#trip-area optgroup').count(),4);assert.equal(await p.locator('#trip-area option').count(),10);
+ const mobile=ctxOpts.viewport.width<1000;
+ assert.equal(await p.isVisible('#trip-area'),mobile);assert.equal(await p.isVisible('.tab-links'),!mobile);
+ assert.equal(await p.$eval('#dock',e=>getComputedStyle(e).position),'static');
+ await tripTab(p,'plan');
+ if(ctxOpts.viewport.width<=600){
+  assert.equal(await p.locator('.dcol:visible').count(),1);await p.selectOption('#plan-day','1');
+  assert.equal(await p.locator('.dcol:visible').getAttribute('data-day'),'1');
+  await p.emulateMedia({media:'print'});assert.equal(await p.locator('.dcol:visible').count(),5);await p.emulateMedia({media:'screen'});
+ }
+ await p.click('[data-act="appearance-open"]');assert.equal(await p.$eval('body',e=>e.style.overflow),'hidden');await p.keyboard.press('Escape');
+ assert.equal(await p.$eval('body',e=>e.style.overflow),'');await noOverflow(p,name+' Struktur');await ctx.close();console.log(name+': Struktur, Suche, Tagesauswahl, Druck und Scrollsperre geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -833,6 +865,8 @@ async function routeEndpointFlow(browser,base,name,ctxOpts){
     await routeProposalGuard(browser,base,'route-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await routeEndpointFlow(browser,base,'ortswechsel-desktop',{viewport:{width:1280,height:900}});
     await routeEndpointFlow(browser,base,'ortswechsel-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await layoutStructure(browser,base,'struktur-desktop',{viewport:{width:1280,height:900}});
+    await layoutStructure(browser,base,'struktur-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();
