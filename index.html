@@ -477,6 +477,7 @@ button.profile-tag{cursor:pointer}button.profile-tag:hover{border-color:var(--sp
 <script src="config.js"></script>
 <script src="cloud.js"></script>
 <script src="catalog.js"></script>
+<script src="v3logic.js"></script>
 <script>
 (function(){
 "use strict";
@@ -815,10 +816,12 @@ function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=fals
 function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offerAmounts(o).unknown.map(k=>k+' offen'));if(!offerCurrent(o,t))out.push('Ausgewähltes Angebot passt nicht mehr zu Daten/Personen oder ist abgelaufen');if(o.availability!=='available')out.push('Verfügbarkeit des Angebots unbestätigt');}
  if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt');}
  else if(!o){const st=stayOf(t);if(st.gone)out.push(st.name+': Inserat nicht mehr auffindbar, andere Unterkunft wählen');if(!(num(t.stayQuote,0)>0)){out.push('Konkretes Unterkunftsangebot fehlt');const sn=stayNight(t,st);if(sn.stale)out.push('Unterkunftspreis: ältere oder unklare Abfrage, aktuellen Preis erneut prüfen');if(sn.scaled)out.push('Unterkunftskosten auf andere Dauer hochgerechnet: feste Gebühren und Mindestnächte prüfen');if(sn.sample&&Math.round(num(t.persons,2))!==sn.sample.adults)out.push('Unterkunftspreis gilt laut Abfrage für '+sn.sample.adults+' Erwachsene, für '+Math.round(num(t.persons,2))+' Personen beim Anbieter prüfen');}out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
- if(t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
+ if(v3Transport(t)){const tc=V3.transportCost(v3Transport(t),{persons:t.persons,verb:num(t.verb,7.5),preis:num(t.preis,2.15)});tc.open.forEach(x=>out.push('Anreise: '+x+' – Preis offen'));V3.transportTimeline(v3Transport(t),{start:t.start,end:t.end}).checks.filter(c=>c.level==='warn').forEach(c=>out.push('Anreise: '+c.text))}
+ if(isV3(t)){Object.keys(t.ledger||{}).forEach(k=>{const e=t.ledger[k];if(e&&e.cancel&&e.cancel.fee==null)out.push('Stornogebühr unbekannt ('+k+')')});(t.offers||[]).forEach(x=>{if(x.cancel&&x.cancel.fee==null)out.push('Stornogebühr unbekannt: '+x.name)})}
+ if(!v3Transport(t)&&t.travel==='auto'&&!routeKm(t))out.push('Fahrstrecke fehlt');
  if(t.travel==='auto'&&t.kmSrc==='schaetzung'&&t.routeKm==null&&routeKm(t))out.push('Fahrstrecke geschätzt (Luftlinie × 1,3), mit dem Routenplaner prüfen');
  {const ids=new Set((t.items||[]).map(i=>i.act)),open=(t.customActs||[]).filter(a=>a.costOpen&&!num(a.cost,0)&&ids.has(a.id));if(open.length)out.push(open.length+' eingeplante Unternehmung(en) ohne Preis: '+open.slice(0,3).map(a=>a.t).join(', ')+(open.length>3?' …':''));}
- if(t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
+ if(!v3Transport(t)&&t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
  if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
  const pl=placeOf(t);
  if(pl){const c=cost(t);
@@ -829,6 +832,30 @@ function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offe
 }
 function costNotice(t){const open=openCosts(t);return '<details class="note plan-notice"'+(UI.tab==='kosten'?' open':'')+'><summary><b>Planwerte · '+(open.length?open.length+' offene Angaben':'Angaben prüfen')+'</b></summary><p class="small">Vorläufige Planung · kein bestätigter Gesamtpreis. '+(open.length?esc(open.join(' · '))+'. ':'')+'Katalogpreise und Öffnungszeiten wurden für eure Reisedaten nicht neu geprüft. Ein Restbudget ist noch keine Zusage, dass die Reise im Budget liegt.</p></details>';}
 /* Kosten */
+/* ================= Datenvertrag v3, Lese-Release (Claude, #8; docs/SCHEMA_V3.md) =================
+   Format 3 wird gelesen, geprüft, berechnet und unverändert zurückgeschrieben. Erfassung neuer v3-Angaben gibt es in
+   der Oberfläche noch nicht. §3/§4 (Mitreisende, Ausgaben, Tagebuch) kennt diese Version noch nicht: solche Reisen gelten
+   als nicht lesbar und werden geschützt statt falsch angezeigt. */
+const V3=typeof window!=='undefined'&&window.RPV3?window.RPV3:null;
+/* Kompatibilitäts-Gate: Reisen im Format 3 bleiben schreibgeschützt, bis Bedienung und Verpflichtungsschutz vollständig
+   verdrahtet und E2 in der Produktion bestätigt ist (Review ChatGPT, #8). Gilt für Import und Sync ebenso. */
+const V3_EDIT=false;
+const V3_LOCK_TXT='Diese Reise nutzt Anreise-Abschnitte oder Storno (Format 3). Diese App-Version zeigt sie nur an, Änderungen werden nicht gespeichert.';
+function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=f.v3||{};
+  return '<section class="block"><div class="note" role="status"><b>Nur ansehen: Format 3</b><p>'+esc(V3_LOCK_TXT)+' Kosten berücksichtigen Anreise-Abschnitte und Storno. Erstattungen und Stornogebühren stehen getrennt, ohne Verrechnung.</p>'+
+   (v.refundOpen||v.feeOpen||v.unknownFee?'<p class="small">'+[v.refundOpen?'Erstattungen offen: '+eur(v.refundOpen):'',v.feeOpen?'Stornogebühren offen: '+eur(v.feeOpen):'',v.unknownFee?v.unknownFee+'× Stornogebühr unbekannt':''].filter(Boolean).join(' · ')+'</p>':'')+'</div></section>'}
+const SCHEMA_MAX=3;
+const isV3=t=>!!t&&t.schemaVersion===3&&!!V3;
+function v3Transport(t){const tr=isV3(t)&&t.transport;return tr&&((tr.out||[]).length||(tr.back||[]).length)?tr:null}
+function v3Money(t,e){return isV3(t)&&e&&(e.cancel||(e.refunds&&e.refunds.length))?e:null}
+function validateV3(t){
+  if(!V3)throw new Error('Format 3 kann diese App-Version nicht prüfen.');
+  ['party','expenses','journal','ratings'].forEach(k=>{const v=t[k];if(v!=null&&!(Array.isArray(v)&&!v.length)&&!(typeof v==='object'&&!Array.isArray(v)&&!Object.keys(v).length))throw new Error('Angaben „'+k+'“ kennt diese App-Version noch nicht.')});
+  Object.keys(t.ledger||{}).forEach(k=>{const e=t.ledger[k];if(e&&e.paidBy!=null)throw new Error('Zahler-Angaben kennt diese App-Version noch nicht.');if(e&&(e.refunds!=null||e.cancel!=null))V3.validateMoneyMoves(e,'Buchungsbuch '+k)});
+  (t.offers||[]).forEach(o=>{if(o.paidBy!=null)throw new Error('Zahler-Angaben kennt diese App-Version noch nicht.');if(o.refunds!=null||o.cancel!=null)V3.validateMoneyMoves(o,'Angebot '+o.name)});
+  if(t.transport!=null)V3.validateTransport(t.transport);
+  V3.validateReferences(t);
+}
 function cost(t){
   const P=Math.max(1,Math.round(num(t.persons,2))), N=nightsOf(t), pl=placeOf(t), st=stayOf(t), lines=[];
   const add=(cat,label,sub,c,src,key)=>lines.push({cat,t:label,s:sub,c:+c||0,src:src||'est',key:key||''});
@@ -837,12 +864,21 @@ function cost(t){
   /* Unterkunft */
   if(st){
     const offer=activeOffer(t);
-    if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est','stay');}
+    if(offer&&v3Money(t,offer)&&offer.cancel){const m=V3.cancelMath(offer,offerAmounts(offer).total);add('unterkunft',offer.name+' (storniert)',m.unknown?'Stornogebühr noch unbekannt':'Stornogebühr laut eurer Eingabe',m.unknown?0:m.cost,m.unknown?'est':'ok','stay');if(m.unknown)lines[lines.length-1].unknownFee=true;}
+    else if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est','stay');}
     else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok','stay');
     else{const sn=stayNight(t,st);add('unterkunft',st.name,(st.custom?'Planwert '+eur(sn.pn)+' / Nacht':sn.txt)+' · × '+N+' Nächte',sn.pn*N,sn.src,'stay')}
   }
+  /* Stornogebühren früherer, nicht aktiver Angebote (SCHEMA_V3 §1, U1/U2) */
+  if(isV3(t))(t.offers||[]).forEach(o=>{if(!o.cancel||(activeOffer(t)&&activeOffer(t).id===o.id))return;const m=V3.cancelMath(o,0);add('unterkunft','Stornogebühr: '+o.name,m.unknown?'noch unbekannt':'laut eurer Eingabe',m.unknown?0:m.cost,m.unknown?'est':'ok','');if(m.unknown)lines[lines.length-1].unknownFee=true});
   /* Anreise */
-  if(t.travel==='auto'){
+  const trv=v3Transport(t);
+  if(trv){
+    const tc=V3.transportCost(trv,{persons:P,verb:num(t.verb,7.5),preis:num(t.preis,2.15)});
+    tc.lines.forEach(l=>{add('anreise',l.label,l.open?'Preis offen':'eure Eingabe',l.open?0:l.c,l.open?'est':'ok',l.key);if(l.open)lines[lines.length-1].open=true});
+    if(t.travel==='auto'||[].concat(trv.out||[],trv.back||[]).some(x=>x.mode==='auto'||x.mode==='mietwagen')){let km=pl?pl.local:0;items.forEach(it=>{const a=actOf(t,it.act);km+=(a.kmBy&&pl&&a.kmBy[t.place]!=null)?a.kmBy[t.place]:(a.km||0)});
+      if(km>0){const l=km*num(t.verb,7.5)/100;add('anreise','Sprit vor Ort · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' €',l*num(t.preis,2.15),'est','anreise')}}
+  } else if(t.travel==='auto'){
     let km=routeKm(t)*2+(pl?pl.local:0);
     items.forEach(it=>{const a=actOf(t,it.act);km+=(a.kmBy&&pl&&a.kmBy[t.place]!=null)?a.kmBy[t.place]:(a.km||0)});
     const l=km*num(t.verb,7.5)/100;
@@ -881,7 +917,11 @@ function cost(t){
   (t.extraCosts||[]).forEach(e=>add('eigen',e.t||'Eigener Posten',e.note||'',num(e.c,0),'ok','xc:'+e.id));
   /* Zahlungsbuch: ein erfasster Buchungsbetrag ersetzt den Planwert dieses Postens (auch für den Puffer). */
   const lg=t.ledger&&typeof t.ledger==='object'?t.ledger:{};
-  Object.keys(lg).forEach(k=>{const le=lg[k];if(!le||le.amount==null||!Number.isFinite(+le.amount)||k==='stay')return;const hit=lines.filter(l=>l.key===k);if(!hit.length)return;
+  Object.keys(lg).forEach(k=>{const le=lg[k];if(!le||k==='stay')return;
+    if(v3Money(t,le)&&le.cancel){const hit=lines.filter(l=>l.key===k);if(!hit.length)return;const m=V3.cancelMath(le,0),planned=hit.reduce((x,l)=>x+l.c,0);
+      for(let i=lines.length-1;i>=0;i--)if(lines[i].key===k)lines.splice(i,1);
+      lines.push({cat:hit[0].cat,t:(k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t)+' (storniert)',s:(m.unknown?'Stornogebühr noch unbekannt':'Stornogebühr laut eurer Eingabe')+' · Plan war '+eur(planned),c:m.unknown?0:m.cost,src:m.unknown?'est':'ok',key:k,booked:true,cancelled:true,unknownFee:m.unknown});return}
+    if(le.amount==null||!Number.isFinite(+le.amount))return;const hit=lines.filter(l=>l.key===k);if(!hit.length)return;
     const planned=hit.reduce((x,l)=>x+l.c,0),label=k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t;
     for(let i=lines.length-1;i>=0;i--)if(lines[i].key===k)lines.splice(i,1);
     const split=[];hit.forEach(l=>{const ds=l.day!=null?[l.day]:(l.days||[]);ds.forEach(dd=>split.push({day:dd,share:(planned>0?l.c/planned:1/hit.length)/ds.length}))});
@@ -994,7 +1034,7 @@ function downloadText(content,name,type){
   const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(t=>migrateTrip(t))}}
+function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(t=>toServer(t))}}
 function validateBackup(raw){
   if(!raw||raw.format!==BACKUP_FORMAT||![1,BACKUP_VERSION].includes(raw.version)||!Array.isArray(raw.trips))throw new Error('Keine unterstützte Reiseplaner-Sicherung.');
   const inspect=(x)=>{if(x&&typeof x==='object'){for(const k of Object.keys(x)){if(['__proto__','prototype','constructor'].includes(k))throw new Error('Unzulässiges Datenfeld in der Sicherung.');inspect(x[k]);}}};inspect(raw);
@@ -1245,7 +1285,7 @@ function rainIdeas(t,i,max){
    Schlüssel wie die Kostenzeilen: anreise, kurbeitrag, kurs, verleih, skipass, act:<id>, xc:<id>.
    Die Unterkunft läuft über das Angebotsmodell (activeOffer) und wird hier nur gelesen. */
 const LEDGER_STATUS={offen:'offen',angefragt:'angefragt',gebucht:'gebucht'};
-const LEDGER_KEY=/^(anreise|kurbeitrag|kurs|verleih|skipass|act:[A-Za-z0-9_-]{1,60}|xc:[A-Za-z0-9_-]{1,60})$/;
+const LEDGER_KEY=/^(anreise|kurbeitrag|kurs|verleih|skipass|act:[A-Za-z0-9_-]{1,60}|xc:[A-Za-z0-9_-]{1,60}|tr:[a-z][a-z0-9]{3,40}(:[a-z][a-z0-9]{3,40})?)$/;
 function validateLedger(l){
   if(l==null)return;
   if(typeof l!=='object'||Array.isArray(l))throw new Error('Zahlungsbuch ungültig.');
@@ -1263,16 +1303,24 @@ function validateLedger(l){
 function ledgerRows(t){
   const plan=cost(Object.assign({},t,{ledger:{}})).lines,lg=t.ledger||{},rows=[],seen=new Set();
   plan.forEach(l=>{if(!l.key||l.key==='stay'||seen.has(l.key))return;seen.add(l.key);
-    const planned=plan.filter(x=>x.key===l.key).reduce((x,y)=>x+y.c,0),e=lg[l.key]||{},amount=e.amount!=null?+e.amount:null,c=amount!=null?amount:planned,paid=num(e.paid,0);
-    rows.push({key:l.key,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,cost:c,status:e.status||'offen',paid,due:e.due||'',open:Math.max(0,c-paid),orphan:false});
+    const planned=plan.filter(x=>x.key===l.key).reduce((x,y)=>x+y.c,0),e=lg[l.key]||{},amount=e.amount!=null?+e.amount:null,paid=num(e.paid,0),openPrice=plan.some(x=>x.key===l.key&&x.open);
+    let c=amount!=null?amount:planned;const row={key:l.key,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,status:e.status||'offen',paid,due:e.due||'',orphan:false};
+    /* Format 3: Storno/Erstattungen je Posten; ohne bekannten Preis keine Überzahlung ableiten */
+    if(v3Money(t,e)){const m=V3.cancelMath(e,amount!=null?amount:openPrice?null:planned);Object.assign(row,{cancelled:m.cancelled,unknown:m.unknown,netPaid:m.netPaid,refundsReceived:m.refundsReceived,refundOpen:m.refundOpen||0,feeOpen:m.feeOpen||0});c=m.cost==null?0:m.cost;row.open=m.unknown?0:(m.open||0)}
+    else row.open=Math.max(0,c-paid);
+    row.cost=c;rows.push(row);
   });
-  Object.keys(lg).forEach(k=>{if(seen.has(k))return;const e=lg[k];const c=e.amount!=null?+e.amount:0;
-    rows.push({key:k,label:k.startsWith('act:')?((actOf(t,k.slice(4))||{}).t||'Entfernte Unternehmung'):k.startsWith('xc:')?'Entfernter Kostenposten':k,cat:'eigen',plan:0,amount:e.amount!=null?+e.amount:null,cost:c,status:e.status,paid:num(e.paid,0),due:e.due||'',open:Math.max(0,c-num(e.paid,0)),orphan:true})});
+  Object.keys(lg).forEach(k=>{if(seen.has(k))return;const e=lg[k];let c=e.amount!=null?+e.amount:0;
+    const row={key:k,label:k.startsWith('act:')?((actOf(t,k.slice(4))||{}).t||'Entfernte Unternehmung'):k.startsWith('xc:')?'Entfernter Kostenposten':k.startsWith('tr:')?'Entfernter Anreise-Abschnitt':k,cat:'eigen',plan:0,amount:e.amount!=null?+e.amount:null,status:e.status,paid:num(e.paid,0),due:e.due||'',orphan:true};
+    if(v3Money(t,e)){const m=V3.cancelMath(e,e.amount!=null?+e.amount:null);Object.assign(row,{cancelled:m.cancelled,unknown:m.unknown,netPaid:m.netPaid,refundsReceived:m.refundsReceived,refundOpen:m.refundOpen||0,feeOpen:m.feeOpen||0});c=m.cost==null?0:m.cost;row.open=m.unknown?0:(m.open||0)}
+    else row.open=Math.max(0,c-num(e.paid,0));
+    row.cost=c;rows.push(row)});
   return rows;
 }
 function financeSummary(t){
   const rows=ledgerRows(t),o=activeOffer(t),oa=o?offerAmounts(o):null,c=cost(t);
-  const stay=o?{label:o.name,cost:oa.total,paid:num(o.paid,0),booked:!!o.booked,deposit:num(o.deposit,0),unknown:oa.unknown.length}:null;
+  const sm=o&&v3Money(t,o)?V3.cancelMath(o,oa.total):null;
+  const stay=o?{label:o.name,cost:sm&&sm.cancelled?(sm.cost==null?0:sm.cost):oa.total,paid:num(o.paid,0),booked:!!o.booked,deposit:num(o.deposit,0),unknown:oa.unknown.length,netPaid:sm?sm.netPaid:num(o.paid,0),refundOpen:sm?sm.refundOpen||0:0,cancelled:!!(sm&&sm.cancelled),unknownFee:!!(sm&&sm.unknown)}:null;
   const live=rows.filter(r=>!r.orphan);
   const paid=rows.reduce((x,r)=>x+r.paid,0)+(stay?stay.paid:0);
   const activePaid=live.reduce((x,r)=>x+r.paid,0)+(stay?stay.paid:0);
@@ -1280,7 +1328,14 @@ function financeSummary(t){
   const booked=live.filter(r=>r.status==='gebucht').reduce((x,r)=>x+r.cost,0)+(stay&&stay.booked?stay.cost:0);
   const today=iso(todayUTC());
   const due=rows.filter(r=>r.due&&r.open>0.005).sort((a,b)=>a.due.localeCompare(b.due)).map(r=>Object.assign({overdue:r.due<today,days:Math.round((pd(r.due)-todayUTC())/864e5)},r));
-  return {rows,stay,total:c.total,paid,activePaid,detachedPaid,booked,open:Math.max(0,c.total-activePaid),deposit:stay?stay.deposit:0,due,orphanPaid:rows.filter(r=>r.orphan&&r.paid>0)};
+  /* Format 3: offener Betrag mit Nettozahlungen; Erstattungen und Gebühren getrennt, ohne Verrechnung (SCHEMA_V3 §1) */
+  const net=r=>r.netPaid!=null?r.netPaid:r.paid;
+  const activeNet=live.reduce((x,r)=>x+net(r),0)+(stay?stay.netPaid:0);
+  const otherOffers=isV3(t)?(t.offers||[]).filter(x=>x.cancel&&!(o&&o.id===x.id)).map(x=>V3.cancelMath(x,null)):[];
+  const v3=isV3(t)?{refundOpen:rows.reduce((x,r)=>x+(r.refundOpen||0),0)+(stay?stay.refundOpen:0)+otherOffers.reduce((x,m)=>x+(m.refundOpen||0),0),
+    feeOpen:rows.reduce((x,r)=>x+(r.feeOpen||0),0)+otherOffers.reduce((x,m)=>x+(m.feeOpen||0),0),
+    refundsReceived:rows.reduce((x,r)=>x+(r.refundsReceived||0),0),unknownFee:rows.filter(r=>r.unknown&&r.cancelled).length+(stay&&stay.unknownFee?1:0)+otherOffers.filter(m=>m.unknown).length}:null;
+  return {rows,stay,total:c.total,paid,activePaid,detachedPaid,booked,open:Math.max(0,c.total-activeNet),deposit:stay?stay.deposit:0,due,orphanPaid:rows.filter(r=>r.orphan&&r.paid>0),v3};
 }
 function setLedger(t,key,field,value){
   if(!LEDGER_KEY.test(key))throw new Error('Unbekannter Posten.');
@@ -1386,6 +1441,9 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   canEdit(id){return this.role(id)!=='viewer'},
   pending(){return Object.keys(this.queue).length},
   put(t,now){
+    if(t&&t.schemaVersion===3&&!V3_EDIT){
+      try{const s=JSON.parse(this.lastRaw||'{}');const old=this.scope==='guest'?s&&s[t.id]:s&&s.trips&&s.trips[t.id];if(old)this.trips[t.id]=old;else delete this.trips[t.id]}catch(e){}
+      alertMsg(V3_LOCK_TXT);if(typeof render==='function')setTimeout(render,0);return false}
     if(this.isAccount()&&this.meta[t.id]&&this.meta[t.id].unreadable){
       try{const s=JSON.parse(this.lastRaw||'{}');const old=s&&s.trips&&s.trips[t.id];if(old)this.trips[t.id]=old;else delete this.trips[t.id]}catch(e){}
       alertMsg(UNREADABLE_TXT+' Änderungen werden nicht gespeichert. Ihr könnt den lokalen Stand als eigene Reise behalten.');if(typeof render==='function')setTimeout(render,0);return false}
@@ -1412,7 +1470,7 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
    mit der zuletzt bekannten Version geschrieben (atomar in der Datenbank); bei Abweichung entsteht ein
    sichtbarer Konflikt statt eines stillen Überschreibens. Löschungen werden als Markierung übertragen. */
 /* Version nie zurückstufen: migrateTrip liefert die gültige Version der Reise (SCHEMA_V3 §5) */
-const toServer=t=>migrateTrip(clone(t));
+const toServer=t=>{const d=migrateTrip(clone(t));return V3?V3.serializeTrip(d):d};
 const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,notice:'',
   cloud(){return typeof window!=='undefined'&&window.RPCloud&&window.RPCloud.enabled()?window.RPCloud:null},
   active(){return Store.isAccount()&&!!this.cloud()&&!!Auth.user&&Auth.user.id===Store.scope},
@@ -1577,7 +1635,7 @@ const UNREADABLE_TXT='Die Online-Fassung dieser Reise kann diese App-Version nic
 function serverRowProblem(row){
   const d=row&&row.data;
   try{if(!d||typeof d!=='object'||Array.isArray(d))throw new Error('Keine gültigen Reisedaten.');if(d.id!==row.id)throw new Error('Reise-ID passt nicht zur Zeile.');validateExtras(d);return null}
-  catch(e){const sv=d&&typeof d==='object'?Number(d.schemaVersion):NaN;return {version:row.version,newer:Number.isFinite(sv)&&sv>2,schema:Number.isFinite(sv)?sv:null,reason:String(e&&e.message||e).slice(0,200),title:d&&typeof d.title==='string'?d.title.slice(0,80):''}}
+  catch(e){const sv=d&&typeof d==='object'?Number(d.schemaVersion):NaN;return {version:row.version,newer:Number.isFinite(sv)&&sv>SCHEMA_MAX,schema:Number.isFinite(sv)?sv:null,reason:String(e&&e.message||e).slice(0,200),title:d&&typeof d.title==='string'?d.title.slice(0,80):''}}
 }
 function unreadableList(){if(!Store.isAccount())return [];return Object.keys(Store.meta).filter(id=>Store.meta[id]&&Store.meta[id].unreadable).map(id=>({id,local:Store.trips[id]||null,u:Store.meta[id].unreadable}))}
 function unreadableText(u){return u.newer?'Online gespeichert mit Speicherversion '+u.schema+'. Vermutlich ist dort eine neuere App-Version im Einsatz. Seite neu laden (ggf. App schließen und wieder öffnen), damit diese App aktualisiert wird.':'Die Online-Fassung ist für diese App nicht lesbar (Prüfung: '+u.reason+'). Sie wurde nicht übernommen und wird nicht überschrieben.'}
@@ -2293,7 +2351,7 @@ function tMappe(t){
 function vReise(){
   const t=cur(); if(!t) return vReisen();
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
-  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+unreadableBlock(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
+  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+unreadableBlock(t)+v3Banner(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
 }
 function render(){
   const v=$('#view');
@@ -2620,7 +2678,7 @@ const FEATURES={sauna:'Sauna / Wellness',kitchen:'Küche',breakfast:'Frühstück
 const FEES={tax:'Kurtaxe',cleaning:'Endreinigung',parking:'Parkgebühr',wellness:'Wellnessgebühr',mandatory:'Weitere Pflichtzuschläge'};
 function searchDefaults(t){return {version:1,destination:t.dest||(placeOf(t)||{}).name||'',maxPrice:'',maxDrive:'',minRating:'',type:'',provider:'',sort:'match',onlyFavorites:false,onlyCurrent:false,must:[],wish:['sauna','quiet'],providers:['booking','check24','fewo','airbnb']};}
 function searchState(t){return Object.assign(searchDefaults(t),t.search||{});}
-function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2)throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
+function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3))throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2||t.schemaVersion===3)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
 function safeOfferUrl(value){return /^https:\/\/[^\s<>"']+$/i.test(String(value||''))?String(value):'';}
 function providerUrl(p,t,q){
  const dest=q.destination.trim();if(!dest)return p.home;
@@ -2673,7 +2731,9 @@ function validateSearch(s){
  return s;
 }
 function validateExtras(t){
- if(t.schemaVersion!=null&&t.schemaVersion!==2)throw new Error('Unbekannte Reiseversion.');
+ if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3))throw new Error('Unbekannte Reiseversion.');
+ if(t.schemaVersion===3)validateV3(t);
+ else{if(V3&&V3.needsV3(t))throw new Error('Angaben des Formats 3 in einer Reise des Formats 2.');if(Object.keys(t.ledger||{}).some(k=>k.startsWith('tr:')))throw new Error('Anreise-Abschnitte im Buchungsbuch gibt es erst ab Format 3.');}
  if(t.search)validateSearch(t.search);
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
  validateLedger(t.ledger);
@@ -3548,7 +3608,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});

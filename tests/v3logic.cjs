@@ -136,6 +136,19 @@ assert.equal(V.cancelSettled(V.cancelMath({ paid: 0 }, 0)), false, 'nicht storni
 assert.equal(V.cancelMath({ paid: 200, refunds: [R(50)] }, 200).cost, 200, 'Erstattung ohne Storno senkt keine Kosten');
 assert(V.cancelWarnings({ paid: 0, cancel: C(300) }, 200).some(w => /über dem bisherigen Betrag/.test(w)), 'Gebühr über Betrag: Warnung, keine Ablehnung');
 V.validateMoneyMoves({ paid: 0, cancel: C(300) }, 'X');
+/* Review API-Repro 1: ohne bekannten Planbetrag keine Überzahlung/Forderung */
+for (const pc of [null, undefined, NaN, -5, Infinity]) { const m = V.cancelMath({ paid: 50 }, pc); assert(m.unknown && m.cost === null && m.open === null && m.refundOpen === null, 'planCost ' + pc); }
+assert.deepEqual([V.cancelMath({ paid: 50 }, 0).cost, V.cancelMath({ paid: 50 }, 0).refundOpen], [0, 50], 'planCost 0 ist bekannt: Überzahlung 50');
+assert.deepEqual([V.cancelMath({ paid: 50 }, 50).open, V.cancelMath({ paid: 50 }, 50).refundOpen], [0, 0]);
+{ const st2 = V.stayAggregate([{ id: 'oakt', price: null }], 'oakt', o => o.price); assert.deepEqual(st2.unknown, ['oakt'], 'unbekannter Unterkunftspreis nicht 0'); assert.equal(st2.cost, 0); }
+/* Review API-Repro 2: Storno ist selbst Verpflichtung bis abgeschlossen; gleiche Definition wie der App-Schutz */
+assert.equal(V.segmentRemovalCheck({ 'tr:segx1': { status: 'offen', paid: 0, cancel: { on: '2026-10-15', fee: null } } }, 'segx1').ok, false);
+assert.equal(V.segmentRemovalCheck({ 'tr:segx1': { status: 'offen', paid: 0, cancel: { on: '2026-10-15', fee: 100 } } }, 'segx1').ok, false, 'Gebühr 100 unbezahlt');
+assert.equal(V.segmentRemovalCheck({ 'tr:segx1': { status: 'offen', paid: 100, cancel: { on: '2026-10-15', fee: 100 } } }, 'segx1').ok, true, 'Gebühr bezahlt, nichts offen');
+assert.equal(V.segmentRemovalCheck({ 'tr:segx1': { status: 'angefragt', paid: 0 } }, 'segx1').ok, false, 'angefragt bindet');
+assert.equal(V.segmentRemovalCheck({ 'tr:segx1': { status: 'offen', paid: 0, due: '2027-01-01' } }, 'segx1').ok, false, 'Fälligkeit bindet');
+assert.equal(V.segmentRemovalCheck({ 'tr:segx1': { status: 'offen', paid: 0 } }, 'segx1').ok, true, 'ungebunden');
+
 /* R2-4: Löschen behält Historie, gebunden und nicht abgeschlossen → blockiert */
 const lg = { 'tr:sflug': { status: 'gebucht', amount: 240, paid: 240, due: '' }, 'tr:sflug:abag': { status: 'offen', amount: null, paid: 0, due: '' } };
 let rc = V.segmentRemovalCheck(lg, 'sflug');

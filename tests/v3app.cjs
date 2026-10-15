@@ -1,0 +1,82 @@
+/* Lese-Release Format 3 in der App (Claude, #8): lesen, prüfen, rechnen, unverändert rundlaufen, schreibgeschützt.
+   Node-Test mit index.html + v3logic.js, kein Browser-/DB-Test. */
+const fs = require('fs');
+const vm = require('vm');
+const assert = require('assert');
+const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
+let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
+const store = new Map(), alerts = [];
+const context = {
+  window: { addEventListener() {}, RPV3: require('../v3logic.js'), RPCatalog: require('../catalog.js') },
+  document: { addEventListener() {}, querySelector() { return null; }, querySelectorAll() { return []; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild() {} } },
+  localStorage: { getItem: k => store.has(k) ? store.get(k) : null, setItem: (k, v) => store.set(k, String(v)), removeItem: k => store.delete(k) },
+  setTimeout: () => 0, clearTimeout() {}, console, alert: m => alerts.push(m)
+};
+vm.createContext(context);
+vm.runInContext(code, context);
+const a = context.window.__app;
+const J = x => JSON.parse(JSON.stringify(x));
+
+/* v3-Reise: Auto zum Flughafen (eigene km), Flug p. P. mit Gepäck, Rückflug ohne Preis; stornierte Unternehmung */
+const t = a.silvesterTemplate();
+t.schemaVersion = 3;
+t.transport = { out: [
+  { id: 'szubr', mode: 'auto', from: 'Hattenhofen', to: 'STR', km: 45, dep: { date: '2026-12-30', time: '05:30', tz: 'Europe/Berlin' }, arr: { date: '2026-12-30', time: '06:15', tz: 'Europe/Berlin' } },
+  { id: 'sflug', mode: 'flug', fromCode: 'STR', toCode: 'MUC', cost: 89, per: 'pp', dep: { date: '2026-12-30', time: '08:30', tz: 'Europe/Berlin' }, arr: { date: '2026-12-30', time: '09:30', tz: 'Europe/Berlin' }, addons: [{ id: 'abag', label: 'Aufgabegepäck', cost: 30, per: 'pp' }] }
+], back: [{ id: 'srueck', mode: 'flug', fromCode: 'MUC', toCode: 'STR', dep: { date: '2027-01-03', time: null, tz: null } }] };
+const actKey = Object.keys(a.cost(t).lines.reduce((m, l) => (l.key && l.key.startsWith('act:') ? (m[l.key] = 1) : 0, m), {}))[0];
+t.ledger = { 'tr:sflug': { status: 'gebucht', amount: null, paid: 178, due: '' }, [actKey]: { status: 'gebucht', amount: null, paid: 60, due: '', refunds: [{ id: 'rfone', on: '2026-12-01', amount: 40 }], cancel: { on: '2026-11-30', fee: 20 } } };
+a.validateExtras(t);
+const before = J(t);
+
+/* Rechnung: Anreise nur aus Abschnitten, Storno mit Gebühr, offene Preise sichtbar */
+const c = a.cost(t);
+const anreise = c.lines.filter(l => l.cat === 'anreise');
+assert(anreise.some(l => l.key === 'tr:sflug' && l.c === 178), 'Flug 89 × 2');
+assert(anreise.some(l => l.key === 'tr:sflug:abag' && l.c === 60), 'Gepäck als eigener Posten');
+assert(anreise.some(l => l.key === 'tr:szubr' && Math.abs(l.c - 45 * 7.5 / 100 * 2.15) < 0.01), 'Zubringer aus eigenen 45 km, nicht aus der Zielstrecke');
+assert(anreise.some(l => l.key === 'tr:srueck' && l.open && l.c === 0), 'Rückflug ohne Preis: offen, nicht als Summe behauptet');
+assert(!anreise.some(l => /^Sprit · ≈/.test(l.t)), 'keine v2-Spritrechnung zusätzlich');
+const canc = c.lines.find(l => l.key === actKey);
+assert(canc.cancelled && canc.c === 20, 'stornierte Unternehmung zählt mit Gebühr');
+const oc = a.openCosts(t).join(' | ');
+assert(/Rück: Flug.*Preis offen/.test(oc), 'offener Rückflugpreis in openCosts'); assert(!/Fahrstrecke fehlt|Ticketpreis fehlt/.test(oc));
+/* Zahlungen: netto für „offen“, Erstattungen getrennt */
+const f = a.financeSummary(t);
+const row = f.rows.find(r => r.key === actKey);
+assert.deepEqual([row.netPaid, row.cost, row.open, row.refundOpen], [20, 20, 0, 0], '60 bezahlt − 40 erstattet = 20 = Gebühr');
+assert.equal(f.v3.refundsReceived, 40); assert.equal(f.v3.unknownFee, 0);
+t.ledger[actKey].cancel.fee = null;
+const f2 = a.financeSummary(t);
+assert.equal(f2.v3.unknownFee, 1); assert(/Stornogebühr unbekannt/.test(a.openCosts(t).join(' ')), 'unbekannte Gebühr sichtbar, nicht 0');
+assert.equal(f2.rows.find(r => r.key === actKey).open, 0); t.ledger[actKey].cancel.fee = 20;
+
+/* Rundlauf: Sync, Sicherung, Import, Neuladen – alle v3-Felder unverändert */
+assert.deepEqual(a.toServer(t), J(t), 'toServer unverändert, Version bleibt 3');
+const raw = J(a.backupData([t]));
+assert.deepEqual(a.validateBackup(raw)[0], J(t), 'Sicherung unverändert');
+assert.equal(a.serverRowProblem({ id: t.id, version: 1, data: J(t) }), null, 'Serverzeile v3 lesbar');
+a.Store.setScope('guest');
+const ids = a.importTrips(raw, 'skip');
+assert.deepEqual(ids, [t.id]);
+a.Store.setScope('guest');
+assert.deepEqual(J(a.Store.get(t.id)).transport, before.transport, 'nach Neuladen erhalten');
+
+/* Schreibsperre: Änderungen an Format-3-Reisen werden abgelehnt und im Speicher zurückgenommen */
+assert.equal(a.V3_EDIT, false);
+const loaded = a.Store.get(t.id); loaded.title = 'geändert'; loaded.transport.out = [];
+assert.equal(a.Store.put(loaded), false);
+assert.equal(a.Store.get(t.id).title, before.title); assert.equal(a.Store.get(t.id).transport.out.length, 2, 'nichts verloren');
+assert(a.v3Banner(a.Store.get(t.id)).includes('Nur ansehen'));
+assert.equal(a.v3Banner(a.silvesterTemplate()), '', 'Format 2 ohne Hinweis');
+
+/* Abgrenzung */
+const v2 = a.silvesterTemplate(); v2.schemaVersion = 2;
+assert.throws(() => a.validateExtras(Object.assign(J(v2), { transport: t.transport })), /Format 3|Formats 3/, 'v3-Felder in v2 abgelehnt');
+assert.throws(() => a.validateExtras(Object.assign(J(v2), { ledger: { 'tr:sflug': { status: 'offen', amount: null, paid: 0, due: '' } } })), /erst ab Format 3/);
+assert.throws(() => a.validateExtras(Object.assign(J(t), { party: [{ id: 'pa1', name: 'A' }] })), /kennt diese App-Version noch nicht/, '§3 noch nicht unterstützt → nicht lesbar');
+assert.throws(() => a.validateExtras(Object.assign(J(t), { ledger: { 'tr:sweg': { status: 'offen', amount: null, paid: 0, due: '' } } })), /verweist auf keinen/);
+assert.throws(() => a.validateExtras(Object.assign(J(t), { schemaVersion: 4 })), /Unbekannte Reiseversion/);
+assert.notEqual(a.serverRowProblem({ id: t.id, version: 1, data: Object.assign(J(t), { party: [{ id: 'pa1', name: 'A' }] }) }), null, 'nicht unterstützte v3-Angaben → geschützt als nicht lesbar');
+console.log('Format 3 (Lese-Release): Prüfung, Anreise aus Abschnitten (eigene km, p. P., Gepäck, offener Preis), Storno mit Gebühr, Nettozahlung und getrennte Erstattungen, unbekannte Gebühr sichtbar, unveränderter Rundlauf (Sync, Sicherung, Import, Neuladen), Schreibsperre und Abgrenzung zu Format 2/4 geprüft.');

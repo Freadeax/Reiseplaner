@@ -234,7 +234,9 @@
       res.cost = euro(fee); res.feeOpen = euro(Math.max(0, fee - net)); res.refundOpen = euro(Math.max(0, net - fee)); res.open = res.feeOpen;
       return res;
     }
-    var c = cents(planCost || 0);
+    /* Ohne bekannten Plan- oder Buchungsbetrag keine Überzahlung oder Forderung ableiten (Review: planCost null/NaN/negativ) */
+    if (planCost === null || planCost === undefined || typeof planCost !== 'number' || !isFinite(planCost) || planCost < 0) { res.unknown = true; return res; }
+    var c = cents(planCost);
     res.cost = euro(c); res.open = euro(Math.max(0, c - net)); res.refundOpen = euro(Math.max(0, net - c));
     return res;
   }
@@ -259,7 +261,7 @@
     (offers || []).forEach(function (o) {
       var active = o.id === activeId;
       if (!active && !o.cancel) return;
-      var m = cancelMath(o, active ? totalOf(o) : 0);
+      var m = cancelMath(o, active ? totalOf(o) : null);
       if (m.unknown) { unknown.push(o.id); parts.push({ id: o.id, kind: active ? 'aktiv-storniert' : 'storniert', cost: null }); return; }
       c += cents(m.cost);
       parts.push({ id: o.id, kind: o.cancel ? (active ? 'aktiv-storniert' : 'storniert') : 'aktiv', cost: m.cost, feeOpen: m.feeOpen, refundOpen: m.refundOpen, open: m.open });
@@ -274,13 +276,19 @@
     return { ok: true };
   }
 
+  /* Verpflichtung wie im bestehenden Schutz der App (costEntryCommitted/commitmentIssues: gebucht, angefragt, bezahlt,
+     Fälligkeit) plus Erstattungen und Storno, die selbst Historie bzw. Verpflichtung sind (Review R2). */
+  function committed(e) {
+    return !!e && (e.status === 'gebucht' || e.status === 'angefragt' || (+e.paid || 0) > 0 || !!e.due || !!(e.refunds && e.refunds.length) || !!e.cancel);
+  }
   /* Entfernen eines Abschnitts oder Zusatzpostens (R2-4): Buchungsbuch-Historie bleibt immer erhalten (kein stilles
      Aufräumen). Gebunden (gebucht/bezahlt/erstattet) und nicht abgeschlossen storniert → blockiert. */
   function segmentRemovalCheck(ledger, segId) {
     var keys = Object.keys(ledger || {}).filter(function (k) { return k === 'tr:' + segId || k.indexOf('tr:' + segId + ':') === 0; });
     var blocking = keys.filter(function (k) {
-      var e = ledger[k], bound = e.status === 'gebucht' || (+e.paid || 0) > 0 || (e.refunds && e.refunds.length);
-      return bound && !cancelSettled(cancelMath(e, e.amount));
+      var e = ledger[k];
+      if (!committed(e)) return false;
+      return !(e.cancel && cancelSettled(cancelMath(e, null)));
     });
     return { ok: !blocking.length, keep: keys, blocking: blocking };
   }
@@ -320,7 +328,7 @@
   }
 
   return { MODES: MODES, V3_FIELDS: V3_FIELDS, needsV3: needsV3, serializeTrip: serializeTrip, validateReferences: validateReferences,
-    segmentRemovalCheck: segmentRemovalCheck, cancelSettled: cancelSettled, cancelWarnings: cancelWarnings, resolveLocal: resolveLocal, RULES: { flightConnect: MIN_FLIGHT_CONNECT, railConnect: MIN_RAIL_CONNECT, airportBuffer: MIN_AIRPORT_BUFFER },
+    segmentRemovalCheck: segmentRemovalCheck, committed: committed, cancelSettled: cancelSettled, cancelWarnings: cancelWarnings, resolveLocal: resolveLocal, RULES: { flightConnect: MIN_FLIGHT_CONNECT, railConnect: MIN_RAIL_CONNECT, airportBuffer: MIN_AIRPORT_BUFFER },
     validateTransport: validateTransport, transportCost: transportCost, transportTimeline: transportTimeline, transportIcs: transportIcs,
     zonedMs: zonedMs, validateMoneyMoves: validateMoneyMoves, cancelMath: cancelMath, sumCancel: sumCancel, stayAggregate: stayAggregate,
     canLeaveOffer: canLeaveOffer };

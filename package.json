@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "description": "Reisen, Tagespläne und Kosten gemeinsam nachvollziehbar planen",
   "scripts": {
-    "test": "node tests/logic.cjs && node tests/start.cjs && node tests/unterwegs.cjs && node tests/search.cjs && node tests/vorlagen.cjs && node tests/catalog.cjs && node tests/profile.cjs && node tests/profile-ui.cjs && node tests/tagesplan.cjs && node tests/module.cjs && node tests/saisonpreise.cjs && node tests/zahlungen.cjs && node tests/sync.cjs && node tests/sync-unreadable.cjs && node tests/fidelity.cjs && node tests/v3logic.cjs && node tests/secure-backup.cjs",
+    "test": "node tests/logic.cjs && node tests/start.cjs && node tests/unterwegs.cjs && node tests/search.cjs && node tests/vorlagen.cjs && node tests/catalog.cjs && node tests/profile.cjs && node tests/profile-ui.cjs && node tests/tagesplan.cjs && node tests/module.cjs && node tests/saisonpreise.cjs && node tests/zahlungen.cjs && node tests/sync.cjs && node tests/sync-unreadable.cjs && node tests/fidelity.cjs && node tests/v3logic.cjs && node tests/v3app.cjs && node tests/secure-backup.cjs",
     "test:browser": "node tests/browser.cjs",
     "audit:ui": "node tests/ui-audit.cjs",
     "build": "node scripts/build.mjs",

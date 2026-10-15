@@ -13,7 +13,7 @@ import { checkArtifact } from './check-artifact.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public');
-const FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'catalog-data.js',
+const FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'catalog-data.js',
   'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt'];
 
 const env = process.env;
