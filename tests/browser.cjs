@@ -214,7 +214,16 @@ async function entdecken(browser, base, name, ctxOpts) {
   assert((await p.textContent('.board')).includes('Weiterfahrt nach ' + beforeLegs[0]), name + ': Weiterfahrt neu');
   await tripTab(p,'ueber');
   await tripTab(p,'check');
-  assert((await viewText(p)).includes('für eure Unternehmungen'), name + ': Packhinweise aus dem Katalog');
+  // Die Zielreihenfolge darf sich ändern. Hinweise können bereits in der Grundpackliste
+  // stehen; eine zusätzliche Gruppe wird dann bewusst nicht angelegt.
+  const packHints=await p.evaluate(()=>{
+    const a=window.__app,id=location.hash.slice(3,-6),t=a.Store.get(id);
+    const spots=new Map(window.RP_CATALOG.places.flatMap(p=>p.spots.map(sp=>[sp.id,sp])));
+    return [...new Set(t.items.flatMap(it=>{const act=t.customActs.find(x=>x.id===it.act),sp=act&&spots.get(act.catalogSpot);return sp?window.RPCatalog.bringFor(sp.kind):[]}))];
+  });
+  assert(packHints.length>0,name+': Rundreise enthält Katalog-Packhinweise');
+  const packText=await viewText(p);
+  for(const hint of packHints)assert(packText.includes(hint),name+': Packhinweis fehlt: '+hint);
   await noOverflow(p, name + ' Rundreise');
   /* Zielvergleich: zwei Ziele markieren, nebeneinander ansehen */
   await p.click('header [data-go="entdecken"]');

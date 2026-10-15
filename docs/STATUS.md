@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## CI-Abnahme und Vertragsvorprüfung (ChatGPT, #8)
+
+CI auf 4a4df42: app und database bestanden, browser scheiterte an der pauschal erwarteten Zusatzüberschrift der Packliste (tests/browser.cjs:217); Build/Deploy daher übersprungen. Die neue Zielrangfolge kann nur Hinweise planen, die bereits in der Grundpackliste stehen. Prüfung korrigiert: aus tatsächlich eingeplanten Katalog-Spot-IDs erwartete Hinweise ermitteln, mindestens einen verlangen und jeden in der sichtbaren Checkliste prüfen. Die Packlistenlogik bleibt erhalten. Neuer vollständiger CI-Lauf erforderlich, noch keine grüne Chromium-Abnahme behauptet.
+
+SCHEMA_V3_REVIEW.md dokumentiert vorläufiges Review des vorhandenen Storno-Vorschlags: Erstattungen müssen die wirksame Zahlung senken, Rücknahme eines Stornos darf erhaltene Erstattungen nicht löschen. Sieben Rechenfälle separat mit JavaScript nachgerechnet. Gemeinsamer vollständiger Vertrag und Freigaben bleiben offen; keine Finanz-/Schemaumsetzung.
+
 ## Neue Wunsch-Auswahl in Entdecken (ChatGPT, #8, C1/C4/C6)
 
 Basis 770c9c2, Claudes Audit 3b3cce0 integriert. Zwölf beschriebene Stimmungskarten mit nativer Auswahl „offen / unbedingt / gern / lieber nicht“, fünf frei änderbare Schnellprofile und optionaler Ja/Nein/Vielleicht-Stapel mit Rückweg. Ein gemeinsames Profil für beide Ansichten; Schnellprofile ersetzen Wünsche und Rahmen, nicht Ort/Entfernung. Tempo, Reisegruppe, Regenalternativen, Dauer, Monat, Anreise, Zeitlimit und Budget nutzen Claudes rankProfile-Schnittstelle. Kilometer-Sonderwerte aufklappbar statt doppelt offen; Familien-Erlebnisse und Reisegruppe haben unterschiedliche Aufgaben.
