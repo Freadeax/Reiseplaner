@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-/* Erzeugt aus catalog-data.js (einzige Quelle) die Seed-Migration und die Datei für den SQL-Editor (Issue #7).
+/* Katalog-Build. Quelle: catalog/src/*.json (eine Datei je Großregion) + catalog/src/_meta.json (Version, Prüfdatum,
+   Reihenfolge). Erzeugt: Seed-Migration und SQL-Editor-Datei (Issue #7), catalog-data.js (Gesamtdatei, Übergang/offline),
+   catalog/index.js (kompakter Index aller Ziele) und catalog/t-<kachel>.js (Ziele samt Attraktionen je Rasterkachel).
      node scripts/catalog-sql.mjs           Dateien schreiben
      node scripts/catalog-sql.mjs --check   nur prüfen, ob Daten gültig und Dateien aktuell sind (Teil von npm test)
    Neue Katalogversion: "version" in catalog-data.js erhöhen und das Skript mit --stamp JJJJMMTTHHMMSS ausführen.
@@ -17,11 +19,58 @@ const SLOTS = ['', 'morgen', 'mittag', 'nachm', 'abend'];
 /* Preise und Öffnungszeiten gehören nicht in den Katalog (AGENTS.md: nichts erfinden) */
 const FORBIDDEN = [[/€|\bEUR\b|\bEuro\b|kostenlos|gratis|umsonst|eintritt frei/i, 'Preisangabe'], [/\b\d{1,2}[:.]\d{2}\s*Uhr|\bab \d{1,2} Uhr|\bbis \d{1,2} Uhr/i, 'Uhrzeit/Öffnungszeit']];
 
-export async function loadCatalog(file = path.join(root, 'catalog-data.js')) {
+const SRC = path.join(root, 'catalog', 'src');
+/* Quelle zusammensetzen: Reihenfolge laut _meta.order, neue Ziele danach nach id (deterministisch). */
+export async function loadCatalog() {
+  const meta = JSON.parse(await fs.readFile(path.join(SRC, '_meta.json'), 'utf8'));
+  const files = (await fs.readdir(SRC)).filter(f => f.endsWith('.json') && !f.startsWith('_')).sort();
+  const all = [], seen = new Map();
+  for (const f of files) {
+    const g = JSON.parse(await fs.readFile(path.join(SRC, f), 'utf8'));
+    if (g.group !== f.replace('.json', '')) throw new Error(f + ': group passt nicht zum Dateinamen');
+    for (const p of g.places) { if (seen.has(p.id)) throw new Error('Ziel ' + p.id + ' doppelt (' + seen.get(p.id) + ', ' + f + ')'); seen.set(p.id, f); all.push(p); }
+  }
+  const pos = new Map((meta.order || []).map((id, i) => [id, i]));
+  const unknownOrder = (meta.order || []).filter(id => !seen.has(id));
+  if (unknownOrder.length) throw new Error('_meta.order enthält unbekannte Ziele: ' + unknownOrder.join(', '));
+  all.sort((a, b) => (pos.has(a.id) ? pos.get(a.id) : 1e9) - (pos.has(b.id) ? pos.get(b.id) : 1e9) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  return { version: meta.version, checked: meta.checked, places: all };
+}
+/* Gesamtdatei wie zuvor lesen (Tests, Altvergleich) */
+export async function loadBundle(file = path.join(root, 'catalog-data.js')) {
   const ctx = { window: {} };
   vm.createContext(ctx);
   vm.runInContext(await fs.readFile(file, 'utf8'), ctx);
   return JSON.parse(JSON.stringify(ctx.window.RP_CATALOG));
+}
+/* Rasterkacheln 2° Breite × 3° Länge; Schlüssel z. B. n48e9 */
+export function tileKey(lat, lon) {
+  const la = Math.floor(lat / 2) * 2, lo = Math.floor(lon / 3) * 3;
+  return (la >= 0 ? 'n' : 's') + Math.abs(la) + (lo >= 0 ? 'e' : 'w') + Math.abs(lo);
+}
+const HEAD = '/* ERZEUGT von scripts/catalog-sql.mjs aus catalog/src. Nicht von Hand ändern.\n   Redaktionelle Planideen: keine Preise, keine Öffnungszeiten, keine Verfügbarkeiten. Koordinaten sind ungefähre\n   Lagepunkte, Monate typische Saison. */\n';
+export function bundleJs(c) {
+  return HEAD + 'window.RP_CATALOG = {\n"version": ' + c.version + ',\n"checked": ' + JSON.stringify(c.checked) + ',\n"places": [\n' +
+    c.places.map(p => JSON.stringify(p)).join(',\n') + '\n]};\n';
+}
+export function indexAndTiles(c) {
+  const tiles = {};
+  const index = c.places.map(p => {
+    const k = tileKey(p.lat, p.lon);
+    (tiles[k] = tiles[k] || []).push(p);
+    return { id: p.id, name: p.name, region: p.region, country: p.country, lat: p.lat, lon: p.lon, kinds: p.kinds, months: p.months,
+      nights: p.nights, tile: k, n: p.spots.length, summary: p.summary };
+  });
+  const meta = {};
+  for (const k of Object.keys(tiles).sort()) {
+    const la = (k[0] === 'n' ? 1 : -1) * parseInt(k.slice(1), 10), lo = (k.includes('e') ? 1 : -1) * parseInt(k.split(/[ew]/)[1], 10);
+    meta[k] = { bbox: [la, lo, la + 2, lo + 3], places: tiles[k].length, spots: tiles[k].reduce((s, p) => s + p.spots.length, 0) };
+  }
+  const files = [[path.join(root, 'catalog', 'index.js'), HEAD + 'window.RP_CATALOG_INDEX = ' + JSON.stringify({ version: c.version, checked: c.checked, tiles: meta, places: index }) + ';\n']];
+  for (const k of Object.keys(tiles).sort())
+    files.push([path.join(root, 'catalog', 't-' + k + '.js'), HEAD + '(window.RP_CATALOG_TILES = window.RP_CATALOG_TILES || {})[' + JSON.stringify(k) + '] = ' +
+      JSON.stringify({ version: c.version, places: tiles[k] }) + ';\n']);
+  return files;
 }
 
 function air(a, b) {
@@ -125,7 +174,12 @@ async function main() {
   const seed = seedSql(c);
   const schema = await fs.readFile(path.join(MIG, SCHEMA), 'utf8');
   const manualName = path.join(root, 'supabase', 'manual', 'apply-catalog-v' + c.version + '.sql');
-  const want = [[path.join(MIG, seedName), seed], [manualName, manualSql(schema, seed, seedName, c.version)]];
+  const want = [[path.join(MIG, seedName), seed], [manualName, manualSql(schema, seed, seedName, c.version)], [path.join(root, 'catalog-data.js'), bundleJs(c)], ...indexAndTiles(c)];
+  /* veraltete Kacheln entfernen bzw. melden */
+  const wantTiles = new Set(want.map(w => path.basename(w[0])).filter(f => /^t-.+\.js$/.test(f)));
+  for (const f of await fs.readdir(path.join(root, 'catalog'))) if (/^t-.+\.js$/.test(f) && !wantTiles.has(f)) {
+    if (check) { console.error('Veraltete Kachel: catalog/' + f); process.exit(1); } else { await fs.unlink(path.join(root, 'catalog', f)); console.log('entfernt: catalog/' + f); }
+  }
   let stale = [];
   for (const [f, content] of want) {
     let have = null; try { have = await fs.readFile(f, 'utf8'); } catch (e) {}

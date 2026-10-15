@@ -1,0 +1,1123 @@
+{
+ "group": "de-nord",
+ "places": [
+  {
+   "id": "mueritz",
+   "name": "Müritz & Mecklenburgische Seenplatte",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.517,
+   "lon": 12.684,
+   "kinds": [
+    "wasser",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    7
+   ],
+   "summary": "Hunderte Seen, Kanutouren und Kraniche im Herbst.",
+   "angle": "Hausboot ohne Führerschein auf ausgewiesenen Revieren – Bedingungen beim Vermieter prüfen.",
+   "spots": [
+    {
+     "id": "mueritz-mueritzeum",
+     "name": "Müritzeum Waren",
+     "kind": "familie",
+     "lat": 53.515,
+     "lon": 12.682,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Naturerlebniszentrum mit großem Süßwasseraquarium."
+    },
+    {
+     "id": "mueritz-nationalpark",
+     "name": "Müritz-Nationalpark",
+     "kind": "natur",
+     "lat": 53.42,
+     "lon": 12.82,
+     "hours": 4,
+     "family": true,
+     "summary": "Wälder und Seen; im Herbst Kranichrast, Beobachtungsstände."
+    },
+    {
+     "id": "mueritz-kanu",
+     "name": "Kanutour auf der Seenplatte",
+     "kind": "wasser",
+     "lat": 53.35,
+     "lon": 12.98,
+     "hours": 5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Mehrtages- oder Tagestouren über verbundene Seen."
+    },
+    {
+     "id": "mueritz-baerenwald",
+     "name": "Bärenwald Müritz",
+     "kind": "familie",
+     "lat": 53.36,
+     "lon": 12.45,
+     "hours": 2,
+     "family": true,
+     "summary": "Schutzgebiet für gerettete Bären."
+    }
+   ]
+  },
+  {
+   "id": "ruegen",
+   "name": "Rügen",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 54.4,
+   "lon": 13.611,
+   "kinds": [
+    "wasser",
+    "natur",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    3,
+    7
+   ],
+   "summary": "Kreidefelsen, Bäderarchitektur und lange Strände.",
+   "angle": "Rasender Roland: mit der Schmalspur-Dampfbahn von Seebad zu Seebad.",
+   "spots": [
+    {
+     "id": "ruegen-koenigsstuhl",
+     "name": "Königsstuhl & Kreideküste",
+     "kind": "natur",
+     "lat": 54.574,
+     "lon": 13.665,
+     "hours": 3,
+     "family": true,
+     "summary": "Kreidefelsen im Nationalpark Jasmund."
+    },
+    {
+     "id": "ruegen-granitz",
+     "name": "Jagdschloss Granitz",
+     "kind": "burg",
+     "lat": 54.383,
+     "lon": 13.625,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Schloss im Wald mit Aussichtsturm."
+    },
+    {
+     "id": "ruegen-arkona",
+     "name": "Kap Arkona",
+     "kind": "natur",
+     "lat": 54.679,
+     "lon": 13.433,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Nordspitze mit Leuchttürmen."
+    },
+    {
+     "id": "ruegen-roland",
+     "name": "Rasender Roland",
+     "kind": "technik",
+     "lat": 54.4,
+     "lon": 13.6,
+     "hours": 2,
+     "family": true,
+     "summary": "Schmalspur-Dampfbahn zwischen Putbus und Göhren."
+    },
+    {
+     "id": "ruegen-binz",
+     "name": "Strand & Seebrücke Binz",
+     "kind": "wasser",
+     "lat": 54.402,
+     "lon": 13.614,
+     "hours": 3,
+     "family": true,
+     "summary": "Bäderarchitektur und langer Sandstrand."
+    }
+   ]
+  },
+  {
+   "id": "hamburg",
+   "name": "Hamburg",
+   "region": "Hamburg",
+   "country": "DE",
+   "lat": 53.55,
+   "lon": 9.993,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Hafen, Speicherstadt und Elbphilharmonie.",
+   "angle": "Hafenrundfahrt mit der Linienfähre: mit der Fähre 62 nach Finkenwerder.",
+   "spots": [
+    {
+     "id": "hamburg-wunderland",
+     "name": "Miniatur Wunderland",
+     "kind": "familie",
+     "lat": 53.544,
+     "lon": 9.989,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Größte Modelleisenbahn der Welt; Zeitfenster vorab buchen."
+    },
+    {
+     "id": "hamburg-elphi",
+     "name": "Elbphilharmonie Plaza",
+     "kind": "kultur",
+     "lat": 53.541,
+     "lon": 9.984,
+     "hours": 1,
+     "family": true,
+     "summary": "Öffentliche Aussichtsebene; Zeitfenster prüfen."
+    },
+    {
+     "id": "hamburg-faehre62",
+     "name": "Hafenfähre Linie 62",
+     "kind": "wasser",
+     "lat": 53.545,
+     "lon": 9.97,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Linienfähre von den Landungsbrücken elbabwärts."
+    },
+    {
+     "id": "hamburg-fischmarkt",
+     "name": "Fischmarkt",
+     "kind": "genuss",
+     "lat": 53.545,
+     "lon": 9.951,
+     "hours": 1.5,
+     "slot": "morgen",
+     "family": true,
+     "summary": "Traditionsmarkt am Sonntag in aller Frühe."
+    },
+    {
+     "id": "hamburg-speicherstadt",
+     "name": "Speicherstadt",
+     "kind": "kultur",
+     "lat": 53.544,
+     "lon": 9.993,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Backstein-Lagerhäuser an Fleeten, Welterbe."
+    }
+   ]
+  },
+  {
+   "id": "st-peter-ording",
+   "name": "Sankt Peter-Ording & Nordfriesland",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.305,
+   "lon": 8.631,
+   "kinds": [
+    "wasser",
+    "natur",
+    "therme",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    7
+   ],
+   "summary": "Riesiger Sandstrand, Pfahlbauten und Wattenmeer.",
+   "angle": "Wattwanderung nur mit Führung und Tidenkalender – der Meeresboden als Wanderweg.",
+   "spots": [
+    {
+     "id": "st-peter-ording-strand",
+     "name": "Strand & Pfahlbauten",
+     "kind": "wasser",
+     "lat": 54.305,
+     "lon": 8.61,
+     "hours": 3,
+     "family": true,
+     "summary": "Kilometerbreiter Strand mit Pfahlbau-Restaurants."
+    },
+    {
+     "id": "st-peter-ording-westerhever",
+     "name": "Leuchtturm Westerheversand",
+     "kind": "natur",
+     "lat": 54.373,
+     "lon": 8.643,
+     "hours": 2,
+     "family": true,
+     "summary": "Bekanntester Leuchtturm Nordfrieslands, Fußweg über den Deich."
+    },
+    {
+     "id": "st-peter-ording-watt",
+     "name": "Geführte Wattwanderung",
+     "kind": "natur",
+     "lat": 54.32,
+     "lon": 8.65,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Nur mit kundiger Führung, Termine nach Gezeiten."
+    },
+    {
+     "id": "st-peter-ording-therme",
+     "name": "Dünen-Therme",
+     "kind": "therme",
+     "lat": 54.318,
+     "lon": 8.604,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Erlebnisbad für Schlechtwetter."
+    },
+    {
+     "id": "st-peter-ording-husum",
+     "name": "Husum & Hafen",
+     "kind": "stadt",
+     "lat": 54.477,
+     "lon": 9.051,
+     "hours": 2,
+     "family": true,
+     "summary": "„Graue Stadt am Meer“, im Frühjahr Krokusblüte im Schlosspark."
+    }
+   ]
+  },
+  {
+   "id": "lueneburger-heide",
+   "name": "Lüneburger Heide",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.19,
+   "lon": 9.98,
+   "kinds": [
+    "natur",
+    "familie",
+    "stadt"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Heideflächen mit Schafen, Kutschfahrten und Freizeitparks.",
+   "angle": "Zur Heideblüte (meist August bis September) per Kutsche nach Wilsede – das Dorf ist autofrei.",
+   "spots": [
+    {
+     "id": "lueneburger-heide-wilsede",
+     "name": "Wilsede & Wilseder Berg",
+     "kind": "natur",
+     "lat": 53.17,
+     "lon": 9.94,
+     "hours": 4,
+     "family": true,
+     "summary": "Autofreies Heidedorf, zu Fuß oder per Kutsche."
+    },
+    {
+     "id": "lueneburger-heide-heidepark",
+     "name": "Heide Park Soltau",
+     "kind": "familie",
+     "lat": 53.024,
+     "lon": 9.877,
+     "hours": 7,
+     "family": true,
+     "summary": "Freizeitpark; Saison und Öffnungstage prüfen."
+    },
+    {
+     "id": "lueneburger-heide-lueneburg",
+     "name": "Altstadt Lüneburg",
+     "kind": "stadt",
+     "lat": 53.249,
+     "lon": 10.411,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Salzstadt mit schiefen Backsteinhäusern."
+    },
+    {
+     "id": "lueneburger-heide-wildpark",
+     "name": "Wildpark Lüneburger Heide",
+     "kind": "familie",
+     "lat": 53.312,
+     "lon": 9.97,
+     "hours": 3,
+     "family": true,
+     "summary": "Großer Wildpark mit heimischen und nordischen Tieren."
+    }
+   ]
+  },
+  {
+   "id": "luebeck",
+   "name": "Lübeck & Travemünde",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 53.866,
+   "lon": 10.687,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "genuss"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Hansestadt mit Holstentor, Marzipan und Ostseestrand vor der Tür.",
+   "angle": "Stadt am Vormittag, Strand am Nachmittag: Travemünde liegt nur eine kurze Fahrt entfernt.",
+   "spots": [
+    {
+     "id": "luebeck-holstentor",
+     "name": "Holstentor & Altstadtinsel",
+     "kind": "stadt",
+     "lat": 53.866,
+     "lon": 10.68,
+     "hours": 2,
+     "family": true,
+     "summary": "Wahrzeichen und Welterbe-Altstadt."
+    },
+    {
+     "id": "luebeck-hansemuseum",
+     "name": "Europäisches Hansemuseum",
+     "kind": "kultur",
+     "lat": 53.872,
+     "lon": 10.688,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Geschichte der Hanse in Inszenierungen."
+    },
+    {
+     "id": "luebeck-marzipan",
+     "name": "Marzipan-Café",
+     "kind": "genuss",
+     "lat": 53.866,
+     "lon": 10.686,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Lübecker Marzipan probieren."
+    },
+    {
+     "id": "luebeck-travemuende",
+     "name": "Travemünde & Passat",
+     "kind": "wasser",
+     "lat": 53.962,
+     "lon": 10.871,
+     "hours": 3,
+     "family": true,
+     "summary": "Strand, Promenade und Viermastbark am Priwall."
+    }
+   ]
+  },
+  {
+   "id": "sylt",
+   "name": "Sylt",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.906,
+   "lon": 8.308,
+   "kinds": [
+    "wasser",
+    "natur",
+    "familie",
+    "therme"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    7
+   ],
+   "summary": "Dünen, Kliffs und Wattenmeer auf der nördlichsten Insel Deutschlands.",
+   "angle": "Ostseite statt Westerland: Morsum-Kliff und Wattseite sind stiller als die Promenade.",
+   "spots": [
+    {
+     "id": "sylt-roteskliff",
+     "name": "Rotes Kliff Kampen",
+     "kind": "natur",
+     "lat": 54.966,
+     "lon": 8.343,
+     "hours": 2,
+     "family": true,
+     "summary": "Steilküste mit rötlichem Sand und Blick über die Nordsee."
+    },
+    {
+     "id": "sylt-morsum",
+     "name": "Morsum-Kliff",
+     "kind": "natur",
+     "lat": 54.874,
+     "lon": 8.437,
+     "hours": 2,
+     "family": true,
+     "summary": "Naturschutzgebiet mit freigelegten Erdschichten und Heide."
+    },
+    {
+     "id": "sylt-ellenbogen",
+     "name": "Ellenbogen bei List",
+     "kind": "natur",
+     "lat": 55.04,
+     "lon": 8.42,
+     "hours": 3,
+     "family": true,
+     "summary": "Nordspitze mit Leuchttürmen und Wanderdünen; Privatstraße, Zufahrt vor Ort prüfen."
+    },
+    {
+     "id": "sylt-naturgewalten",
+     "name": "Erlebniszentrum Naturgewalten List",
+     "kind": "familie",
+     "lat": 55.017,
+     "lon": 8.432,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Ausstellung zu Wind, Wetter und Wattenmeer."
+    },
+    {
+     "id": "sylt-welle",
+     "name": "Sylter Welle Westerland",
+     "kind": "therme",
+     "lat": 54.911,
+     "lon": 8.306,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Erlebnisbad am Strand, gut bei Schietwetter."
+    }
+   ]
+  },
+  {
+   "id": "bremen",
+   "name": "Bremen & Bremerhaven",
+   "region": "Bremen",
+   "country": "DE",
+   "lat": 53.076,
+   "lon": 8.807,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Roland, Schnoor und Böttcherstraße, dazu Klima- und Auswandererwelten an der Weser.",
+   "angle": "Einmal um die Welt in einem Tag: das Klimahaus folgt dem 8. Längengrad durch alle Klimazonen.",
+   "spots": [
+    {
+     "id": "bremen-rathaus",
+     "name": "Rathaus, Roland & Marktplatz",
+     "kind": "stadt",
+     "lat": 53.076,
+     "lon": 8.807,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Welterbe-Ensemble mit den Stadtmusikanten nebenan."
+    },
+    {
+     "id": "bremen-schnoor",
+     "name": "Schnoor-Viertel",
+     "kind": "stadt",
+     "lat": 53.073,
+     "lon": 8.811,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Enge Gassen mit kleinen Häusern aus dem 15. bis 18. Jahrhundert."
+    },
+    {
+     "id": "bremen-boettcherstrasse",
+     "name": "Böttcherstraße",
+     "kind": "kultur",
+     "lat": 53.075,
+     "lon": 8.805,
+     "hours": 1,
+     "summary": "Backstein-Expressionismus mit Glockenspiel."
+    },
+    {
+     "id": "bremen-universum",
+     "name": "Universum Bremen",
+     "kind": "familie",
+     "lat": 53.11,
+     "lon": 8.858,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Science-Center zum Mitmachen."
+    },
+    {
+     "id": "bremen-klimahaus",
+     "name": "Klimahaus Bremerhaven",
+     "kind": "technik",
+     "lat": 53.548,
+     "lon": 8.576,
+     "hours": 4,
+     "indoor": true,
+     "family": true,
+     "summary": "Reise durch die Klimazonen der Erde."
+    },
+    {
+     "id": "bremen-auswandererhaus",
+     "name": "Deutsches Auswandererhaus",
+     "kind": "kultur",
+     "lat": 53.546,
+     "lon": 8.574,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Geschichte der Auswanderung über Bremerhaven."
+    }
+   ]
+  },
+  {
+   "id": "norddeich",
+   "name": "Ostfriesische Küste (Norddeich & Greetsiel)",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.611,
+   "lon": 7.159,
+   "kinds": [
+    "wasser",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    7
+   ],
+   "summary": "Wattenmeer, Fischerdörfer und Fähren zu den Inseln.",
+   "angle": "Inseltag ohne Auto: morgens mit der Fähre nach Norderney, abends zurück.",
+   "spots": [
+    {
+     "id": "norddeich-seehundstation",
+     "name": "Seehundstation Norddeich",
+     "kind": "familie",
+     "lat": 53.608,
+     "lon": 7.15,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Aufzuchtstation mit Ausstellung zum Wattenmeer."
+    },
+    {
+     "id": "norddeich-greetsiel",
+     "name": "Greetsiel & Zwillingsmühlen",
+     "kind": "stadt",
+     "lat": 53.502,
+     "lon": 7.099,
+     "hours": 2,
+     "family": true,
+     "summary": "Fischerdorf mit Krabbenkuttern im Hafen."
+    },
+    {
+     "id": "norddeich-pilsum",
+     "name": "Pilsumer Leuchtturm",
+     "kind": "natur",
+     "lat": 53.481,
+     "lon": 7.054,
+     "hours": 1,
+     "family": true,
+     "summary": "Gelb-roter Leuchtturm auf dem Deich."
+    },
+    {
+     "id": "norddeich-norderney",
+     "name": "Tagesausflug Norderney",
+     "kind": "wasser",
+     "lat": 53.707,
+     "lon": 7.157,
+     "hours": 6,
+     "family": true,
+     "summary": "Fähre ab Norddeich Mole; Fahrplan nach Gezeiten prüfen."
+    },
+    {
+     "id": "norddeich-watt",
+     "name": "Geführte Wattwanderung",
+     "kind": "natur",
+     "lat": 53.62,
+     "lon": 7.18,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Nur mit Führung, Termine nach Gezeiten."
+    }
+   ]
+  },
+  {
+   "id": "usedom",
+   "name": "Usedom (Kaiserbäder)",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.955,
+   "lon": 14.168,
+   "kinds": [
+    "wasser",
+    "technik",
+    "familie",
+    "natur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    3,
+    7
+   ],
+   "summary": "Bäderarchitektur, lange Seebrücken und Raketengeschichte im Norden der Insel.",
+   "angle": "Zu Fuß über die Promenade nach Polen – die Kaiserbäder gehen nahtlos in Świnoujście über.",
+   "spots": [
+    {
+     "id": "usedom-ahlbeck",
+     "name": "Seebrücke Ahlbeck",
+     "kind": "wasser",
+     "lat": 53.944,
+     "lon": 14.193,
+     "hours": 1,
+     "family": true,
+     "summary": "Älteste erhaltene Seebrücke Deutschlands."
+    },
+    {
+     "id": "usedom-promenade",
+     "name": "Strandpromenade der Kaiserbäder",
+     "kind": "wasser",
+     "lat": 53.95,
+     "lon": 14.18,
+     "hours": 3,
+     "family": true,
+     "summary": "Lange Promenade bis über die polnische Grenze."
+    },
+    {
+     "id": "usedom-peenemuende",
+     "name": "Historisch-Technisches Museum Peenemünde",
+     "kind": "technik",
+     "lat": 54.143,
+     "lon": 13.778,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Ehemalige Heeresversuchsanstalt, Geschichte und Folgen der Raketenentwicklung."
+    },
+    {
+     "id": "usedom-achterwasser",
+     "name": "Achterwasser & Lieper Winkel",
+     "kind": "natur",
+     "lat": 53.91,
+     "lon": 14.01,
+     "hours": 3,
+     "family": true,
+     "summary": "Ruhige Bodden-Seite der Insel."
+    }
+   ]
+  },
+  {
+   "id": "stralsund",
+   "name": "Stralsund & Hiddensee",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 54.315,
+   "lon": 13.09,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "kultur",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Backsteingotik am Strelasund und eine autofreie Insel.",
+   "angle": "Hiddensee: Fahrrad statt Auto, Leuchtturm Dornbusch statt Promenade.",
+   "spots": [
+    {
+     "id": "stralsund-ozeaneum",
+     "name": "Ozeaneum",
+     "kind": "familie",
+     "lat": 54.316,
+     "lon": 13.097,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Meeresmuseum mit großen Aquarien zu Nord- und Ostsee."
+    },
+    {
+     "id": "stralsund-altstadt",
+     "name": "Altstadt & Alter Markt",
+     "kind": "stadt",
+     "lat": 54.315,
+     "lon": 13.093,
+     "hours": 2,
+     "family": true,
+     "summary": "Welterbe-Altstadt mit Rathausfassade."
+    },
+    {
+     "id": "stralsund-gorchfock",
+     "name": "Gorch Fock I",
+     "kind": "technik",
+     "lat": 54.317,
+     "lon": 13.098,
+     "hours": 1,
+     "family": true,
+     "summary": "Historisches Segelschulschiff im Hafen."
+    },
+    {
+     "id": "stralsund-hiddensee",
+     "name": "Hiddensee",
+     "kind": "natur",
+     "lat": 54.56,
+     "lon": 13.11,
+     "hours": 7,
+     "family": true,
+     "summary": "Autofreie Insel, Schiff ab Stralsund oder Schaprode."
+    }
+   ]
+  },
+  {
+   "id": "schwerin",
+   "name": "Schwerin & Seenland",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.629,
+   "lon": 11.414,
+   "kinds": [
+    "burg",
+    "wasser",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Märchenschloss auf einer Insel, umgeben von Seen.",
+   "angle": "Schloss vom Wasser aus: mit dem Ausflugsschiff einmal um die Schlossinsel.",
+   "spots": [
+    {
+     "id": "schwerin-schloss",
+     "name": "Schweriner Schloss",
+     "kind": "burg",
+     "lat": 53.624,
+     "lon": 11.419,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Schloss auf der Insel im Schweriner See mit Garten."
+    },
+    {
+     "id": "schwerin-altstadt",
+     "name": "Altstadt & Dom",
+     "kind": "stadt",
+     "lat": 53.63,
+     "lon": 11.414,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kleine Residenzstadt mit Domturm."
+    },
+    {
+     "id": "schwerin-see",
+     "name": "Schifffahrt Schweriner See",
+     "kind": "wasser",
+     "lat": 53.625,
+     "lon": 11.42,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundfahrten in der Saison."
+    }
+   ]
+  },
+  {
+   "id": "flensburg",
+   "name": "Flensburg & Schlei",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.784,
+   "lon": 9.436,
+   "kinds": [
+    "wasser",
+    "stadt",
+    "genuss",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Förde, Kapitänshäuser und das Wikinger-Erbe an der Schlei.",
+   "angle": "Rum-Meile und Wikinger: Flensburgs Handelsgeschichte und Haithabu am selben Wochenende.",
+   "spots": [
+    {
+     "id": "flensburg-hafen",
+     "name": "Historischer Hafen & Kaufmannshöfe",
+     "kind": "stadt",
+     "lat": 54.792,
+     "lon": 9.434,
+     "hours": 2,
+     "family": true,
+     "summary": "Segelschiffe, Höfe und die Rote Straße."
+    },
+    {
+     "id": "flensburg-schifffahrtsmuseum",
+     "name": "Schifffahrtsmuseum mit Rum-Museum",
+     "kind": "kultur",
+     "lat": 54.796,
+     "lon": 9.432,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Seefahrt und Rumhandel der Stadt."
+    },
+    {
+     "id": "flensburg-haithabu",
+     "name": "Wikinger Museum Haithabu",
+     "kind": "kultur",
+     "lat": 54.491,
+     "lon": 9.566,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Welterbe-Handelsplatz mit nachgebauten Häusern."
+    },
+    {
+     "id": "flensburg-arnis",
+     "name": "Arnis an der Schlei",
+     "kind": "wasser",
+     "lat": 54.63,
+     "lon": 9.93,
+     "hours": 2,
+     "family": true,
+     "summary": "Kleinste Stadt Deutschlands am Ostseearm."
+    },
+    {
+     "id": "flensburg-gluecksburg",
+     "name": "Wasserschloss Glücksburg",
+     "kind": "burg",
+     "lat": 54.833,
+     "lon": 9.551,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Weißes Schloss mitten in einem See."
+    }
+   ]
+  },
+  {
+   "id": "hameln",
+   "name": "Hameln & Weserbergland",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.104,
+   "lon": 9.356,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Rattenfängerstadt mit Weserrenaissance, Schlössern und Flussradweg.",
+   "angle": "Rattenfänger live: im Sommer wird die Sage an bestimmten Tagen auf der Hochzeitshausterrasse gespielt.",
+   "spots": [
+    {
+     "id": "hameln-altstadt",
+     "name": "Altstadt & Rattenfängerhaus",
+     "kind": "stadt",
+     "lat": 52.104,
+     "lon": 9.358,
+     "hours": 2,
+     "family": true,
+     "summary": "Weserrenaissance-Fassaden und Sagenwege."
+    },
+    {
+     "id": "hameln-freilichtspiel",
+     "name": "Rattenfänger-Freilichtspiel",
+     "kind": "kultur",
+     "lat": 52.103,
+     "lon": 9.358,
+     "hours": 1,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Freilichtaufführung im Sommer; Termine prüfen."
+    },
+    {
+     "id": "hameln-haemelschenburg",
+     "name": "Schloss Hämelschenburg",
+     "kind": "burg",
+     "lat": 52.04,
+     "lon": 9.3,
+     "hours": 2,
+     "family": true,
+     "summary": "Wasserschloss der Weserrenaissance."
+    },
+    {
+     "id": "hameln-weserradweg",
+     "name": "Weserradweg",
+     "kind": "natur",
+     "lat": 52.05,
+     "lon": 9.42,
+     "hours": 4,
+     "family": true,
+     "summary": "Flussradweg mit sanften Hügeln."
+    }
+   ]
+  }
+ ]
+}

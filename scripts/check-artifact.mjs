@@ -18,12 +18,12 @@ export async function checkArtifact(dir) {
   const problems = [];
   const files = (await fs.readdir(dir, { recursive: true, withFileTypes: true })).filter(d => d.isFile()).map(d => path.relative(dir, path.join(d.parentPath || d.path, d.name)).split(path.sep).join('/'));
   for (const f of files) {
-    if (!ALLOWED.has(f)) problems.push('nicht vorgesehene Datei im Artefakt: ' + f);
+    if (!ALLOWED.has(f) && !/^catalog\/(index|t-[a-z0-9]+)\.js$/.test(f)) problems.push('nicht vorgesehene Datei im Artefakt: ' + f);
     if (/\.(png)$/.test(f)) continue;
     const text = await fs.readFile(path.join(dir, f), 'utf8');
     for (const [re, label] of SECRET) if (re.test(text)) problems.push(label + ' in ' + f);
   }
-  for (const must of ['index.html', 'config.js', 'cloud.js', 'sw.js', 'catalog.js', 'v3logic.js', 'catalog-data.js']) if (!files.includes(must)) problems.push('fehlt: ' + must);
+  for (const must of ['index.html', 'config.js', 'cloud.js', 'sw.js', 'catalog.js', 'v3logic.js', 'catalog-data.js', 'catalog/index.js']) if (!files.includes(must)) problems.push('fehlt: ' + must);
   return problems;
 }
 

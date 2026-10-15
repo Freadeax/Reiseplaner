@@ -15,6 +15,8 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public');
 const FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'catalog-data.js',
   'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt'];
+/* Kachel-Katalog: Index und Kacheln (nicht die Quelle catalog/src) */
+FILES.push('catalog/index.js', ...(await fs.readdir(path.join(root, 'catalog'))).filter(f => /^t-[a-z0-9]+\.js$/.test(f)).sort().map(f => 'catalog/' + f));
 
 const env = process.env;
 const url = (env.RP_SUPABASE_URL || '').trim().replace(/\/+$/, '');
@@ -39,6 +41,7 @@ if (!/^\/([A-Za-z0-9._-]+\/)*$/.test(base)) fail('RP_BASE_PATH muss mit / beginn
 
 await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(path.join(out, 'vendor'), { recursive: true });
+await fs.mkdir(path.join(out, 'catalog'), { recursive: true });
 for (const f of FILES) await fs.copyFile(path.join(root, f), path.join(out, f));
 
 const commit = (env.GITHUB_SHA || '').slice(0, 12);

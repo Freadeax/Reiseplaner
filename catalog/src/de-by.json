@@ -1,0 +1,1254 @@
+{
+ "group": "de-by",
+ "places": [
+  {
+   "id": "rothenburg",
+   "name": "Rothenburg ob der Tauber",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 49.377,
+   "lon": 10.179,
+   "kinds": [
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Mittelalterliche Stadt mit begehbarer Mauer und Fachwerk wie im Bilderbuch.",
+   "angle": "Erst abends richtig schön: Tagesgäste sind weg, der Nachtwächter erzählt.",
+   "spots": [
+    {
+     "id": "rothenburg-mauer",
+     "name": "Stadtmauer-Rundgang & Plönlein",
+     "kind": "stadt",
+     "lat": 49.374,
+     "lon": 10.18,
+     "hours": 2,
+     "family": true,
+     "summary": "Überdachter Wehrgang einmal um die Altstadt."
+    },
+    {
+     "id": "rothenburg-kriminalmuseum",
+     "name": "Mittelalterliches Kriminalmuseum",
+     "kind": "kultur",
+     "lat": 49.376,
+     "lon": 10.178,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Rechtsgeschichte von Folterwerkzeug bis Schandmaske."
+    },
+    {
+     "id": "rothenburg-nachtwaechter",
+     "name": "Nachtwächter-Rundgang",
+     "kind": "kultur",
+     "lat": 49.377,
+     "lon": 10.179,
+     "hours": 1,
+     "slot": "abend",
+     "family": true,
+     "summary": "Abendliche Führung am Marktplatz; Termine vor Ort prüfen."
+    },
+    {
+     "id": "rothenburg-dinkelsbuehl",
+     "name": "Dinkelsbühl",
+     "kind": "stadt",
+     "lat": 49.069,
+     "lon": 10.319,
+     "hours": 2,
+     "family": true,
+     "summary": "Weniger überlaufene Schwester an der Romantischen Straße."
+    }
+   ]
+  },
+  {
+   "id": "nuernberg",
+   "name": "Nürnberg",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 49.454,
+   "lon": 11.077,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Kaiserburg, große Museen und Geschichte, die man nicht vergessen sollte.",
+   "angle": "Über und unter der Stadt: Kaiserburg oben, historische Felsengänge darunter.",
+   "spots": [
+    {
+     "id": "nuernberg-kaiserburg",
+     "name": "Kaiserburg",
+     "kind": "burg",
+     "lat": 49.458,
+     "lon": 11.076,
+     "hours": 2,
+     "family": true,
+     "summary": "Burg über der Altstadt mit Tiefem Brunnen."
+    },
+    {
+     "id": "nuernberg-gnm",
+     "name": "Germanisches Nationalmuseum",
+     "kind": "kultur",
+     "lat": 49.448,
+     "lon": 11.076,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Größtes kulturhistorisches Museum im deutschsprachigen Raum."
+    },
+    {
+     "id": "nuernberg-doku",
+     "name": "Dokumentationszentrum Reichsparteitagsgelände",
+     "kind": "kultur",
+     "lat": 49.433,
+     "lon": 11.112,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Ausstellung und Gelände zur NS-Geschichte."
+    },
+    {
+     "id": "nuernberg-felsengaenge",
+     "name": "Historische Felsengänge",
+     "kind": "unterwelt",
+     "lat": 49.457,
+     "lon": 11.075,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Bierkeller unter der Altstadt, nur mit Führung."
+    },
+    {
+     "id": "nuernberg-dbmuseum",
+     "name": "DB Museum",
+     "kind": "technik",
+     "lat": 49.448,
+     "lon": 11.072,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Eisenbahngeschichte mit Adler-Nachbau."
+    }
+   ]
+  },
+  {
+   "id": "bamberg",
+   "name": "Bamberg & Fränkische Schweiz",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 49.892,
+   "lon": 10.887,
+   "kinds": [
+    "stadt",
+    "genuss",
+    "natur",
+    "unterwelt"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Welterbe-Altstadt mit Rauchbier, dazu Felsen, Burgen und Höhlen der Fränkischen Schweiz.",
+   "angle": "Bierkeller-Saison: im Sommer sitzt Franken nicht in, sondern auf dem Keller.",
+   "spots": [
+    {
+     "id": "bamberg-altstadt",
+     "name": "Altes Rathaus & Klein-Venedig",
+     "kind": "stadt",
+     "lat": 49.892,
+     "lon": 10.887,
+     "hours": 2,
+     "family": true,
+     "summary": "Rathaus mitten in der Regnitz und Fischerhäuser am Ufer."
+    },
+    {
+     "id": "bamberg-rauchbier",
+     "name": "Rauchbier in einer Altstadt-Brauerei",
+     "kind": "genuss",
+     "lat": 49.892,
+     "lon": 10.885,
+     "hours": 1.5,
+     "slot": "abend",
+     "indoor": true,
+     "summary": "Bambergs Spezialität probieren."
+    },
+    {
+     "id": "bamberg-dom",
+     "name": "Bamberger Dom & Domberg",
+     "kind": "kultur",
+     "lat": 49.891,
+     "lon": 10.882,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Kaiserdom mit dem Bamberger Reiter."
+    },
+    {
+     "id": "bamberg-teufelshoehle",
+     "name": "Teufelshöhle Pottenstein",
+     "kind": "unterwelt",
+     "lat": 49.771,
+     "lon": 11.418,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Große Tropfsteinhöhle; Führungszeiten prüfen."
+    },
+    {
+     "id": "bamberg-walberla",
+     "name": "Walberla (Ehrenbürg)",
+     "kind": "natur",
+     "lat": 49.705,
+     "lon": 11.12,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Tafelberg mit Kapelle und weitem Blick."
+    }
+   ]
+  },
+  {
+   "id": "muenchen",
+   "name": "München",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 48.137,
+   "lon": 11.575,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Museen, Biergärten und Surfer mitten in der Stadt.",
+   "angle": "Eisbachwelle zuschauen, Weißwurst vor zwölf, Deutsches Museum bei Regen.",
+   "spots": [
+    {
+     "id": "muenchen-deutschesmuseum",
+     "name": "Deutsches Museum",
+     "kind": "technik",
+     "lat": 48.13,
+     "lon": 11.583,
+     "hours": 4,
+     "indoor": true,
+     "family": true,
+     "summary": "Eines der größten Technikmuseen der Welt."
+    },
+    {
+     "id": "muenchen-englischergarten",
+     "name": "Englischer Garten & Eisbachwelle",
+     "kind": "natur",
+     "lat": 48.143,
+     "lon": 11.588,
+     "hours": 2,
+     "family": true,
+     "summary": "Großer Stadtpark; an der Eisbachbrücke surfen Leute auf der stehenden Welle."
+    },
+    {
+     "id": "muenchen-viktualienmarkt",
+     "name": "Viktualienmarkt",
+     "kind": "genuss",
+     "lat": 48.135,
+     "lon": 11.576,
+     "hours": 1,
+     "slot": "mittag",
+     "family": true,
+     "summary": "Markt im Zentrum für einen Imbiss zwischendurch."
+    },
+    {
+     "id": "muenchen-olympiapark",
+     "name": "Olympiapark & Olympiaturm",
+     "kind": "berge",
+     "lat": 48.174,
+     "lon": 11.554,
+     "hours": 2,
+     "family": true,
+     "summary": "Park der Spiele von 1972 mit Aussichtsturm."
+    },
+    {
+     "id": "muenchen-nymphenburg",
+     "name": "Schloss Nymphenburg",
+     "kind": "burg",
+     "lat": 48.158,
+     "lon": 11.503,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Barockes Schloss mit großem Park."
+    }
+   ]
+  },
+  {
+   "id": "berchtesgaden",
+   "name": "Berchtesgadener Land",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 47.63,
+   "lon": 13.002,
+   "kinds": [
+    "berge",
+    "wasser",
+    "natur",
+    "therme",
+    "winter",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Königssee, Watzmann und ein Salzbergwerk mit Rutschen.",
+   "angle": "Im Salzbergwerk unterirdisch rutschen, am nächsten Tag mit dem Elektroboot zum Echo am Königssee.",
+   "spots": [
+    {
+     "id": "berchtesgaden-koenigssee",
+     "name": "Königssee-Schifffahrt nach St. Bartholomä",
+     "kind": "wasser",
+     "lat": 47.59,
+     "lon": 12.985,
+     "hours": 4,
+     "family": true,
+     "summary": "Elektroboote über den Fjord-artigen See; Fahrplan prüfen."
+    },
+    {
+     "id": "berchtesgaden-salzbergwerk",
+     "name": "Salzbergwerk Berchtesgaden",
+     "kind": "unterwelt",
+     "lat": 47.638,
+     "lon": 13.012,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Grubenbahn, Bergmannsrutschen und Salzsee im Berg."
+    },
+    {
+     "id": "berchtesgaden-kehlstein",
+     "name": "Kehlsteinhaus",
+     "kind": "berge",
+     "lat": 47.611,
+     "lon": 13.042,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Aussichtspunkt mit Geschichte; nur im Sommerhalbjahr mit Sonderbussen, Termine prüfen."
+    },
+    {
+     "id": "berchtesgaden-watzmanntherme",
+     "name": "Watzmann Therme",
+     "kind": "therme",
+     "lat": 47.628,
+     "lon": 13.007,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Therme mit Bergblick."
+    },
+    {
+     "id": "berchtesgaden-almbachklamm",
+     "name": "Almbachklamm",
+     "kind": "natur",
+     "lat": 47.676,
+     "lon": 13.042,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Klamm mit Steigen und Brücken; im Winter geschlossen, Saison prüfen."
+    }
+   ]
+  },
+  {
+   "id": "garmisch",
+   "name": "Garmisch-Partenkirchen & Zugspitzland",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 47.492,
+   "lon": 11.096,
+   "kinds": [
+    "berge",
+    "natur",
+    "winter",
+    "burg",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Deutschlands höchster Gipfel, Klammen, Bergseen und Königsschlösser.",
+   "angle": "Eibsee am frühen Morgen spiegelglatt, mittags auf die Zugspitze, abends durch die Partnachklamm zurück.",
+   "spots": [
+    {
+     "id": "garmisch-zugspitze",
+     "name": "Zugspitze",
+     "kind": "berge",
+     "lat": 47.421,
+     "lon": 10.985,
+     "hours": 5,
+     "family": true,
+     "summary": "Per Zahnradbahn oder Seilbahn auf 2.962 m."
+    },
+    {
+     "id": "garmisch-partnachklamm",
+     "name": "Partnachklamm",
+     "kind": "natur",
+     "lat": 47.468,
+     "lon": 11.117,
+     "hours": 2,
+     "family": true,
+     "summary": "Tief eingeschnittene Klamm, im Winter mit Eiszapfen."
+    },
+    {
+     "id": "garmisch-eibsee",
+     "name": "Eibsee",
+     "kind": "wasser",
+     "lat": 47.457,
+     "lon": 10.973,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Bergsee mit Rundweg unter der Zugspitze."
+    },
+    {
+     "id": "garmisch-linderhof",
+     "name": "Schloss Linderhof",
+     "kind": "burg",
+     "lat": 47.57,
+     "lon": 10.96,
+     "hours": 2,
+     "family": true,
+     "summary": "Kleinstes Königsschloss Ludwigs II. mit Park."
+    },
+    {
+     "id": "garmisch-ettal",
+     "name": "Kloster Ettal",
+     "kind": "kultur",
+     "lat": 47.569,
+     "lon": 11.094,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Barockkirche und Klosterbrauerei."
+    }
+   ]
+  },
+  {
+   "id": "fuessen",
+   "name": "Füssen & Königswinkel",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 47.57,
+   "lon": 10.7,
+   "kinds": [
+    "burg",
+    "berge",
+    "wasser",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Neuschwanstein, Seen und Lechfall am Alpenrand.",
+   "angle": "Neuschwanstein von der Marienbrücke statt nur von innen – und abends am Forggensee ins Licht schauen.",
+   "spots": [
+    {
+     "id": "fuessen-neuschwanstein",
+     "name": "Schloss Neuschwanstein",
+     "kind": "burg",
+     "lat": 47.558,
+     "lon": 10.75,
+     "hours": 3,
+     "family": true,
+     "summary": "Märchenschloss; Innenbesichtigung nur mit Zeitticket, früh reservieren."
+    },
+    {
+     "id": "fuessen-hohenschwangau",
+     "name": "Schloss Hohenschwangau & Alpsee",
+     "kind": "burg",
+     "lat": 47.555,
+     "lon": 10.738,
+     "hours": 2,
+     "family": true,
+     "summary": "Elternschloss Ludwigs II. am Alpsee."
+    },
+    {
+     "id": "fuessen-lechfall",
+     "name": "Lechfall",
+     "kind": "natur",
+     "lat": 47.561,
+     "lon": 10.697,
+     "hours": 1,
+     "family": true,
+     "summary": "Wasserfall mit Klamm direkt am Stadtrand."
+    },
+    {
+     "id": "fuessen-tegelberg",
+     "name": "Tegelbergbahn",
+     "kind": "berge",
+     "lat": 47.567,
+     "lon": 10.773,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahn mit Blick über das Voralpenland."
+    },
+    {
+     "id": "fuessen-forggensee",
+     "name": "Forggensee",
+     "kind": "wasser",
+     "lat": 47.6,
+     "lon": 10.72,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Stausee mit Uferwegen; Schiffe nur im Sommer."
+    }
+   ]
+  },
+  {
+   "id": "chiemsee",
+   "name": "Chiemsee",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 47.856,
+   "lon": 12.346,
+   "kinds": [
+    "wasser",
+    "kultur",
+    "burg",
+    "berge"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "„Bayerisches Meer“ mit Schlossinsel, Klosterinsel und Bergen im Rücken.",
+   "angle": "Insel-Hopping: Herreninsel mit Spiegelsaal, Fraueninsel mit Räucherfisch.",
+   "spots": [
+    {
+     "id": "chiemsee-herrenchiemsee",
+     "name": "Schloss Herrenchiemsee",
+     "kind": "burg",
+     "lat": 47.862,
+     "lon": 12.401,
+     "hours": 3,
+     "family": true,
+     "summary": "Ludwigs Versailles-Kopie auf der Herreninsel, per Schiff."
+    },
+    {
+     "id": "chiemsee-fraueninsel",
+     "name": "Fraueninsel",
+     "kind": "kultur",
+     "lat": 47.874,
+     "lon": 12.423,
+     "hours": 2,
+     "family": true,
+     "summary": "Kleine Insel mit Kloster und Fischern."
+    },
+    {
+     "id": "chiemsee-kampenwand",
+     "name": "Kampenwand",
+     "kind": "berge",
+     "lat": 47.754,
+     "lon": 12.35,
+     "hours": 4,
+     "summary": "Seilbahn und Gipfelweg mit Blick über den See."
+    },
+    {
+     "id": "chiemsee-baden",
+     "name": "Baden am Chiemsee",
+     "kind": "wasser",
+     "lat": 47.88,
+     "lon": 12.54,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Mehrere Strandbäder rund um den See."
+    }
+   ]
+  },
+  {
+   "id": "bayerischer-wald",
+   "name": "Nationalpark Bayerischer Wald",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 48.884,
+   "lon": 13.479,
+   "kinds": [
+    "natur",
+    "familie",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Wilder Wald, Baumwipfelpfad und Tiere im Freigelände.",
+   "angle": "Wildnis-Wochenende: Luchs im Freigelände suchen, Sonnenaufgang am Lusen.",
+   "spots": [
+    {
+     "id": "bayerischer-wald-baumwipfelpfad",
+     "name": "Baumwipfelpfad Neuschönau",
+     "kind": "natur",
+     "lat": 48.886,
+     "lon": 13.476,
+     "hours": 2,
+     "family": true,
+     "summary": "Pfad in den Baumkronen mit begehbarem Baum-Ei."
+    },
+    {
+     "id": "bayerischer-wald-tierfreigelaende",
+     "name": "Tierfreigelände",
+     "kind": "familie",
+     "lat": 48.885,
+     "lon": 13.474,
+     "hours": 3,
+     "family": true,
+     "summary": "Luchs, Wolf und Bär in großen Gehegen."
+    },
+    {
+     "id": "bayerischer-wald-lusen",
+     "name": "Lusen",
+     "kind": "berge",
+     "lat": 48.939,
+     "lon": 13.507,
+     "hours": 4,
+     "family": true,
+     "summary": "Gipfel mit Blockmeer aus Granit."
+    },
+    {
+     "id": "bayerischer-wald-glasmuseum",
+     "name": "Glasmuseum Frauenau",
+     "kind": "kultur",
+     "lat": 48.989,
+     "lon": 13.3,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Glaskunst aus der Glasregion."
+    },
+    {
+     "id": "bayerischer-wald-passau",
+     "name": "Passau, Stadt der drei Flüsse",
+     "kind": "stadt",
+     "lat": 48.574,
+     "lon": 13.462,
+     "hours": 3,
+     "family": true,
+     "summary": "Dom mit großer Orgel und Zusammenfluss von Donau, Inn und Ilz."
+    }
+   ]
+  },
+  {
+   "id": "regensburg",
+   "name": "Regensburg & Altmühltal",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 49.013,
+   "lon": 12.101,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "wasser"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Mittelalterliche Altstadt, Donau und ein Kloster in der Flussschlucht.",
+   "angle": "Mit dem Schiff durch den Donaudurchbruch zum Kloster Weltenburg – Klosterbier inklusive Ausblick.",
+   "spots": [
+    {
+     "id": "regensburg-bruecke",
+     "name": "Steinerne Brücke & Wurstkuchl",
+     "kind": "stadt",
+     "lat": 49.022,
+     "lon": 12.097,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Mittelalterliche Brücke und eine der ältesten Garküchen."
+    },
+    {
+     "id": "regensburg-dom",
+     "name": "Regensburger Dom",
+     "kind": "kultur",
+     "lat": 49.019,
+     "lon": 12.099,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotischer Dom mit mittelalterlichen Glasfenstern."
+    },
+    {
+     "id": "regensburg-walhalla",
+     "name": "Walhalla",
+     "kind": "kultur",
+     "lat": 49.032,
+     "lon": 12.224,
+     "hours": 1.5,
+     "summary": "Ruhmeshalle über der Donau."
+    },
+    {
+     "id": "regensburg-weltenburg",
+     "name": "Donaudurchbruch & Kloster Weltenburg",
+     "kind": "wasser",
+     "lat": 48.899,
+     "lon": 11.82,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schifffahrt durch die Schlucht; Schiffe nur in der Saison."
+    }
+   ]
+  },
+  {
+   "id": "wuerzburg",
+   "name": "Würzburg & Mainfranken",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 49.792,
+   "lon": 9.953,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "burg"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Residenz, Festung und Frankenwein in Bocksbeuteln.",
+   "angle": "Brückenschoppen: mit einem Glas Silvaner auf der Alten Mainbrücke stehen – sehr würzburgerisch.",
+   "spots": [
+    {
+     "id": "wuerzburg-residenz",
+     "name": "Würzburger Residenz",
+     "kind": "kultur",
+     "lat": 49.793,
+     "lon": 9.939,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Welterbe-Schloss mit Treppenhausfresko von Tiepolo."
+    },
+    {
+     "id": "wuerzburg-marienberg",
+     "name": "Festung Marienberg",
+     "kind": "burg",
+     "lat": 49.79,
+     "lon": 9.92,
+     "hours": 2,
+     "family": true,
+     "summary": "Festung über dem Main mit Fürstengarten."
+    },
+    {
+     "id": "wuerzburg-mainbruecke",
+     "name": "Alte Mainbrücke",
+     "kind": "genuss",
+     "lat": 49.793,
+     "lon": 9.926,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Steinbrücke mit Heiligenfiguren, abends beliebt."
+    },
+    {
+     "id": "wuerzburg-volkach",
+     "name": "Volkacher Mainschleife",
+     "kind": "natur",
+     "lat": 49.86,
+     "lon": 10.23,
+     "hours": 3,
+     "family": true,
+     "summary": "Weinberge in der Flussschleife, Wallfahrtskirche Maria im Weingarten."
+    }
+   ]
+  },
+  {
+   "id": "oberstdorf",
+   "name": "Oberstdorf & Kleinwalsertal",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 47.41,
+   "lon": 10.279,
+   "kinds": [
+    "berge",
+    "winter",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    6
+   ],
+   "summary": "Südlichster Ort Deutschlands mit Klamm, Skiflugschanze und Gipfeln.",
+   "angle": "Von der Breitachklamm zur Skiflugschanze – im Sommer steht man oben, wo sonst Springer abheben.",
+   "spots": [
+    {
+     "id": "oberstdorf-breitachklamm",
+     "name": "Breitachklamm",
+     "kind": "natur",
+     "lat": 47.385,
+     "lon": 10.262,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Tiefe Felsenschlucht, im Winter mit Eis."
+    },
+    {
+     "id": "oberstdorf-nebelhorn",
+     "name": "Nebelhornbahn",
+     "kind": "berge",
+     "lat": 47.42,
+     "lon": 10.34,
+     "hours": 4,
+     "family": true,
+     "summary": "Seilbahn mit Gipfelblick über viele Alpengipfel."
+    },
+    {
+     "id": "oberstdorf-skiflug",
+     "name": "Heini-Klopfer-Skiflugschanze",
+     "kind": "technik",
+     "lat": 47.389,
+     "lon": 10.275,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Aufzug zum Schanzenturm in der Sommersaison; prüfen."
+    },
+    {
+     "id": "oberstdorf-christlessee",
+     "name": "Christlessee",
+     "kind": "wasser",
+     "lat": 47.383,
+     "lon": 10.287,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kleiner, klarer Bergsee im Trettachtal."
+    }
+   ]
+  },
+  {
+   "id": "tegernsee",
+   "name": "Tegernsee & Schliersee",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 47.712,
+   "lon": 11.758,
+   "kinds": [
+    "wasser",
+    "berge",
+    "genuss",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Voralpenseen mit Bräustüberl, Wallberg und Spitzingsee.",
+   "angle": "Rodeln vom Wallberg im Winter, Schwimmen im Tegernsee im Sommer – derselbe Ort, zwei Reisen.",
+   "spots": [
+    {
+     "id": "tegernsee-braeustueberl",
+     "name": "Herzogliches Bräustüberl",
+     "kind": "genuss",
+     "lat": 47.709,
+     "lon": 11.758,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Wirtshaus im ehemaligen Kloster."
+    },
+    {
+     "id": "tegernsee-wallberg",
+     "name": "Wallbergbahn",
+     "kind": "berge",
+     "lat": 47.665,
+     "lon": 11.792,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahn mit Blick über den See; im Winter Naturrodelbahn."
+    },
+    {
+     "id": "tegernsee-schliersee",
+     "name": "Schliersee",
+     "kind": "wasser",
+     "lat": 47.736,
+     "lon": 11.861,
+     "hours": 2,
+     "family": true,
+     "summary": "Kleiner See mit Insel Wörth und Uferweg."
+    },
+    {
+     "id": "tegernsee-spitzingsee",
+     "name": "Spitzingsee",
+     "kind": "wasser",
+     "lat": 47.665,
+     "lon": 11.882,
+     "hours": 2,
+     "family": true,
+     "summary": "Hochgelegener See, im Winter Skigebiet."
+    }
+   ]
+  },
+  {
+   "id": "fichtelgebirge",
+   "name": "Fichtelgebirge & Luisenburg",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 50.03,
+   "lon": 11.97,
+   "kinds": [
+    "natur",
+    "berge",
+    "kultur",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Granitlabyrinth, Quellen und eine Felsenbühne.",
+   "angle": "Felsenlabyrinth Luisenburg: durch Spalten und unter Blöcken hindurch, Kinder lieben es.",
+   "spots": [
+    {
+     "id": "fichtelgebirge-luisenburg",
+     "name": "Felsenlabyrinth Luisenburg",
+     "kind": "natur",
+     "lat": 50.04,
+     "lon": 12.005,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Granitblöcke mit Wegen und Leitern; Saison prüfen."
+    },
+    {
+     "id": "fichtelgebirge-ochsenkopf",
+     "name": "Ochsenkopf",
+     "kind": "berge",
+     "lat": 50.031,
+     "lon": 11.81,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahn, Sommerrodelbahn und Wintersport."
+    },
+    {
+     "id": "fichtelgebirge-schneeberg",
+     "name": "Schneeberg & Backöfele",
+     "kind": "berge",
+     "lat": 50.05,
+     "lon": 11.856,
+     "hours": 3,
+     "family": true,
+     "summary": "Höchster Berg Frankens mit Aussichtsturm."
+    },
+    {
+     "id": "fichtelgebirge-porzellan",
+     "name": "Porzellanikon Selb",
+     "kind": "kultur",
+     "lat": 50.171,
+     "lon": 12.13,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Porzellanmuseum in alter Fabrik."
+    }
+   ]
+  },
+  {
+   "id": "altmuehltal",
+   "name": "Altmühltal (Eichstätt)",
+   "region": "Bayern",
+   "country": "DE",
+   "lat": 48.892,
+   "lon": 11.185,
+   "kinds": [
+    "natur",
+    "wasser",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Flusstal mit Jurafelsen, Fossilien und gemütlichem Paddelrevier.",
+   "angle": "Selbst Fossilien suchen: in Steinbrüchen bei Eichstätt darf man mit Hammer klopfen (Bedingungen vor Ort).",
+   "spots": [
+    {
+     "id": "altmuehltal-fossilien",
+     "name": "Fossilien-Steinbruch",
+     "kind": "familie",
+     "lat": 48.895,
+     "lon": 11.16,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Hobby-Steinbruch zum Klopfen; Regeln und Saison prüfen."
+    },
+    {
+     "id": "altmuehltal-paddeln",
+     "name": "Paddeln auf der Altmühl",
+     "kind": "wasser",
+     "lat": 48.93,
+     "lon": 11.3,
+     "hours": 4,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Ruhiger Fluss, Verleih vor Ort."
+    },
+    {
+     "id": "altmuehltal-zwoelf-apostel",
+     "name": "Zwölf Apostel bei Solnhofen",
+     "kind": "natur",
+     "lat": 48.896,
+     "lon": 10.988,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Felsgruppe aus Jurakalk am Fluss."
+    },
+    {
+     "id": "altmuehltal-willibaldsburg",
+     "name": "Willibaldsburg & Jura-Museum",
+     "kind": "burg",
+     "lat": 48.889,
+     "lon": 11.174,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Burg mit Museum zu Fossilien wie dem Archaeopteryx."
+    }
+   ]
+  }
+ ]
+}

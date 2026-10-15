@@ -1,0 +1,1333 @@
+{
+ "group": "de-west",
+ "places": [
+  {
+   "id": "mittelrhein",
+   "name": "Oberes Mittelrheintal (Loreley)",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 50.14,
+   "lon": 7.73,
+   "kinds": [
+    "burg",
+    "genuss",
+    "wasser",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Burgen im Minutentakt, Weinberge und der berühmte Loreley-Felsen.",
+   "angle": "Burgen-Pingpong: mit den Rheinfähren hin und her statt über Brücken (es gibt hier keine).",
+   "spots": [
+    {
+     "id": "mittelrhein-rheinfels",
+     "name": "Burg Rheinfels",
+     "kind": "burg",
+     "lat": 50.157,
+     "lon": 7.708,
+     "hours": 2,
+     "family": true,
+     "summary": "Große Burgruine mit Minengängen."
+    },
+    {
+     "id": "mittelrhein-loreley",
+     "name": "Loreley-Plateau",
+     "kind": "natur",
+     "lat": 50.139,
+     "lon": 7.729,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Aussicht über die enge Rheinschleife."
+    },
+    {
+     "id": "mittelrhein-marksburg",
+     "name": "Marksburg",
+     "kind": "burg",
+     "lat": 50.271,
+     "lon": 7.651,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Einzige nie zerstörte Höhenburg am Mittelrhein, nur mit Führung."
+    },
+    {
+     "id": "mittelrhein-schiff",
+     "name": "Rheinschifffahrt Bingen–St. Goar",
+     "kind": "wasser",
+     "lat": 50,
+     "lon": 7.86,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schiff durch das Welterbetal; Fahrplan der Saison prüfen."
+    },
+    {
+     "id": "mittelrhein-bacharach",
+     "name": "Bacharach & Weinprobe",
+     "kind": "genuss",
+     "lat": 50.058,
+     "lon": 7.769,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Fachwerkstädtchen mit Weinstuben."
+    }
+   ]
+  },
+  {
+   "id": "cochem",
+   "name": "Cochem & Mosel",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 50.146,
+   "lon": 7.167,
+   "kinds": [
+    "burg",
+    "genuss",
+    "natur",
+    "wasser",
+    "unterwelt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Reichsburg über Weinbergen, Hängeseilbrücke und Burg Eltz in der Nähe.",
+   "angle": "Ein Bunker voller Notgeld unter Weinbergen – Kalter Krieg trifft Moselromantik.",
+   "spots": [
+    {
+     "id": "cochem-reichsburg",
+     "name": "Reichsburg Cochem",
+     "kind": "burg",
+     "lat": 50.148,
+     "lon": 7.163,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burg über der Stadt, Besichtigung mit Führung."
+    },
+    {
+     "id": "cochem-eltz",
+     "name": "Burg Eltz",
+     "kind": "burg",
+     "lat": 50.205,
+     "lon": 7.336,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Burg im Wald, nie zerstört; übliche Saison April bis Oktober, prüfen."
+    },
+    {
+     "id": "cochem-geierlay",
+     "name": "Hängeseilbrücke Geierlay",
+     "kind": "natur",
+     "lat": 50.083,
+     "lon": 7.33,
+     "hours": 2,
+     "family": true,
+     "summary": "Lange Hängeseilbrücke über ein Tal im Hunsrück."
+    },
+    {
+     "id": "cochem-bunker",
+     "name": "Bundesbank-Bunker",
+     "kind": "unterwelt",
+     "lat": 50.143,
+     "lon": 7.157,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Ehemaliger Geheimbunker für Notgeld, Führungen."
+    },
+    {
+     "id": "cochem-calmont",
+     "name": "Calmont-Klettersteig",
+     "kind": "natur",
+     "lat": 50.09,
+     "lon": 7.11,
+     "hours": 3,
+     "summary": "Steilster Weinberg Europas; Trittsicherheit nötig."
+    }
+   ]
+  },
+  {
+   "id": "pfalz",
+   "name": "Pfälzerwald & Weinstraße",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.408,
+   "lon": 8.185,
+   "kinds": [
+    "genuss",
+    "natur",
+    "burg",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Wandern zu Hütten, Burgen auf Sandsteinfelsen, Wein in jeder Gasse.",
+   "angle": "Hüttentour: Pfälzerwaldvereins-Hütten als Etappenziele statt Gipfel.",
+   "spots": [
+    {
+     "id": "pfalz-hambach",
+     "name": "Hambacher Schloss",
+     "kind": "kultur",
+     "lat": 49.327,
+     "lon": 8.135,
+     "hours": 2,
+     "family": true,
+     "summary": "Wiege der deutschen Demokratie mit Ausstellung."
+    },
+    {
+     "id": "pfalz-berwartstein",
+     "name": "Burg Berwartstein",
+     "kind": "burg",
+     "lat": 49.096,
+     "lon": 7.865,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Felsenburg im Dahner Felsenland."
+    },
+    {
+     "id": "pfalz-weinstrasse",
+     "name": "Deidesheim & Weinprobe",
+     "kind": "genuss",
+     "lat": 49.408,
+     "lon": 8.185,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Weinort mit Winzerhöfen an der Deutschen Weinstraße."
+    },
+    {
+     "id": "pfalz-holidaypark",
+     "name": "Holiday Park Haßloch",
+     "kind": "familie",
+     "lat": 49.318,
+     "lon": 8.256,
+     "hours": 6,
+     "family": true,
+     "summary": "Freizeitpark; Öffnungstage prüfen."
+    },
+    {
+     "id": "pfalz-trifels",
+     "name": "Reichsburg Trifels",
+     "kind": "burg",
+     "lat": 49.197,
+     "lon": 7.987,
+     "hours": 2,
+     "family": true,
+     "summary": "Burg der Reichskleinodien über Annweiler."
+    }
+   ]
+  },
+  {
+   "id": "saarschleife",
+   "name": "Saarschleife & Saarland",
+   "region": "Saarland",
+   "country": "DE",
+   "lat": 49.505,
+   "lon": 6.558,
+   "kinds": [
+    "natur",
+    "technik",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Flussschleife von oben und Industrie-Welterbe.",
+   "angle": "Natur gegen Hochofen: morgens Baumwipfelpfad, nachmittags durch die Völklinger Hütte.",
+   "spots": [
+    {
+     "id": "saarschleife-baumwipfelpfad",
+     "name": "Baumwipfelpfad Saarschleife",
+     "kind": "natur",
+     "lat": 49.505,
+     "lon": 6.553,
+     "hours": 2,
+     "family": true,
+     "summary": "Pfad mit Aussichtsturm über der Saarschleife."
+    },
+    {
+     "id": "saarschleife-cloef",
+     "name": "Aussichtspunkt Cloef",
+     "kind": "natur",
+     "lat": 49.506,
+     "lon": 6.556,
+     "hours": 1,
+     "family": true,
+     "summary": "Der klassische Blick auf die Schleife."
+    },
+    {
+     "id": "saarschleife-voelklingen",
+     "name": "Weltkulturerbe Völklinger Hütte",
+     "kind": "technik",
+     "lat": 49.247,
+     "lon": 6.844,
+     "hours": 3,
+     "family": true,
+     "summary": "Komplett erhaltenes Eisenwerk mit Ausstellungen."
+    },
+    {
+     "id": "saarschleife-mettlach",
+     "name": "Villeroy & Boch Erlebniszentrum Mettlach",
+     "kind": "kultur",
+     "lat": 49.494,
+     "lon": 6.596,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Keramikgeschichte in der alten Abtei."
+    }
+   ]
+  },
+  {
+   "id": "koeln",
+   "name": "Köln & Rheinland",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.938,
+   "lon": 6.958,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "familie",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Dom, Brauhaus und Rheinufer – plus Schokolade.",
+   "angle": "Kölsch-Zählung per Bierdeckel und Domspitze von oben – 533 Stufen als Ausgleich.",
+   "spots": [
+    {
+     "id": "koeln-dom",
+     "name": "Kölner Dom & Turmbesteigung",
+     "kind": "kultur",
+     "lat": 50.941,
+     "lon": 6.958,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Gotische Kathedrale mit Aufstieg auf den Südturm."
+    },
+    {
+     "id": "koeln-schokolade",
+     "name": "Schokoladenmuseum",
+     "kind": "familie",
+     "lat": 50.932,
+     "lon": 6.964,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Schokoladenherstellung mit Brunnen zum Probieren."
+    },
+    {
+     "id": "koeln-seilbahn",
+     "name": "Rheinseilbahn",
+     "kind": "wasser",
+     "lat": 50.952,
+     "lon": 6.973,
+     "hours": 1,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Gondel über den Rhein; Saisonbetrieb, prüfen."
+    },
+    {
+     "id": "koeln-brauhaus",
+     "name": "Brauhaus in der Altstadt",
+     "kind": "genuss",
+     "lat": 50.938,
+     "lon": 6.96,
+     "hours": 2,
+     "slot": "abend",
+     "indoor": true,
+     "summary": "Kölsch und rheinische Küche."
+    },
+    {
+     "id": "koeln-phantasialand",
+     "name": "Phantasialand Brühl",
+     "kind": "familie",
+     "lat": 50.799,
+     "lon": 6.879,
+     "hours": 8,
+     "family": true,
+     "summary": "Freizeitpark; Öffnungstage prüfen."
+    }
+   ]
+  },
+  {
+   "id": "ruhrgebiet",
+   "name": "Ruhrgebiet – Industriekultur",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.486,
+   "lon": 7.044,
+   "kinds": [
+    "technik",
+    "kultur",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Zechen, Hochöfen und Halden als Kulturorte.",
+   "angle": "Nachtschicht: der Landschaftspark Duisburg-Nord wird nach Sonnenuntergang farbig beleuchtet.",
+   "spots": [
+    {
+     "id": "ruhrgebiet-zollverein",
+     "name": "Zeche Zollverein",
+     "kind": "technik",
+     "lat": 51.486,
+     "lon": 7.044,
+     "hours": 3,
+     "family": true,
+     "summary": "Welterbe-Zeche mit Ruhr Museum."
+    },
+    {
+     "id": "ruhrgebiet-duisburgnord",
+     "name": "Landschaftspark Duisburg-Nord",
+     "kind": "technik",
+     "lat": 51.481,
+     "lon": 6.782,
+     "hours": 2.5,
+     "slot": "abend",
+     "family": true,
+     "summary": "Stillgelegtes Hüttenwerk, Hochofen begehbar, abends beleuchtet."
+    },
+    {
+     "id": "ruhrgebiet-gasometer",
+     "name": "Gasometer Oberhausen",
+     "kind": "kultur",
+     "lat": 51.493,
+     "lon": 6.873,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Ausstellungshalle im ehemaligen Gasspeicher mit Dachplattform."
+    },
+    {
+     "id": "ruhrgebiet-tetraeder",
+     "name": "Halde Tetraeder Bottrop",
+     "kind": "natur",
+     "lat": 51.517,
+     "lon": 6.941,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Begehbare Stahlpyramide auf einer Halde."
+    },
+    {
+     "id": "ruhrgebiet-bergbaumuseum",
+     "name": "Deutsches Bergbau-Museum Bochum",
+     "kind": "unterwelt",
+     "lat": 51.489,
+     "lon": 7.217,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Anschauungsbergwerk unter dem Museum."
+    }
+   ]
+  },
+  {
+   "id": "eifel",
+   "name": "Monschau & Nordeifel",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.555,
+   "lon": 6.24,
+   "kinds": [
+    "natur",
+    "wasser",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Fachwerkstadt im Tal, Hohes Venn und Nationalpark mit Seen.",
+   "angle": "Moor-Bohlenwege im Hohen Venn: ein Stück Skandinavien an der belgischen Grenze.",
+   "spots": [
+    {
+     "id": "eifel-monschau",
+     "name": "Altstadt Monschau",
+     "kind": "stadt",
+     "lat": 50.555,
+     "lon": 6.24,
+     "hours": 2,
+     "family": true,
+     "summary": "Fachwerkhäuser an der Rur."
+    },
+    {
+     "id": "eifel-hohesvenn",
+     "name": "Hohes Venn",
+     "kind": "natur",
+     "lat": 50.5,
+     "lon": 6.1,
+     "hours": 3,
+     "family": true,
+     "summary": "Hochmoor mit Bohlenstegen (Belgien)."
+    },
+    {
+     "id": "eifel-rursee",
+     "name": "Rursee",
+     "kind": "wasser",
+     "lat": 50.62,
+     "lon": 6.43,
+     "hours": 3,
+     "family": true,
+     "summary": "Stausee mit Schiffen und Badestellen in der Saison."
+    },
+    {
+     "id": "eifel-vogelsang",
+     "name": "Vogelsang IP",
+     "kind": "kultur",
+     "lat": 50.584,
+     "lon": 6.44,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Ehemalige NS-Ordensburg mit Ausstellung und Nationalpark-Zentrum."
+    }
+   ]
+  },
+  {
+   "id": "winterberg",
+   "name": "Winterberg & Hochsauerland",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.195,
+   "lon": 8.533,
+   "kinds": [
+    "berge",
+    "winter",
+    "natur",
+    "familie",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Skigebiet im Winter, Rothaarsteig und Bikepark im Sommer.",
+   "angle": "Tropfsteine in der Atta-Höhle als Schlechtwetter-Joker.",
+   "spots": [
+    {
+     "id": "winterberg-kahlerasten",
+     "name": "Kahler Asten",
+     "kind": "berge",
+     "lat": 51.18,
+     "lon": 8.488,
+     "hours": 2,
+     "family": true,
+     "summary": "Aussichtsturm auf einem der höchsten Berge NRWs."
+    },
+    {
+     "id": "winterberg-skiliftkarussell",
+     "name": "Skiliftkarussell Winterberg",
+     "kind": "winter",
+     "lat": 51.198,
+     "lon": 8.519,
+     "hours": 5,
+     "family": true,
+     "months": [
+      12,
+      1,
+      2,
+      3
+     ],
+     "summary": "Skigebiet, Schneelage und Betrieb prüfen."
+    },
+    {
+     "id": "winterberg-rothaarsteig",
+     "name": "Rothaarsteig-Etappe",
+     "kind": "natur",
+     "lat": 51.17,
+     "lon": 8.45,
+     "hours": 4,
+     "summary": "Fernwanderweg mit gut markierten Etappen."
+    },
+    {
+     "id": "winterberg-atta",
+     "name": "Atta-Höhle Attendorn",
+     "kind": "unterwelt",
+     "lat": 51.124,
+     "lon": 7.906,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Tropfsteinhöhle mit Führungen."
+    }
+   ]
+  },
+  {
+   "id": "kassel",
+   "name": "Kassel & Edersee",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 51.316,
+   "lon": 9.394,
+   "kinds": [
+    "kultur",
+    "natur",
+    "wasser",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Bergpark mit Herkules und Wasserspielen, dazu Stausee und Urwald.",
+   "angle": "Den Wasserspielen bergab folgen – vom Herkules bis zur Fontäne, im Sommer an festen Tagen.",
+   "spots": [
+    {
+     "id": "kassel-herkules",
+     "name": "Herkules & Bergpark Wilhelmshöhe",
+     "kind": "kultur",
+     "lat": 51.316,
+     "lon": 9.394,
+     "hours": 3,
+     "family": true,
+     "summary": "Welterbe-Park mit Riesenfigur und Kaskaden."
+    },
+    {
+     "id": "kassel-wasserspiele",
+     "name": "Wasserspiele Bergpark",
+     "kind": "kultur",
+     "lat": 51.317,
+     "lon": 9.41,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Nur an bestimmten Tagen in der Saison, Termine prüfen."
+    },
+    {
+     "id": "kassel-grimmwelt",
+     "name": "Grimmwelt",
+     "kind": "kultur",
+     "lat": 51.31,
+     "lon": 9.495,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum zu den Brüdern Grimm."
+    },
+    {
+     "id": "kassel-edersee",
+     "name": "Edersee & Nationalpark Kellerwald",
+     "kind": "wasser",
+     "lat": 51.18,
+     "lon": 9.05,
+     "hours": 4,
+     "family": true,
+     "summary": "Stausee mit Schloss Waldeck, alte Buchenwälder."
+    }
+   ]
+  },
+  {
+   "id": "muenster",
+   "name": "Münster & Münsterland",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.962,
+   "lon": 7.626,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "genuss"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Fahrradstadt mit Prinzipalmarkt und über hundert Wasserburgen im Umland.",
+   "angle": "Leeze statt Auto: per Leihrad von der Altstadt zu Wasserburgen im Umland.",
+   "spots": [
+    {
+     "id": "muenster-prinzipalmarkt",
+     "name": "Prinzipalmarkt & Rathaus des Westfälischen Friedens",
+     "kind": "stadt",
+     "lat": 51.962,
+     "lon": 7.628,
+     "hours": 2,
+     "family": true,
+     "summary": "Giebelhäuser mit Bogengängen und historischer Friedenssaal."
+    },
+    {
+     "id": "muenster-lwl",
+     "name": "LWL-Museum für Kunst und Kultur",
+     "kind": "kultur",
+     "lat": 51.963,
+     "lon": 7.623,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Kunst vom Mittelalter bis heute am Domplatz."
+    },
+    {
+     "id": "muenster-aasee",
+     "name": "Aasee",
+     "kind": "wasser",
+     "lat": 51.955,
+     "lon": 7.613,
+     "hours": 1.5,
+     "family": true,
+     "summary": "See mitten in der Stadt mit Rundweg."
+    },
+    {
+     "id": "muenster-huelshoff",
+     "name": "Burg Hülshoff",
+     "kind": "burg",
+     "lat": 51.966,
+     "lon": 7.493,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Wasserburg, Geburtshaus von Annette von Droste-Hülshoff."
+    },
+    {
+     "id": "muenster-vischering",
+     "name": "Burg Vischering",
+     "kind": "burg",
+     "lat": 51.776,
+     "lon": 7.443,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Bilderbuch-Wasserburg in Lüdinghausen."
+    }
+   ]
+  },
+  {
+   "id": "aachen",
+   "name": "Aachen & Dreiländereck",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.776,
+   "lon": 6.084,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "therme",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kaiserstadt mit Dom, Thermalquellen und drei Ländern in Laufweite.",
+   "angle": "Einmal um einen Grenzstein laufen und dabei durch Deutschland, die Niederlande und Belgien gehen.",
+   "spots": [
+    {
+     "id": "aachen-dom",
+     "name": "Aachener Dom",
+     "kind": "kultur",
+     "lat": 50.775,
+     "lon": 6.084,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Erstes deutsches Welterbe, Pfalzkapelle Karls des Großen."
+    },
+    {
+     "id": "aachen-carolus",
+     "name": "Carolus Thermen",
+     "kind": "therme",
+     "lat": 50.784,
+     "lon": 6.093,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad mit Aachener Quellwasser."
+    },
+    {
+     "id": "aachen-dreilaenderpunkt",
+     "name": "Dreiländerpunkt Vaals",
+     "kind": "natur",
+     "lat": 50.754,
+     "lon": 6.021,
+     "hours": 2,
+     "family": true,
+     "summary": "Grenzpunkt auf dem Vaalserberg mit Labyrinth und Aussichtsturm."
+    },
+    {
+     "id": "aachen-printen",
+     "name": "Printen probieren",
+     "kind": "genuss",
+     "lat": 50.776,
+     "lon": 6.083,
+     "hours": 0.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Aachener Gebäckspezialität in einer Altstadt-Bäckerei."
+    }
+   ]
+  },
+  {
+   "id": "teutoburgerwald",
+   "name": "Teutoburger Wald (Detmold)",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.938,
+   "lon": 8.877,
+   "kinds": [
+    "natur",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Sandsteinfelsen, Hermannsdenkmal und das größte Freilichtmuseum Deutschlands.",
+   "angle": "Externsteine zum Sonnenaufgang – die Felsen sind seit Jahrhunderten ein Ort für Legenden.",
+   "spots": [
+    {
+     "id": "teutoburgerwald-externsteine",
+     "name": "Externsteine",
+     "kind": "natur",
+     "lat": 51.869,
+     "lon": 8.917,
+     "hours": 2,
+     "family": true,
+     "summary": "Markante Sandsteinfelsen mit Treppen und Aussicht."
+    },
+    {
+     "id": "teutoburgerwald-hermann",
+     "name": "Hermannsdenkmal",
+     "kind": "kultur",
+     "lat": 51.912,
+     "lon": 8.84,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Riesenstatue auf der Grotenburg."
+    },
+    {
+     "id": "teutoburgerwald-freilicht",
+     "name": "LWL-Freilichtmuseum Detmold",
+     "kind": "kultur",
+     "lat": 51.919,
+     "lon": 8.866,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Historische Dörfer mit Tieren; übliche Saison Frühjahr bis Herbst."
+    },
+    {
+     "id": "teutoburgerwald-adlerwarte",
+     "name": "Adlerwarte Berlebeck",
+     "kind": "familie",
+     "lat": 51.893,
+     "lon": 8.869,
+     "hours": 2,
+     "family": true,
+     "summary": "Greifvögel mit Flugvorführungen; Zeiten vor Ort prüfen."
+    }
+   ]
+  },
+  {
+   "id": "frankfurt",
+   "name": "Frankfurt am Main",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 50.11,
+   "lon": 8.682,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Skyline, Museumsufer und Apfelwein in Sachsenhausen.",
+   "angle": "Gegensätze an einem Tag: Römerberg-Fachwerk am Morgen, Hochhausblick am Abend.",
+   "spots": [
+    {
+     "id": "frankfurt-roemer",
+     "name": "Römerberg & Altstadt",
+     "kind": "stadt",
+     "lat": 50.11,
+     "lon": 8.682,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Rathaus Römer und rekonstruierte Neue Altstadt."
+    },
+    {
+     "id": "frankfurt-maintower",
+     "name": "Main Tower Aussicht",
+     "kind": "berge",
+     "lat": 50.112,
+     "lon": 8.672,
+     "hours": 1,
+     "family": true,
+     "summary": "Öffentliche Plattform über der Skyline; wetterabhängig."
+    },
+    {
+     "id": "frankfurt-staedel",
+     "name": "Städel Museum",
+     "kind": "kultur",
+     "lat": 50.103,
+     "lon": 8.674,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Kunst aus 700 Jahren am Museumsufer."
+    },
+    {
+     "id": "frankfurt-palmengarten",
+     "name": "Palmengarten",
+     "kind": "natur",
+     "lat": 50.123,
+     "lon": 8.657,
+     "hours": 2,
+     "family": true,
+     "summary": "Botanischer Garten mit Tropenhäusern."
+    },
+    {
+     "id": "frankfurt-apfelwein",
+     "name": "Apfelweinlokal in Sachsenhausen",
+     "kind": "genuss",
+     "lat": 50.103,
+     "lon": 8.689,
+     "hours": 2,
+     "slot": "abend",
+     "indoor": true,
+     "summary": "Ebbelwoi und Grüne Soße."
+    }
+   ]
+  },
+  {
+   "id": "odenwald",
+   "name": "Odenwald & Bergstraße",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 49.677,
+   "lon": 9.004,
+   "kinds": [
+    "natur",
+    "burg",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Felsenmeer, Burgen an der Bergstraße und ein Welterbe-Kloster.",
+   "angle": "Im Felsenmeer von Block zu Block klettern – Kinder lieben es, Erwachsene auch.",
+   "spots": [
+    {
+     "id": "odenwald-felsenmeer",
+     "name": "Felsenmeer Lautertal",
+     "kind": "natur",
+     "lat": 49.718,
+     "lon": 8.73,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Blockmeer aus Granit mit Römerspuren."
+    },
+    {
+     "id": "odenwald-michelstadt",
+     "name": "Rathaus Michelstadt",
+     "kind": "stadt",
+     "lat": 49.677,
+     "lon": 9.004,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Fachwerkrathaus auf Holzpfeilern."
+    },
+    {
+     "id": "odenwald-lorsch",
+     "name": "Kloster Lorsch",
+     "kind": "kultur",
+     "lat": 49.654,
+     "lon": 8.568,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Welterbe mit karolingischer Königshalle."
+    },
+    {
+     "id": "odenwald-frankenstein",
+     "name": "Burg Frankenstein",
+     "kind": "burg",
+     "lat": 49.793,
+     "lon": 8.669,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burgruine mit Blick über die Rheinebene."
+    }
+   ]
+  },
+  {
+   "id": "rheingau",
+   "name": "Rheingau & Rüdesheim",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 49.979,
+   "lon": 7.924,
+   "kinds": [
+    "genuss",
+    "kultur",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Riesling, Klöster und der Blick vom Niederwalddenkmal.",
+   "angle": "Seilbahn hinauf, Sessellift auf der anderen Seite hinunter – eine Rundtour über die Weinberge.",
+   "spots": [
+    {
+     "id": "rheingau-niederwald",
+     "name": "Niederwalddenkmal & Seilbahn",
+     "kind": "berge",
+     "lat": 49.98,
+     "lon": 7.908,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Gondel über die Weinberge zum Denkmal; Saison prüfen."
+    },
+    {
+     "id": "rheingau-eberbach",
+     "name": "Kloster Eberbach",
+     "kind": "kultur",
+     "lat": 50.042,
+     "lon": 8.047,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Zisterzienserkloster mit Weingut."
+    },
+    {
+     "id": "rheingau-drosselgasse",
+     "name": "Drosselgasse",
+     "kind": "genuss",
+     "lat": 49.979,
+     "lon": 7.925,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Weinlokale in der engen Gasse."
+    },
+    {
+     "id": "rheingau-musikkabinett",
+     "name": "Siegfrieds Mechanisches Musikkabinett",
+     "kind": "kultur",
+     "lat": 49.98,
+     "lon": 7.926,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Selbstspielende Musikinstrumente im Brömserhof."
+    }
+   ]
+  },
+  {
+   "id": "lahntal",
+   "name": "Lahntal (Limburg & Weilburg)",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 50.389,
+   "lon": 8.064,
+   "kinds": [
+    "kultur",
+    "wasser",
+    "unterwelt",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Dom über dem Fluss, Schiffstunnel und eine Tropfsteinhöhle.",
+   "angle": "Durch Deutschlands einzigen Schiffstunnel paddeln – in Weilburg.",
+   "spots": [
+    {
+     "id": "lahntal-dom",
+     "name": "Limburger Dom & Altstadt",
+     "kind": "kultur",
+     "lat": 50.389,
+     "lon": 8.064,
+     "hours": 2,
+     "family": true,
+     "summary": "Bunter Dom auf dem Felsen über der Lahn."
+    },
+    {
+     "id": "lahntal-schiffstunnel",
+     "name": "Schiffstunnel Weilburg",
+     "kind": "wasser",
+     "lat": 50.487,
+     "lon": 8.262,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Mit Kanu oder Boot durch den Tunnel; Verleih vor Ort."
+    },
+    {
+     "id": "lahntal-kubacher",
+     "name": "Kubacher Kristallhöhle",
+     "kind": "unterwelt",
+     "lat": 50.491,
+     "lon": 8.29,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Höhle mit Kristallen; Saison prüfen."
+    },
+    {
+     "id": "lahntal-weilburg",
+     "name": "Schloss Weilburg",
+     "kind": "burg",
+     "lat": 50.485,
+     "lon": 8.262,
+     "hours": 2,
+     "family": true,
+     "summary": "Residenzschloss über der Lahnschleife."
+    }
+   ]
+  }
+ ]
+}

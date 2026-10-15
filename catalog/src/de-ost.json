@@ -1,0 +1,1086 @@
+{
+ "group": "de-ost",
+ "places": [
+  {
+   "id": "harz",
+   "name": "Harz (Wernigerode)",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.835,
+   "lon": 10.785,
+   "kinds": [
+    "berge",
+    "natur",
+    "kultur",
+    "technik",
+    "winter",
+    "unterwelt",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Brocken, Dampfzüge, Hängebrücke und Fachwerkstädte.",
+   "angle": "Mit der Dampflok auf den Brocken, zu Fuß zurück – und am nächsten Tag über die Titan-RT-Hängebrücke.",
+   "spots": [
+    {
+     "id": "harz-brockenbahn",
+     "name": "Brockenbahn & Brocken",
+     "kind": "berge",
+     "lat": 51.8,
+     "lon": 10.616,
+     "hours": 5,
+     "family": true,
+     "summary": "Dampfzug auf den höchsten Harzgipfel."
+    },
+    {
+     "id": "harz-schloss",
+     "name": "Schloss Wernigerode",
+     "kind": "burg",
+     "lat": 51.828,
+     "lon": 10.788,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Schloss über der bunten Fachwerkstadt."
+    },
+    {
+     "id": "harz-titan",
+     "name": "Hängebrücke Titan RT",
+     "kind": "natur",
+     "lat": 51.744,
+     "lon": 10.894,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Lange Fußgänger-Hängebrücke an der Rappbodetalsperre."
+    },
+    {
+     "id": "harz-baumannshoehle",
+     "name": "Baumannshöhle Rübeland",
+     "kind": "unterwelt",
+     "lat": 51.756,
+     "lon": 10.846,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Tropfsteinhöhle mit Führungen."
+    },
+    {
+     "id": "harz-bodetal",
+     "name": "Bodetal & Hexentanzplatz",
+     "kind": "natur",
+     "lat": 51.738,
+     "lon": 11.022,
+     "hours": 4,
+     "family": true,
+     "summary": "Schlucht bei Thale mit Seilbahn und Sagen."
+    },
+    {
+     "id": "harz-quedlinburg",
+     "name": "Quedlinburg",
+     "kind": "stadt",
+     "lat": 51.789,
+     "lon": 11.142,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Welterbe-Fachwerkstadt mit Stiftskirche."
+    }
+   ]
+  },
+  {
+   "id": "eisenach",
+   "name": "Eisenach & Thüringer Wald",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.975,
+   "lon": 10.32,
+   "kinds": [
+    "burg",
+    "natur",
+    "kultur",
+    "technik",
+    "unterwelt"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Wartburg, Drachenschlucht und ein Bergwerk mit Kristallgrotte.",
+   "angle": "Durch die Drachenschlucht, die an manchen Stellen nur schulterbreit ist, hinauf zur Wartburg.",
+   "spots": [
+    {
+     "id": "eisenach-wartburg",
+     "name": "Wartburg",
+     "kind": "burg",
+     "lat": 50.966,
+     "lon": 10.307,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Welterbe-Burg, Lutherstube."
+    },
+    {
+     "id": "eisenach-drachenschlucht",
+     "name": "Drachenschlucht",
+     "kind": "natur",
+     "lat": 50.95,
+     "lon": 10.32,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Enge Klamm auf Gitterrosten, bei Nässe rutschig."
+    },
+    {
+     "id": "eisenach-merkers",
+     "name": "Erlebnis Bergwerk Merkers",
+     "kind": "unterwelt",
+     "lat": 50.822,
+     "lon": 10.118,
+     "hours": 4,
+     "indoor": true,
+     "summary": "Grubenfahrt mit Kristallgrotte; Führungstermine prüfen."
+    },
+    {
+     "id": "eisenach-bachhaus",
+     "name": "Bachhaus Eisenach",
+     "kind": "kultur",
+     "lat": 50.973,
+     "lon": 10.321,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum zu Johann Sebastian Bach mit Instrumentenvorführungen."
+    }
+   ]
+  },
+  {
+   "id": "weimar",
+   "name": "Weimar & Erfurt",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.979,
+   "lon": 11.329,
+   "kinds": [
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Klassik, Bauhaus und die bewohnte Krämerbrücke.",
+   "angle": "Zwei Städte, ein Ticket: Weimar und Erfurt liegen nur eine kurze Bahnfahrt auseinander.",
+   "spots": [
+    {
+     "id": "weimar-goethehaus",
+     "name": "Goethes Wohnhaus",
+     "kind": "kultur",
+     "lat": 50.977,
+     "lon": 11.329,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Goethes Wohnhaus mit Nationalmuseum."
+    },
+    {
+     "id": "weimar-bauhaus",
+     "name": "Bauhaus-Museum Weimar",
+     "kind": "kultur",
+     "lat": 50.984,
+     "lon": 11.324,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Gründungsort des Bauhauses."
+    },
+    {
+     "id": "weimar-buchenwald",
+     "name": "Gedenkstätte Buchenwald",
+     "kind": "kultur",
+     "lat": 51.02,
+     "lon": 11.248,
+     "hours": 3,
+     "summary": "Ehemaliges Konzentrationslager, Gedenkort."
+    },
+    {
+     "id": "weimar-kraemerbruecke",
+     "name": "Krämerbrücke Erfurt",
+     "kind": "stadt",
+     "lat": 50.979,
+     "lon": 11.031,
+     "hours": 2,
+     "family": true,
+     "summary": "Bebaute Brücke mit kleinen Läden."
+    }
+   ]
+  },
+  {
+   "id": "saechsische-schweiz",
+   "name": "Sächsische Schweiz",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.917,
+   "lon": 14.155,
+   "kinds": [
+    "natur",
+    "berge",
+    "burg",
+    "therme"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Tafelberge, Felsentürme und eine Festung über der Elbe.",
+   "angle": "Schrammsteine statt Bastei-Rummel – oder die Bastei ganz früh, bevor die Busse kommen.",
+   "spots": [
+    {
+     "id": "saechsische-schweiz-bastei",
+     "name": "Basteibrücke",
+     "kind": "natur",
+     "lat": 50.962,
+     "lon": 14.073,
+     "hours": 2,
+     "family": true,
+     "summary": "Steinbrücke zwischen Felstürmen hoch über der Elbe."
+    },
+    {
+     "id": "saechsische-schweiz-koenigstein",
+     "name": "Festung Königstein",
+     "kind": "burg",
+     "lat": 50.919,
+     "lon": 14.071,
+     "hours": 3,
+     "family": true,
+     "summary": "Riesige Bergfestung auf einem Tafelberg."
+    },
+    {
+     "id": "saechsische-schweiz-schrammsteine",
+     "name": "Schrammsteine",
+     "kind": "berge",
+     "lat": 50.917,
+     "lon": 14.2,
+     "hours": 4,
+     "summary": "Felsenrunde mit Leitern und Aussicht; Trittsicherheit nötig."
+    },
+    {
+     "id": "saechsische-schweiz-kirnitzschtal",
+     "name": "Kirnitzschtalbahn & Lichtenhainer Wasserfall",
+     "kind": "natur",
+     "lat": 50.937,
+     "lon": 14.226,
+     "hours": 2,
+     "family": true,
+     "summary": "Straßenbahn durchs Tal zum kleinen Wasserfall."
+    },
+    {
+     "id": "saechsische-schweiz-toskana",
+     "name": "Toskana Therme Bad Schandau",
+     "kind": "therme",
+     "lat": 50.917,
+     "lon": 14.153,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Therme an der Elbe."
+    }
+   ]
+  },
+  {
+   "id": "dresden",
+   "name": "Dresden",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.05,
+   "lon": 13.738,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Barockstadt mit Frauenkirche, Zwinger und Elbdampfern.",
+   "angle": "Elbdampfer nach Pillnitz, zurück mit dem Bus – Schloss und Fluss in einem.",
+   "spots": [
+    {
+     "id": "dresden-frauenkirche",
+     "name": "Frauenkirche",
+     "kind": "kultur",
+     "lat": 51.052,
+     "lon": 13.742,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Wiederaufgebaute Barockkirche mit Kuppelaufstieg."
+    },
+    {
+     "id": "dresden-zwinger",
+     "name": "Zwinger & Gemäldegalerie",
+     "kind": "kultur",
+     "lat": 51.053,
+     "lon": 13.734,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Barocke Anlage mit Alten Meistern."
+    },
+    {
+     "id": "dresden-gruenesgewoelbe",
+     "name": "Grünes Gewölbe",
+     "kind": "kultur",
+     "lat": 51.053,
+     "lon": 13.737,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Schatzkammer im Residenzschloss; Zeitfenster-Tickets."
+    },
+    {
+     "id": "dresden-pillnitz",
+     "name": "Schloss Pillnitz",
+     "kind": "burg",
+     "lat": 51.009,
+     "lon": 13.87,
+     "hours": 2,
+     "family": true,
+     "summary": "Lustschloss an der Elbe mit Park."
+    },
+    {
+     "id": "dresden-pfunds",
+     "name": "Pfunds Molkerei",
+     "kind": "genuss",
+     "lat": 51.065,
+     "lon": 13.754,
+     "hours": 0.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Milchladen mit handbemalten Fliesen."
+    }
+   ]
+  },
+  {
+   "id": "leipzig",
+   "name": "Leipzig & Neuseenland",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.34,
+   "lon": 12.375,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Kreative Stadt mit Seen aus ehemaligen Tagebauen.",
+   "angle": "Stadt am Strand: im Sommer vom Zentrum per Rad an den Cospudener See.",
+   "spots": [
+    {
+     "id": "leipzig-voelkerschlacht",
+     "name": "Völkerschlachtdenkmal",
+     "kind": "kultur",
+     "lat": 51.312,
+     "lon": 12.413,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Monumentales Denkmal mit Aussichtsplattform."
+    },
+    {
+     "id": "leipzig-zoo",
+     "name": "Zoo Leipzig",
+     "kind": "familie",
+     "lat": 51.349,
+     "lon": 12.371,
+     "hours": 4,
+     "family": true,
+     "summary": "Großer Zoo mit Tropenhalle Gondwanaland."
+    },
+    {
+     "id": "leipzig-spinnerei",
+     "name": "Baumwollspinnerei",
+     "kind": "kultur",
+     "lat": 51.329,
+     "lon": 12.315,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Kunstquartier in alter Fabrik."
+    },
+    {
+     "id": "leipzig-cospudener",
+     "name": "Cospudener See",
+     "kind": "wasser",
+     "lat": 51.27,
+     "lon": 12.34,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Badesee mit Hafen am Stadtrand."
+    },
+    {
+     "id": "leipzig-panometer",
+     "name": "Panometer",
+     "kind": "kultur",
+     "lat": 51.318,
+     "lon": 12.402,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "360°-Panorama im ehemaligen Gasometer."
+    }
+   ]
+  },
+  {
+   "id": "spreewald",
+   "name": "Spreewald",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 51.867,
+   "lon": 13.966,
+   "kinds": [
+    "wasser",
+    "natur",
+    "familie",
+    "therme",
+    "genuss"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Kahnfahrten durch Fließe, Gurken und sorbische Dörfer.",
+   "angle": "Selbst paddeln statt Kahn: im Kajak durch die stillen Nebenfließe.",
+   "spots": [
+    {
+     "id": "spreewald-kahn",
+     "name": "Kahnfahrt ab Lübbenau",
+     "kind": "wasser",
+     "lat": 51.866,
+     "lon": 13.968,
+     "hours": 3,
+     "family": true,
+     "summary": "Gestakter Kahn durch die Fließe."
+    },
+    {
+     "id": "spreewald-lehde",
+     "name": "Freilandmuseum Lehde",
+     "kind": "kultur",
+     "lat": 51.874,
+     "lon": 13.989,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Historische Spreewaldhöfe, per Boot oder zu Fuß."
+    },
+    {
+     "id": "spreewald-paddeln",
+     "name": "Paddeln auf den Fließen",
+     "kind": "wasser",
+     "lat": 51.86,
+     "lon": 13.95,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Kajak oder Kanu beim Verleih vor Ort."
+    },
+    {
+     "id": "spreewald-therme",
+     "name": "Spreewald Therme Burg",
+     "kind": "therme",
+     "lat": 51.84,
+     "lon": 14.15,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Solebad im Spreewald."
+    },
+    {
+     "id": "spreewald-tropical",
+     "name": "Tropical Islands",
+     "kind": "familie",
+     "lat": 52.039,
+     "lon": 13.75,
+     "hours": 6,
+     "indoor": true,
+     "family": true,
+     "summary": "Tropenhalle in einer ehemaligen Luftschiffhalle."
+    }
+   ]
+  },
+  {
+   "id": "berlin",
+   "name": "Berlin & Potsdam",
+   "region": "Berlin",
+   "country": "DE",
+   "lat": 52.52,
+   "lon": 13.405,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Geschichte an jeder Ecke, Museen und Kieze.",
+   "angle": "Auf einem ehemaligen Flughafen Fahrrad fahren: das Tempelhofer Feld.",
+   "spots": [
+    {
+     "id": "berlin-reichstag",
+     "name": "Reichstagskuppel",
+     "kind": "kultur",
+     "lat": 52.519,
+     "lon": 13.376,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Gläserne Kuppel, Online-Anmeldung vorab nötig."
+    },
+    {
+     "id": "berlin-museumsinsel",
+     "name": "Museumsinsel",
+     "kind": "kultur",
+     "lat": 52.521,
+     "lon": 13.397,
+     "hours": 4,
+     "indoor": true,
+     "summary": "Fünf Museen auf einer Spreeinsel."
+    },
+    {
+     "id": "berlin-mauer",
+     "name": "Gedenkstätte Berliner Mauer",
+     "kind": "kultur",
+     "lat": 52.535,
+     "lon": 13.39,
+     "hours": 2,
+     "family": true,
+     "summary": "Erhaltener Grenzstreifen an der Bernauer Straße."
+    },
+    {
+     "id": "berlin-tempelhof",
+     "name": "Tempelhofer Feld",
+     "kind": "natur",
+     "lat": 52.473,
+     "lon": 13.401,
+     "hours": 2,
+     "family": true,
+     "summary": "Ehemaliges Flugfeld als riesige Freifläche."
+    },
+    {
+     "id": "berlin-sanssouci",
+     "name": "Park Sanssouci Potsdam",
+     "kind": "burg",
+     "lat": 52.404,
+     "lon": 13.038,
+     "hours": 4,
+     "family": true,
+     "summary": "Schlösser und Gärten Friedrichs des Großen."
+    }
+   ]
+  },
+  {
+   "id": "erzgebirge",
+   "name": "Erzgebirge (Seiffen & Fichtelberg)",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.648,
+   "lon": 13.453,
+   "kinds": [
+    "winter",
+    "kultur",
+    "familie",
+    "unterwelt",
+    "berge"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Spielzeugdorf, Bergbau-Geschichte und Schnee am Fichtelberg.",
+   "angle": "Erst in die Grube, dann in die Schauwerkstatt: Wie aus Bergleuten Holzkünstler wurden.",
+   "spots": [
+    {
+     "id": "erzgebirge-spielzeugmuseum",
+     "name": "Erzgebirgisches Spielzeugmuseum Seiffen",
+     "kind": "kultur",
+     "lat": 50.648,
+     "lon": 13.452,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Holzspielzeug, Pyramiden und Räuchermänner."
+    },
+    {
+     "id": "erzgebirge-schauwerkstatt",
+     "name": "Schauwerkstatt Seiffen",
+     "kind": "kultur",
+     "lat": 50.646,
+     "lon": 13.449,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Drechslern bei der Arbeit zusehen."
+    },
+    {
+     "id": "erzgebirge-fichtelberg",
+     "name": "Fichtelberg Oberwiesenthal",
+     "kind": "berge",
+     "lat": 50.43,
+     "lon": 12.954,
+     "hours": 4,
+     "family": true,
+     "summary": "Höchster Berg Sachsens, im Winter Skigebiet, Schwebebahn."
+    },
+    {
+     "id": "erzgebirge-freiberg",
+     "name": "Silberbergwerk Freiberg",
+     "kind": "unterwelt",
+     "lat": 50.917,
+     "lon": 13.342,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Lehr- und Besucherbergwerk; Führungen prüfen."
+    },
+    {
+     "id": "erzgebirge-greifensteine",
+     "name": "Greifensteine",
+     "kind": "natur",
+     "lat": 50.627,
+     "lon": 12.932,
+     "hours": 2,
+     "family": true,
+     "summary": "Granitfelsen mit Aussicht und Naturbühne."
+    }
+   ]
+  },
+  {
+   "id": "dessau-woerlitz",
+   "name": "Dessau-Wörlitz & Wittenberg",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.84,
+   "lon": 12.33,
+   "kinds": [
+    "kultur",
+    "natur",
+    "technik"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Englische Gärten, Bauhaus und die Lutherstadt.",
+   "angle": "Gartenreich mit der Gondel erkunden und am Nachmittag im Bauhaus die Moderne sehen.",
+   "spots": [
+    {
+     "id": "dessau-woerlitz-park",
+     "name": "Wörlitzer Park",
+     "kind": "natur",
+     "lat": 51.843,
+     "lon": 12.42,
+     "hours": 3,
+     "family": true,
+     "summary": "Landschaftsgarten mit Gondelfahrten in der Saison."
+    },
+    {
+     "id": "dessau-woerlitz-bauhaus",
+     "name": "Bauhausgebäude Dessau",
+     "kind": "kultur",
+     "lat": 51.839,
+     "lon": 12.227,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Ikone der Moderne, Führungen."
+    },
+    {
+     "id": "dessau-woerlitz-ferropolis",
+     "name": "Ferropolis",
+     "kind": "technik",
+     "lat": 51.787,
+     "lon": 12.44,
+     "hours": 2,
+     "family": true,
+     "summary": "Stadt aus Eisen: Tagebaugroßgeräte auf einer Halbinsel."
+    },
+    {
+     "id": "dessau-woerlitz-wittenberg",
+     "name": "Lutherstadt Wittenberg",
+     "kind": "stadt",
+     "lat": 51.866,
+     "lon": 12.649,
+     "hours": 3,
+     "family": true,
+     "summary": "Schlosskirche, Lutherhaus und Marktplatz."
+    }
+   ]
+  },
+  {
+   "id": "saale-unstrut",
+   "name": "Naumburg & Saale-Unstrut",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.152,
+   "lon": 11.81,
+   "kinds": [
+    "genuss",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Nördlichstes Qualitätsweinbaugebiet Deutschlands mit Dom und Himmelsscheibe.",
+   "angle": "Von der Himmelsscheibe bis zum Sekt: 3.600 Jahre Region an einem Wochenende.",
+   "spots": [
+    {
+     "id": "saale-unstrut-dom",
+     "name": "Naumburger Dom",
+     "kind": "kultur",
+     "lat": 51.155,
+     "lon": 11.804,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Welterbe mit den Stifterfiguren, darunter Uta."
+    },
+    {
+     "id": "saale-unstrut-freyburg",
+     "name": "Sektkellerei Freyburg",
+     "kind": "genuss",
+     "lat": 51.212,
+     "lon": 11.77,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Historische Kellerei mit Führungen."
+    },
+    {
+     "id": "saale-unstrut-nebra",
+     "name": "Arche Nebra",
+     "kind": "kultur",
+     "lat": 51.284,
+     "lon": 11.52,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Besucherzentrum zur Himmelsscheibe am Fundort."
+    },
+    {
+     "id": "saale-unstrut-weinberge",
+     "name": "Weinberge an Saale und Unstrut",
+     "kind": "natur",
+     "lat": 51.18,
+     "lon": 11.76,
+     "hours": 3,
+     "summary": "Terrassen und Weinbergshäuschen entlang der Flüsse."
+    }
+   ]
+  },
+  {
+   "id": "goerlitz",
+   "name": "Görlitz & Zittauer Gebirge",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.152,
+   "lon": 14.987,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur",
+    "burg"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Filmkulisse aus allen Epochen und ein kleines Felsengebirge.",
+   "angle": "Über die Altstadtbrücke nach Polen zum Abendessen – Görlitz und Zgorzelec sind eine Doppelstadt.",
+   "spots": [
+    {
+     "id": "goerlitz-altstadt",
+     "name": "Altstadt Görlitz",
+     "kind": "stadt",
+     "lat": 51.156,
+     "lon": 14.99,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Gotik, Renaissance und Barock, oft als Filmkulisse genutzt."
+    },
+    {
+     "id": "goerlitz-landeskrone",
+     "name": "Landeskrone",
+     "kind": "natur",
+     "lat": 51.137,
+     "lon": 14.937,
+     "hours": 2,
+     "family": true,
+     "summary": "Hausberg mit Blick über die Lausitz."
+    },
+    {
+     "id": "goerlitz-oybin",
+     "name": "Berg und Klosterruine Oybin",
+     "kind": "burg",
+     "lat": 50.842,
+     "lon": 14.743,
+     "hours": 3,
+     "family": true,
+     "summary": "Felsenburg und Klosterruine im Zittauer Gebirge."
+    },
+    {
+     "id": "goerlitz-einsiedel",
+     "name": "Kulturinsel Einsiedel",
+     "kind": "familie",
+     "lat": 51.081,
+     "lon": 14.951,
+     "hours": 4,
+     "family": true,
+     "summary": "Abenteuerpark mit Baumhäusern; Saison prüfen."
+    }
+   ]
+  },
+  {
+   "id": "rhoen",
+   "name": "Rhön (Wasserkuppe)",
+   "region": "Hessen/Bayern/Thüringen",
+   "country": "DE",
+   "lat": 50.498,
+   "lon": 9.937,
+   "kinds": [
+    "natur",
+    "berge",
+    "familie",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Land der offenen Fernen: Hochmoor, Segelflieger und Sternenpark.",
+   "angle": "Sternenpark Rhön: Nachts ist es hier so dunkel, dass die Milchstraße gut sichtbar ist.",
+   "spots": [
+    {
+     "id": "rhoen-wasserkuppe",
+     "name": "Wasserkuppe & Segelflugmuseum",
+     "kind": "technik",
+     "lat": 50.498,
+     "lon": 9.937,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Höchster Berg Hessens, Wiege des Segelflugs."
+    },
+    {
+     "id": "rhoen-schwarzes-moor",
+     "name": "Schwarzes Moor",
+     "kind": "natur",
+     "lat": 50.517,
+     "lon": 10.068,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Bohlenweg durch das Hochmoor mit Aussichtsturm."
+    },
+    {
+     "id": "rhoen-sterne",
+     "name": "Sternbeobachtung im Sternenpark",
+     "kind": "natur",
+     "lat": 50.5,
+     "lon": 10,
+     "hours": 1.5,
+     "slot": "abend",
+     "family": true,
+     "summary": "Dunkler Nachthimmel; klare Nächte und Mondphase beachten."
+    },
+    {
+     "id": "rhoen-milseburg",
+     "name": "Milseburg",
+     "kind": "berge",
+     "lat": 50.548,
+     "lon": 9.9,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Markanter Berg mit Kapelle."
+    },
+    {
+     "id": "rhoen-fulda",
+     "name": "Barockviertel Fulda",
+     "kind": "stadt",
+     "lat": 50.553,
+     "lon": 9.672,
+     "hours": 2,
+     "family": true,
+     "summary": "Dom, Stadtschloss und Orangerie."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,825 @@
+{
+ "group": "at",
+ "places": [
+  {
+   "id": "innsbruck",
+   "name": "Innsbruck",
+   "region": "Tirol",
+   "country": "AT",
+   "lat": 47.269,
+   "lon": 11.404,
+   "kinds": [
+    "stadt",
+    "berge",
+    "winter",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Alpenstadt, in der man aus der Altstadt direkt ins Hochgebirge fährt.",
+   "angle": "Von der Altstadt in 30 Minuten auf über 2.000 m – mit Bahn und Seilbahn, ohne Auto.",
+   "spots": [
+    {
+     "id": "innsbruck-nordkette",
+     "name": "Nordkettenbahnen",
+     "kind": "berge",
+     "lat": 47.307,
+     "lon": 11.383,
+     "hours": 4,
+     "family": true,
+     "summary": "Standseilbahn und Seilbahn bis auf die Nordkette."
+    },
+    {
+     "id": "innsbruck-goldenesdachl",
+     "name": "Goldenes Dachl & Altstadt",
+     "kind": "stadt",
+     "lat": 47.269,
+     "lon": 11.393,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Prunkerker mit vergoldeten Schindeln."
+    },
+    {
+     "id": "innsbruck-bergisel",
+     "name": "Bergisel-Schanze",
+     "kind": "technik",
+     "lat": 47.248,
+     "lon": 11.399,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Sprungschanze von Zaha Hadid mit Aussicht."
+    },
+    {
+     "id": "innsbruck-swarovski",
+     "name": "Swarovski Kristallwelten Wattens",
+     "kind": "kultur",
+     "lat": 47.294,
+     "lon": 11.601,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Kunstwelten unter einem begrünten Riesenkopf."
+    },
+    {
+     "id": "innsbruck-ambras",
+     "name": "Schloss Ambras",
+     "kind": "burg",
+     "lat": 47.256,
+     "lon": 11.434,
+     "hours": 2,
+     "family": true,
+     "summary": "Renaissanceschloss mit Kunstkammer."
+    }
+   ]
+  },
+  {
+   "id": "salzburg",
+   "name": "Salzburg & Salzachtal",
+   "region": "Salzburg",
+   "country": "AT",
+   "lat": 47.8,
+   "lon": 13.044,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "berge",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Barockstadt mit Festung, Mozart und Eishöhle in der Nähe.",
+   "angle": "Bei den Wasserspielen Hellbrunn wird man garantiert nass – ein fürstlicher Streich aus dem 17. Jahrhundert.",
+   "spots": [
+    {
+     "id": "salzburg-festung",
+     "name": "Festung Hohensalzburg",
+     "kind": "burg",
+     "lat": 47.795,
+     "lon": 13.047,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Große Burganlage über der Altstadt, per Festungsbahn."
+    },
+    {
+     "id": "salzburg-getreidegasse",
+     "name": "Getreidegasse & Mozarts Geburtshaus",
+     "kind": "stadt",
+     "lat": 47.8,
+     "lon": 13.043,
+     "hours": 2,
+     "family": true,
+     "summary": "Einkaufsgasse mit Zunftschildern."
+    },
+    {
+     "id": "salzburg-hellbrunn",
+     "name": "Schloss Hellbrunn & Wasserspiele",
+     "kind": "burg",
+     "lat": 47.763,
+     "lon": 13.061,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Trickbrunnen im Schlosspark; Saison prüfen."
+    },
+    {
+     "id": "salzburg-untersberg",
+     "name": "Untersbergbahn",
+     "kind": "berge",
+     "lat": 47.723,
+     "lon": 13.012,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahn auf den Hausberg an der Grenze."
+    },
+    {
+     "id": "salzburg-eisriesenwelt",
+     "name": "Eisriesenwelt Werfen",
+     "kind": "unterwelt",
+     "lat": 47.503,
+     "lon": 13.19,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Große Eishöhle; nur im Sommerhalbjahr, warme Kleidung, Termine prüfen."
+    }
+   ]
+  },
+  {
+   "id": "zillertal",
+   "name": "Zillertal",
+   "region": "Tirol",
+   "country": "AT",
+   "lat": 47.167,
+   "lon": 11.865,
+   "kinds": [
+    "berge",
+    "winter",
+    "natur",
+    "genuss",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    3,
+    7
+   ],
+   "summary": "Breites Alpental mit Gletscher, Almen und Dampfzug.",
+   "angle": "Ganzjährig Schnee: am Hintertuxer Gletscher auch im Herbst noch Skifahren.",
+   "spots": [
+    {
+     "id": "zillertal-hintertux",
+     "name": "Hintertuxer Gletscher",
+     "kind": "winter",
+     "lat": 47.07,
+     "lon": 11.68,
+     "hours": 6,
+     "family": true,
+     "summary": "Ganzjahres-Skigebiet, Gletscherbahnen."
+    },
+    {
+     "id": "zillertal-dampf",
+     "name": "Zillertalbahn (Dampfzug)",
+     "kind": "technik",
+     "lat": 47.34,
+     "lon": 11.78,
+     "hours": 2,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Dampfzug zwischen Jenbach und Mayrhofen; Fahrtage prüfen."
+    },
+    {
+     "id": "zillertal-schlegeis",
+     "name": "Schlegeis-Stausee",
+     "kind": "wasser",
+     "lat": 47.04,
+     "lon": 11.71,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Hochalpenstraße (Maut) zum Stausee, Wanderungen."
+    },
+    {
+     "id": "zillertal-sennerei",
+     "name": "Erlebnissennerei Zillertal",
+     "kind": "genuss",
+     "lat": 47.181,
+     "lon": 11.856,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Schaukäserei mit Hofladen."
+    }
+   ]
+  },
+  {
+   "id": "bregenz",
+   "name": "Bregenz & Bregenzerwald",
+   "region": "Vorarlberg",
+   "country": "AT",
+   "lat": 47.505,
+   "lon": 9.749,
+   "kinds": [
+    "wasser",
+    "berge",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Seebühne, Pfänder und Käsedörfer mit moderner Holzarchitektur.",
+   "angle": "Käsestraße Bregenzerwald: Sennereien als Stationen einer Genussroute.",
+   "spots": [
+    {
+     "id": "bregenz-pfaender",
+     "name": "Pfänderbahn",
+     "kind": "berge",
+     "lat": 47.509,
+     "lon": 9.776,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Seilbahn mit Blick über den ganzen Bodensee."
+    },
+    {
+     "id": "bregenz-seebuehne",
+     "name": "Seebühne & Kunsthaus",
+     "kind": "kultur",
+     "lat": 47.507,
+     "lon": 9.739,
+     "hours": 2,
+     "summary": "Festspielbühne im See und Kunsthaus von Peter Zumthor."
+    },
+    {
+     "id": "bregenz-kaesestrasse",
+     "name": "KäseStrasse Bregenzerwald",
+     "kind": "genuss",
+     "lat": 47.4,
+     "lon": 9.9,
+     "hours": 4,
+     "summary": "Sennereien und Alpen mit Verkostung."
+    },
+    {
+     "id": "bregenz-rappenloch",
+     "name": "Rappenlochschlucht",
+     "kind": "natur",
+     "lat": 47.378,
+     "lon": 9.759,
+     "hours": 2,
+     "family": true,
+     "summary": "Schlucht bei Dornbirn; Wegsperrungen prüfen."
+    }
+   ]
+  },
+  {
+   "id": "wien",
+   "name": "Wien",
+   "region": "Wien",
+   "country": "AT",
+   "lat": 48.208,
+   "lon": 16.373,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Kaiserliche Prachtstadt mit Kaffeehäusern und Heurigen.",
+   "angle": "Wien in drei Takten: Kaffeehaus am Morgen, Schönbrunn am Tag, Heuriger am Abend.",
+   "spots": [
+    {
+     "id": "wien-schoenbrunn",
+     "name": "Schloss Schönbrunn",
+     "kind": "burg",
+     "lat": 48.185,
+     "lon": 16.312,
+     "hours": 3.5,
+     "family": true,
+     "summary": "Sommerresidenz der Habsburger mit Park und Tiergarten."
+    },
+    {
+     "id": "wien-stephansdom",
+     "name": "Stephansdom",
+     "kind": "kultur",
+     "lat": 48.208,
+     "lon": 16.373,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotischer Dom im Zentrum."
+    },
+    {
+     "id": "wien-prater",
+     "name": "Prater & Riesenrad",
+     "kind": "familie",
+     "lat": 48.217,
+     "lon": 16.396,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Vergnügungspark mit historischem Riesenrad."
+    },
+    {
+     "id": "wien-naschmarkt",
+     "name": "Naschmarkt",
+     "kind": "genuss",
+     "lat": 48.199,
+     "lon": 16.364,
+     "hours": 1.5,
+     "slot": "mittag",
+     "family": true,
+     "summary": "Markt mit Ständen und Lokalen."
+    },
+    {
+     "id": "wien-heuriger",
+     "name": "Heuriger in Grinzing",
+     "kind": "genuss",
+     "lat": 48.257,
+     "lon": 16.349,
+     "hours": 2.5,
+     "slot": "abend",
+     "summary": "Weinlokale am Stadtrand."
+    }
+   ]
+  },
+  {
+   "id": "salzkammergut",
+   "name": "Salzkammergut (Hallstatt & Wolfgangsee)",
+   "region": "Oberösterreich",
+   "country": "AT",
+   "lat": 47.562,
+   "lon": 13.649,
+   "kinds": [
+    "wasser",
+    "berge",
+    "unterwelt",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Seen, Salzbergwerk und Eishöhlen im Dachsteingebirge.",
+   "angle": "Hallstatt früh oder spät: tagsüber voll, am Abend still am See.",
+   "spots": [
+    {
+     "id": "salzkammergut-hallstatt",
+     "name": "Hallstatt Marktplatz & Ufer",
+     "kind": "stadt",
+     "lat": 47.562,
+     "lon": 13.649,
+     "hours": 2,
+     "family": true,
+     "summary": "Welterbe-Ort am See; Besucherlenkung beachten."
+    },
+    {
+     "id": "salzkammergut-salzwelten",
+     "name": "Salzwelten Hallstatt",
+     "kind": "unterwelt",
+     "lat": 47.563,
+     "lon": 13.637,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Ältestes Salzbergwerk der Welt mit Rutschen; Saison prüfen."
+    },
+    {
+     "id": "salzkammergut-eishoehle",
+     "name": "Dachstein-Rieseneishöhle",
+     "kind": "unterwelt",
+     "lat": 47.529,
+     "lon": 13.7,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Eishöhle per Seilbahn; nur im Sommerhalbjahr."
+    },
+    {
+     "id": "salzkammergut-5fingers",
+     "name": "Aussichtsplattform 5fingers",
+     "kind": "berge",
+     "lat": 47.531,
+     "lon": 13.692,
+     "hours": 2.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Plattform über dem Abgrund am Krippenstein."
+    },
+    {
+     "id": "salzkammergut-wolfgangsee",
+     "name": "Wolfgangsee & Schafbergbahn",
+     "kind": "wasser",
+     "lat": 47.737,
+     "lon": 13.446,
+     "hours": 4,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schiff und Zahnradbahn auf den Schafberg in der Saison."
+    }
+   ]
+  },
+  {
+   "id": "woerthersee",
+   "name": "Wörthersee & Klagenfurt",
+   "region": "Kärnten",
+   "country": "AT",
+   "lat": 46.62,
+   "lon": 14.15,
+   "kinds": [
+    "wasser",
+    "familie",
+    "natur",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    7
+   ],
+   "summary": "Warmer Alpensee mit Aussichtsturm, Miniaturwelt und Schluchten.",
+   "angle": "Mit der Rutsche vom Pyramidenkogel – einer der höchsten Holzaussichtstürme hat eine überdachte Röhrenrutsche.",
+   "spots": [
+    {
+     "id": "woerthersee-pyramidenkogel",
+     "name": "Pyramidenkogel",
+     "kind": "berge",
+     "lat": 46.608,
+     "lon": 14.143,
+     "hours": 2,
+     "family": true,
+     "summary": "Holzaussichtsturm mit Rutsche."
+    },
+    {
+     "id": "woerthersee-minimundus",
+     "name": "Minimundus Klagenfurt",
+     "kind": "familie",
+     "lat": 46.618,
+     "lon": 14.268,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Miniaturwelt mit Modellen berühmter Bauwerke."
+    },
+    {
+     "id": "woerthersee-baden",
+     "name": "Baden im Wörthersee",
+     "kind": "wasser",
+     "lat": 46.62,
+     "lon": 14.1,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Strandbäder rund um den See."
+    },
+    {
+     "id": "woerthersee-tscheppa",
+     "name": "Tscheppaschlucht",
+     "kind": "natur",
+     "lat": 46.52,
+     "lon": 14.29,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schlucht mit Stegen und Wasserfällen."
+    }
+   ]
+  },
+  {
+   "id": "wachau",
+   "name": "Wachau",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 48.38,
+   "lon": 15.45,
+   "kinds": [
+    "genuss",
+    "kultur",
+    "wasser",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Donautal mit Weinterrassen, Marillen und einem barocken Stift.",
+   "angle": "Mit dem Rad an der Donau entlang, zurück mit dem Schiff – das Tal von beiden Seiten.",
+   "spots": [
+    {
+     "id": "wachau-melk",
+     "name": "Stift Melk",
+     "kind": "kultur",
+     "lat": 48.228,
+     "lon": 15.333,
+     "hours": 2,
+     "family": true,
+     "summary": "Barockes Benediktinerstift hoch über der Donau."
+    },
+    {
+     "id": "wachau-duernstein",
+     "name": "Dürnstein & Burgruine",
+     "kind": "burg",
+     "lat": 48.395,
+     "lon": 15.52,
+     "hours": 2,
+     "family": true,
+     "summary": "Blauer Kirchturm und Ruine, in der Richard Löwenherz gefangen war."
+    },
+    {
+     "id": "wachau-schiff",
+     "name": "Schifffahrt Melk–Krems",
+     "kind": "wasser",
+     "lat": 48.3,
+     "lon": 15.42,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Donauschiff durch das Welterbetal; Fahrplan prüfen."
+    },
+    {
+     "id": "wachau-heuriger",
+     "name": "Heuriger in Spitz oder Weißenkirchen",
+     "kind": "genuss",
+     "lat": 48.395,
+     "lon": 15.47,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Wein und Jause bei Winzern; Öffnungstage prüfen."
+    },
+    {
+     "id": "wachau-radweg",
+     "name": "Donauradweg in der Wachau",
+     "kind": "natur",
+     "lat": 48.36,
+     "lon": 15.4,
+     "hours": 4,
+     "family": true,
+     "summary": "Flacher Abschnitt zwischen Weinbergen und Fluss."
+    }
+   ]
+  },
+  {
+   "id": "graz",
+   "name": "Graz",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.071,
+   "lon": 15.439,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Rote Dächer, Uhrturm und moderne Architektur an der Mur.",
+   "angle": "Durch den Berg auf den Schloßberg: es gibt einen Lift im Fels und eine Rutsche hinunter.",
+   "spots": [
+    {
+     "id": "graz-schlossberg",
+     "name": "Schloßberg & Uhrturm",
+     "kind": "berge",
+     "lat": 47.076,
+     "lon": 15.437,
+     "hours": 2,
+     "family": true,
+     "summary": "Aussichtsberg mitten in der Stadt, per Treppe, Bahn oder Lift."
+    },
+    {
+     "id": "graz-kunsthaus",
+     "name": "Kunsthaus & Murinsel",
+     "kind": "kultur",
+     "lat": 47.071,
+     "lon": 15.434,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Blasenförmiges Museum und Insel aus Stahl in der Mur."
+    },
+    {
+     "id": "graz-altstadt",
+     "name": "Altstadt & Landhaushof",
+     "kind": "stadt",
+     "lat": 47.07,
+     "lon": 15.44,
+     "hours": 2,
+     "family": true,
+     "summary": "Welterbe-Altstadt mit Renaissance-Arkaden."
+    },
+    {
+     "id": "graz-eggenberg",
+     "name": "Schloss Eggenberg",
+     "kind": "burg",
+     "lat": 47.074,
+     "lon": 15.391,
+     "hours": 2,
+     "family": true,
+     "summary": "Barockschloss mit Park, Welterbe."
+    },
+    {
+     "id": "graz-markt",
+     "name": "Bauernmarkt am Kaiser-Josef-Platz",
+     "kind": "genuss",
+     "lat": 47.069,
+     "lon": 15.446,
+     "hours": 1,
+     "slot": "morgen",
+     "family": true,
+     "summary": "Marktstände mit Kürbiskernöl und regionalen Produkten; Markttage prüfen."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,797 @@
+{
+ "group": "de-bw",
+ "places": [
+  {
+   "id": "bad-urach",
+   "name": "Bad Urach & Schwäbische Alb",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.491,
+   "lon": 9.399,
+   "kinds": [
+    "natur",
+    "berge",
+    "therme",
+    "familie",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Albtrauf mit Wasserfällen, Burgruinen und Höhlen; zum Abschluss Thermalwasser.",
+   "angle": "Wasserfall-Runde am Vormittag, nachmittags ins Thermalbad – bei Regen einfach umdrehen.",
+   "spots": [
+    {
+     "id": "bad-urach-wasserfall",
+     "name": "Uracher Wasserfall",
+     "kind": "natur",
+     "lat": 48.493,
+     "lon": 9.372,
+     "hours": 2,
+     "family": true,
+     "summary": "Kurze Wanderung durchs Brühltal zum Wasserfall über Tuffstein."
+    },
+    {
+     "id": "bad-urach-hohenurach",
+     "name": "Burgruine Hohenurach",
+     "kind": "burg",
+     "lat": 48.485,
+     "lon": 9.387,
+     "hours": 2,
+     "family": true,
+     "summary": "Ruine hoch über der Stadt, gut mit dem Wasserfall zu einer Runde verbunden."
+    },
+    {
+     "id": "bad-urach-albthermen",
+     "name": "AlbThermen",
+     "kind": "therme",
+     "lat": 48.494,
+     "lon": 9.396,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad im Ort, passt als Abschluss nach der Wanderung."
+    },
+    {
+     "id": "bad-urach-lichtenstein",
+     "name": "Schloss Lichtenstein",
+     "kind": "burg",
+     "lat": 48.407,
+     "lon": 9.258,
+     "hours": 2,
+     "family": true,
+     "summary": "Märchenschloss auf einem Felsen über dem Echaztal.",
+     "tip": "Vom Aussichtspunkt nebenan liegt das Schloss frei vor euch."
+    },
+    {
+     "id": "bad-urach-baerenhoehle",
+     "name": "Bärenhöhle Sonnenbühl",
+     "kind": "unterwelt",
+     "lat": 48.371,
+     "lon": 9.183,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Tropfsteinhöhle; übliche Saison im Sommerhalbjahr, Termine prüfen."
+    }
+   ]
+  },
+  {
+   "id": "blaubeuren",
+   "name": "Blaubeuren & Blautopf",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.412,
+   "lon": 9.785,
+   "kinds": [
+    "natur",
+    "kultur",
+    "familie",
+    "unterwelt"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Die tiefblaue Karstquelle, ein Kloster und die ältesten Kunstwerke der Menschheit.",
+   "angle": "Erst die Quelle, dann im Museum die Venus vom Hohle Fels – Eiszeit trifft Klosteridyll.",
+   "spots": [
+    {
+     "id": "blaubeuren-blautopf",
+     "name": "Blautopf",
+     "kind": "natur",
+     "lat": 48.418,
+     "lon": 9.785,
+     "hours": 1,
+     "family": true,
+     "summary": "Karstquelle mit leuchtend blauem Wasser, kurzer Rundweg."
+    },
+    {
+     "id": "blaubeuren-kloster",
+     "name": "Kloster Blaubeuren",
+     "kind": "kultur",
+     "lat": 48.416,
+     "lon": 9.786,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Klosteranlage mit gotischem Hochaltar direkt am Blautopf."
+    },
+    {
+     "id": "blaubeuren-urmu",
+     "name": "Urgeschichtliches Museum (urmu)",
+     "kind": "kultur",
+     "lat": 48.412,
+     "lon": 9.784,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Eiszeitkunst von der Schwäbischen Alb, darunter die Venus vom Hohle Fels."
+    },
+    {
+     "id": "blaubeuren-rusenschloss",
+     "name": "Rusenschloss & Felsenlabyrinth",
+     "kind": "natur",
+     "lat": 48.412,
+     "lon": 9.8,
+     "hours": 2,
+     "family": true,
+     "summary": "Kurzer Aufstieg zu Ruine und Felsen mit Blick über das Blautal."
+    }
+   ]
+  },
+  {
+   "id": "bodensee-nord",
+   "name": "Bodensee-Nordufer (Meersburg)",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 47.694,
+   "lon": 9.271,
+   "kinds": [
+    "wasser",
+    "kultur",
+    "familie",
+    "genuss",
+    "technik"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Seeufer mit Burg, Blumeninsel, Pfahlbauten und Zeppelin-Geschichte.",
+   "angle": "Mit der Fähre nach Konstanz statt ums Ufer fahren – der See wird zur Abkürzung.",
+   "spots": [
+    {
+     "id": "bodensee-nord-burg",
+     "name": "Burg Meersburg",
+     "kind": "burg",
+     "lat": 47.694,
+     "lon": 9.272,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Bewohnte mittelalterliche Burg über der Unterstadt."
+    },
+    {
+     "id": "bodensee-nord-pfahlbauten",
+     "name": "Pfahlbauten Unteruhldingen",
+     "kind": "kultur",
+     "lat": 47.722,
+     "lon": 9.229,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Freilichtmuseum mit rekonstruierten Pfahlbaudörfern im See."
+    },
+    {
+     "id": "bodensee-nord-mainau",
+     "name": "Insel Mainau",
+     "kind": "natur",
+     "lat": 47.705,
+     "lon": 9.195,
+     "hours": 4,
+     "family": true,
+     "summary": "Blumeninsel mit Park, Schmetterlingshaus und Schloss."
+    },
+    {
+     "id": "bodensee-nord-zeppelin",
+     "name": "Zeppelin Museum Friedrichshafen",
+     "kind": "technik",
+     "lat": 47.651,
+     "lon": 9.479,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Luftschiffgeschichte mit begehbarem Teilnachbau der Hindenburg."
+    },
+    {
+     "id": "bodensee-nord-affenberg",
+     "name": "Affenberg Salem",
+     "kind": "familie",
+     "lat": 47.747,
+     "lon": 9.293,
+     "hours": 2,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Freigehege mit Berberaffen; übliche Saison Frühjahr bis Herbst, Termine prüfen."
+    },
+    {
+     "id": "bodensee-nord-faehre",
+     "name": "Autofähre Meersburg–Konstanz",
+     "kind": "wasser",
+     "lat": 47.69,
+     "lon": 9.265,
+     "hours": 1,
+     "family": true,
+     "summary": "Kurze Überfahrt quer über den See, auch zu Fuß möglich."
+    }
+   ]
+  },
+  {
+   "id": "triberg",
+   "name": "Triberg & mittlerer Schwarzwald",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.131,
+   "lon": 8.231,
+   "kinds": [
+    "natur",
+    "kultur",
+    "familie",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    0,
+    3
+   ],
+   "summary": "Wasserfälle, Kuckucksuhren und Schwarzwaldhöfe – das Klischee zum Anfassen.",
+   "angle": "Kuckucksuhren-Tour: größte Uhr, Uhrenmuseum Furtwangen und abends Schwarzwälder Kirsch.",
+   "spots": [
+    {
+     "id": "triberg-wasserfaelle",
+     "name": "Triberger Wasserfälle",
+     "kind": "natur",
+     "lat": 48.128,
+     "lon": 8.229,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kaskaden im Wald direkt am Ort, mit Wegen auf beiden Seiten."
+    },
+    {
+     "id": "triberg-museum",
+     "name": "Schwarzwaldmuseum Triberg",
+     "kind": "kultur",
+     "lat": 48.13,
+     "lon": 8.231,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Trachten, Uhren und Orchestrien aus der Region."
+    },
+    {
+     "id": "triberg-kuckucksuhr",
+     "name": "Weltgrößte Kuckucksuhr (Schonachbach)",
+     "kind": "kultur",
+     "lat": 48.137,
+     "lon": 8.208,
+     "hours": 0.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Begehbare Riesen-Kuckucksuhr – kurzer, kurioser Halt."
+    },
+    {
+     "id": "triberg-uhrenmuseum",
+     "name": "Deutsches Uhrenmuseum Furtwangen",
+     "kind": "technik",
+     "lat": 48.049,
+     "lon": 8.207,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Uhrengeschichte von der Sonnenuhr bis zur Funkuhr."
+    },
+    {
+     "id": "triberg-vogtsbauernhof",
+     "name": "Freilichtmuseum Vogtsbauernhof",
+     "kind": "kultur",
+     "lat": 48.264,
+     "lon": 8.183,
+     "hours": 3,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Historische Schwarzwaldhöfe; übliche Saison Frühjahr bis Herbst, Termine prüfen."
+    }
+   ]
+  },
+  {
+   "id": "titisee-feldberg",
+   "name": "Titisee & Feldberg",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 47.898,
+   "lon": 8.15,
+   "kinds": [
+    "natur",
+    "berge",
+    "wasser",
+    "winter",
+    "therme"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    5
+   ],
+   "summary": "Höchster Gipfel im Schwarzwald, Seen und Schluchten; im Winter Schneesicherheit.",
+   "angle": "Schluchten-Duo: morgens Ravennaschlucht, später die wilde Wutach – dazwischen Titisee.",
+   "spots": [
+    {
+     "id": "titisee-feldberg-titisee",
+     "name": "Titisee (Ufer & Boot)",
+     "kind": "wasser",
+     "lat": 47.896,
+     "lon": 8.15,
+     "hours": 2,
+     "family": true,
+     "summary": "Uferweg und Tretboote am bekanntesten See im Schwarzwald."
+    },
+    {
+     "id": "titisee-feldberg-feldberg",
+     "name": "Feldberg-Gipfel",
+     "kind": "berge",
+     "lat": 47.874,
+     "lon": 8.004,
+     "hours": 3,
+     "family": true,
+     "summary": "Rundweg über den Gipfel mit Weitblick bis zu den Alpen bei klarer Sicht."
+    },
+    {
+     "id": "titisee-feldberg-ravenna",
+     "name": "Ravennaschlucht",
+     "kind": "natur",
+     "lat": 47.95,
+     "lon": 8.11,
+     "hours": 2.5,
+     "summary": "Schlucht mit Wasserfällen und dem Ravenna-Viadukt."
+    },
+    {
+     "id": "titisee-feldberg-wutach",
+     "name": "Wutachschlucht",
+     "kind": "natur",
+     "lat": 47.845,
+     "lon": 8.4,
+     "hours": 5,
+     "summary": "Wilde Schluchtwanderung, Trittsicherheit nötig, Streckenwanderung planen."
+    },
+    {
+     "id": "titisee-feldberg-badeparadies",
+     "name": "Badeparadies Schwarzwald",
+     "kind": "therme",
+     "lat": 47.894,
+     "lon": 8.143,
+     "hours": 4,
+     "indoor": true,
+     "family": true,
+     "summary": "Großes Spaß- und Palmenbad am Titisee, gut bei Schlechtwetter."
+    }
+   ]
+  },
+  {
+   "id": "freiburg",
+   "name": "Freiburg & Kaiserstuhl",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 47.995,
+   "lon": 7.85,
+   "kinds": [
+    "stadt",
+    "genuss",
+    "berge",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Sonnige Unistadt mit Bächle, Münster und Weinbergen vor der Tür.",
+   "angle": "Vormittags Münstermarkt, nachmittags mit der Seilbahn auf den Schauinsland, abends Kaiserstühler Wein.",
+   "spots": [
+    {
+     "id": "freiburg-muenster",
+     "name": "Freiburger Münster & Münstermarkt",
+     "kind": "stadt",
+     "lat": 47.995,
+     "lon": 7.852,
+     "hours": 2,
+     "family": true,
+     "summary": "Gotisches Münster mit Turmaufstieg; Markt rund ums Münster."
+    },
+    {
+     "id": "freiburg-schauinsland",
+     "name": "Schauinslandbahn",
+     "kind": "berge",
+     "lat": 47.92,
+     "lon": 7.896,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahn auf Freiburgs Hausberg mit Aussichtsturm."
+    },
+    {
+     "id": "freiburg-kaiserstuhl",
+     "name": "Kaiserstuhl (Weinberge & Lösshohlwege)",
+     "kind": "genuss",
+     "lat": 48.085,
+     "lon": 7.665,
+     "hours": 3,
+     "summary": "Vulkanisches Weinbaugebiet mit Hohlwegen und Winzerhöfen."
+    },
+    {
+     "id": "freiburg-europapark",
+     "name": "Europa-Park Rust",
+     "kind": "familie",
+     "lat": 48.266,
+     "lon": 7.722,
+     "hours": 8,
+     "family": true,
+     "summary": "Großer Freizeitpark; Saison- und Öffnungstage beim Park prüfen."
+    },
+    {
+     "id": "freiburg-schlossberg",
+     "name": "Schlossberg Freiburg",
+     "kind": "natur",
+     "lat": 47.993,
+     "lon": 7.86,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kurzer Aufstieg oder Bahn mit Blick über die Altstadt."
+    }
+   ]
+  },
+  {
+   "id": "heidelberg",
+   "name": "Heidelberg & Kurpfalz",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 49.41,
+   "lon": 8.715,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "technik"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Schlossruine, Altstadt am Neckar und Philosophenweg.",
+   "angle": "Zwei Perspektiven: morgens vom Philosophenweg aufs Schloss schauen, nachmittags vom Schloss zurück.",
+   "spots": [
+    {
+     "id": "heidelberg-schloss",
+     "name": "Heidelberger Schloss",
+     "kind": "burg",
+     "lat": 49.41,
+     "lon": 8.715,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Berühmte Ruine mit Großem Fass, per Bergbahn oder zu Fuß."
+    },
+    {
+     "id": "heidelberg-philosophenweg",
+     "name": "Philosophenweg",
+     "kind": "natur",
+     "lat": 49.416,
+     "lon": 8.7,
+     "hours": 1.5,
+     "summary": "Hangweg mit dem klassischen Blick auf Altstadt und Schloss."
+    },
+    {
+     "id": "heidelberg-altstadt",
+     "name": "Altstadt & Alte Brücke",
+     "kind": "stadt",
+     "lat": 49.413,
+     "lon": 8.71,
+     "hours": 2,
+     "family": true,
+     "summary": "Hauptstraße, Brückentor und Neckarufer."
+    },
+    {
+     "id": "heidelberg-koenigstuhl",
+     "name": "Königstuhl (Bergbahn)",
+     "kind": "berge",
+     "lat": 49.399,
+     "lon": 8.727,
+     "hours": 2,
+     "family": true,
+     "summary": "Historische Bergbahn auf den Hausberg."
+    },
+    {
+     "id": "heidelberg-speyer",
+     "name": "Technik Museum Speyer",
+     "kind": "technik",
+     "lat": 49.312,
+     "lon": 8.446,
+     "hours": 4,
+     "indoor": true,
+     "family": true,
+     "summary": "Flugzeuge, Raumfähre Buran, U-Boot – vieles begehbar."
+    }
+   ]
+  },
+  {
+   "id": "stuttgart",
+   "name": "Stuttgart",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.776,
+   "lon": 9.183,
+   "kinds": [
+    "stadt",
+    "technik",
+    "familie",
+    "therme"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Autostadt mit zwei großen Automuseen, Zoo-Garten und Mineralbädern.",
+   "angle": "Stäffele statt Stau: die Stadt über ihre Treppenwege erkunden, Schlussstein im Mineralbad.",
+   "spots": [
+    {
+     "id": "stuttgart-mercedes",
+     "name": "Mercedes-Benz Museum",
+     "kind": "technik",
+     "lat": 48.788,
+     "lon": 9.234,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Autogeschichte auf neun Ebenen."
+    },
+    {
+     "id": "stuttgart-porsche",
+     "name": "Porsche Museum",
+     "kind": "technik",
+     "lat": 48.834,
+     "lon": 9.152,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Sportwagen in moderner Ausstellungshalle in Zuffenhausen."
+    },
+    {
+     "id": "stuttgart-wilhelma",
+     "name": "Wilhelma",
+     "kind": "familie",
+     "lat": 48.805,
+     "lon": 9.207,
+     "hours": 4,
+     "family": true,
+     "summary": "Zoologisch-botanischer Garten in historischer Anlage."
+    },
+    {
+     "id": "stuttgart-leuze",
+     "name": "Mineralbad Leuze",
+     "kind": "therme",
+     "lat": 48.789,
+     "lon": 9.219,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Mineralwasser-Bad am Neckar."
+    },
+    {
+     "id": "stuttgart-fernsehturm",
+     "name": "Fernsehturm Stuttgart",
+     "kind": "berge",
+     "lat": 48.756,
+     "lon": 9.19,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Der erste Stahlbeton-Fernsehturm der Welt, Aussichtsplattform."
+    }
+   ]
+  },
+  {
+   "id": "baden-baden",
+   "name": "Baden-Baden & Nordschwarzwald",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.763,
+   "lon": 8.24,
+   "kinds": [
+    "therme",
+    "kultur",
+    "natur",
+    "berge"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Bäderstadt mit Kurhaus, Thermen und Schwarzwaldhochstraße.",
+   "angle": "Römisch-irisches Ritual statt Spaßbad: im Friedrichsbad läuft man eine feste Abfolge von Stationen.",
+   "spots": [
+    {
+     "id": "baden-baden-friedrichsbad",
+     "name": "Friedrichsbad",
+     "kind": "therme",
+     "lat": 48.764,
+     "lon": 8.243,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Historisches Bad mit römisch-irischem Badeablauf; Badeordnung beachten."
+    },
+    {
+     "id": "baden-baden-caracalla",
+     "name": "Caracalla Therme",
+     "kind": "therme",
+     "lat": 48.764,
+     "lon": 8.244,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad mit Innen- und Außenbecken."
+    },
+    {
+     "id": "baden-baden-merkur",
+     "name": "Merkurbergbahn",
+     "kind": "berge",
+     "lat": 48.761,
+     "lon": 8.271,
+     "hours": 2,
+     "family": true,
+     "summary": "Standseilbahn auf den Hausberg."
+    },
+    {
+     "id": "baden-baden-lichtentaler",
+     "name": "Lichtentaler Allee",
+     "kind": "natur",
+     "lat": 48.755,
+     "lon": 8.243,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Parkallee entlang der Oos."
+    },
+    {
+     "id": "baden-baden-mummelsee",
+     "name": "Mummelsee",
+     "kind": "wasser",
+     "lat": 48.598,
+     "lon": 8.201,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Karsee an der Schwarzwaldhochstraße mit Sagen."
+    }
+   ]
+  }
+ ]
+}

@@ -3136,6 +3136,17 @@ function catLoadLocal(){
   catLocalData=new Promise((res,rej)=>{const s=document.createElement('script');s.src='catalog-data.js';s.async=true;s.onload=()=>window.RP_CATALOG?res(window.RP_CATALOG):rej(new Error('Katalog leer'));s.onerror=()=>{catLocalData=null;rej(new Error('Offline-Katalog nicht geladen'))};document.head.appendChild(s)});
   return catLocalData;
 }
+/* Kachel-Katalog (Claude, #8): offline nur Index + die Kacheln, die der Suchkreis berührt. Fallback: Gesamtdatei. */
+const catScriptCache={};
+function catScript(src,ok){if(ok())return Promise.resolve();if(catScriptCache[src])return catScriptCache[src];
+  return catScriptCache[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>ok()?res():rej(new Error('Katalogteil leer: '+src));s.onerror=()=>{delete catScriptCache[src];rej(new Error('Katalogteil nicht geladen: '+src))};document.head.appendChild(s)})}
+function catLoadIndex(){return catScript('catalog/index.js',()=>!!window.RP_CATALOG_INDEX).then(()=>window.RP_CATALOG_INDEX)}
+async function catLoadForQuery(q){
+  const idx=await catLoadIndex(),keys=CATX.tilesFor(idx,q);
+  await Promise.all(keys.map(k=>catScript('catalog/t-'+k+'.js',()=>!!(window.RP_CATALOG_TILES&&window.RP_CATALOG_TILES[k]))));
+  const places=[];keys.forEach(k=>{const tl=window.RP_CATALOG_TILES[k];if(tl.version!==idx.version)throw new Error('Katalogkachel veraltet');places.push(...tl.places)});
+  return {version:idx.version,checked:idx.checked,places,tiles:keys};
+}
 function catTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Zeitüberschreitung')),ms))])}
 /* Datenbank zuerst; bei Fehler, fehlender Tabelle oder leerem Katalog die Offline-Kopie mit derselben Regel. */
 async function catalogQuery(q){
@@ -3146,7 +3157,8 @@ async function catalogQuery(q){
     try{const r=await catTimeout(c.catalogSearch(q),8000);if(r&&r.version>0)return {source:'db',version:r.version,places:(r.places||[]).map(CATX.normPlace)};dbErr='Datenbank-Katalog noch leer'}
     catch(e){dbErr=e.message||'Datenbank nicht erreichbar'}
   }
-  const r=CATX.searchLocal(await catLoadLocal(),q);
+  let data;try{data=await catLoadForQuery(q)}catch(e){data=await catLoadLocal()}
+  const r=CATX.searchLocal(data,q);
   return {source:'lokal',version:r.version,places:r.places,dbErr};
 }
 function catNextMonth(m){const now=new Date(),y=now.getFullYear()+(+m<now.getMonth()+1?1:0);return y+'-'+String(m).padStart(2,'0')}
@@ -3680,7 +3692,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{catLoadForQuery,catLoadIndex,financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});

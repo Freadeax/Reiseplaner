@@ -113,6 +113,17 @@
     }).sort(function (a, b) { return b.score - a.score || a.place.airKm - b.place.airKm; });
   }
 
+  /* Kacheln (Katalog-Build, catalog/index.js): welche Rasterkacheln kann ein Suchkreis berühren?
+     Abstand Punkt→Kachel-Rechteck (geklemmt) gegen die größte Luftlinie, die maxKm Straße entsprechen kann. */
+  function tilesFor(index, q) {
+    var maxAir = (+q.maxKm) / ROAD_FACTOR + 1, out = [];
+    Object.keys(index && index.tiles || {}).forEach(function (k) {
+      var b = index.tiles[k].bbox, p = { lat: Math.min(Math.max(+q.lat, b[0]), b[2]), lon: Math.min(Math.max(+q.lon, b[1]), b[3]) };
+      if (airKm({ lat: +q.lat, lon: +q.lon }, p) <= maxAir) out.push(k);
+    });
+    return out.sort();
+  }
+
   /* Profil-Bewertung für „Worauf habt ihr Lust?“ (Claude, #8, Plan C2/C5). Bewertet Ziele (places), nicht einzelne Attraktionen.
      profile.kinds: { art: 'must' | 'like' | 'avoid' }  – unbedingt / gern / lieber nicht
      profile.month 1–12 | null, nights Zahl | null, pace 'ruhig'|'gemischt'|'aktiv'|null, party 'paar'|'familie'|'freunde'|'allein'|null,
@@ -476,7 +487,7 @@
 
   var api = { ROAD_FACTOR: ROAD_FACTOR, AVG_KMH: AVG_KMH, MAX_KM: MAX_KM, KINDS: KINDS, KIND_CAT: KIND_CAT, RANGES: RANGES, ORIGINS: ORIGINS,
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
-    checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, rankProfile: rankProfile, checkProfile: checkProfile, surprise: surprise,
+    checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, tilesFor: tilesFor, rankProfile: rankProfile, checkProfile: checkProfile, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
     roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, localTransferMin: localTransferMin, ROUTE_BASE: ROUTE_BASE, routeUrl: routeUrl, parseRoute: parseRoute, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

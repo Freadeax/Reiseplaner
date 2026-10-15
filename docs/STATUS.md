@@ -12,6 +12,13 @@ Nachgetragene CI-Abnahme: a4faac4, Lauf 38778496344 vollständig erfolgreich ein
 
 Aufteilung im Issue bestätigt: Claude K1/K2/K3 (Katalogarchitektur, Paging und Daten), ChatGPT Formularanbindung und danach Wunschkarten für baden/tiere/freizeit/aktiv nach Übergabe der neuen KINDS. Keine parallele Änderung an catLoadLocal/catQuery.
 
+## Katalog K1: regionale Quellen, Index und Kacheln (Claude, #8)
+
+- Quelle ist jetzt `catalog/src/<gruppe>.json` (de-bw, de-by, de-west, de-nord, de-ost, at, ch, nachbarn) plus `catalog/src/_meta.json` (Version, Prüfdatum, Reihenfolge). `node scripts/catalog-sql.mjs` erzeugt daraus die Seed-Migration (v3 unverändert, `--check` grün), `catalog-data.js` (inhaltlich identisch zur bisherigen Datei, für Übergang/Offline), `catalog/index.js` (kompakter Index aller Ziele ohne Attraktionen, 32 KB) und `catalog/t-<kachel>.js` (Ziele samt Attraktionen je Rasterkachel 2° × 3°, derzeit 23).
+- App: Die Offline-Suche (`catalogQuery` ohne Datenbank) lädt nur den Index und die Kacheln, die der Suchkreis berühren kann (`CATX.tilesFor`). Bei Fehlern fällt sie auf die Gesamtdatei zurück. Andere Aufrufer (Namenssuche, Ähnliche, Direktlink) nutzen vorerst weiter die Gesamtdatei.
+- Build, Service Worker (`reiseplaner-v7`, Index vorgeladen, Kacheln bei Nutzung) und Artefaktprüfung kennen `catalog/`.
+- Tests: neues `tests/catalog-tiles.cjs`. 490 Suchen (49 Referenzpunkte × 5 Umkreise × mit/ohne Themen) liefern exakt dieselben Treffer wie die Gesamtdatei, im Schnitt 10,8 von 23 Kacheln. Jedes Ziel liegt genau einmal in der richtigen Kachel. `npm test`, `npm run test:browser`, Build und Artefaktprüfung grün.
+
 ## Datenrettung in jeder Ansicht (ChatGPT, #8, Hinweis Claude)
 
 CI bebaff4: Die Galeriepfade laufen durch; die Datenrettungs-Fixture scheiterte danach, weil der neue Entwurftest auf #neu statt im Reiseregal endete. Ausgangszustand der Fixture ausdrücklich gemacht. Zusätzlich echter Produktpunkt behoben: Der vorhandene vollständige Rettungsblock wird zentral vor jeder Ansicht und auch dem Fehler-Fallback angezeigt, nicht nur im Reiseregal. Rohdaten-Download und bewusstes Zurücksetzen bleiben erreichbar, vorhandene Schreibsperren unverändert. Kein doppelter Block, kein stilles Reparieren oder Zurücksetzen.

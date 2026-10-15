@@ -1,0 +1,1642 @@
+{
+ "group": "nachbarn",
+ "places": [
+  {
+   "id": "colmar",
+   "name": "Colmar & Elsässer Weinstraße",
+   "region": "Elsass",
+   "country": "FR",
+   "lat": 48.079,
+   "lon": 7.358,
+   "kinds": [
+    "stadt",
+    "genuss",
+    "burg",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Fachwerkdörfer, Weinberge und eine Hochkönigsburg.",
+   "angle": "Dorf-Hopping an der Weinstraße: Riquewihr, Eguisheim – und Flammkuchen statt Mittagessen.",
+   "spots": [
+    {
+     "id": "colmar-petitevenise",
+     "name": "Petite Venise",
+     "kind": "stadt",
+     "lat": 48.073,
+     "lon": 7.36,
+     "hours": 2,
+     "family": true,
+     "summary": "Kanalviertel mit Bootsfahrten."
+    },
+    {
+     "id": "colmar-hautkoenigsbourg",
+     "name": "Hohkönigsburg (Haut-Kœnigsbourg)",
+     "kind": "burg",
+     "lat": 48.249,
+     "lon": 7.345,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Rekonstruierte Burg mit Blick über die Rheinebene."
+    },
+    {
+     "id": "colmar-riquewihr",
+     "name": "Riquewihr",
+     "kind": "stadt",
+     "lat": 48.167,
+     "lon": 7.297,
+     "hours": 2,
+     "family": true,
+     "summary": "Weinort mit vollständig erhaltener Altstadt."
+    },
+    {
+     "id": "colmar-eguisheim",
+     "name": "Eguisheim",
+     "kind": "genuss",
+     "lat": 48.043,
+     "lon": 7.306,
+     "hours": 2,
+     "summary": "Runddorf mit Weinkellern."
+    },
+    {
+     "id": "colmar-singes",
+     "name": "Montagne des Singes",
+     "kind": "familie",
+     "lat": 48.26,
+     "lon": 7.38,
+     "hours": 2,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Affenberg mit freilaufenden Berberaffen; Saison prüfen."
+    }
+   ]
+  },
+  {
+   "id": "strassburg",
+   "name": "Straßburg",
+   "region": "Elsass",
+   "country": "FR",
+   "lat": 48.583,
+   "lon": 7.746,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Münster, Petite France und europäische Institutionen.",
+   "angle": "Rundfahrt auf der Ill mit Schleusen – die Stadt vom Wasser aus.",
+   "spots": [
+    {
+     "id": "strassburg-muenster",
+     "name": "Straßburger Münster",
+     "kind": "kultur",
+     "lat": 48.582,
+     "lon": 7.751,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Gotisches Münster mit astronomischer Uhr."
+    },
+    {
+     "id": "strassburg-petitefrance",
+     "name": "Petite France",
+     "kind": "stadt",
+     "lat": 48.581,
+     "lon": 7.74,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Gerberviertel mit Fachwerk und Kanälen."
+    },
+    {
+     "id": "strassburg-boot",
+     "name": "Bootsrundfahrt auf der Ill",
+     "kind": "wasser",
+     "lat": 48.581,
+     "lon": 7.749,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Rundfahrt mit Schleusen bis zum Europaviertel."
+    },
+    {
+     "id": "strassburg-europa",
+     "name": "Europaviertel",
+     "kind": "kultur",
+     "lat": 48.597,
+     "lon": 7.771,
+     "hours": 1.5,
+     "summary": "Europaparlament und Europarat; Besuchsmöglichkeiten prüfen."
+    }
+   ]
+  },
+  {
+   "id": "riva",
+   "name": "Gardasee-Nord (Riva & Arco)",
+   "region": "Trentino",
+   "country": "IT",
+   "lat": 45.886,
+   "lon": 10.842,
+   "kinds": [
+    "wasser",
+    "berge",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    3,
+    7
+   ],
+   "summary": "Bergkulisse am Nordufer, Wind für Surfer und Wasserfälle.",
+   "angle": "Mit der Seilbahn von Malcesine auf den Monte Baldo – oben Alpen, unten Palmen.",
+   "spots": [
+    {
+     "id": "riva-varone",
+     "name": "Cascata del Varone",
+     "kind": "natur",
+     "lat": 45.906,
+     "lon": 10.829,
+     "hours": 1,
+     "family": true,
+     "summary": "Wasserfall in einer engen Grotte."
+    },
+    {
+     "id": "riva-tenno",
+     "name": "Lago di Tenno & Canale di Tenno",
+     "kind": "wasser",
+     "lat": 45.937,
+     "lon": 10.836,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Türkiser Bergsee und mittelalterliches Dorf."
+    },
+    {
+     "id": "riva-baldo",
+     "name": "Monte Baldo (Seilbahn Malcesine)",
+     "kind": "berge",
+     "lat": 45.764,
+     "lon": 10.809,
+     "hours": 4,
+     "family": true,
+     "summary": "Drehende Gondeln auf den Bergrücken über dem See."
+    },
+    {
+     "id": "riva-arco",
+     "name": "Burg Arco",
+     "kind": "burg",
+     "lat": 45.922,
+     "lon": 10.884,
+     "hours": 2,
+     "family": true,
+     "summary": "Burgruine über Olivenhainen."
+    },
+    {
+     "id": "riva-gardaland",
+     "name": "Gardaland",
+     "kind": "familie",
+     "lat": 45.455,
+     "lon": 10.714,
+     "hours": 8,
+     "family": true,
+     "summary": "Großer Freizeitpark am Südufer; Öffnungstage prüfen."
+    }
+   ]
+  },
+  {
+   "id": "meran",
+   "name": "Meran & Südtirol",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.671,
+   "lon": 11.159,
+   "kinds": [
+    "natur",
+    "therme",
+    "genuss",
+    "kultur",
+    "berge"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Palmen vor Dreitausendern, Waalwege und Törggelen im Herbst.",
+   "angle": "Waalweg-Wandern entlang alter Bewässerungskanäle – eben, schattig, mit Weinblick.",
+   "spots": [
+    {
+     "id": "meran-trauttmansdorff",
+     "name": "Gärten von Schloss Trauttmansdorff",
+     "kind": "natur",
+     "lat": 46.661,
+     "lon": 11.183,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Botanische Gärten; übliche Saison Frühjahr bis Herbst, prüfen."
+    },
+    {
+     "id": "meran-therme",
+     "name": "Therme Meran",
+     "kind": "therme",
+     "lat": 46.669,
+     "lon": 11.162,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Therme mitten in der Stadt."
+    },
+    {
+     "id": "meran-waalweg",
+     "name": "Algunder Waalweg",
+     "kind": "natur",
+     "lat": 46.684,
+     "lon": 11.13,
+     "hours": 3,
+     "family": true,
+     "summary": "Ebener Weg entlang eines Bewässerungskanals."
+    },
+    {
+     "id": "meran-schlosstirol",
+     "name": "Schloss Tirol",
+     "kind": "burg",
+     "lat": 46.693,
+     "lon": 11.152,
+     "hours": 2,
+     "family": true,
+     "summary": "Stammburg Tirols mit Landesmuseum."
+    },
+    {
+     "id": "meran-oetzi",
+     "name": "Südtiroler Archäologiemuseum (Ötzi)",
+     "kind": "kultur",
+     "lat": 46.499,
+     "lon": 11.353,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Die Gletschermumie in Bozen."
+    }
+   ]
+  },
+  {
+   "id": "prag",
+   "name": "Prag",
+   "region": "Böhmen",
+   "country": "CZ",
+   "lat": 50.087,
+   "lon": 14.421,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    4
+   ],
+   "summary": "Goldene Stadt mit Burg, Karlsbrücke und Bierkultur.",
+   "angle": "Karlsbrücke bei Sonnenaufgang – fast leer – und zum Ausgleich abends ins Bierlokal.",
+   "spots": [
+    {
+     "id": "prag-burg",
+     "name": "Prager Burg & Veitsdom",
+     "kind": "burg",
+     "lat": 50.09,
+     "lon": 14.4,
+     "hours": 3,
+     "family": true,
+     "summary": "Größtes geschlossenes Burgareal der Welt."
+    },
+    {
+     "id": "prag-karlsbruecke",
+     "name": "Karlsbrücke",
+     "kind": "stadt",
+     "lat": 50.086,
+     "lon": 14.411,
+     "hours": 1,
+     "slot": "morgen",
+     "family": true,
+     "summary": "Steinbrücke mit Heiligenfiguren über die Moldau."
+    },
+    {
+     "id": "prag-orloj",
+     "name": "Altstädter Ring & Astronomische Uhr",
+     "kind": "kultur",
+     "lat": 50.087,
+     "lon": 14.421,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Mittelalterliche Uhr mit Figurenumzug zur vollen Stunde."
+    },
+    {
+     "id": "prag-petrin",
+     "name": "Petřín-Hügel",
+     "kind": "natur",
+     "lat": 50.083,
+     "lon": 14.395,
+     "hours": 2,
+     "family": true,
+     "summary": "Park mit Aussichtsturm und Spiegellabyrinth."
+    },
+    {
+     "id": "prag-vysehrad",
+     "name": "Vyšehrad",
+     "kind": "kultur",
+     "lat": 50.064,
+     "lon": 14.418,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Festungshügel mit Friedhof und Moldaublick."
+    }
+   ]
+  },
+  {
+   "id": "amsterdam",
+   "name": "Amsterdam",
+   "region": "Nordholland",
+   "country": "NL",
+   "lat": 52.373,
+   "lon": 4.892,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    4
+   ],
+   "summary": "Grachten, Museen und Fahrräder.",
+   "angle": "Linienfähre hinter dem Hauptbahnhof nach Amsterdam-Noord – ein anderes Amsterdam in fünf Minuten.",
+   "spots": [
+    {
+     "id": "amsterdam-rijksmuseum",
+     "name": "Rijksmuseum",
+     "kind": "kultur",
+     "lat": 52.36,
+     "lon": 4.885,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Niederländische Meister; Zeitfenster vorab buchen."
+    },
+    {
+     "id": "amsterdam-grachten",
+     "name": "Grachtenfahrt",
+     "kind": "wasser",
+     "lat": 52.374,
+     "lon": 4.9,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Rundfahrt auf dem Grachtengürtel."
+    },
+    {
+     "id": "amsterdam-noord",
+     "name": "Fähre nach Amsterdam-Noord",
+     "kind": "wasser",
+     "lat": 52.379,
+     "lon": 4.9,
+     "hours": 2,
+     "family": true,
+     "summary": "Fähre über das IJ zu Kreativvierteln."
+    },
+    {
+     "id": "amsterdam-zaanseschans",
+     "name": "Zaanse Schans",
+     "kind": "kultur",
+     "lat": 52.474,
+     "lon": 4.817,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Windmühlen und Holzhäuser."
+    },
+    {
+     "id": "amsterdam-annefrank",
+     "name": "Anne Frank Huis",
+     "kind": "kultur",
+     "lat": 52.375,
+     "lon": 4.884,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Versteck der Familie Frank; nur mit Online-Ticket."
+    }
+   ]
+  },
+  {
+   "id": "luxemburg",
+   "name": "Luxemburg",
+   "region": "Luxemburg",
+   "country": "LU",
+   "lat": 49.611,
+   "lon": 6.13,
+   "kinds": [
+    "stadt",
+    "burg",
+    "unterwelt",
+    "natur"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Festungsstadt über Schluchten, dazu Felsenlandschaft und Burgen im Norden.",
+   "angle": "Kasematten unter der Altstadt, Müllerthal-Felsen am Nachmittag – ein Land in einem Wochenende.",
+   "spots": [
+    {
+     "id": "luxemburg-kasematten",
+     "name": "Bock-Kasematten",
+     "kind": "unterwelt",
+     "lat": 49.612,
+     "lon": 6.137,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Felsgänge der früheren Festung."
+    },
+    {
+     "id": "luxemburg-grund",
+     "name": "Altstadt & Grund",
+     "kind": "stadt",
+     "lat": 49.609,
+     "lon": 6.135,
+     "hours": 2,
+     "family": true,
+     "summary": "Oberstadt und Unterstadt im Alzettetal, verbunden per Aufzug."
+    },
+    {
+     "id": "luxemburg-muellerthal",
+     "name": "Müllerthal-Trail",
+     "kind": "natur",
+     "lat": 49.79,
+     "lon": 6.29,
+     "hours": 4,
+     "family": true,
+     "summary": "Felsen, Schluchten und Bäche in der „Kleinen Luxemburger Schweiz“."
+    },
+    {
+     "id": "luxemburg-vianden",
+     "name": "Burg Vianden",
+     "kind": "burg",
+     "lat": 49.935,
+     "lon": 6.208,
+     "hours": 2,
+     "family": true,
+     "summary": "Große Burg über der Our."
+    }
+   ]
+  },
+  {
+   "id": "bruegge",
+   "name": "Brügge & Gent",
+   "region": "Flandern",
+   "country": "BE",
+   "lat": 51.209,
+   "lon": 3.224,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    4
+   ],
+   "summary": "Kanäle, Belfriede und flämische Malerei.",
+   "angle": "Brügge am Morgen, Gent am Abend – Gent ist größer, lebendiger und abends schön beleuchtet.",
+   "spots": [
+    {
+     "id": "bruegge-belfried",
+     "name": "Belfried & Markt Brügge",
+     "kind": "stadt",
+     "lat": 51.209,
+     "lon": 3.224,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Glockenturm mit Aufstieg am Hauptplatz."
+    },
+    {
+     "id": "bruegge-boot",
+     "name": "Bootsfahrt auf den Reien",
+     "kind": "wasser",
+     "lat": 51.206,
+     "lon": 3.226,
+     "hours": 1,
+     "family": true,
+     "summary": "Kanalrundfahrt durch die Altstadt."
+    },
+    {
+     "id": "bruegge-groeninge",
+     "name": "Groeningemuseum",
+     "kind": "kultur",
+     "lat": 51.205,
+     "lon": 3.226,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Flämische Primitive wie Jan van Eyck."
+    },
+    {
+     "id": "bruegge-gent",
+     "name": "Gent: Altar & Graslei",
+     "kind": "kultur",
+     "lat": 51.054,
+     "lon": 3.722,
+     "hours": 4,
+     "family": true,
+     "summary": "Genter Altar in der Kathedrale und Kai an der Leie."
+    },
+    {
+     "id": "bruegge-pralinen",
+     "name": "Pralinen und belgisches Bier",
+     "kind": "genuss",
+     "lat": 51.208,
+     "lon": 3.225,
+     "hours": 1,
+     "slot": "abend",
+     "indoor": true,
+     "summary": "Chocolatiers und Bierlokale in der Altstadt."
+    }
+   ]
+  },
+  {
+   "id": "kopenhagen",
+   "name": "Kopenhagen",
+   "region": "Seeland",
+   "country": "DK",
+   "lat": 55.676,
+   "lon": 12.568,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "familie",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    2,
+    4
+   ],
+   "summary": "Hafenstadt mit Radwegen, Tivoli und Design.",
+   "angle": "Im Hafen schwimmen: Kopenhagen hat Hafenbäder mitten in der Stadt.",
+   "spots": [
+    {
+     "id": "kopenhagen-nyhavn",
+     "name": "Nyhavn",
+     "kind": "stadt",
+     "lat": 55.68,
+     "lon": 12.59,
+     "hours": 1,
+     "family": true,
+     "summary": "Bunte Häuser am Kanal, Start vieler Bootstouren."
+    },
+    {
+     "id": "kopenhagen-tivoli",
+     "name": "Tivoli",
+     "kind": "familie",
+     "lat": 55.674,
+     "lon": 12.568,
+     "hours": 4,
+     "family": true,
+     "summary": "Historischer Vergnügungspark; Saisonzeiten prüfen."
+    },
+    {
+     "id": "kopenhagen-rundetaarn",
+     "name": "Rundetårn",
+     "kind": "kultur",
+     "lat": 55.681,
+     "lon": 12.576,
+     "hours": 1,
+     "family": true,
+     "summary": "Turm mit spiralförmiger Rampe statt Treppe."
+    },
+    {
+     "id": "kopenhagen-louisiana",
+     "name": "Louisiana Museum",
+     "kind": "kultur",
+     "lat": 55.969,
+     "lon": 12.543,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Moderne Kunst direkt am Øresund."
+    },
+    {
+     "id": "kopenhagen-hafenbad",
+     "name": "Hafenbad Islands Brygge",
+     "kind": "wasser",
+     "lat": 55.664,
+     "lon": 12.578,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Freibad im Hafenbecken im Sommer."
+    }
+   ]
+  },
+  {
+   "id": "breslau",
+   "name": "Breslau (Wrocław)",
+   "region": "Niederschlesien",
+   "country": "PL",
+   "lat": 51.11,
+   "lon": 17.032,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    4
+   ],
+   "summary": "Bunter Marktplatz, Dominsel und hunderte kleine Bronzezwerge.",
+   "angle": "Zwergenjagd: die kleinen Bronzefiguren sind überall in der Stadt verteilt.",
+   "spots": [
+    {
+     "id": "breslau-rynek",
+     "name": "Rynek & Rathaus",
+     "kind": "stadt",
+     "lat": 51.11,
+     "lon": 17.032,
+     "hours": 2,
+     "family": true,
+     "summary": "Großer Marktplatz mit gotischem Rathaus."
+    },
+    {
+     "id": "breslau-zwerge",
+     "name": "Zwergen-Spaziergang",
+     "kind": "familie",
+     "lat": 51.111,
+     "lon": 17.03,
+     "hours": 2,
+     "family": true,
+     "summary": "Bronzezwerge in der Altstadt suchen."
+    },
+    {
+     "id": "breslau-dominsel",
+     "name": "Dominsel (Ostrów Tumski)",
+     "kind": "kultur",
+     "lat": 51.114,
+     "lon": 17.046,
+     "hours": 1.5,
+     "slot": "abend",
+     "family": true,
+     "summary": "Ältester Stadtteil, abends mit Gaslaternen."
+    },
+    {
+     "id": "breslau-jahrhunderthalle",
+     "name": "Jahrhunderthalle",
+     "kind": "technik",
+     "lat": 51.107,
+     "lon": 17.077,
+     "hours": 1.5,
+     "summary": "Welterbe-Stahlbetonbau mit Brunnen nebenan."
+    }
+   ]
+  },
+  {
+   "id": "danzig",
+   "name": "Danzig (Gdańsk) & Dreistadt",
+   "region": "Pommern",
+   "country": "PL",
+   "lat": 54.352,
+   "lon": 18.646,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Hansestadt mit Rechtstadt, Ostseebad Sopot und der Marienburg.",
+   "angle": "Größte Backsteinburg der Welt als Tagesausflug: die Marienburg an der Nogat.",
+   "spots": [
+    {
+     "id": "danzig-langemarkt",
+     "name": "Langer Markt & Rechtstadt",
+     "kind": "stadt",
+     "lat": 54.348,
+     "lon": 18.653,
+     "hours": 2,
+     "family": true,
+     "summary": "Prachtstraße mit Neptunbrunnen und Krantor."
+    },
+    {
+     "id": "danzig-solidarnosc",
+     "name": "Europäisches Solidarność-Zentrum",
+     "kind": "kultur",
+     "lat": 54.361,
+     "lon": 18.649,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Museum zur Gewerkschaft und zum Ende des Ostblocks."
+    },
+    {
+     "id": "danzig-sopot",
+     "name": "Seebrücke Sopot",
+     "kind": "wasser",
+     "lat": 54.447,
+     "lon": 18.571,
+     "hours": 2,
+     "family": true,
+     "summary": "Lange Holzseebrücke im Ostseebad."
+    },
+    {
+     "id": "danzig-malbork",
+     "name": "Marienburg (Malbork)",
+     "kind": "burg",
+     "lat": 54.04,
+     "lon": 19.028,
+     "hours": 4,
+     "family": true,
+     "summary": "Ordensburg aus Backstein, Welterbe."
+    }
+   ]
+  },
+  {
+   "id": "groeden",
+   "name": "Gröden & Seiser Alm",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.574,
+   "lon": 11.672,
+   "kinds": [
+    "berge",
+    "winter",
+    "natur",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    3,
+    7
+   ],
+   "summary": "Dolomiten-Tal mit Holzschnitzertradition, Almen und Skikarussell.",
+   "angle": "Seceda-Grat im Morgenlicht – die gezackte Kante gehört zu den markantesten Ansichten der Dolomiten.",
+   "spots": [
+    {
+     "id": "groeden-seceda",
+     "name": "Seceda",
+     "kind": "berge",
+     "lat": 46.6,
+     "lon": 11.723,
+     "hours": 4,
+     "family": true,
+     "summary": "Seilbahn zum Grat mit Blick auf die Geislerspitzen."
+    },
+    {
+     "id": "groeden-seiseralm",
+     "name": "Seiser Alm",
+     "kind": "natur",
+     "lat": 46.54,
+     "lon": 11.62,
+     "hours": 5,
+     "family": true,
+     "summary": "Größte Hochalm Europas, Zufahrtsregeln prüfen."
+    },
+    {
+     "id": "groeden-stulrich",
+     "name": "St. Ulrich & Holzschnitzkunst",
+     "kind": "kultur",
+     "lat": 46.577,
+     "lon": 11.675,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Werkstätten und Museum Gherdëina."
+    },
+    {
+     "id": "groeden-sellaronda",
+     "name": "Sellaronda",
+     "kind": "winter",
+     "lat": 46.54,
+     "lon": 11.76,
+     "hours": 7,
+     "months": [
+      12,
+      1,
+      2,
+      3
+     ],
+     "summary": "Skirunde um das Sellamassiv; Schnee und Lifte prüfen."
+    }
+   ]
+  },
+  {
+   "id": "comer-see",
+   "name": "Comer See",
+   "region": "Lombardei",
+   "country": "IT",
+   "lat": 45.986,
+   "lon": 9.259,
+   "kinds": [
+    "wasser",
+    "kultur",
+    "natur",
+    "genuss"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    6
+   ],
+   "summary": "Villen, Gärten und Fähren zwischen Bellagio, Varenna und Como.",
+   "angle": "See-Hopping per Linienfähre: drei Orte an einem Tag ohne Auto.",
+   "spots": [
+    {
+     "id": "comer-see-bellagio",
+     "name": "Bellagio",
+     "kind": "stadt",
+     "lat": 45.986,
+     "lon": 9.259,
+     "hours": 2,
+     "family": true,
+     "summary": "Ort an der Spitze zwischen den Seearmen."
+    },
+    {
+     "id": "comer-see-carlotta",
+     "name": "Villa Carlotta",
+     "kind": "kultur",
+     "lat": 45.986,
+     "lon": 9.231,
+     "hours": 2,
+     "family": true,
+     "summary": "Villa mit Gärten und Skulpturen in Tremezzo."
+    },
+    {
+     "id": "comer-see-varenna",
+     "name": "Varenna",
+     "kind": "stadt",
+     "lat": 46.01,
+     "lon": 9.284,
+     "hours": 2,
+     "family": true,
+     "summary": "Bunte Häuser und Uferweg."
+    },
+    {
+     "id": "comer-see-brunate",
+     "name": "Standseilbahn Como–Brunate",
+     "kind": "berge",
+     "lat": 45.816,
+     "lon": 9.087,
+     "hours": 2,
+     "family": true,
+     "summary": "Bahn auf den Aussichtsbalkon über Como."
+    }
+   ]
+  },
+  {
+   "id": "krumau",
+   "name": "Český Krumlov & Lipno",
+   "region": "Südböhmen",
+   "country": "CZ",
+   "lat": 48.811,
+   "lon": 14.315,
+   "kinds": [
+    "stadt",
+    "burg",
+    "wasser",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Schlossstadt in der Moldauschleife und Stausee mit Baumwipfelpfad.",
+   "angle": "Auf der Moldau mit dem Schlauchboot durch die Altstadt treiben – es gibt dafür eigene Bootsrutschen am Wehr.",
+   "spots": [
+    {
+     "id": "krumau-schloss",
+     "name": "Schloss Český Krumlov",
+     "kind": "burg",
+     "lat": 48.812,
+     "lon": 14.315,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Große Schlossanlage mit Barocktheater und Turm."
+    },
+    {
+     "id": "krumau-altstadt",
+     "name": "Altstadt in der Moldauschleife",
+     "kind": "stadt",
+     "lat": 48.81,
+     "lon": 14.316,
+     "hours": 2,
+     "family": true,
+     "summary": "Welterbe-Altstadt."
+    },
+    {
+     "id": "krumau-moldau",
+     "name": "Bootstour auf der Moldau",
+     "kind": "wasser",
+     "lat": 48.805,
+     "lon": 14.32,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Kanu oder Schlauchboot beim Verleih."
+    },
+    {
+     "id": "krumau-lipno",
+     "name": "Baumwipfelpfad Lipno",
+     "kind": "natur",
+     "lat": 48.636,
+     "lon": 14.225,
+     "hours": 2,
+     "family": true,
+     "summary": "Pfad mit Aussichtsturm über dem Lipno-Stausee."
+    }
+   ]
+  },
+  {
+   "id": "karlsbad",
+   "name": "Karlsbad (Karlovy Vary)",
+   "region": "Westböhmen",
+   "country": "CZ",
+   "lat": 50.231,
+   "lon": 12.871,
+   "kinds": [
+    "therme",
+    "stadt",
+    "kultur",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Kurstadt mit Kolonnaden und heißen Quellen.",
+   "angle": "Trinkkur zum Ausprobieren: mit einem Schnabelbecher von Quelle zu Quelle durch die Kolonnaden.",
+   "spots": [
+    {
+     "id": "karlsbad-kolonnaden",
+     "name": "Kolonnaden & Quellen",
+     "kind": "therme",
+     "lat": 50.226,
+     "lon": 12.881,
+     "hours": 2,
+     "family": true,
+     "summary": "Mühlbrunn- und Sprudelkolonnade mit Trinkquellen."
+    },
+    {
+     "id": "karlsbad-diana",
+     "name": "Aussichtsturm Diana",
+     "kind": "berge",
+     "lat": 50.222,
+     "lon": 12.875,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Standseilbahn zum Turm über der Stadt."
+    },
+    {
+     "id": "karlsbad-becherovka",
+     "name": "Jan Becher Museum",
+     "kind": "genuss",
+     "lat": 50.23,
+     "lon": 12.869,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geschichte des Kräuterlikörs."
+    },
+    {
+     "id": "karlsbad-loket",
+     "name": "Burg Loket",
+     "kind": "burg",
+     "lat": 50.186,
+     "lon": 12.754,
+     "hours": 2,
+     "family": true,
+     "summary": "Burg über der Ohře-Schleife."
+    }
+   ]
+  },
+  {
+   "id": "bled",
+   "name": "Bled & Ljubljana",
+   "region": "Oberkrain",
+   "country": "SI",
+   "lat": 46.369,
+   "lon": 14.114,
+   "kinds": [
+    "wasser",
+    "natur",
+    "burg",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Alpensee mit Inselkirche, Schluchten und eine entspannte Hauptstadt.",
+   "angle": "Mit der Pletna-Ruderbarke zur Insel, dann die 99 Stufen hinauf zur Glocke.",
+   "spots": [
+    {
+     "id": "bled-insel",
+     "name": "Bleder Insel & Pletna-Boot",
+     "kind": "wasser",
+     "lat": 46.362,
+     "lon": 14.09,
+     "hours": 2,
+     "family": true,
+     "summary": "Traditionelle Ruderboote zur Kirche auf der Insel."
+    },
+    {
+     "id": "bled-burg",
+     "name": "Burg Bled",
+     "kind": "burg",
+     "lat": 46.37,
+     "lon": 14.101,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burg auf einem Felsen über dem See."
+    },
+    {
+     "id": "bled-vintgar",
+     "name": "Vintgar-Klamm",
+     "kind": "natur",
+     "lat": 46.393,
+     "lon": 14.085,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Holzstege durch eine enge Schlucht; Saison und Zeitfenster prüfen."
+    },
+    {
+     "id": "bled-bohinj",
+     "name": "Bohinjer See",
+     "kind": "wasser",
+     "lat": 46.283,
+     "lon": 13.886,
+     "hours": 3,
+     "family": true,
+     "summary": "Ruhiger, größerer See im Triglav-Nationalpark."
+    },
+    {
+     "id": "bled-ljubljana",
+     "name": "Altstadt Ljubljana",
+     "kind": "stadt",
+     "lat": 46.051,
+     "lon": 14.506,
+     "hours": 3,
+     "family": true,
+     "summary": "Drachenbrücke, Drei Brücken und Burgberg."
+    }
+   ]
+  },
+  {
+   "id": "vogesen",
+   "name": "Vogesen (Route des Crêtes)",
+   "region": "Elsass/Lothringen",
+   "country": "FR",
+   "lat": 47.92,
+   "lon": 7.1,
+   "kinds": [
+    "natur",
+    "berge",
+    "genuss"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Kammstraße über Hochweiden, Bergseen und Ferme-Auberges.",
+   "angle": "Ferme-Auberge statt Restaurant: Bauernhöfe auf dem Kamm servieren ihr eigenes Essen.",
+   "spots": [
+    {
+     "id": "vogesen-grand-ballon",
+     "name": "Grand Ballon",
+     "kind": "berge",
+     "lat": 47.902,
+     "lon": 7.098,
+     "hours": 2,
+     "family": true,
+     "summary": "Höchster Gipfel der Vogesen mit Rundumblick."
+    },
+    {
+     "id": "vogesen-cretes",
+     "name": "Route des Crêtes",
+     "kind": "natur",
+     "lat": 47.99,
+     "lon": 7.05,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kammstraße, im Winter teils gesperrt."
+    },
+    {
+     "id": "vogesen-hohneck",
+     "name": "Hohneck",
+     "kind": "berge",
+     "lat": 48.039,
+     "lon": 7.016,
+     "hours": 2,
+     "family": true,
+     "summary": "Gipfel über Gletscherkaren."
+    },
+    {
+     "id": "vogesen-ferme",
+     "name": "Ferme-Auberge auf dem Kamm",
+     "kind": "genuss",
+     "lat": 48,
+     "lon": 7.04,
+     "hours": 2,
+     "slot": "mittag",
+     "summary": "Bauernhof-Gasthaus mit Munster-Käse; Öffnung prüfen."
+    },
+    {
+     "id": "vogesen-lac-blanc",
+     "name": "Lac Blanc",
+     "kind": "wasser",
+     "lat": 48.128,
+     "lon": 7.087,
+     "hours": 2,
+     "family": true,
+     "summary": "Karsee unter Felswänden."
+    }
+   ]
+  },
+  {
+   "id": "maastricht",
+   "name": "Maastricht & Südlimburg",
+   "region": "Limburg",
+   "country": "NL",
+   "lat": 50.851,
+   "lon": 5.691,
+   "kinds": [
+    "stadt",
+    "genuss",
+    "unterwelt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Burgundisch geprägte Stadt mit Höhlengängen im Mergel.",
+   "angle": "Eine Buchhandlung in einer Kirche – und danach unter die Stadt in die Mergelgrotten.",
+   "spots": [
+    {
+     "id": "maastricht-vrijthof",
+     "name": "Vrijthof & Altstadt",
+     "kind": "stadt",
+     "lat": 50.849,
+     "lon": 5.687,
+     "hours": 2,
+     "family": true,
+     "summary": "Großer Platz mit Kirchen und Cafés."
+    },
+    {
+     "id": "maastricht-dominicanen",
+     "name": "Buchhandlung Dominicanen",
+     "kind": "kultur",
+     "lat": 50.851,
+     "lon": 5.689,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Buchladen in einer gotischen Kirche."
+    },
+    {
+     "id": "maastricht-grotten",
+     "name": "Grotten Sint-Pietersberg",
+     "kind": "unterwelt",
+     "lat": 50.836,
+     "lon": 5.682,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Gänge im Mergelberg, nur mit Führung."
+    },
+    {
+     "id": "maastricht-valkenburg",
+     "name": "Valkenburg",
+     "kind": "burg",
+     "lat": 50.865,
+     "lon": 5.832,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Burgruine über dem Ort, Höhlen und im Advent Weihnachtsmarkt in Grotten."
+    }
+   ]
+  },
+  {
+   "id": "texel",
+   "name": "Texel",
+   "region": "Nordholland",
+   "country": "NL",
+   "lat": 53.06,
+   "lon": 4.8,
+   "kinds": [
+    "wasser",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    2,
+    7
+   ],
+   "summary": "Größte Wattenmeerinsel der Niederlande mit Dünen, Schafen und Seehunden.",
+   "angle": "Die Insel mit dem Rad: Fähre ab Den Helder, dann alles ohne Auto.",
+   "spots": [
+    {
+     "id": "texel-ecomare",
+     "name": "Ecomare",
+     "kind": "familie",
+     "lat": 53.087,
+     "lon": 4.749,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Seehundauffangstation und Naturmuseum."
+    },
+    {
+     "id": "texel-duenen",
+     "name": "Nationalpark Duinen van Texel",
+     "kind": "natur",
+     "lat": 53.08,
+     "lon": 4.76,
+     "hours": 3,
+     "family": true,
+     "summary": "Dünen und Heide an der Westküste."
+    },
+    {
+     "id": "texel-leuchtturm",
+     "name": "Leuchtturm De Cocksdorp",
+     "kind": "natur",
+     "lat": 53.182,
+     "lon": 4.855,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Roter Leuchtturm an der Nordspitze."
+    },
+    {
+     "id": "texel-strand",
+     "name": "Nordseestrand Paal 17",
+     "kind": "wasser",
+     "lat": 53.07,
+     "lon": 4.735,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Breiter Strand im Westen der Insel."
+    }
+   ]
+  },
+  {
+   "id": "krakau",
+   "name": "Krakau (Kraków)",
+   "region": "Kleinpolen",
+   "country": "PL",
+   "lat": 50.062,
+   "lon": 19.937,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "unterwelt",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    2,
+    4
+   ],
+   "summary": "Königsstadt mit Wawel, großem Marktplatz und einem Salzbergwerk.",
+   "angle": "Kapelle aus Salz: im Salzbergwerk Wieliczka sind selbst die Kronleuchter aus Salzkristallen.",
+   "spots": [
+    {
+     "id": "krakau-rynek",
+     "name": "Hauptmarkt & Tuchhallen",
+     "kind": "stadt",
+     "lat": 50.062,
+     "lon": 19.937,
+     "hours": 2,
+     "family": true,
+     "summary": "Einer der größten mittelalterlichen Plätze Europas."
+    },
+    {
+     "id": "krakau-wawel",
+     "name": "Wawel",
+     "kind": "burg",
+     "lat": 50.054,
+     "lon": 19.935,
+     "hours": 3,
+     "family": true,
+     "summary": "Königsschloss und Kathedrale über der Weichsel."
+    },
+    {
+     "id": "krakau-wieliczka",
+     "name": "Salzbergwerk Wieliczka",
+     "kind": "unterwelt",
+     "lat": 49.983,
+     "lon": 20.055,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Welterbe-Bergwerk mit Kapellen aus Salz; nur mit Führung."
+    },
+    {
+     "id": "krakau-kazimierz",
+     "name": "Kazimierz",
+     "kind": "kultur",
+     "lat": 50.051,
+     "lon": 19.946,
+     "hours": 2,
+     "family": true,
+     "summary": "Früheres jüdisches Viertel mit Synagogen und Cafés."
+    },
+    {
+     "id": "krakau-schindler",
+     "name": "Fabrik Oskar Schindlers",
+     "kind": "kultur",
+     "lat": 50.047,
+     "lon": 19.961,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Museum zur Besatzungszeit in Krakau."
+    }
+   ]
+  }
+ ]
+}
