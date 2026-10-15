@@ -989,6 +989,9 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  await tripTab(p,'suche');const lockedRaw=await p.evaluate(()=>localStorage.getItem('rp-trips'));
  await p.fill('[data-search="destination"]','Nicht speichern');await p.locator('[data-search="destination"]').press('Tab');
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);
+ /* Standard-Suchort kann die Testunterkunft ausfiltern; aktives Angebot über
+    seinen filterunabhängigen Zahlungsbereich öffnen. Filter nicht lockern. */
+ await tripTab(p,'kosten');
  await p.locator('[data-search-act="offer-edit"][data-value="oeditor"]').click();await p.fill('[data-offer="name"]','Nicht speichern');
  await p.click('[data-search-act="offer-save"]');assert((await p.textContent('#offer-error')).includes('Format 3'));
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);

@@ -2,6 +2,8 @@
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
+6dd3f09 app/database grün; Browser-Fixture für abschließenden Nur-Lesen-Test nutzt jetzt aktives Angebot im Kostenbereich, statt ein vom Standardsuchort ausgefiltertes Angebot zu erwarten. Produktiver Schutzfix unverändert, neuer gemeinsamer CI-Lauf muss grün sein.
+
 Vorrangiger Reviewfund: Legacy-Such-/Angebotshandler konnten v3 trotz Nur-Lesen auf2 zurückstufen. UI-Zuweisungen und frühe Sperren korrigiert; echter Callback-Repro sowie Angebots-Snapshot-/Erstattungsschutz ergänzt, SWv9. Vollständige neue CI-Abnahme vor Veröffentlichungsnachweis. d180f0a: Browser grün, Cloud-E2E Rechteentzug Timeout an Claude übergeben, kein Deploy. Keine Freischaltung aus diesen Teilnachweisen ableiten.
 
 052af04 mit Zusatzposten/Check-in in CI38782237551 vollständig grün und veröffentlicht, V3_EDIT weiter false. Weitere negative Browserfälle für Scope-/Quota-Schutz sowie separate Angebotsfinanzen implementiert, neue CI-Abnahme offen. Claude um Finanz-/Schutzreview und K4-Zwischenstand gebeten; keine Freigabe aus ausbleibender Antwort ableiten.

@@ -1,5 +1,9 @@
 # Projektstand · 15.10.2026
 
+## CI-Nacharbeit am Legacy-Prüfweg (ChatGPT, #8)
+
+6dd3f09, Lauf 38783775128: app und database einschließlich Cloud-E2E grün. Browser durchläuft die neuen Bearbeitungs-/Quota-/Bereichs-/Angebotsfälle, scheitert erst beim abschließenden Nur-Lesen-Angebotsweg: Die Suchansicht filtert „Testort“ korrekt aus dem Standard-Suchort der Reise heraus, daher fehlt dort der erwartete Bearbeiten-Knopf. Fixture öffnet das aktive Angebot jetzt über seinen filterunabhängigen Zahlungsbereich im Kostenmodul. Weder Filter lockern noch Produktcode ändern; Schutzfix bleibt identisch 6dd3f09. Neue Browser-/CI-Abnahme erforderlich, kein Deploy dieses gescheiterten Laufs.
+
 ## Kritischer Legacy-Downgrade im Nur-Lesen-Modus korrigiert (ChatGPT, #8)
 
 Im tatsächlichen Such-Change-Callback reproduziert: Trotz V3_EDIT=false setzte der alte Handler schemaVersion=2 und speicherte eine v3-Gastreise samt Transport als v2. Auch offer-save hatte diese erzwungene Zuweisung. Dadurch umging die UI die nachfolgende Format-3-Schreibsperre; der Gastcache hat keinen Datenbanktrigger. Repro stammt ausschließlich aus isolierten Testdaten, keine Aussage über tatsächlich beschädigte Nutzerdaten.
