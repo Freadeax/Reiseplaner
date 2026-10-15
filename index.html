@@ -1058,8 +1058,24 @@ const TEMPLATES=[
   {id:'tag',name:'Tagesausflug',sub:'ohne Übernachtung',make:()=>newTrip({title:'Tagesausflug',type:'tag',nights:0,budget:0})},
   {id:'strand',name:'Sommerurlaub',sub:'7 Nächte, Ziel offen',make:()=>newTrip({title:'Sommerurlaub',type:'strand',nights:7,budget:0})},
   {id:'winter',name:'Winterurlaub',sub:'Ideen-Katalog Allgäu & Tirol',make:()=>newTrip({title:'Winterurlaub',type:'winter',nights:4,catalog:'allgaeu',budget:0})},
+  /* Reisetyp-Vorlagen (Claude, #8, Plan A4): nur vorhandene Typen/Anreisearten, Aufgaben als eigene Checklistenpunkte, keine Preise */
+  {id:'fernreise',name:'Fernreise mit Flug',sub:'14 Nächte, Dokumente & Gesundheit',make:()=>tplTrip({title:'Fernreise',type:'rund',nights:14,travel:'flug'},'fernreise')},
+  {id:'badeflug',name:'Badeurlaub mit Flug',sub:'7 Nächte, Strand',make:()=>tplTrip({title:'Badeurlaub',type:'strand',nights:7,travel:'flug'},'badeflug')},
+  {id:'rundreise',name:'Rundreise mit dem Auto',sub:'6 Nächte, mehrere Etappen',make:()=>tplTrip({title:'Rundreise',type:'rund',nights:6,travel:'auto'},'rundreise')},
+  {id:'camping',name:'Camping',sub:'4 Nächte, Zelt oder Wohnmobil',make:()=>tplTrip({title:'Camping',type:'wochenende',nights:4,travel:'auto'},'camping')},
+  {id:'aktiv',name:'Aktivurlaub Wandern/Rad',sub:'3 Nächte, Touren',make:()=>tplTrip({title:'Aktivurlaub',type:'wochenende',nights:3,travel:'auto'},'aktiv')},
+  {id:'wellness',name:'Wellness-Auszeit',sub:'2 Nächte, Spa & Ruhe',make:()=>tplTrip({title:'Wellness-Auszeit',type:'wochenende',nights:2,travel:'auto'},'wellness')},
   {id:'silvester',name:'Beispiel: Silvester im Schnee',sub:'komplett ausgefülltes Beispiel',make:()=>silvesterTemplate()}
 ];
+const TPL_CHECKS={
+  fernreise:['Reisepass: Gültigkeit für das Zielland prüfen','Einreise, Visum und Sicherheitshinweise beim Auswärtigen Amt prüfen','Impfungen mit Hausarzt oder Reisemedizin klären','Auslandskrankenversicherung mit Rücktransport','Kreditkarte und etwas Bargeld in Landeswährung','Steckdosenadapter je nach Zielland','Online-Check-in (Frist der Airline)','Gepäckregeln: Freigepäck, Handgepäck, Flüssigkeiten','Transfer Flughafen ↔ Unterkunft klären','Anfahrt bzw. Parken am Abflughafen','Zeitzone am Ziel eintragen (Eckdaten)','Kopien der Dokumente getrennt aufbewahren'],
+  badeflug:['Online-Check-in (Frist der Airline)','Gepäckregeln: Freigepäck, Handgepäck, Flüssigkeiten','Transfer Flughafen ↔ Unterkunft klären','Anfahrt bzw. Parken am Abflughafen','Auslandskrankenversicherung','Reiseapotheke und Sonnenschutz','Ausweis bzw. Reisepass prüfen'],
+  rundreise:['Etappen und Nächte je Ort festlegen (Ort & Unterkunft → Etappen)','Unterkunft je Etappe buchen','Maut und Vignetten je Land prüfen','Fahrzeiten je Etappe mit Routenplaner prüfen','Gepäck so packen, dass ein Koffer pro Nacht reicht'],
+  camping:['Stellplatz bzw. Campingplatz reservieren','Zelt oder Wohnmobil prüfen (Vollständigkeit, Dichtigkeit)','Schlafsack, Isomatte, Kissen','Kocher, Gas, Geschirr, Kühlbox','Stromadapter (CEE) und Kabeltrommel','Stirnlampe und Ersatzbatterien','Mückenschutz'],
+  aktiv:['Touren planen (Länge, Höhenmeter, Einkehr)','Wetter am Vortag prüfen','Wander- bzw. Radschuhe eingelaufen','Rucksack, Trinkflasche, Proviant','Erste-Hilfe-Set','Fahrrad prüfen bzw. Transport klären','Regenkleidung'],
+  wellness:['Spa- und Massagetermine reservieren','Bademantel und Saunatücher: vor Ort vorhanden?','Badesachen und Schlappen','Ruhezeiten im Tagesplan freihalten']
+};
+function tplTrip(base,kind){const t=newTrip(Object.assign({budget:0},base));t.customChecks=(TPL_CHECKS[kind]||[]).map(x=>({id:uid('k'),t:x}));return t}
 function tplButtons(){return '<div class="opts">'+TEMPLATES.map(x=>'<button type="button" class="opt" data-act="tpl" data-val="'+x.id+'">'+esc(x.name)+'<small>'+esc(x.sub)+'</small></button>').join('')+'</div>'}
 function silvesterTemplate(){
   const t=newTrip({title:'Silvester im Schnee',type:'winter',status:'planung',dateMode:'fix',start:'2026-12-30',end:'2027-01-03',budget:1500,catalog:'allgaeu',origin:'73110 Hattenhofen',
@@ -3435,7 +3451,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 go(location.hash||'reisen',true);

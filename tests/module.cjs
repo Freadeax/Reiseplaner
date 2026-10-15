@@ -171,3 +171,21 @@ console.log('Module: Tagesplan (Programmkosten je Tag, Buchungen verteilt, offen
   assert.equal(a.departureBlock(t, new Date('2027-01-01T10:00:00Z')), '');
 }
 console.log('Module: Fahrplan bis zur Abreise (Fristen, Packtag, Abfahrt, ohne erfundene Fristen) und Kalender-Erinnerungen geprüft.');
+
+/* Reisetyp-Vorlagen: nur vorhandene Typen/Anreisearten, Aufgaben als eigene Checklistenpunkte, keine Preise, gültig für Sicherung */
+{
+  const ids = ['fernreise', 'badeflug', 'rundreise', 'camping', 'aktiv', 'wellness'];
+  ids.forEach(id => {
+    const tpl = a.TEMPLATES.find(x => x.id === id); assert(tpl, id);
+    const t = tpl.make();
+    assert(['winter', 'stadt', 'strand', 'wochenende', 'tag', 'rund'].includes(t.type), id + ': vorhandener Typ');
+    assert(['auto', 'bahn', 'flug'].includes(t.travel));
+    assert(t.customChecks.length >= 4 && new Set(t.customChecks.map(c => c.id)).size === t.customChecks.length, id + ': eindeutige Punkte');
+    assert(!JSON.stringify(t.customChecks).match(/\d+\s*€/), id + ': keine Preise');
+    a.validateBackup(a.backupData([t]));
+    const grp = a.checklist(t).find(g => g[0] === 'Eigene Punkte');
+    assert.equal(grp[1].length, t.customChecks.length, id + ': in der Checkliste sichtbar');
+  });
+  assert.equal(a.TEMPLATES.find(x => x.id === 'fernreise').make().travel, 'flug');
+}
+console.log('Module: Reisetyp-Vorlagen (Fernreise/Badeurlaub mit Flug, Rundreise, Camping, Aktiv, Wellness) geprüft.');

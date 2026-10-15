@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## Reisetyp-Vorlagen (Claude, #8, Plan A4)
+
+- Sechs neue Vorlagen unter „Mit einer Vorlage starten“: Fernreise mit Flug (14 Nächte), Badeurlaub mit Flug (7), Rundreise mit dem Auto (6), Camping (4), Aktivurlaub Wandern/Rad (3), Wellness-Auszeit (2). Sie nutzen nur vorhandene Reisetypen und Anreisearten (keine neuen Enum-Werte vor dem Datenvertrag v3). Typische Aufgaben stehen als eigene Checklistenpunkte (`customChecks`): Dokumente, Auswärtiges Amt, Impfungen, Online-Check-in, Gepäckregeln, Transfer, Stellplatz, Touren, Spa-Termine usw. Es gibt keine Preise und keine Fristen, die nicht vom Nutzer kommen.
+- Tests: `tests/module.cjs` (vorhandene Typen, eindeutige Punkte, keine Preise, Sicherung gültig, in der Checkliste sichtbar). `npm test` und `npm run test:browser` grün.
+- Grenze: Ein eigenes Flug-Datenmodell (Abschnitte, Flughäfen, Gepäck als Posten) folgt erst mit dem Datenvertrag v3 (Plan A1/A2/A6).
+
 ## Tageskopf kompakt (Claude, #8, Befund B1-6)
 
 - Der Tageskopf im Tagesplan zeigt nur noch eine Zeile: Stunden geplant/verfügbar, Programmkosten, freie Abschnitte. Warnungen bleiben sichtbar und stehen als Text mit „!“ voran („zu voll“, „Preis offen“, „Dauer offen“). Ausführliche Auslastung, Fahrzeit, Kostenaufteilung, freie Abschnitte sowie „Tauschen“ und „Tagesroute“ stehen unter „Details & Werkzeuge“ (`details.dmore`, Tippfläche 44 px). Breiten und Raster bleiben bei ChatGPTs Layout.
