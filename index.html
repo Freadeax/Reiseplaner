@@ -154,6 +154,7 @@ section.block:first-child{border-top:0;padding-top:4px}
 /* Checks */
 .checks-list{display:flex;flex-direction:column;gap:6px}
 .chk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:.93rem}
+.chk{flex-wrap:wrap}.chk>span{flex:1 1 9em;min-width:0;overflow-wrap:anywhere}
 .chk b{flex:none;font-family:var(--f-mono);font-size:.7rem;padding:2px 6px;border-radius:4px;margin-top:2px}
 .chk.warn b{background:var(--warn);color:var(--bg)}.chk.info b{background:var(--surface-3)}.chk.ok b{background:var(--ok);color:var(--bg)}
 
