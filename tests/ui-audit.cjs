@@ -64,6 +64,7 @@ function inspect() {
   ctrls.forEach(el => {
     const r = el.getBoundingClientRect();
     const inline = el.tagName === 'A' && getComputedStyle(el).display === 'inline' && el.closest('p,li');
+    if (el.classList.contains('skip-link')) return; /* Sprunglink erscheint erst bei Tastaturfokus */
     const isCheck = el.tagName === 'INPUT' && /checkbox|radio/.test(el.type) && el.closest('label');
     if (!inline && !isCheck && (r.height < 44 - 0.5 || r.width < 44 - 0.5)) out.small.push({ sel: sel(el), w: Math.round(r.width), h: Math.round(r.height), text: (el.textContent || el.value || '').trim().slice(0, 30) });
     const name = (el.getAttribute('aria-label') || el.textContent || el.getAttribute('title') || el.value || (el.labels && el.labels[0] && el.labels[0].textContent) || el.getAttribute('placeholder') || '').trim();
@@ -115,9 +116,9 @@ async function focusCheck(p) {
     ['entdecken', async p => { await p.goto(base + '/index.html#entdecken'); await p.waitForSelector('[data-act="cat-search"]'); if (await p.$('#cat-city')) await p.selectOption('#cat-city', { label: 'Stuttgart' }, { timeout: 5000 }).catch(() => {}); await p.click('[data-act="cat-search"]'); await p.waitForSelector('#cat-results'); }],
     ['ziel-blatt', async p => { await p.goto(base + '/index.html#ziel-harz'); await p.waitForSelector('.sheet h2'); }],
     ['reise-ueberblick', async p => { await p.goto(base + '/index.html#reisen'); await p.click('[data-act="tpl"][data-val="silvester"]').catch(async () => { await p.click('summary:has-text("Vorlage")'); await p.click('[data-act="tpl"][data-val="silvester"]'); }); await p.waitForSelector('.tabs'); }],
-    ['tagesplan', async p => { await p.click('.tabs [data-go$="-plan"]'); }],
-    ['kosten', async p => { await p.click('.tabs [data-go$="-kosten"]'); }],
-    ['mappe', async p => { await p.click('.tabs [data-go$="-mappe"]'); }],
+    ['tagesplan', async p => { await p.goto(base + '/index.html' + (await p.evaluate(() => location.hash)).replace(/-[a-z]+$/, '-plan')); await p.waitForSelector('.trip-workspace'); }],
+    ['kosten', async p => { await p.goto(base + '/index.html' + (await p.evaluate(() => location.hash)).replace(/-[a-z]+$/, '-kosten')); await p.waitForSelector('.trip-workspace'); }],
+    ['mappe', async p => { await p.goto(base + '/index.html' + (await p.evaluate(() => location.hash)).replace(/-[a-z]+$/, '-mappe')); await p.waitForSelector('.trip-workspace'); }],
     ['konto', async p => { await p.goto(base + '/index.html#konto'); }]
   ];
   const variants = [['1280-hell', { width: 1280, height: 900 }, 'light'], ['390-hell', { width: 390, height: 844 }, 'light'], ['320-dunkel', { width: 320, height: 640 }, 'dark'], ['1280-dunkel', { width: 1280, height: 900 }, 'dark']];
