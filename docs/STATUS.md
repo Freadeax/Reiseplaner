@@ -116,6 +116,23 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Genaue Uhrzeiten (Claude, 15.10.2026, Issue #8, P1 aus OPEN_POINTS)
+
+Basis `14efe7c`, angekündigt in #8.
+- **Termin:** optional `item.time` („HH:MM“) im Punkt-Blatt. Das Zeitfenster folgt der Uhrzeit (bis 12 Uhr Vormittag, bis 14 Uhr Mittag, bis 18 Uhr Nachmittag, sonst Abend); leeres Feld entfernt sie. Innerhalb eines Fensters wird nach Uhrzeit sortiert.
+- **Reise:** optional `departTime` (Abfahrt am Anreisetag) und `checkinTime` in den Eckdaten.
+  - Geschätzte Ankunft = Abfahrt + einfache Fahrzeit (Auto, Straßen-km bzw. erste Etappe, Ø 80 km/h).
+  - Angezeigt im Tagesplan (Anreise-Feld) und in der Mappe.
+- **Plan-Check:**
+  - Termine mit Uhrzeit und bekannter Dauer, die sich überschneiden.
+  - Termine am Anreisetag vor der geschätzten Ankunft.
+  - Hinweis, wenn die Ankunft vor dem Check-in liegt.
+- **Schutz:** `protectedPlanChange('move')` nimmt optional `time` und prüft das Format. `commitmentIssues` vergleicht die Uhrzeit mit, ein gebuchter oder bezahlter Termin ändert also auch seine Uhrzeit nicht. Beides sind kleine Ergänzungen in ChatGPTs Funktionen, in #8 abgestimmt.
+- **Kalender:** genaue Startzeit; das Ende ergibt sich aus der Dauer (Zahl oder Text), sonst Fensterende bzw. mindestens 1 Std. **Teilen-Text, Tagesliste und Heute** zeigen die Uhrzeit statt des Fensters.
+- **Speicher:** nur optionale Felder, in `validateExtras` geprüft.
+- **Tests:** `tests/tagesplan.cjs` (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung, Eckdaten) und Browsertest (Uhrzeit setzen, Fenster folgt).
+- **Grenzen:** keine Zeitzonen (alles Ortszeit), Ankunft nur fürs Auto geschätzt, keine echten Fahrpläne.
+
 ## Heute unterwegs mit Katalog-Funktionen (Claude, 14.10.2026 nachts, Issue #8)
 
 Basis `1059e62`, angekündigt in #8. Der Heute-Block (nur bei festen Daten während der Reise) zeigt jetzt:

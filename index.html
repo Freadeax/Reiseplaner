@@ -491,7 +491,14 @@ function actsFor(t){
   (t.customActs||[]).forEach(a=>out.push(a));
   return out;
 }
-function sortedItems(t){const so={morgen:0,mittag:1,nachm:2,abend:3};return (t.items||[]).slice().sort((a,b)=>a.day-b.day||so[a.slot]-so[b.slot])}
+/* Genaue Uhrzeiten (optional, „HH:MM“, Issue #8). Das Zeitfenster folgt der Uhrzeit. */
+const TIME_RE=/^([01]\d|2[0-3]):[0-5]\d$/;
+const timeMin=h=>TIME_RE.test(h||'')?(+h.slice(0,2))*60+(+h.slice(3)):null;
+const minTime=m=>String(Math.floor(((m%1440)+1440)%1440/60)).padStart(2,'0')+':'+String(((m%60)+60)%60).padStart(2,'0');
+const slotForTime=h=>{const m=timeMin(h);return m==null?null:m<720?'morgen':m<840?'mittag':m<1080?'nachm':'abend'};
+function sortedItems(t){const so={morgen:0,mittag:1,nachm:2,abend:3};return (t.items||[]).slice().sort((a,b)=>a.day-b.day||so[a.slot]-so[b.slot]||(timeMin(a.time)??9999)-(timeMin(b.time)??9999))}
+/* Geschätzte Ankunft am Anreisetag: Abfahrt + einfache Fahrzeit (Auto: Straßen-km, Ø 80 km/h). null ohne Abfahrtszeit oder Strecke. */
+function arrivalMin(t){const dep=timeMin(t.departTime);if(dep==null||t.travel!=='auto')return null;const km=Array.isArray(t.legs)&&t.legs.length?num(t.legs[0].roadKm,0):routeKm(t);return km>0?dep+Math.round(km/80*60):null}
 
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
 function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
@@ -611,6 +618,11 @@ function checks(t){
   if(ue.length&&kd.length&&ue[0].day<kd[0]) out.push(['info','Übungstag liegt vor dem ersten Kurstag','plan']);
   const occ={};items.forEach(it=>{const k=it.day+it.slot;occ[k]=(occ[k]||0)+1});
   Object.keys(occ).forEach(k=>{if(occ[k]>1){const d=days[+k.match(/^\d+/)[0]];out.push(['info',(d?d.label:'')+' '+SLOTNAME[k.replace(/^\d+/,'')]+': '+occ[k]+' Dinge gleichzeitig geplant','plan'])}});
+  {const arr=arrivalMin(t),byDay={};items.forEach(it=>{const m=timeMin(it.time),a=actOf(t,it.act);if(m==null||!a)return;(byDay[it.day]=byDay[it.day]||[]).push({it,a,m,h:actHours(a)})});
+   Object.keys(byDay).forEach(k=>{const l=byDay[k].sort((x,y)=>x.m-y.m),d=days[+k];
+    for(let i=1;i<l.length;i++){const p=l[i-1];if(p.h!=null&&p.m+Math.round(p.h*60)>l[i].m)out.push(['warn',(d?d.label:'')+': '+p.a.t+' ('+p.it.time+', ca. '+String(p.h).replace('.',',')+' Std.) überschneidet sich mit '+l[i].a.t+' ('+l[i].it.time+')','plan'])}
+    if(+k===0&&arr!=null)l.filter(x=>x.m<arr).forEach(x=>out.push(['warn',x.a.t+' um '+x.it.time+' liegt vor der geschätzten Ankunft (ca. '+minTime(arr)+')','plan']))});
+   if(arr!=null&&timeMin(t.checkinTime)!=null&&arr<timeMin(t.checkinTime))out.push(['info','Ankunft ca. '+minTime(arr)+', Check-in erst ab '+t.checkinTime+': Gepäck oder Zwischenprogramm einplanen','plan']);}
   dayLoad(t).forEach(L=>{if(L.over){const d=days[L.day];out.push(['warn',(d?d.label:'Tag')+': ca. '+String(L.planned).replace('.',',')+' Std. Programm, verfügbar ca. '+String(L.cap).replace('.',',')+' Std.'+(L.drive?' (nach ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std. Fahrt, geschätzt)':'')+'. Einen Punkt verschieben oder tauschen.','plan'])}});
   if(num(t.budget,0)>0&&c.total>num(t.budget,0)) out.push(['warn',eur(c.total-num(t.budget,0))+' über eurem Budget, siehe Spartipps','kosten']);
   if(t.ledger&&Object.keys(t.ledger).length){const fs=financeSummary(t);
@@ -807,12 +819,12 @@ function icsData(t,now){
   ev(t.id+'-reise',['DTSTART;VALUE=DATE:'+dt(a),'DTEND;VALUE=DATE:'+dt(new Date(b.getTime()+864e5)),'SUMMARY:'+icsEsc(t.title),
     where?'LOCATION:'+icsEsc(where):'','DESCRIPTION:'+icsEsc('Unterkunft: '+(st?st.name:'noch offen')+'\nAus dem Reiseplaner exportiert. Planstand, keine Buchungsbestätigung.'),'TRANSP:TRANSPARENT']);
   sortedItems(t).forEach(it=>{const x=actOf(t,it.act),d=days[it.day];if(!x)return;if(!d||!d.date){skipped++;return}
-    const w=SLOTTIME[it.slot]||SLOTTIME.nachm,u=actUrl(x),h=typeof x.hours==='number'&&x.hours>0?x.hours:null;
+    const w0=SLOTTIME[it.slot]||SLOTTIME.nachm,tm=timeMin(it.time),w=tm!=null?[it.time.replace(':',''),tm+60>(+w0[1].slice(0,2))*60?minTime(Math.min(1410,tm+60)).replace(':',''):w0[1]]:w0,u=actUrl(x),h=typeof x.hours==='number'&&x.hours>0?x.hours:(tm!=null?actHours(x):null);
     /* bekannte Dauer (Zahl) bestimmt das Ende ab Fensterbeginn, höchstens bis 23:30; sonst das grobe Fenster */
     const endM=h?Math.min(23*60+30,(+w[0].slice(0,2))*60+(+w[0].slice(2))+Math.round(h*60)):null,end=endM?String(Math.floor(endM/60)).padStart(2,'0')+String(endM%60).padStart(2,'0'):w[1];
     ev(t.id+'-'+it.uid,['DTSTART:'+dt(d.date)+'T'+w[0]+'00','DTEND:'+dt(d.date)+'T'+end+'00','SUMMARY:'+icsEsc(x.t),
       (x.map||x.ort||where)?'LOCATION:'+icsEsc(x.map||x.ort||where):'',
-      'DESCRIPTION:'+icsEsc('Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.'+(h?'\nDauer ca. '+String(h).replace('.',',')+' Std. (Schätzung)':'')+(x.dur&&!h?'\nDauer: '+x.dur:'')+(openHoursText(x)?'\nLaut Katalog (unbestätigt): '+openHoursText(x):'')),
+      'DESCRIPTION:'+icsEsc((tm!=null?'Geplante Uhrzeit: '+it.time+'. Öffnungszeiten beim Anbieter prüfen.':'Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.')+(h?'\nDauer ca. '+String(h).replace('.',',')+' Std. (Schätzung)':'')+(x.dur&&!h?'\nDauer: '+x.dur:'')+(openHoursText(x)?'\nLaut Katalog (unbestätigt): '+openHoursText(x):'')),
       u?'URL:'+u:'','STATUS:TENTATIVE','TRANSP:TRANSPARENT'])});
   Object.keys(t.ledger||{}).length&&financeSummary(t).due.forEach(d=>{const x=pd(d.due);ev(t.id+'-due-'+d.key.replace(/[^A-Za-z0-9-]/g,'-'),['DTSTART;VALUE=DATE:'+dt(x),'DTEND;VALUE=DATE:'+dt(new Date(x.getTime()+864e5)),'SUMMARY:'+icsEsc('Zahlung fällig: '+d.label+' ('+eur(d.open)+')'),'DESCRIPTION:'+icsEsc('Aus dem Zahlungsbuch der Reise „'+t.title+'“. Betrag laut eurer Erfassung.'),'TRANSP:TRANSPARENT'])});
   L.push('END:VCALENDAR');
@@ -828,7 +840,7 @@ function tripText(t,opts){
   L.push('','Tagesplan:');
   let any=false;
   days.forEach(d=>{const its=dayItems(t,d.i);if(!its.length)return;any=true;
-    L.push('• '+d.label+': '+its.map(it=>SLOTNAME[it.slot]+' '+actOf(t,it.act).t).join(' · '));const ru=dayRouteUrl(t,d.i);if(ru)L.push('  Route: '+ru)});
+    L.push('• '+d.label+': '+its.map(it=>(it.time||SLOTNAME[it.slot])+' '+actOf(t,it.act).t).join(' · '));const ru=dayRouteUrl(t,d.i);if(ru)L.push('  Route: '+ru)});
   if(!any)L.push('• noch nichts eingeplant');
   const late=sortedItems(t).filter(it=>it.day>=days.length&&actOf(t,it.act)).length;
   if(late)L.push('• '+late+' Punkt(e) liegen nach dem letzten Reisetag');
@@ -1201,6 +1213,8 @@ function tripForm(t,prefix){
    '<label class="fld"><span>Personen</span><input type="number" min="1" max="20" data-f="persons" value="'+esc(t.persons)+'"></label>'+
    '<label class="fld"><span>Budget gesamt (€)</span><input type="number" min="0" step="50" data-f="budget" value="'+esc(t.budget)+'"></label>'+
    '<label class="fld"><span>Start-Ort</span><input type="text" data-f="origin" value="'+esc(t.origin)+'"></label>'+
+   '<label class="fld"><span>Abfahrt am Anreisetag (optional)</span><input type="time" data-f="departTime" value="'+esc(t.departTime||'')+'"></label>'+
+   (num(t.nights,1)>0||t.dateMode==='fix'?'<label class="fld"><span>Check-in ab (optional)</span><input type="time" data-f="checkinTime" value="'+esc(t.checkinTime||'')+'"></label>':'')+
   '</div>'+
   '<div class="fld"><span>Anreise mit</span><div class="opts">'+opt(prefix+'travel','auto','Auto','',t.travel==='auto')+opt(prefix+'travel','bahn','Bahn','',t.travel==='bahn')+opt(prefix+'travel','flug','Flug / Bus','',t.travel==='flug')+'</div></div>'+
   '<div class="fld"><span>Ideen-Katalog</span><div class="opts">'+opt(prefix+'catalog','allgaeu','Allgäu & Tirol im Winter','4 Orte, 13 Unterkünfte, 30+ Ideen',t.catalog==='allgaeu')+opt(prefix+'catalog','none','Ohne Katalog','eigene Unterkünfte und Ideen eintragen',t.catalog!=='allgaeu')+'</div></div>'+
@@ -1430,9 +1444,9 @@ function tPlan(t){
     '<span class="dtools">'+(days.length>1?'<button type="button" class="lnk" data-act="day-swap-open" data-val="'+d.i+'" aria-label="'+esc(d.label)+' mit anderem Tag tauschen">⇄ Tauschen</button>':'')+(ru?lk(ru,'Tagesroute'):'')+'</span></div>'+
     SLOTS.map(([k,lab])=>{const its=items.filter(it=>it.day===d.i&&it.slot===k);
       let fixed='';
-      if(d.i===0&&k==='morgen') fixed='<div class="item fixed">Anreise'+(pl?' · '+esc(pl.time):'')+'<small>ab '+esc(t.origin||'')+'</small></div>';
+      if(d.i===0&&k==='morgen'){const arr=arrivalMin(t);fixed='<div class="item fixed">Anreise'+(pl?' · '+esc(pl.time):'')+'<small>ab '+esc(t.origin||'')+(t.departTime?' um '+esc(t.departTime):'')+(arr!=null?' · Ankunft ca. '+minTime(arr)+' (Schätzung)':'')+(t.checkinTime?' · Check-in ab '+esc(t.checkinTime):'')+'</small></div>'}
       if(d.i===days.length-1&&days.length>1&&k==='morgen') fixed='<div class="item fixed">Packen & Abreise<small>'+(pl?'zuhause ≈ 2–2,5 Std. später':'')+'</small></div>';
-      return '<div class="dslot"><span class="lbl">'+lab+'</span>'+fixed+its.map(it=>{const a=actOf(t,it.act);if(!a)return '';return '<button type="button" class="item'+(isWarn(it,a,d)?' warn':'')+'" style="border-left-color:'+CATCOL[a.cat||'eigen']+'" data-act="item" data-val="'+it.uid+'">'+esc(a.t)+'<small>'+esc(a.dur||'')+(a.ort?' · '+esc(a.ort):'')+'</small></button>'}).join('')+
+      return '<div class="dslot"><span class="lbl">'+lab+'</span>'+fixed+its.map(it=>{const a=actOf(t,it.act);if(!a)return '';return '<button type="button" class="item'+(isWarn(it,a,d)?' warn':'')+'" style="border-left-color:'+CATCOL[a.cat||'eigen']+'" data-act="item" data-val="'+it.uid+'">'+(it.time?'<b class="num">'+esc(it.time)+'</b> ':'')+esc(a.t)+'<small>'+esc(a.dur||'')+(a.ort?' · '+esc(a.ort):'')+'</small></button>'}).join('')+
       '<button type="button" class="add" data-act="slot-add" data-val="'+d.i+'|'+k+'" aria-label="'+esc(d.label+' '+lab)+' hinzufügen">+</button></div>'}).join('')+'</div>'}).join('')+'</div></section>';
 }
 function costEntryCommitted(t,id){const e=(t.ledger||{})['xc:'+id];return !!(e&&(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due));}
@@ -1484,7 +1498,7 @@ function commitmentIssues(before,after){
  if(stayCommitted(before)&&(before.stayId!==after.stayId||before.activeOfferId!==after.activeOfferId||!after.check?.stay&&before.check?.stay||old&&fresh&&JSON.stringify(old)!==JSON.stringify(fresh)))out.push('Unterkunft ist gebucht oder bereits bezahlt');
  const basis=t=>[t.dateMode,t.start||'',t.end||'',t.month||'',nightsOf(t),t.persons];
  if(stayCommitted(before)&&JSON.stringify(basis(before))!==JSON.stringify(basis(after)))out.push('Zeitraum oder Belegung der gebuchten Unterkunft würde verändert');
- const signature=(t,k)=>{const days=daysOf(t);return sortedItems(t).filter(it=>{const a=actOf(t,it.act);return a&&(k==='kurs'?a.kurs:k==='verleih'?a.gear:k==='skipass'?a.pass||a.kurs:k==='act:'+it.act);}).map(it=>{const d=days[it.day];return [it.uid,it.act,it.day,it.slot,d&&d.date?iso(d.date):[t.dateMode,t.month||'',t.start||''],t.persons];}).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));};
+ const signature=(t,k)=>{const days=daysOf(t);return sortedItems(t).filter(it=>{const a=actOf(t,it.act);return a&&(k==='kurs'?a.kurs:k==='verleih'?a.gear:k==='skipass'?a.pass||a.kurs:k==='act:'+it.act);}).map(it=>{const d=days[it.day];return [it.uid,it.act,it.day,it.slot,it.time||'',d&&d.date?iso(d.date):[t.dateMode,t.month||'',t.start||''],t.persons];}).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));};
  Object.entries(before.check||{}).forEach(([k,done])=>{if(done&&k.startsWith('b-')&&JSON.stringify(signature(before,'act:'+k.slice(2)))!==JSON.stringify(signature(after,'act:'+k.slice(2))))out.push('Gebuchte Unternehmung würde verändert');});
  Object.entries(before.ledger||{}).forEach(([k,e])=>{if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due))return;
   if(JSON.stringify(signature(before,k))!==JSON.stringify(signature(after,k)))out.push('Termin mit Buchung, Zahlung oder Fälligkeit würde verändert');
@@ -1500,6 +1514,7 @@ function protectedPlanChange(t,action,args={}){
   if(!it)throw new Error('Termin nicht mehr vorhanden. Bitte neu öffnen.');
   if(!Number.isInteger(args.day)||args.day<0||args.day>=daysOf(c).length||!SLOTS.some(s=>s[0]===args.slot))throw new Error('Bitte gültigen Tag und Tageszeit wählen.');
   it.day=args.day;it.slot=args.slot;c.packageId='';
+  if(args.time!==undefined){if(args.time===''||args.time==null)delete it.time;else{if(!TIME_RE.test(args.time))throw new Error('Bitte eine gültige Uhrzeit (HH:MM) eingeben.');it.time=args.time;it.slot=slotForTime(args.time)}}
  }else if(action==='remove'){if(!(c.items||[]).some(i=>i.uid===args.uid))throw new Error('Termin nicht mehr vorhanden.');c.items=c.items.filter(i=>i.uid!==args.uid);c.packageId='';}
  else if(action==='clear'){c.items=[];c.packageId='';}
  else if(action==='package'){const p=PKGS.find(x=>x.id===args.id);if(!p)throw new Error('Paket nicht mehr vorhanden.');applyPkg(c,p);}
@@ -1588,11 +1603,11 @@ function tNotiz(t){
 /* Unterwegs: was heute und morgen ansteht, ohne Wischen durch den ganzen Plan */
 function dayList(t,d,last){
   const its=dayItems(t,d.i),fixed=[];
-  if(d.i===0)fixed.push('Anreise ab '+(t.origin||'Start'));
+  if(d.i===0){const arr=arrivalMin(t);fixed.push('Anreise ab '+(t.origin||'Start')+(t.departTime?' um '+t.departTime:'')+(arr!=null?', Ankunft ca. '+minTime(arr):''))}
   if(d.i===last&&last>0)fixed.push('Packen & Abreise');
   if(!its.length&&!fixed.length)return '<p class="muted small">Nichts eingeplant.</p>';
   return '<ul class="plain">'+fixed.map(x=>'<li><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
-    return '<li><span class="eyebrow">'+esc(SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
+    return '<li><span class="eyebrow">'+esc(it.time||SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
 }
 function rainBlock(t,i){
   const ideas=rainIdeas(t,i,3);if(!ideas.length)return '';
@@ -1694,7 +1709,7 @@ function sheetSlot(t,day,slot){
 }
 function sheetItem(t,u){
   const it=(t.items||[]).find(i=>i.uid===u); if(!it) return; const a=actOf(t,it.act), days=daysOf(t);
-  openSheet('<span class="eyebrow">Im Tagesplan</span><h2>'+esc(a?a.t:'')+'</h2><div class="form"><label class="fld"><span>Tag</span><select id="mv-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===it.day?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="mv-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===it.slot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div>'+
+  openSheet('<span class="eyebrow">Im Tagesplan</span><h2>'+esc(a?a.t:'')+'</h2><div class="form"><label class="fld"><span>Tag</span><select id="mv-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===it.day?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="mv-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===it.slot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label><label class="fld"><span>Uhrzeit (optional)</span><input type="time" id="mv-time" value="'+esc(it.time||'')+'"></label></div><p class="small muted">Mit Uhrzeit wird die Tageszeit automatisch passend gesetzt. Leeres Feld entfernt die Uhrzeit.</p>'+
    '<div class="row"><button type="button" class="btn" data-act="item-move" data-val="'+u+'">Verschieben</button><button type="button" class="btn ghost" data-act="act-view" data-val="'+esc(it.act)+'">Details</button><button type="button" class="btn warn" data-act="item-del" data-val="'+u+'">Entfernen</button></div>'+
    (a&&a.catalogSpot&&!a.indoor&&CATX?'<div class="panel" id="rain-twin"><h4>☂ Regenzwilling</h4><p class="small muted">Drinnen-Alternativen in der Nähe. Sie werden nur eingeplant, wenn ihr tauscht; die Draußen-Idee bleibt in der Ideenliste.</p><div class="row"><button type="button" class="btn ghost sm" data-act="rain-twin" data-val="'+u+'">Alternativen zeigen</button></div></div>':''));
 }
@@ -1745,6 +1760,7 @@ function setField(obj,f,v){
   if(['persons','nights','budget','km','routeKm','ticket'].includes(f)){obj[f]=Math.max(0,num(v,0));if(f==='km')delete obj.kmSrc;}
   else if(['verb','preis'].includes(f)) obj[f]=num(v,f==='verb'?7.5:2.15);
   else if(f==='stayQuote') obj[f]=num(v,0)>0?num(v,0):null;
+  else if(f==='departTime'||f==='checkinTime'){if(v==='')delete obj[f];else if(TIME_RE.test(v))obj[f]=v;else alertMsg('Bitte eine gültige Uhrzeit (HH:MM) eingeben.');}
   else{if(f==='origin'&&obj[f]!==v)delete obj.originGeo;obj[f]=v;}
 }
 document.addEventListener('click',async e=>{
@@ -1823,7 +1839,7 @@ document.addEventListener('click',async e=>{
    case 'slot-add':{const [d,s]=val.split('|');sheetSlot(t,+d,s);return}
    case 'slot-pick':{const [id,d,s]=val.split('|');t.items=(t.items||[]).concat([{uid:uid('i'),act:id,day:+d,slot:s}]);t.packageId='';save(t);closeSheet();break}
    case 'item': sheetItem(t,val);return;
-   case 'item-move':case 'item-del':{try{adoptPlanChange(t,protectedPlanChange(t,act==='item-move'?'move':'remove',{uid:val,day:act==='item-move'?+$('#mv-day').value:undefined,slot:act==='item-move'?$('#mv-slot').value:undefined}));save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
+   case 'item-move':case 'item-del':{try{adoptPlanChange(t,protectedPlanChange(t,act==='item-move'?'move':'remove',{uid:val,day:act==='item-move'?+$('#mv-day').value:undefined,slot:act==='item-move'?$('#mv-slot').value:undefined,time:act==='item-move'&&$('#mv-time')?$('#mv-time').value:undefined}));save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'rain-twin': rainTwinShow(t,val);return;
    case 'rain-swap':{try{const na=rainSwap(t,UI.rainDraft,+val);save(t);closeSheet();UI.rainDraft=null;render();alertMsg('Getauscht: '+na.t+'. Die Draußen-Idee bleibt in der Ideenliste; Preis noch offen.')}catch(err){alertMsg(err.message)}return}
    case 'leg-move':{const [k,dir]=val.split('|').map(Number);const d=UI.legDraft&&UI.legDraft.trip===t.id?UI.legDraft:{trip:t.id,order:t.legs.map((_,i)=>i),nights:t.legs.map(l=>Math.max(1,Math.round(num(l.nights,1))))};
@@ -1961,6 +1977,8 @@ function validateExtras(t){
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
  validateLedger(t.ledger);
  if(t.kmSrc!=null&&t.kmSrc!=='schaetzung')throw new Error('Ungültige Herkunft der Fahrstrecke.');
+ for(const k of ['departTime','checkinTime'])if(t[k]!=null&&!TIME_RE.test(t[k]))throw new Error('Ungültige Uhrzeit in der Sicherung.');
+ (t.items||[]).forEach(i=>{if(i&&i.time!=null&&!TIME_RE.test(i.time))throw new Error('Ungültige Uhrzeit in der Sicherung.')});
  if(t.originGeo!=null&&!(t.originGeo&&Number.isFinite(+t.originGeo.lat)&&Number.isFinite(+t.originGeo.lon)&&Math.abs(+t.originGeo.lat)<=90&&Math.abs(+t.originGeo.lon)<=180))throw new Error('Ungültige Koordinaten des Abfahrtsorts.');
  if(t.destGeo!=null&&!(t.destGeo&&typeof t.destGeo==='object'&&Math.abs(+t.destGeo.lat)<=90&&Math.abs(+t.destGeo.lon)<=180&&Number.isFinite(+t.destGeo.lat)&&Number.isFinite(+t.destGeo.lon)))throw new Error('Ungültige Zielkoordinaten.');
  (t.customActs||[]).forEach(a=>{if(!a||typeof a!=='object'||a.costOpen!=null&&typeof a.costOpen!=='boolean'||a.km!=null&&!(Number.isFinite(+a.km)&&+a.km>=0&&+a.km<=1e5)||a.hours!=null&&!(Number.isFinite(+a.hours)&&+a.hours>=0&&+a.hours<=24)||a.transit!=null&&typeof a.transit!=='boolean'||a.bring!=null&&!(Array.isArray(a.bring)&&a.bring.length<=10&&a.bring.every(x=>typeof x==='string'&&x.length<=80)))throw new Error('Ungültige eigene Unternehmung.')});
@@ -2701,7 +2719,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

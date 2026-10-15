@@ -351,6 +351,54 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert(/Programm ≈ 6 Std\./.test(html), 'Stunden des Tages');
   assert(/data-act="item" data-val="h1"/.test(html) && !/data-val="h2"/.test(html) && !/Regen-Alternative: Eigenes/.test(html), 'nur Katalog-Draußen-Ideen');
 }
+/* Genaue Uhrzeiten: Fenster folgt der Uhrzeit, Sortierung, Schutz, Überschneidung, Ankunft, Check-in, Kalender, Sicherung */
+{
+  assert.equal(a.slotForTime('09:30'), 'morgen'); assert.equal(a.slotForTime('12:00'), 'mittag'); assert.equal(a.slotForTime('17:59'), 'nachm'); assert.equal(a.slotForTime('18:00'), 'abend');
+  assert.equal(a.slotForTime('25:00'), null); assert.equal(a.timeMin('07:05'), 425);
+  const tt = trip({ dateMode: 'fix', start: '2027-05-01', end: '2027-05-03', km: 160, departTime: '08:00', checkinTime: '15:00' });
+  const x1 = act('Museum', 2), x2 = act('Schiff', 1.5), x3 = act('Frühstück', 1);
+  tt.customActs = [x1, x2, x3];
+  tt.items = [{ uid: 'u1', act: x1.id, day: 1, slot: 'morgen' }, { uid: 'u2', act: x2.id, day: 1, slot: 'morgen' }, { uid: 'u3', act: x3.id, day: 0, slot: 'morgen' }];
+  /* Uhrzeit setzen über die geschützte Verschiebung: Fenster passt sich an */
+  let c = a.protectedPlanChange(tt, 'move', { uid: 'u2', day: 1, slot: 'morgen', time: '14:30' });
+  assert.equal(c.items.find(i => i.uid === 'u2').slot, 'nachm'); assert.equal(c.items.find(i => i.uid === 'u2').time, '14:30');
+  assert.throws(() => a.protectedPlanChange(tt, 'move', { uid: 'u2', day: 1, slot: 'morgen', time: '9 Uhr' }), /gültige Uhrzeit/);
+  c = a.protectedPlanChange(c, 'move', { uid: 'u2', day: 1, slot: 'nachm', time: '' }); assert.equal(c.items.find(i => i.uid === 'u2').time, undefined, 'leer entfernt Uhrzeit');
+  /* Sortierung innerhalb des Fensters nach Uhrzeit */
+  tt.items[0].time = '11:00'; tt.items[1].time = '09:00';
+  assert.deepEqual(a.sortedItems(tt).filter(i => i.day === 1).map(i => i.uid), ['u2', 'u1']);
+  /* Überschneidung: Schiff 09:00 + 1,5 Std. bis 10:30, Museum 10:00 */
+  tt.items[0].time = '10:00';
+  let ch = a.checks(tt).map(x => x[1]).join(' | ');
+  assert(/Schiff \(09:00, ca\. 1,5 Std\.\) überschneidet sich mit Museum \(10:00\)/.test(ch), 'Überschneidung erkannt');
+  tt.items[0].time = '10:30'; ch = a.checks(tt).map(x => x[1]).join(' | ');
+  assert(!/überschneidet/.test(ch), 'direkt anschließend ist keine Überschneidung');
+  /* Ankunft: 08:00 + 160 km / 80 km/h = 10:00; Frühstück 09:00 am Anreisetag liegt davor; Check-in 15:00 später */
+  assert.equal(a.arrivalMin(tt), 600);
+  tt.items[2].time = '09:00';
+  ch = a.checks(tt).map(x => x[1]).join(' | ');
+  assert(/Frühstück um 09:00 liegt vor der geschätzten Ankunft \(ca\. 10:00\)/.test(ch));
+  assert(/Ankunft ca\. 10:00, Check-in erst ab 15:00/.test(ch));
+  assert.equal(a.arrivalMin(Object.assign({}, tt, { travel: 'bahn' })), null, 'ohne Auto keine geschätzte Ankunft');
+  /* Buchungsschutz: Uhrzeit eines gebuchten Termins ändern wird erkannt */
+  tt.ledger = { ['act:' + x1.id]: { status: 'gebucht', amount: 12, paid: 0 } };
+  assert.throws(() => a.protectedPlanChange(tt, 'move', { uid: 'u1', day: 1, slot: 'morgen', time: '11:15' }), /Buchung/, 'gebuchte Uhrzeit geschützt');
+  delete tt.ledger;
+  /* Kalender: genaue Startzeit */
+  const ics = a.icsData(tt, new Date('2027-04-01T00:00:00Z')).text.replace(/\r\n /g, '');
+  const ev = ics.split('BEGIN:VEVENT').find(e => e.includes('SUMMARY:Museum'));
+  assert(/DTSTART:20270502T103000/.test(ev) && /DTEND:20270502T123000/.test(ev) && /Geplante Uhrzeit: 10:30/.test(ev));
+  /* Anzeige: Text und Mappe nennen Uhrzeit und Ankunft */
+  assert(/10:30 Museum/.test(a.tripText(tt)));
+  assert(/Ankunft ca\. 10:00/.test(a.tMappe(tt)));
+  /* Sicherung: gültige Uhrzeiten ok, ungültige abgelehnt */
+  const bk = { format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(Object.assign({}, tt, { id: 'ttime1' })))] };
+  assert.equal(a.validateBackup(bk)[0].departTime, '08:00');
+  const b1 = JSON.parse(JSON.stringify(bk)); b1.trips[0].items[0].time = '10.30'; assert.throws(() => a.validateBackup(b1), /Uhrzeit/);
+  const b2 = JSON.parse(JSON.stringify(bk)); b2.trips[0].checkinTime = 'nachmittags'; assert.throws(() => a.validateBackup(b2), /Uhrzeit/);
+  /* Eckdaten: setField prüft Format */
+  const o = {}; a.setField(o, 'departTime', '07:45'); assert.equal(o.departTime, '07:45'); a.setField(o, 'departTime', ''); assert.equal(o.departTime, undefined);
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';
@@ -364,4 +412,4 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.catYear({ places: [] }), '');
   a.catState().month = '';
 }
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text geprüft.');
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) geprüft.');

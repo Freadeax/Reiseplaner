@@ -40,7 +40,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 | P1 | Konto-Lebenszyklus | Kontoexport/-löschung, Anzeigenamen, atomarer Besitzerwechsel. Neue Migrationen und echte Datenbanktests nötig |
 | P1 | Öffentlicher Betrieb | Betreiberkontakt/Datenschutz mit tatsächlichem Betreiber und Datenflüssen; keine erfundenen Rechtstexte |
 | P1 | Vollständige Kosten | Drei abgeleitete Verpflegungsszenarien jetzt ergänzt; offene Gebühren, weitere Preisunsicherheiten, Erstattungen und Teilzahlungen bleiben offen |
-| P1 | Exakte Reisezeiten | Abfahrt, Check-in, Dauer, Transferzeiten, Zeitzone und Konflikte; grobe Fenster bisher keine Freigabe |
+| P1 | Exakte Reisezeiten | **Teilweise umgesetzt (Claude, 15.10.):** Uhrzeit je Termin, Abfahrt und Check-in, Überschneidungen, Termine vor der Ankunft, Kalender. Offen: Zeitzonen, Transferzeiten zwischen Orten, Bahn-Fahrpläne |
 | P2 | Anbieter | Suchlinks direkt beim Anbieter prüfen; Live-Adapter nur mit erlaubtem Zugriff; feste Gebühren/Mindestnächte/Saisonwechsel sauber behandeln |
 | P2 | Katalog und konkrete Silvesterreise | Feratel/Holidu, Ersatz Haus Haug, erneuerte Preise, 2–4 gleichwertige konkrete Angebote; höchstens 1.500 € für zwei, ohne offene Pflichtkosten als 0 zu behandeln |
 | P2 | Eigene Ideen und Rückblick | Indoor-Merkmal, tatsächliche Ausgaben, später Realtime als Benachrichtigung |

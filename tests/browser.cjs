@@ -88,6 +88,13 @@ async function entdecken(browser, base, name, ctxOpts) {
 
   assert(items >= 2, name + ': Tagesgerüst angelegt');
   await noOverflow(p, name + ' Katalogreise Tagesplan');
+  /* Genaue Uhrzeit über das Punkt-Blatt: Zeitfenster folgt, Uhrzeit sichtbar */
+  await p.click('.item[data-act="item"] >> nth=0');
+  await p.fill('#mv-time', '15:15');
+  await p.click('[data-act="item-move"]');
+  assert((await p.textContent('.board')).includes('15:15'), name + ': Uhrzeit im Plan');
+  const slotOf = await p.$$eval('.dslot', sl => { const h = sl.find(x => x.textContent.includes('15:15')); return h ? h.querySelector('.lbl').textContent : ''; });
+  assert.equal(slotOf, 'Nachmittag', name + ': Fenster folgt der Uhrzeit');
   await p.click('.tab[data-go$="-ueber"]');
   txt = await viewText(p);
   assert(txt.includes('Fahrstrecke geschätzt') && txt.includes('ohne Preis'), name + ': Plan-Check meldet Schätzung und offene Preise');
