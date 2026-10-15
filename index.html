@@ -2136,7 +2136,8 @@ function tKosten(t){
   '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Änderung prüfen</button></div>').join('')+'</div>':'<p class="muted">Keine sichere automatische Einsparung gefunden. Das bedeutet nicht, dass der Plan bereits optimal ist.</p>')+'<p class="small muted">Spartipps verändern keine gebuchten Termine, Zahlungen oder Fälligkeiten. Selbstkochen wird nur mit bestätigter Küche vorgeschlagen. Puffer entfernen ist keine Einsparung.</p></section>';
 }
 /* Bestehende Verpflichtungen dürfen automatische Spartipps nicht verändern. */
-function stayCommitted(t){const o=activeOffer(t);return !!(t.check&&t.check.stay||o&&(o.booked||num(o.paid,0)>0));}
+/* Format 3: ein storniertes aktives Angebot darf verlassen werden (canLeaveOffer); seine Geld-/Stornoangaben bleiben über commitmentIssues geschützt. */
+function stayCommitted(t){const o=activeOffer(t);if(isV3(t)&&o&&o.cancel)return false;return !!(t.check&&t.check.stay||o&&(o.booked||num(o.paid,0)>0));}
 function commitmentIssues(before,after){
  const out=[], old=activeOffer(before), fresh=activeOffer(after);
  if(stayCommitted(before)&&(before.stayId!==after.stayId||before.activeOfferId!==after.activeOfferId||!after.check?.stay&&before.check?.stay||old&&fresh&&JSON.stringify(old)!==JSON.stringify(fresh)))out.push('Unterkunft ist gebucht oder bereits bezahlt');
@@ -2144,10 +2145,17 @@ function commitmentIssues(before,after){
  if(stayCommitted(before)&&JSON.stringify(basis(before))!==JSON.stringify(basis(after)))out.push('Zeitraum oder Belegung der gebuchten Unterkunft würde verändert');
  const signature=(t,k)=>{const days=daysOf(t);return sortedItems(t).filter(it=>{const a=actOf(t,it.act);return a&&(k==='kurs'?a.kurs:k==='verleih'?a.gear:k==='skipass'?a.pass||a.kurs:k==='act:'+it.act);}).map(it=>{const d=days[it.day];return [it.uid,it.act,it.day,it.slot,it.time||'',d&&d.date?iso(d.date):[t.dateMode,t.month||'',t.start||''],t.persons];}).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));};
  Object.entries(before.check||{}).forEach(([k,done])=>{if(done&&k.startsWith('b-')&&JSON.stringify(signature(before,'act:'+k.slice(2)))!==JSON.stringify(signature(after,'act:'+k.slice(2))))out.push('Gebuchte Unternehmung würde verändert');});
- Object.entries(before.ledger||{}).forEach(([k,e])=>{if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due))return;
-  if(JSON.stringify(signature(before,k))!==JSON.stringify(signature(after,k)))out.push('Termin mit Buchung, Zahlung oder Fälligkeit würde verändert');
+ /* Format 3: Erstattungen und Storno sind selbst Verpflichtung/Historie; abgeschlossen stornierte Posten binden den Termin nicht mehr,
+    ihre Zahlungsangaben bleiben aber unveränderlich. Anreise-Abschnitte (tr:) werden über ihren Inhalt verglichen. */
+ const segSig=(t,k)=>{const m=k.match(/^tr:([a-z0-9]+)(?::([a-z0-9]+))?$/);if(!m||!t.transport)return null;const seg=[].concat(t.transport.out||[],t.transport.back||[]).find(x=>x.id===m[1]);if(!seg)return null;return m[2]?(seg.addons||[]).find(a=>a.id===m[2])||null:Object.assign({},seg,{addons:undefined})};
+ Object.entries(before.ledger||{}).forEach(([k,e])=>{const v3m=v3Money(before,e);if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||v3m))return;
+  const settled=v3m&&e.cancel&&V3.cancelSettled(V3.cancelMath(e,null));
+  if(!settled&&k.startsWith('tr:')&&JSON.stringify(segSig(before,k))!==JSON.stringify(segSig(after,k)))out.push('Gebuchter Anreise-Abschnitt würde verändert oder entfernt');
+  if(!settled&&JSON.stringify(signature(before,k))!==JSON.stringify(signature(after,k)))out.push('Termin mit Buchung, Zahlung oder Fälligkeit würde verändert');
   if(JSON.stringify(e)!==JSON.stringify((after.ledger||{})[k]))out.push('Zahlungsangaben würden verändert');
  });
+ if(isV3(before))(before.offers||[]).forEach(o=>{if(!(o.booked||num(o.paid,0)>0||o.cancel||(o.refunds&&o.refunds.length)))return;const n=(after.offers||[]).find(x=>x.id===o.id);
+  if(!n||JSON.stringify([o.booked,o.paid,o.cancel,o.refunds])!==JSON.stringify([n.booked,n.paid,n.cancel,n.refunds]))out.push('Zahlungs- oder Stornoangaben eines Angebots würden verändert oder entfernt')});
  return [...new Set(out)];
 }
 /* Erst einen geprüften Kandidaten bilden; abgewiesene Aktionen verändern die Reise nicht. */

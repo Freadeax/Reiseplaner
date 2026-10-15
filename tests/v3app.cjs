@@ -71,6 +71,21 @@ assert.equal(a.Store.get(t.id).title, before.title); assert.equal(a.Store.get(t.
 assert(a.v3Banner(a.Store.get(t.id)).includes('Nur ansehen'));
 assert.equal(a.v3Banner(a.silvesterTemplate()), '', 'Format 2 ohne Hinweis');
 
+/* Verpflichtungsschutz für Format 3 (vorbereitet für die Freischaltung) */
+{
+  const b = J(t), ci = a.commitmentIssues;
+  const noSeg = J(b); noSeg.transport.out = noSeg.transport.out.filter(x => x.id !== 'sflug');
+  assert(ci(b, noSeg).some(x => /Anreise-Abschnitt/.test(x)), 'gebuchter Flug darf nicht still entfernt werden');
+  const chg = J(b); chg.transport.out[1].cost = 50;
+  assert(ci(b, chg).some(x => /Anreise-Abschnitt/.test(x)), 'gebuchter Flug darf nicht still geändert werden');
+  const noRef = J(b); noRef.ledger[actKey].refunds = [];
+  assert(ci(b, noRef).some(x => /Zahlungsangaben/.test(x)), 'Erstattungen bleiben unveränderlich');
+  const actId = actKey.slice(4), moved = J(b); moved.items.forEach(it => { if (it.act === actId) it.slot = it.slot === 'abend' ? 'morgen' : 'abend'; });
+  assert(!ci(b, moved).some(x => /Termin/.test(x)), 'abgeschlossen storniert (60 − 40 = 20 = Gebühr): Termin frei');
+  const open = J(b); open.ledger[actKey].cancel.fee = null; const moved2 = J(open); moved2.items.forEach(it => { if (it.act === actId) it.slot = it.slot === 'abend' ? 'morgen' : 'abend'; });
+  assert(ci(open, moved2).some(x => /Termin/.test(x)), 'Gebühr unbekannt: Termin bleibt gebunden');
+}
+
 /* Abgrenzung */
 const v2 = a.silvesterTemplate(); v2.schemaVersion = 2;
 assert.throws(() => a.validateExtras(Object.assign(J(v2), { transport: t.transport })), /Format 3|Formats 3/, 'v3-Felder in v2 abgelehnt');
