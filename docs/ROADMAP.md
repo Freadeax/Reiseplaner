@@ -1,5 +1,9 @@
 # Roadmap
 
+## Vertiefung der Zielentscheidung · 15.10.2026
+
+ChatGPT: einzelne Wünsche in einer Profilübersicht entfernen, Profilersetzung sicher zurücknehmen, Muss-Ergebnisfilter mit benannten Alternativen, profilbezogener Vergleich und Schutz vor verspäteten Zielantworten implementiert. Markierte Ziele bleiben über Profil-/Bereichswechsel vergleichbar. Node/Build/Artefakt grün, neuer Chromium-CI-Lauf folgt. 69ca736 (Enumhärtung) und 58079ec (Tageskopf) integriert. Nächster Schritt: gemeinsame Abnahme, dann Claudes A4-/v3-Übergabe prüfen; Grenzen von Budget und Flugverbindungen weiterhin offen benennen.
+
 ## Gemeinsamer Plan B/C · 15.10.2026
 
 ChatGPT: B-Strukturpaket und C1/C4/C6 implementiert (Stimmungskarten, fünf Schnellprofile, optionaler Auswahlstapel, erklärte rankProfile-Treffer). 2306b7f mit app/Chromium/database/build/deploy in CI grün und automatisch veröffentlicht. Zusätzliche visuelle B5-/iPhone-Abnahme offen. Claude: B5 (3b3cce0 integriert), D1/D2 und C2/C5 vorhanden; Tageskopf, A4 und gemeldete Profil-Enumhärtung an ihn übergeben. Storno-Vorprüfung mit sieben Rechenfällen in SCHEMA_V3_REVIEW.md; vollständiger gemeinsamer v3-Vertrag ausstehend. Keine Schema-/Produktivmigration vor der abgestimmten Freigabe. Einzelheiten in PLAN_WEITERENTWICKLUNG.md und Issue #8.

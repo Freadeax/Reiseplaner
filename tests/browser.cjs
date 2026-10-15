@@ -43,7 +43,7 @@ async function planClick(p,selector){
  const day=await target.evaluate(el=>{const col=el.closest('.dcol[data-day]');return col?col.getAttribute('data-day'):null});
  if(day!==null&&await p.isVisible('#plan-day'))await p.selectOption('#plan-day',day);
  /* Werkzeuge im aufklappbaren Tageskopf: erst öffnen */
- if(await target.evaluate(el=>!!el.closest('details.dmore:not([open])')))await target.evaluate(el=>{el.closest('details.dmore').open=true});
+ if(await target.evaluate(el=>!!el.closest('details.dmore:not([open])')))await p.locator('.dcol[data-day="'+day+'"] .dmore summary').click();
  await p.click(selector);
 }
 async function shot(p, name) { if (OUT) await p.screenshot({ path: path.join(OUT, name + '.png'), fullPage: true }); }
@@ -81,6 +81,12 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.reload();
   assert.equal(await p.inputValue('[data-profile-kind="natur"]'),'must',name+': unbedingt bleibt nach Neuladen');
   assert.equal(await p.inputValue('[data-profile-kind="stadt"]'),'avoid',name+': lieber nicht bleibt nach Neuladen');
+  await p.click('[data-act="cat-preset"][data-val="kultur"]');
+  await p.click('[data-act="cat-profile-undo"]');
+  assert.equal(await p.inputValue('[data-profile-kind="natur"]'),'must',name+': Profilrücknahme stellt eigene Wünsche wieder her');
+  await p.click('[data-act="cat-wish-remove"][data-val="kind:stadt"]');
+  assert.equal(await p.inputValue('[data-profile-kind="stadt"]'),'',name+': Einzelwunsch entfernt');
+  assert.equal(await p.inputValue('[data-profile-kind="natur"]'),'must',name+': andere Wünsche erhalten');
   await p.click('[data-act="cat-mood-mode"][data-val="deck"]');
   await p.click('[data-act="cat-vote"][data-val="natur|avoid"]');
   assert((await p.textContent('.mood-deck')).includes('Karte 2 von 12'),name+': Stapel geht weiter');
@@ -96,6 +102,15 @@ async function entdecken(browser, base, name, ctxOpts) {
   let txt = await viewText(p);
   assert(txt.includes('Bad Urach') && txt.includes('Offline-Kopie in der App'), name + ': Treffer und Quelle');
   assert(!txt.includes('Rügen'), name + ': nichts außerhalb des Bereichs');
+  await p.selectOption('[data-profile-field="travel"]','flug');
+  await p.fill('[data-profile-field="maxMin"]','90');await p.press('[data-profile-field="maxMin"]','Tab');
+  await p.check('[data-cf="mustOnly"]');
+  assert((await p.textContent('#cat-results')).includes('Kein Ziel erfüllt derzeit alle Muss-Wünsche'),name+': unbekannte Flugdauer erfüllt kein Muss');
+  assert.equal(await p.locator('#cat-results [data-act="cat-open"]').count(),0,name+': Muss-Filter zeigt keine unbelegten Treffer');
+  await p.click('[data-act="cat-must-all"]');
+  assert(await p.isVisible('[data-act="cat-open"][data-val="bad-urach"]'),name+': Alternativen wieder sichtbar');
+  await p.click('[data-act="cat-wish-remove"][data-val="field:maxMin"]');
+  await p.click('[data-act="cat-wish-remove"][data-val="field:travel"]');
   await noOverflow(p, name + ' Entdecken Ergebnisse');
   await p.click('[data-act="cat-open"][data-val="bad-urach"]');
   await p.waitForSelector('#cat-stops >> text=kurze Strecken');
@@ -236,6 +251,9 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('[data-act="cat-cmp-open"]');
   await p.waitForSelector('.sheet table.cmp');
   assert.equal(await p.$$eval('.sheet table.cmp thead th', l => l.length), 3, name + ': zwei Spalten plus Beschriftung');
+  assert((await p.textContent('.sheet table.cmp')).includes('Muss-Prüfung'),name+': Vergleich erklärt Muss-Lücken');
+  assert((await p.textContent('.sheet .profile-summary')).includes('Burgen'),name+': Vergleich nennt aktuelle Wünsche');
+  assert.equal(await p.locator('.sheet .profile-summary [data-act]').count(),0,name+': Vergleich verändert Wünsche nicht');
   await noOverflow(p, name + ' Vergleich');
   await p.click('[data-act="sheet-x"]');
   await p.click('[data-act="cat-cmp-clear"]');

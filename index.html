@@ -421,6 +421,16 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .mood-frame summary,.cat-reasons summary{cursor:pointer;padding:8px 0}
 .mood-frame .form{margin-top:16px}
 .mood-weather{display:flex;align-items:center;gap:10px;margin-top:12px}
+.profile-summary{margin:20px 0;padding:18px;background:var(--spruce-soft);border:1px solid var(--line);border-radius:14px}
+.profile-summary h3{margin:0 0 12px;font-size:1rem}
+.profile-tags{display:flex;flex-wrap:wrap;gap:8px}
+.profile-tag{display:inline-flex;align-items:center;gap:10px;padding:10px 12px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:.83rem;text-align:left;max-width:100%;overflow-wrap:anywhere}
+button.profile-tag{cursor:pointer}button.profile-tag:hover{border-color:var(--spruce)}
+.profile-tag>span{margin-left:auto;font-size:1.2rem}
+.profile-undo{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:.85rem}
+.cat-result-tools{padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:16px 0}
+.cat-result-tools>label{display:flex;align-items:center;gap:10px;min-height:44px}
+.cat-result-tools .form{margin-top:12px}
 .cat-reasons{font-size:.88rem;margin:10px 0}
 .cat-reasons li{margin:6px 0;overflow-wrap:anywhere}
 @media(max-width:850px){.mood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -2899,9 +2909,33 @@ function catReadProfile(legacy){
 function catSyncProfile(s){s.kinds=Object.keys(s.profile.kinds).filter(k=>s.profile.kinds[k]!=='avoid');s.month=s.profile.month==null?'':String(s.profile.month);s.nights=s.profile.nights==null?'':String(s.profile.nights);s.family=s.profile.party==='familie';s.rainy=s.profile.weatherSafe}
 function catProfile(){const s=catState();return CATX.checkProfile(s.profile)}
 function catRank(r){return CATX.rankProfile(r,catProfile()).map(x=>Object.assign(x,{version:r.version,source:r.source}))}
-function catProfileChange(patch){const s=catState();s.profile=CATX.checkProfile(Object.assign({},s.profile,patch));catSyncProfile(s);if(s.res)s.res.ranked=catRank(s.res);s.extra={};catSavePrefs()}
+function catProfileChange(patch){const s=catState();s.profileUndo=null;s.profile=CATX.checkProfile(Object.assign({},s.profile,patch));catSyncProfile(s);if(s.res)s.res.ranked=catRank(s.res);Object.keys(s.extra).forEach(id=>{const x=s.extra[id];s.extra[id]=catRank({places:[x.place],version:x.version,source:x.source})[0]});catSavePrefs()}
 function catSetMood(kind,level){if(!Object.hasOwn(CAT_MOODS,kind))return;const kinds=Object.assign({},catProfile().kinds);if(['must','like','avoid'].includes(level))kinds[kind]=level;else delete kinds[kind];catProfileChange({kinds})}
-function catPreset(id){const p=Object.hasOwn(CAT_PRESETS,id)?CAT_PRESETS[id]:null;if(!p)return;catProfileChange(CATX.checkProfile(p.profile));catState().deckIndex=0}
+function catReplaceProfile(profile,label){const s=catState(),before=catProfile(),after=CATX.checkProfile(profile);if(JSON.stringify(before)===JSON.stringify(after))return;const deckIndex=s.deckIndex||0;catProfileChange(after);s.deckIndex=0;s.profileUndo={before,after:JSON.stringify(catProfile()),label,deckIndex}}
+function catPreset(id){const p=Object.hasOwn(CAT_PRESETS,id)?CAT_PRESETS[id]:null;if(p)catReplaceProfile(p.profile,'Schnellprofil „'+p.name+'“ übernommen')}
+function catClearProfile(){catReplaceProfile({},'Wünsche zurückgesetzt')}
+function catUndoProfile(){const s=catState(),u=s.profileUndo;if(!u||u.after!==JSON.stringify(catProfile())){s.profileUndo=null;return false}catProfileChange(u.before);s.deckIndex=u.deckIndex;return true}
+function catWishItems(profile){const p=CATX.checkProfile(profile),out=[];
+ Object.entries(p.kinds).forEach(([k,v])=>out.push({key:'kind:'+k,label:CATX.KINDS[k]+' · '+({must:'unbedingt',like:'gern',avoid:'lieber nicht'}[v])}));
+ const add=(key,label)=>out.push({key:'field:'+key,label});
+ if(p.month!=null)add('month',MONTHS[p.month-1]||'Monat '+p.month);if(p.nights!=null)add('nights',p.nights===0?'Tagesausflug':p.nights+' '+(p.nights===1?'Nacht':'Nächte'));
+ if(p.pace)add('pace','Tempo: '+({ruhig:'ruhig',gemischt:'gemischt',aktiv:'aktiv'}[p.pace]));
+ if(p.party)add('party',({paar:'Zu zweit',familie:'Mit Kindern',freunde:'Mit Freunden',allein:'Allein'}[p.party]));
+ if(p.travel)add('travel','Anreise: '+({auto:'Auto',bahn:'Bahn · Verbindung ungeprüft',flug:'Flug · Verbindung ungeprüft'}[p.travel]));
+ if(p.maxMin!=null)add('maxMin','Max. '+p.maxMin+' Min. · '+(!p.travel||p.travel==='auto'?'Auto-Schätzung':'ungeprüft'));
+ if(p.budgetPp!=null)add('budgetPp','Budget '+p.budgetPp.toLocaleString('de-DE')+' € pro Person · ungeprüft');if(p.weatherSafe)add('weatherSafe','Regenalternativen gewünscht');return out;
+}
+function catDropWish(key){const [type,field]=String(key||'').split(':');if(type==='kind'){catSetMood(field,'');return}const p=catProfile();if(type==='field'&&field!=='kinds'&&Object.hasOwn(p,field))catProfileChange({[field]:field==='weatherSafe'?false:null})}
+function catProfileSummary(editable=true){const s=catState(),items=catWishItems(s.profile);
+ return '<section class="profile-summary" aria-label="Eure Wünsche im Überblick"><h3'+(editable?' tabindex="-1"':'')+'>Eure Wünsche im Überblick</h3>'+(items.length?'<div class="profile-tags">'+items.map(x=>editable?'<button type="button" class="profile-tag" data-act="cat-wish-remove" data-val="'+esc(x.key)+'" aria-label="'+esc(x.label)+' entfernen">'+esc(x.label)+' <span aria-hidden="true">×</span></button>':'<span class="profile-tag">'+esc(x.label)+'</span>').join('')+'</div>':'<p class="small muted">Noch alles offen. Wählt ein Profil oder stellt eure Wünsche selbst zusammen.</p>')+
+ (editable&&items.length?'<p class="small muted">Einen Wunsch antippen, um nur diesen zu entfernen.</p>':'')+(editable&&s.profileUndo?'<div class="profile-undo" role="status"><span>'+esc(s.profileUndo.label)+'.</span><button type="button" class="lnk" data-act="cat-profile-undo">Rückgängig</button></div>':'')+'</section>';
+}
+function catRenderProfile(){render();const target=$('.mood-panel .profile-summary h3');if(target&&target.focus)target.focus()}
+function catResultView(s=catState()){const all=s.res?s.res.ranked:[],matching=all.filter(x=>CATX.textMatch(x.place,s.q)),hidden=s.mustOnly?matching.filter(x=>!x.mustOk).length:0;return {all,matching,hidden,shown:CATX.sortRanked(matching.filter(x=>!s.mustOnly||x.mustOk),s.sort)}}
+/* Vergleich und Rundreise bleiben beim Bereichswechsel erhalten. Nur Koordinaten-basierte
+   Auto-Schätzungen werden für den neuen Abfahrtsort neu berechnet. */
+function catInvalidateSearch(){const s=catState(),extra={};[...new Set(s.cmp.concat(s.tour.map(p=>p.id)))].forEach(id=>{const x=catFind(id);if(!x)return;const p=Object.assign({},x.place,{airKm:s.origin?Math.round(CATX.airKm(s.origin,x.place)*10)/10:null});extra[id]=catRank({places:[p],version:x.version,source:x.source})[0]});const pending=s.busy;s.searchJob=(s.searchJob||0)+1;s.busy=false;s.res=null;s.err='';s.extra=extra;s.searchNote=pending?'Suchbereich geändert. Startet die Suche erneut; die vorherige Antwort wird verworfen.':''}
+function catSearchScope(s){return JSON.stringify([s.origin&&s.origin.label,s.origin&&s.origin.lat,s.origin&&s.origin.lon,s.minKm,s.maxKm])}
 function catDefaults(){return {origin:null,range:'tag',minKm:0,maxKm:150,kinds:[],month:'',nights:'',family:false,rainy:false}}
 function catState(){
   if(!UI.cat){let p={};try{p=JSON.parse(localStorage.getItem(CAT_PREF_KEY)||'{}')||{}}catch(e){p={}}
@@ -2944,7 +2978,7 @@ function catMoodPanel(){const s=catState(),keys=Object.keys(CAT_MOODS),i=Math.mi
  '<div class="mood-deck"><p class="small muted" role="status">Karte '+(i+1)+' von '+keys.length+' · '+esc(CATX.KINDS[keys[i]])+'</p>'+catMoodCard(keys[i],true)+'<div class="mood-votes">'+[['avoid','Nein'],['','Vielleicht'],['like','Ja']].map(o=>'<button type="button" class="btn ghost" data-act="cat-vote" data-val="'+keys[i]+'|'+o[0]+'" aria-pressed="'+((s.profile.kinds[keys[i]]||'')===o[0])+'">'+o[1]+'</button>').join('')+'</div><p class="small muted">Ja = gern · Nein = lieber nicht (Abwertung) · Vielleicht = offen</p>'+(i?'<button type="button" class="lnk" data-act="cat-deck-back">← Vorherige Karte</button>':'')+'</div>';
  return '<div class="panel mood-panel"><span class="eyebrow">Euer Reisegefühl</span><h2>3 · Worauf habt ihr Lust?</h2><p>Wählt frei oder startet mit einem Profil. „Unbedingt“ muss belegt sein. „Lieber nicht“ wertet passende Ziele ab, blendet sie aber nicht aus.</p>'+
  '<div class="mood-presets">'+Object.entries(CAT_PRESETS).map(([id,p])=>'<button type="button" class="mood-preset" data-act="cat-preset" data-val="'+id+'"><b>'+p.name+'</b><small>'+p.hint+'</small></button>').join('')+'</div><p class="small muted">Ein Schnellprofil ersetzt die bisherigen Wünsche und Rahmenangaben. Abfahrtsort und Entfernung bleiben erhalten.</p>'+
- '<div class="between"><div class="row" role="group" aria-label="Wünsche auswählen">'+chipb('cat-mood-mode','cards','Alle Karten',!s.deckMode)+chipb('cat-mood-mode','deck','Ja / Nein / Vielleicht',!!s.deckMode)+'</div><button type="button" class="lnk" data-act="cat-profile-clear">Wünsche zurücksetzen</button></div>'+
+ catProfileSummary()+'<div class="between"><div class="row" role="group" aria-label="Wünsche auswählen">'+chipb('cat-mood-mode','cards','Alle Karten',!s.deckMode)+chipb('cat-mood-mode','deck','Ja / Nein / Vielleicht',!!s.deckMode)+'</div><button type="button" class="lnk" data-act="cat-profile-clear">Wünsche zurücksetzen</button></div>'+
  (s.deckMode?deck:'<div class="mood-grid">'+keys.map(k=>catMoodCard(k,false)).join('')+'</div>')+
  '<details class="mood-frame" open><summary><b>Rahmen für eure Reise</b></summary><div class="form">'+
  catProfileSelect('month','Reisemonat',[['','Offen'],...MONTHS.map((m,i)=>[String(i+1),m])])+
@@ -3048,14 +3082,17 @@ function vEntdecken(){
     '</div>'+(o?'':'<p class="small muted">Für Entfernungen und Planung erst einen Abfahrtsort wählen.</p>')+
     '<div class="row"><button type="button" class="btn ghost sm" data-act="cat-fav-export">Merkliste sichern</button><button type="button" class="btn ghost sm" data-act="cat-fav-import">Merkliste importieren</button><button type="button" class="btn ghost sm" data-act="cat-fav-share">Als Text teilen</button><input id="fav-file" type="file" accept=".json,application/json" hidden></div><p class="small muted">Die Merkliste liegt nur in diesem Browser. Mit „sichern“ entsteht eine kleine Datei (nur Ziele, keine Reisedaten) für ein anderes Gerät.</p></details></section>';
   else out+='<section class="block"><p class="small muted">Merkliste leer. <button type="button" class="lnk" data-act="cat-fav-import">Gesicherte Merkliste importieren</button><input id="fav-file" type="file" accept=".json,application/json" hidden></p></section>';
+  if(s.searchNote)out+='<section class="block"><p class="note" role="status">'+esc(s.searchNote)+'</p></section>';
   if(s.busy)out+='<section class="block"><p role="status">Suche läuft …</p></section>';
   else if(s.err)out+='<section class="block"><div class="note" role="alert"><b>Suche nicht möglich</b><p>'+esc(s.err)+'</p></div></section>';
   else if(res){
-    const shown=CATX.sortRanked(res.ranked.filter(x=>CATX.textMatch(x.place,s.q)),s.sort);
-    out+='<section class="block" id="cat-results"><h2>'+(res.ranked.length?res.ranked.length+' Ziele zwischen '+s.minKm+' und '+s.maxKm+' km':'Keine Ziele in diesem Bereich')+'</h2>'+catSourceLine(res)+(res.ranked.some(x=>x.mustOk===false)?'<p class="note">'+res.ranked.filter(x=>x.mustOk===false).length+' Ziele erfüllen nicht alle Muss-Wünsche oder haben eine ungeprüfte Anreisedauer. Sie bleiben als Alternativen sichtbar.</p>':'')+
-     (res.ranked.length?'<div class="form"><label class="fld"><span>In den Treffern suchen</span><input type="search" data-cf="q" maxlength="60" value="'+esc(s.q)+'" placeholder="z. B. Höhle, Wasserfall, Schloss"></label><label class="fld"><span>Sortieren</span><select data-cf="sort">'+[['passend','Am besten passend'],['nah','Am nächsten'],['weit','Am weitesten'],['ideen','Meiste Ideen']].map(x=>'<option value="'+x[0]+'"'+(s.sort===x[0]?' selected':'')+'>'+x[1]+'</option>').join('')+'</select></label></div>'+
-      catYear(res)+(s.q&&shown.length!==res.ranked.length?'<p class="small">'+shown.length+' von '+res.ranked.length+' Zielen passen zu „'+esc(s.q)+'“.</p>':'')+catMap(shown,s.origin):'')+
-     (res.ranked.length?(shown.length?'<div class="grid">'+shown.map(catCard).join('')+'</div>':'<div class="empty"><b>Kein Treffer für „'+esc(s.q)+'“</b><button type="button" class="btn ghost" data-act="cat-q-clear">Suchwort entfernen</button></div>'):'<div class="empty"><b>Nichts gefunden</b><span>Kilometerbereich vergrößern oder Themen abwählen. Der Katalog wächst; eigene Ziele lassen sich jederzeit als Reise anlegen.</span><button type="button" class="btn ghost" data-go="neu">Eigene Reise anlegen</button></div>')+'</section>';
+    const {shown,matching,hidden}=catResultView(s),missing=res.ranked.filter(x=>!x.mustOk).length;
+    out+='<section class="block" id="cat-results"><h2>'+(res.ranked.length?res.ranked.length+' Ziele zwischen '+s.minKm+' und '+s.maxKm+' km':'Keine Ziele in diesem Bereich')+'</h2>'+catSourceLine(res)+
+     (res.ranked.length?'<div class="cat-result-tools">'+(missing||s.mustOnly?'<label><input type="checkbox" data-cf="mustOnly"'+(s.mustOnly?' checked':'')+'> Nur Ziele mit belegten Muss-Wünschen</label>':'')+
+      '<p class="small" role="status">'+shown.length+' von '+res.ranked.length+' Zielen sichtbar.'+(s.mustOnly?' '+hidden+' Alternativen wegen fehlender Muss-Merkmale oder ungeprüfter Anreisedauer ausgeblendet.':missing?' '+missing+' Alternativen mit Muss-Lücken oder ungeprüfter Anreisedauer bleiben sichtbar.':'')+'</p>'+
+      '<div class="form"><label class="fld"><span>In den Treffern suchen</span><input type="search" data-cf="q" maxlength="60" value="'+esc(s.q)+'" placeholder="z. B. Höhle, Wasserfall, Schloss"></label><label class="fld"><span>Sortieren</span><select data-cf="sort">'+[['passend','Am besten passend'],['nah','Am nächsten'],['weit','Am weitesten'],['ideen','Meiste Ideen']].map(x=>'<option value="'+x[0]+'"'+(s.sort===x[0]?' selected':'')+'>'+x[1]+'</option>').join('')+'</select></label></div><p class="small muted">Budget und Verbindungen bleiben ungeprüft. Ein sichtbarer Treffer ist keine Preis- oder Buchungszusage.</p></div>'+
+      catYear(res)+(s.q&&matching.length!==res.ranked.length?'<p class="small">'+matching.length+' von '+res.ranked.length+' Zielen passen zu „'+esc(s.q)+'“.</p>':'')+catMap(shown,s.origin):'')+
+     (res.ranked.length?(shown.length?'<div class="grid">'+shown.map(catCard).join('')+'</div>':matching.length?'<div class="empty"><b>Kein Ziel erfüllt derzeit alle Muss-Wünsche.</b><span>Wünsche oben einzeln lockern oder die Alternativen wieder einblenden.</span><button type="button" class="btn ghost" data-act="cat-must-all">Alternativen anzeigen</button></div>':'<div class="empty"><b>Kein Treffer für „'+esc(s.q)+'“</b><button type="button" class="btn ghost" data-act="cat-q-clear">Suchwort entfernen</button></div>'):'<div class="empty"><b>Nichts gefunden</b><span>Kilometerbereich vergrößern. Der Katalog wächst; eigene Ziele lassen sich jederzeit als Reise anlegen.</span><button type="button" class="btn ghost" data-go="neu">Eigene Reise anlegen</button></div>')+'</section>';
   }
   return out;
 }
@@ -3143,12 +3180,18 @@ function catShareUrl(id){return (typeof location!=='undefined'&&location.origin?
 /* Zielvergleich: Unterschiede nebeneinander, keine Wertung */
 function catCompareSheet(){
   const s=catState(),xs=s.cmp.map(catFind).filter(Boolean);if(xs.length<2)return;
-  const rows=CATX.compareRows(xs,{month:s.month?+s.month:null});
-  openSheet('<span class="eyebrow">Vergleich</span><h2>'+xs.length+' Ziele nebeneinander</h2><p class="small muted">Typische Angaben aus dem Katalog, keine Preise und keine Bewertung. Entfernungen sind Schätzungen. Auf schmalen Bildschirmen die Tabelle seitlich wischen.</p>'+
+  const rows=catProfileRows(xs).concat(CATX.compareRows(xs,{month:s.month?+s.month:null}));
+  openSheet('<span class="eyebrow">Vergleich</span><h2>'+xs.length+' Ziele nebeneinander</h2><p class="small muted">Bewertung anhand eurer aktuellen Wünsche, typische Angaben aus dem Katalog. Keine Preise oder geprüften Verbindungen. Entfernungen sind Auto-Schätzungen. Auf schmalen Bildschirmen die Tabelle seitlich wischen.</p>'+catProfileSummary(false)+
    '<div class="tbl-wrap"><table class="tbl cmp"><thead><tr><th></th>'+xs.map(x=>'<th scope="col">'+esc(x.place.name)+'</th>').join('')+'</tr></thead><tbody>'+
    rows.map(r=>'<tr><th scope="row">'+esc(r.label)+'</th>'+r.values.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+
    '<tr><th scope="row"></th>'+xs.map(x=>'<td><button type="button" class="btn ghost sm" data-act="cat-open" data-val="'+esc(x.place.id)+'">Ansehen & planen</button></td>').join('')+'</tr></tbody></table></div>');
 }
+function catProfileRows(xs){return [
+ {label:'Eure Wünsche',values:xs.map(x=>x.summary||'nicht bewertet')},
+ {label:'Muss-Prüfung',values:xs.map(x=>{if(!x.must)return 'nicht bewertet';const missing=x.must.missing.map(k=>CATX.KINDS[k]||'Anreisedauer'),unknown=x.must.unknown.filter(k=>k!=='budget');return [missing.length?'Fehlt: '+missing.join(', '):'',unknown.length?'Anreisedauer ungeprüft':'',!missing.length&&!unknown.length?'Keine erkannte Muss-Lücke':''].filter(Boolean).join(' · ')})},
+ {label:'Passt weniger gut',values:xs.map(x=>(x.why||[]).filter(w=>w.type==='minus').map(w=>w.text).join(' · ')||'keine Abwertung')},
+ {label:'Ungeprüft',values:xs.map(x=>(x.why||[]).filter(w=>w.type==='unknown').map(w=>w.text).join(' · ')||'Preise, Öffnungszeiten und Verfügbarkeit')}
+]}
 function catPicked(){const s=catState();return [...document.querySelectorAll('[data-cs]')].filter(c=>c.checked).map(c=>s.index[c.getAttribute('data-cs')]).filter(Boolean)}
 /* Auswahl als eigene Unternehmungen mit Tagesgerüst in eine Reise übernehmen (nur additive Felder). */
 function catApply(t,picked,nights){
@@ -3236,14 +3279,16 @@ function catTourCreate(){
 }
 async function catSearch(surprise){
   const s=catState();if(!s.origin)return;
-  s.busy=true;s.err='';render();
+  const job=s.searchJob=(s.searchJob||0)+1,scope=catSearchScope(s),active=()=>UI.cat===s&&s.searchJob===job&&catSearchScope(s)===scope;
+  const query={lat:s.origin.lat,lon:s.origin.lon,maxKm:s.maxKm,minKm:s.minKm,kinds:[]};
+  s.busy=true;s.err='';s.searchNote='';if(UI.view==='entdecken')render();
   try{
-    const r=await catalogQuery({lat:s.origin.lat,lon:s.origin.lon,maxKm:s.maxKm,minKm:s.minKm,kinds:[]});
-    r.ranked=catRank(r);s.extra={};
+    const r=await catalogQuery(query);if(!active())return;
+    r.ranked=catRank(r);
     s.res=r;
-  }catch(e){s.err=e.message;s.res=null}
-  s.busy=false;catSavePrefs();render();
-  if(s.res&&surprise){const pick=CATX.surprise(s.res.ranked);if(pick)catOpen(pick.place.id);else alertMsg('Im gewählten Bereich gibt es keine Ziele. Kilometer vergrößern oder Themen abwählen.')}
+  }catch(e){if(!active())return;s.err=e.message;s.res=null}
+  if(!active())return;s.busy=false;catSavePrefs();if(UI.view!=='entdecken')return;render();
+  if(s.res&&surprise){const pick=CATX.surprise(catResultView(s).shown.filter(x=>x.mustOk));if(pick)catOpen(pick.place.id);else alertMsg('Kein sichtbares Ziel erfüllt derzeit alle Muss-Wünsche. Wünsche prüfen oder Alternativen in der Ergebnisliste ansehen. Ungeprüfte Verbindungen erfüllen keine Anreisedauer.')}
   else if(s.res){const el=document.getElementById('cat-results');if(el&&el.scrollIntoView)try{el.scrollIntoView({block:'start'})}catch(e){}}
 }
 async function catGeoSearch(text){
@@ -3258,7 +3303,7 @@ async function catGeoSearch(text){
   }catch(e){s.geoHits=local;if(!local.length)alertMsg('Ortssuche nicht erreichbar ('+e.message+'). Bitte eine Stadt aus der Liste wählen.')}
   s.geoBusy=false;render();
 }
-function catSetOrigin(o){const s=catState();s.origin={label:String(o.label).slice(0,80),lat:+o.lat,lon:+o.lon};s.geoHits=null;s.res=null;catSavePrefs();render()}
+function catSetOrigin(o){const s=catState();s.origin={label:String(o.label).slice(0,80),lat:+o.lat,lon:+o.lon};s.geoHits=null;catInvalidateSearch();catSavePrefs();render()}
 /* In einer Reise: weitere Katalog-Ideen rund um das Ziel */
 async function catTripIdeas(t){
   const g=t.destGeo;if(!g||!CATX||!CATX.validPoint(g))return;
@@ -3283,10 +3328,13 @@ document.addEventListener('click',e=>{
         err=>{s.geoBusy=false;render();alertMsg('Standort nicht verfügbar'+(err&&err.code===1?' (keine Freigabe)':'')+'. Bitte Ort eingeben oder aus der Liste wählen.')},{timeout:10000,maximumAge:600000});return;
     case 'cat-geo-search':catGeoSearch(($('#cat-q')||{}).value);return;
     case 'cat-pick':{const h=s.geoHits&&s.geoHits[+val];if(h)catSetOrigin(h);return}
-    case 'cat-origin-clear':s.origin=null;s.res=null;catSavePrefs();render();return;
-    case 'cat-range':{const r=CATX.RANGES.find(x=>x.id===val);if(r){s.range=r.id;s.minKm=r.min;s.maxKm=r.max;s.res=null;catSavePrefs();render()}return}
-    case 'cat-preset':catPreset(val);render();return;
-    case 'cat-profile-clear':catProfileChange(CATX.checkProfile({}));s.deckIndex=0;render();return;
+    case 'cat-origin-clear':s.origin=null;catInvalidateSearch();catSavePrefs();render();return;
+    case 'cat-range':{const r=CATX.RANGES.find(x=>x.id===val);if(r){s.range=r.id;s.minKm=r.min;s.maxKm=r.max;catInvalidateSearch();catSavePrefs();render()}return}
+    case 'cat-preset':catPreset(val);catRenderProfile();return;
+    case 'cat-profile-clear':catClearProfile();catRenderProfile();return;
+    case 'cat-profile-undo':catUndoProfile();catRenderProfile();return;
+    case 'cat-wish-remove':catDropWish(val);catRenderProfile();return;
+    case 'cat-must-all':s.mustOnly=false;render();return;
     case 'cat-mood-mode':s.deckMode=val==='deck';render();return;
     case 'cat-deck-back':s.deckIndex=Math.max(0,(s.deckIndex||0)-1);render();return;
     case 'cat-vote':{const [kind,level]=String(val||'').split('|');if(Object.keys(CAT_MOODS)[s.deckIndex||0]!==kind)return;catSetMood(kind,level);s.deckIndex=Math.min(Object.keys(CAT_MOODS).length,(s.deckIndex||0)+1);render();const next=$('[data-act="cat-vote"]')||$('[data-act="cat-deck-back"]');if(next&&next.focus)next.focus();return}
@@ -3328,10 +3376,11 @@ document.addEventListener('change',async e=>{
   if(pf){catProfileChange({[pf]:pf==='weatherSafe'?el.checked:el.value});render();const target=$('[data-profile-field="'+pf+'"]');if(target&&target.focus)target.focus();return}
   const f=el.getAttribute&&el.getAttribute('data-cf');if(!f)return;
   const s=catState();
+  if(f==='mustOnly'){s.mustOnly=el.checked;render();const target=$('[data-cf="mustOnly"]');if(target&&target.focus)target.focus();return}
   if(f==='q'||f==='sort'){s[f]=f==='q'?String(el.value||'').slice(0,60):el.value;render();return}
   if(f==='minKm'||f==='maxKm'){const v=Math.max(0,Math.min(CATX.MAX_KM,Math.round(num(el.value,0))));s[f]=f==='maxKm'?Math.max(10,v):v;if(s.minKm>=s.maxKm){if(f==='minKm')s.maxKm=Math.min(CATX.MAX_KM,s.minKm+50);else s.minKm=Math.max(0,s.maxKm-50)}s.range=''}
   else if(f==='month'||f==='nights'){catProfileChange({[f]:el.value});render();const target=$('[data-cf="'+f+'"]');if(target&&target.focus)target.focus();return}
-  s.res=null;catSavePrefs();render();
+  catInvalidateSearch();catSavePrefs();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='cat-q'){e.preventDefault();catGeoSearch(e.target.value)}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='cat-find'){e.preventDefault();catFindRun(e.target.value)}});
@@ -3454,6 +3503,7 @@ Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invali
 Object.assign(window.__app,{TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
+Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

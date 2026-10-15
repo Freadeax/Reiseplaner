@@ -6,6 +6,18 @@
 - Tests: `tests/module.cjs` (vorhandene Typen, eindeutige Punkte, keine Preise, Sicherung gültig, in der Checkliste sichtbar). `npm test` und `npm run test:browser` grün.
 - Grenze: Ein eigenes Flug-Datenmodell (Abschnitte, Flughäfen, Gepäck als Posten) folgt erst mit dem Datenvertrag v3 (Plan A1/A2/A6).
 
+## Entdecken vertieft: Wünsche, Vergleich und zuverlässige Suche (ChatGPT, #8)
+
+Basis 69ca736; Claudes Tageskopf 58079ec und A4-Vorlagen 85cc659 vollständig integriert. Wunschübersicht nennt Themen samt Stufe und alle Rahmenangaben, Budget/Verbindungen ausdrücklich ungeprüft. Jeder Wunsch ist einzeln entfernbar. Schnellprofil und Zurücksetzen lassen sich unmittelbar zurücknehmen, einschließlich vorheriger Stapelposition. Eine spätere manuelle Profiländerung verwirft die alte Rücknahme, damit sie keine neuen Wünsche löscht. Fokus nach diesen Aktionen landet auf der aktualisierten Übersicht. Keine neuen gespeicherten Felder; Rücknahme und Ergebnisfilter sind flüchtig.
+
+Ergebnisse: optional nur Ziele mit belegten Muss-Wünschen; sichtbare Gesamtzahl und Zahl der wegen Muss-Lücken/ungeprüfter Anreisedauer ausgeblendeten Alternativen. Bei leerem Muss-Ergebnis direkte Rückkehr zu Alternativen. Textsuche und Sortierung bleiben kombinierbar. Budget wird weiterhin nicht bewertet. „Überrasch mich“ wählt nur unter sichtbaren Treffern ohne Muss-Lücke; ungeprüfte Anreisedauer wird nicht still übergangen.
+
+Zielvergleich zeigt aktuelle Wünsche, Wunschabdeckung, Muss-Lücken, Abwertungen und ungeprüfte Angaben vor den üblichen Katalogzeilen. Markierte Vergleichs- und Rundreiseziele bleiben beim Bereichswechsel erreichbar. Profilwechsel bewertet den Cache neu; Startwechsel berechnet die Auto-Schätzung neu, ohne vorhandene Reisedaten zu verändern.
+
+Asynchrone Zielsuche schützt mit Auftragsnummer und Orts-/Bereichssnapshot: alte Antworten ersetzen weder neue Treffer noch den Ladezustand einer neueren Suche. Nach Bereichswechsel sofort neu suchbar, klarer Hinweis auf verworfene Antwort. Nach Navigation aus Entdecken keine automatische Formular-Neuzeichnung, Überraschung oder Fokusverschiebung durch eine verspätete Antwort. Änderungen der Wünsche während einer Anfrage werden bei deren Bewertung berücksichtigt.
+
+Geprüft: npm test mit zusätzlichen Undo-/Einzelwunsch-/Filter-/Vergleichs-/Cache- und konkurrierenden Suchfällen, Gast-Build, Artefaktprüfung, Browser-Skriptsyntax und diff --check. Browserwege für Rücknahme, Einzelentfernung, Muss-Filter bei ungeprüftem Flug, Alternativen und Vergleich vorbereitet; neue CI-Abnahme ausstehend. Tageswerkzeuge im Test per echtem Summary-Klick geöffnet. Kein lokaler Chromium-/iPhone-Test. Claude bearbeitet A4 und den v3-Vertragsentwurf; keine Änderung an Katalogbewertung, Reiseformat, Store/Sync, Konto oder Datenbank durch dieses Paket.
+
 ## Tageskopf kompakt (Claude, #8, Befund B1-6)
 
 - Der Tageskopf im Tagesplan zeigt nur noch eine Zeile: Stunden geplant/verfügbar, Programmkosten, freie Abschnitte. Warnungen bleiben sichtbar und stehen als Text mit „!“ voran („zu voll“, „Preis offen“, „Dauer offen“). Ausführliche Auslastung, Fahrzeit, Kostenaufteilung, freie Abschnitte sowie „Tauschen“ und „Tagesroute“ stehen unter „Details & Werkzeuge“ (`details.dmore`, Tippfläche 44 px). Breiten und Raster bleiben bei ChatGPTs Layout.

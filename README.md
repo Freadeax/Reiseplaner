@@ -49,6 +49,8 @@ Oben über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (w
 
 **Neue Wunsch-Auswahl in Entdecken:** zwölf Stimmungskarten mit „unbedingt“, „gern“ und „lieber nicht“, fünf Schnellprofile und ein optionaler Ja/Nein/Vielleicht-Stapel. Tempo, Reisegruppe, Regenalternativen, Monat und Dauer erklären die Zielreihenfolge. Fehlende Muss-Merkmale bleiben sichtbar; „lieber nicht“ wertet ab. Bahn-/Flugverbindungen und Preise sind ungeprüft, ein Budget wird nicht als erfüllt gezählt. Wünsche bleiben getrennt von Reisen in diesem Browser. Die Anreiseauswahl im Wunschprofil ist noch keine Flugplanung.
 
+Die Wunschübersicht erlaubt einzelne Wünsche zu entfernen und Schnellprofile oder Zurücksetzen unmittelbar rückgängig zu machen. Ergebnisse lassen sich auf belegte Muss-Wünsche begrenzen; ausgeblendete Alternativen werden gezählt und können wieder angezeigt werden. Der Zielvergleich nennt Wunschabdeckung, Muss-Lücken und Ungeprüftes. „Überrasch mich“ respektiert die sichtbare Auswahl und Muss-Grenzen. Antworten auf eine überholte Suche verändern eure neue Auswahl nicht.
+
 In jeder Reise gibt es den Reiter **Reisefinder**:
 
 1. Ort, Unterkunftslimit, Fahrzeit, Bewertung und Unterkunftsart eingeben; Merkmale als **Muss**, **Wunsch** oder **Egal** markieren.
