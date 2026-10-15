@@ -8,6 +8,12 @@ Node-Regressionen prüfen normale Übernahme, fehlenden Quellstand, veränderten
 
 Gesonderter Folgepunkt, im Issue zur Abstimmung gemeldet: Zieländerung muss alte destGeo-Koordinaten und überholte Routenwerte berücksichtigen; Regeln für manuelle Kilometer/Rundreise-Etappen ausdrücklich festlegen. Dieses Paket löscht keine bestehenden Strecken oder Etappen stillschweigend.
 
+## Modul Unternehmungen: Suche, eingeplant/offen, Sortierung (Claude, #8)
+
+- Neue reine Funktion `activityList(t,f)` bündelt die vorhandenen Filter (Kategorie, kostenlos, drinnen, Gästekarte, Preis offen, Dauer fehlt) und ergänzt Textsuche über Titel, Beschreibung, Ort und Kategorie (alle Wörter, Akzente und ß egal, über `shelfText`), die Filter „Noch nicht eingeplant“ und „Eingeplant“ mit Zählern sowie die Sortierung nach Vorschlag, Preis aufsteigend (Gruppenpreis; offener Preis und Skipass ans Ende), Dauer (ohne Dauer ans Ende) und Name. Alle Eingaben sind flüchtige UI-Felder (`UI.aq/aplanned/asort`). „Filter zurücksetzen“ leert sie, beim Reisewechsel werden Suche und eingeplant-Filter geleert.
+- `actCost` liefert zusätzlich `n` (Zahl für die Sortierung). Die Anzeige bleibt unverändert.
+- Tests: `tests/module.cjs` (Suche, Filter, Sortierreihenfolgen, keine Mutation). Browser `kosten-notizen-*` auf Desktop und 320 px: leere Suche, Reset, Namenssortierung, eingeplant + offen = alle, kein Überlauf. `npm test` und `npm run test:browser` grün.
+
 ## Persönliches Reiseregal (ChatGPT, #8)
 
 Basis c198b41. Reiseübersicht mit explizit abgesendeter Suche nach Titel, Ziel und Unterkunft; Suche toleriert Groß-/Kleinschreibung, Akzente und ß/ss. Kombinierbare Zeitfilter Unterwegs/Kommend/Datum offen/Vergangen mit Gesamtzählern, Sortierung nach zeitlicher Relevanz, Name oder Anlagedatum. Fehlende/ungültige feste Daten bleiben in Datum offen. Zeitgruppen sind keine Buchungszustände: Der manuelle Status wird weder geändert noch zum Verstecken einer Reise genutzt.

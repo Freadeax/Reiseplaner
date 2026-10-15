@@ -746,7 +746,20 @@ async function costNotes(browser,base,name,ctxOpts){
  await p.reload();
  assert((await p.inputValue('textarea[data-f="notes"]')).includes('example.org/haus'),name+': Notiz nach Neuladen weg');
  await noOverflow(p,name+' Notizen');
- await ctx.close();console.log(name+': Budget im Kostenmodul, Notiz-Bausteine, Links und Telefon geprüft.');
+ /* Unternehmungen: Suche, eingeplant, Sortierung */
+ await p.goto(base+'/index.html#r-'+id+'-unternehmen');await p.waitForSelector('#act-q');
+ const count=async()=>+(await p.textContent('.block [role="status"]')).match(/^(\d+)/)[1];
+ const total=await count();assert(total>3,name+': zu wenige Unternehmungen');
+ await p.fill('#act-q','zzzz-nichts');await p.press('#act-q','Enter');
+ assert.equal(await count(),0,name+': Suche filtert nicht');assert((await viewText(p)).includes('Nichts passt'));
+ await p.click('[data-act="activity-filters-reset"]');assert.equal(await count(),total);
+ await p.selectOption('#act-sort','name');assert.equal(await p.inputValue('#act-sort'),'name');
+ const titles=await p.$$eval('.grid .card h3',els=>els.map(e=>e.textContent));
+ assert.deepEqual(titles,titles.slice().sort((x,y)=>x.localeCompare(y,'de',{sensitivity:'base'})),name+': nicht nach Name sortiert');
+ await p.click('[data-act="aplanned"][data-val="geplant"]');const planned=await count();
+ await p.click('[data-act="aplanned"][data-val="offen"]');assert.equal(planned+await count(),total,name+': eingeplant + offen ≠ alle');
+ await noOverflow(p,name+' Unternehmungen');
+ await ctx.close();console.log(name+': Budget im Kostenmodul, Notiz-Bausteine, Links und Telefon, Unternehmungs-Suche/Sortierung geprüft.');
 }
 
 async function routeProposalGuard(browser,base,name,ctxOpts){

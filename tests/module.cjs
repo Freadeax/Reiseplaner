@@ -82,3 +82,29 @@ console.log('Module: Budget (Spielraum, fest/geschätzt, Abweichungen, Rückblic
   assert.equal(big.notes.length, 19990, 'bei Fehler unverändert');
 }
 console.log('Module: Notizen (Links, Telefonnummern, Bausteine ohne Datenverlust) geprüft.');
+
+/* Unternehmungen: Suche, eingeplant/offen, Sortierung */
+{
+  const t = a.newTrip({ persons: 2 });
+  const mk = (id, f) => Object.assign(a.customActFromForm(Object.assign({ cat: 'eigen', per: 'pp' }, f), id));
+  t.customActs = [
+    Object.assign(mk('cz', { title: 'Zoo Wilhelma', cost: '25', hours: '3' }), { ort: 'Stuttgart' }),
+    mk('cm', { title: 'Münster Ulm', cost: '', free: true, hours: '1' }),
+    mk('cb', { title: 'Brauereiführung', cost: '12', hours: '2' }),
+    mk('co', { title: 'Offener Preis', cost: '', hours: '' })
+  ];
+  t.items = [{ uid: 'i1', act: 'cb', day: 0, slot: 'abend' }];
+  const before = JSON.stringify(t);
+  const ids = f => a.activityList(t, f).filter(x => x.custom).map(x => x.id);
+  assert.deepEqual(ids({ q: 'munster' }), ['cm'], 'akzenttolerante Suche');
+  assert.deepEqual(ids({ q: 'stuttgart zoo' }), ['cz'], 'alle Wörter, auch Ort');
+  assert.deepEqual(ids({ planned: 'geplant' }), ['cb']);
+  assert(!ids({ planned: 'offen' }).includes('cb'));
+  assert.deepEqual(ids({ sort: 'preis' }), ['cm', 'cb', 'cz', 'co'], 'Preis: kostenlos zuerst, offener Preis zuletzt');
+  assert.equal(a.actCost(t, t.customActs[0]).n, 50, 'pro Person × 2');
+  assert.deepEqual(ids({ sort: 'dauer' }), ['cm', 'cb', 'cz', 'co'], 'Dauer kurz zuerst, ohne Dauer zuletzt');
+  assert.deepEqual(ids({ sort: 'name' }), ['cb', 'cm', 'co', 'cz']);
+  assert.deepEqual(ids({}), ['cz', 'cm', 'cb', 'co'], 'ohne Sortierung Reihenfolge erhalten');
+  assert.equal(JSON.stringify(t), before, 'Filtern/Sortieren ändert die Reise nicht');
+}
+console.log('Module: Unternehmungen (Suche, eingeplant/offen, Sortierung nach Preis/Dauer/Name) geprüft.');

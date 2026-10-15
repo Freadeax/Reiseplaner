@@ -1412,7 +1412,7 @@ function remoteChanged(){if(UI.view==='konto'&&typeof document!=='undefined'&&do
 document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
 
 /* ================= Zustand & Routing ================= */
-const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',checkFilter:'all',checkQuery:'',tripQuery:'',tripFilter:'all',tripSort:'next',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
+const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',aq:'',aplanned:'',asort:'',checkFilter:'all',checkQuery:'',tripQuery:'',tripFilter:'all',tripSort:'next',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
 const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
 const MODULE_INFO={
  ueber:['Orientieren','Das Wichtigste und eure nächsten Schritte.'],
@@ -1438,7 +1438,7 @@ function go(h,keepScroll){
   else if(h==='konto'){UI.view='konto'}
   else if(h==='entdecken'){UI.view='entdecken'}
   else if(/^ziel-[a-z0-9-]{2,40}$/.test(h)){UI.view='entdecken';UI.openZiel=h.slice(5)}
-  else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){if(UI.tid!==id){UI.checkFilter='all';UI.checkQuery=''}UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
+  else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){if(UI.tid!==id){UI.checkFilter='all';UI.checkQuery='';UI.aq='';UI.aplanned=''}UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
   const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.openZiel?'ziel-'+UI.openZiel:UI.view;
   try{history.replaceState(null,'','#'+target)}catch(e){}
@@ -1651,12 +1651,12 @@ function tUnterkunft(t){
 }
 function actCost(t,a){
   const P=Math.max(1,Math.round(num(t.persons,2))), st=stayOf(t), pl=placeOf(t);
-  if(a.kurs&&pl) return {txt:pl.kurs[1]+' € p. P. (1 Tag) · 2 Tage '+pl.kurs[2]+' €',free:false};
-  if(a.custom){const c=num(a.cost,0);if(!c&&a.costOpen)return {txt:'Preis offen, vor Ort prüfen',free:false,open:true};return {txt:c?eur(c)+(a.per==='pp'?' p. P.':' gesamt'):'kostenlos',free:!c}}
+  if(a.kurs&&pl) return {txt:pl.kurs[1]+' € p. P. (1 Tag) · 2 Tage '+pl.kurs[2]+' €',free:false,n:num(pl.kurs[1],0)*P};
+  if(a.custom){const c=num(a.cost,0);if(!c&&a.costOpen)return {txt:'Preis offen, vor Ort prüfen',free:false,open:true,n:null};return {txt:c?eur(c)+(a.per==='pp'?' p. P.':' gesamt'):'kostenlos',free:!c,n:a.per==='pp'?c*P:c}}
   let pp=a.pp||0;if(a.cardPp!=null&&st&&t.cardConfirmed===true)pp=a.cardPp;if(a.ppKurs!=null&&(t.items||[]).some(it=>actOf(t,it.act)&&actOf(t,it.act).kurs))pp=a.ppKurs;
   const c=pp*P+(a.grp||0);
-  if(a.pass){const passTxt=pl&&pl.cardPass&&st&&t.cardConfirmed===true?'Skipass inkl.':pl&&pl.passTable?'Skipass '+pl.passTable[1]+' € p. P.':'';return {txt:'Verleih + '+passTxt,free:false}}
-  return {txt:c?eur(c)+' für '+P+(a.top&&st&&t.cardConfirmed===true&&pp===0?' (an Tagen ohne Skipass)':''):'kostenlos'+(a.cardPp===0&&st&&t.cardConfirmed===true?' mit Gästekarte':''),free:!c};
+  if(a.pass){const passTxt=pl&&pl.cardPass&&st&&t.cardConfirmed===true?'Skipass inkl.':pl&&pl.passTable?'Skipass '+pl.passTable[1]+' € p. P.':'';return {txt:'Verleih + '+passTxt,free:false,n:null}}
+  return {txt:c?eur(c)+' für '+P+(a.top&&st&&t.cardConfirmed===true&&pp===0?' (an Tagen ohne Skipass)':''):'kostenlos'+(a.cardPp===0&&st&&t.cardConfirmed===true?' mit Gästekarte':''),free:!c,n:c};
 }
 /* Eigene Ideen nutzen dieselben optionalen Felder wie der Katalog; leer ist nicht kostenlos. */
 function customActFromForm(f,id){
@@ -1717,21 +1717,40 @@ function sheetActivityPreview(t,draft){
   openSheet('<h2>'+ (draft.remove?'Unternehmung löschen?':'Änderung prüfen')+'</h2><p><b>'+esc(before.t)+'</b></p>'+(draft.remove?'<p>Die Idee und '+draft.count+' eingeplante(r) Termin(e) werden entfernt. Angaben im Zahlungsbuch werden nicht gelöscht.</p>':'<dl class="facts"><dt>Titel danach</dt><dd>'+esc(after.t)+'</dd><dt>Preis vorher</dt><dd>'+esc(actCost(t,before).txt)+'</dd><dt>Preis danach</dt><dd>'+esc(actCost(draft.candidate,after).txt)+'</dd><dt>Dauer danach</dt><dd>'+esc(after.dur||'unbekannt')+'</dd></dl><p class="small">Termine und Aktivitäts-ID bleiben erhalten. Prüft Öffnung und tatsächliche Dauer beim Anbieter.</p>')+
    '<dl class="facts"><dt>Plan vorher</dt><dd>'+eur(draft.before)+'</dd><dt>Plan danach</dt><dd>'+eur(draft.after)+'</dd></dl><p class="small muted">Planwerte; offene Preise sind nicht enthalten. Keine Stornierung oder Erstattung wird ausgelöst.</p><div class="row"><button type="button" class="btn'+(draft.remove?' warn':'')+'" data-act="act-change-confirm">'+(draft.remove?'Ja, Idee und Termine löschen':'Änderung übernehmen')+'</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.activityDraft=draft;
 }
+/* Unternehmungen filtern, suchen und sortieren (Claude, #8). Reine Ableitung, Eingaben sind flüchtige UI-Felder. */
+function activityList(t,f){
+  f=f||{};let list=actsFor(t).slice();
+  const gaps=activityGaps(t),cnt={};(t.items||[]).forEach(i=>cnt[i.act]=(cnt[i.act]||0)+1);
+  if(f.cat&&f.cat!=='alle')list=list.filter(a=>(a.cat||'eigen')===f.cat);
+  if(f.free)list=list.filter(a=>actCost(t,a).free);
+  if(f.indoor)list=list.filter(a=>a.indoor);
+  if(f.card)list=list.filter(a=>a.cardPp!=null||a.src==='plus');
+  if(f.missing==='price'){const ids=new Set(gaps.filter(x=>x.price).map(x=>x.act.id));list=list.filter(a=>ids.has(a.id))}
+  if(f.missing==='duration'){const ids=new Set(gaps.filter(x=>x.duration).map(x=>x.act.id));list=list.filter(a=>ids.has(a.id))}
+  if(f.planned==='offen')list=list.filter(a=>!cnt[a.id]);
+  if(f.planned==='geplant')list=list.filter(a=>cnt[a.id]);
+  const q=shelfText(f.q).trim();
+  if(q){const words=q.split(/\s+/);list=list.filter(a=>{const h=shelfText([a.t,a.s,a.note,a.ort,CAT[a.cat||'eigen']].filter(Boolean).join(' '));return words.every(w=>h.includes(w))})}
+  const nm=a=>shelfText(a.t);
+  if(f.sort==='preis'){const pr=a=>{const n=actCost(t,a).n;return n==null||!Number.isFinite(n)?Infinity:n};list=list.map((a,i)=>[a,i]).sort((x,y)=>pr(x[0])-pr(y[0])||x[1]-y[1]).map(x=>x[0])}
+  if(f.sort==='dauer'){const du=a=>{const h=actHours(a);return h>0?h:Infinity};list=list.map((a,i)=>[a,i]).sort((x,y)=>du(x[0])-du(y[0])||x[1]-y[1]).map(x=>x[0])}
+  if(f.sort==='name')list.sort((x,y)=>nm(x).localeCompare(nm(y),'de'));
+  return list;
+}
 function tUnternehmen(t){
   if(t.catalog==='allgaeu'&&!t.place) return '<section class="block"><div class="empty"><b>Erst einen Ort wählen</b><button type="button" class="btn" data-go="r-'+t.id+'-unterkunft">Ort wählen</button></div></section>';
-  let list=actsFor(t);const gaps=activityGaps(t),priceIds=new Set(gaps.filter(x=>x.price).map(x=>x.act.id)),durationIds=new Set(gaps.filter(x=>x.duration).map(x=>x.act.id));
+  const all=actsFor(t),gaps=activityGaps(t),priceIds=new Set(gaps.filter(x=>x.price).map(x=>x.act.id)),durationIds=new Set(gaps.filter(x=>x.duration).map(x=>x.act.id));
   const cnt={};(t.items||[]).forEach(i=>cnt[i.act]=(cnt[i.act]||0)+1);
-  if(UI.fcat!=='alle') list=list.filter(a=>(a.cat||'eigen')===UI.fcat);
-  if(UI.ffree) list=list.filter(a=>actCost(t,a).free);
-  if(UI.findoor) list=list.filter(a=>a.indoor);
-  if(UI.fcard) list=list.filter(a=>a.cardPp!=null||a.src==='plus');
-  if(UI.fmissing==='price')list=list.filter(a=>priceIds.has(a.id));
-  if(UI.fmissing==='duration')list=list.filter(a=>durationIds.has(a.id));
+  const list=activityList(t,{cat:UI.fcat,free:UI.ffree,indoor:UI.findoor,card:UI.fcard,missing:UI.fmissing,q:UI.aq,planned:UI.aplanned,sort:UI.asort});
+  const nPlanned=all.filter(a=>cnt[a.id]).length;
   const cats=['alle'].concat(Object.keys(CAT));
   return '<section class="block"><h2>Unternehmungen</h2><p class="lead muted small">Antippen für Ablauf, Kosten und Links. „Einplanen“ legt sie in den Tagesplan.</p>'+(t.destGeo?'<div class="row"><button type="button" class="btn ghost sm" data-act="cat-trip-ideas">Mehr Ideen aus dem Katalog rund ums Ziel</button></div>':'')+
   '<div class="row">'+cats.map(c=>chipb('fcat',c,c==='alle'?'Alle':CAT[c],UI.fcat===c)).join('')+'</div>'+
   '<div class="row">'+chipb('ffree','1','Kostenlos',UI.ffree)+chipb('findoor','1','Bei Schlechtwetter',UI.findoor)+(t.catalog==='allgaeu'?chipb('fcard','1','Mit Gästekarte',UI.fcard):'')+'</div>'+
-  '<div class="row">'+chipb('fmissing','price','Preis offen ('+priceIds.size+')',UI.fmissing==='price')+chipb('fmissing','duration','Dauer fehlt ('+durationIds.size+')',UI.fmissing==='duration')+'<button type="button" class="lnk" data-act="activity-filters-reset">Filter zurücksetzen</button></div><p class="small muted" role="status">'+list.length+' von '+actsFor(t).length+' Ideen sichtbar. Die Filter ändern eure Planung nicht.</p>'+
+  '<div class="row">'+chipb('fmissing','price','Preis offen ('+priceIds.size+')',UI.fmissing==='price')+chipb('fmissing','duration','Dauer fehlt ('+durationIds.size+')',UI.fmissing==='duration')+'<button type="button" class="lnk" data-act="activity-filters-reset">Filter zurücksetzen</button></div>'+
+  '<form id="act-search" class="row" role="search"><label class="fld" style="flex:1 1 12em"><span>Suchen</span><input type="search" id="act-q" maxlength="80" value="'+esc(UI.aq||'')+'" placeholder="Titel, Ort, Beschreibung"></label><button type="submit" class="btn ghost sm">Suchen</button>'+
+  '<label class="fld"><span>Sortierung</span><select id="act-sort">'+[['','Vorschlag'],['preis','Preis aufsteigend'],['dauer','Dauer kurz zuerst'],['name','Name A–Z']].map(o=>'<option value="'+o[0]+'"'+((UI.asort||'')===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></label></form>'+
+  '<div class="row">'+chipb('aplanned','offen','Noch nicht eingeplant ('+(all.length-nPlanned)+')',UI.aplanned==='offen')+chipb('aplanned','geplant','Eingeplant ('+nPlanned+')',UI.aplanned==='geplant')+'</div><p class="small muted" role="status">'+list.length+' von '+all.length+' Ideen sichtbar. Die Filter ändern eure Planung nicht.</p>'+
   (list.length?'<div class="grid">'+list.map(a=>{const c=actCost(t,a);return '<div class="card" style="border-top:4px solid '+CATCOL[a.cat||'eigen']+'"><span class="eyebrow">'+esc(CAT[a.cat||'eigen'])+(a.ort?' · '+esc(a.ort):'')+'</span><h3>'+esc(a.t)+'</h3><p class="small">'+esc(a.s||a.note||'')+'</p>'+
     '<div class="badges">'+(a.dur?'<span class="badge">'+esc(a.dur)+'</span>':'')+(a.indoor?'<span class="badge">drinnen</span>':'')+(a.book?'<span class="badge">buchen</span>':'')+(a.warn?'<span class="badge bad">Hinweis</span>':'')+(a.custom?'':srcBadge(a.src))+(cnt[a.id]?'<span class="badge ok">'+cnt[a.id]+'× eingeplant</span>':'')+'</div>'+
     '<p class="small"><b>'+esc(c.txt)+'</b></p><div class="foot"><button type="button" class="btn sm" data-act="plan-act" data-val="'+esc(a.id)+'">+ Einplanen</button><button type="button" class="btn ghost sm" data-act="act-view" data-val="'+esc(a.id)+'">Details</button></div></div>'}).join('')+'</div>':'<div class="empty">Nichts passt zu den Filtern.</div>')+
@@ -2220,7 +2239,8 @@ document.addEventListener('click',async e=>{
    case 'findoor': UI.findoor=!UI.findoor;break;
    case 'fcard': UI.fcard=!UI.fcard;break;
    case 'fmissing': UI.fmissing=UI.fmissing===val?'':val;break;
-   case 'activity-filters-reset':UI.fcat='alle';UI.ffree=false;UI.findoor=false;UI.fcard=false;UI.fmissing='';break;
+   case 'activity-filters-reset':UI.fcat='alle';UI.ffree=false;UI.findoor=false;UI.fcard=false;UI.fmissing='';UI.aq='';UI.aplanned='';UI.asort='';break;
+   case 'aplanned': UI.aplanned=UI.aplanned===val?'':val;break;
    case 'act-view': sheetAct(t,val);return;
    case 'plan-act': sheetAct(t,val);return;
    case 'plan-do':{const day=+$('#pl-day').value,slot=$('#pl-slot').value;t.items=(t.items||[]).concat([{uid:uid('i'),act:val,day,slot}]);t.packageId='';save(t);closeSheet();render();toast(b,'Eingeplant');return}
@@ -2279,6 +2299,7 @@ document.addEventListener('change',e=>{
   }
   if(el.matches('[data-act="check"]')&&t){t.check=t.check||{};if(el.checked)t.check[el.getAttribute('data-val')]=true;else delete t.check[el.getAttribute('data-val')];save(t);render();return}
   if(el.matches('[data-act="card-confirm"]')&&t){t.cardConfirmed=el.checked;save(t);render();return}
+  if(el.id==='act-sort'){UI.asort=['preis','dauer','name'].includes(el.value)?el.value:'';render();return}
   if(el.matches('[data-act="mappe-notes"]')){UI.mappeNotes=el.checked;render();return}
   if(el.matches('[data-act="online"]')&&t){t.online=el.checked;save(t);render();return}
   const f=el.getAttribute('data-f'); if(!f) return;
@@ -2296,6 +2317,7 @@ document.addEventListener('input',e=>{
   if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
 });
 document.addEventListener('submit',e=>{
+ if(e.target.id==='act-search'){e.preventDefault();UI.aq=String(($('#act-q')||{}).value||'').slice(0,80);render();const field=$('#act-q');if(field)field.focus();return}
  if(e.target.id==='trip-search'){e.preventDefault();UI.tripQuery=String($('#trip-q').value||'').slice(0,120);render();const field=$('#trip-q');if(field)field.focus();return}
  if(e.target.id!=='check-search')return;e.preventDefault();
  UI.checkQuery=String($('#check-q').value||'').slice(0,120);render();const field=$('#check-q');if(field)field.focus();
@@ -3159,7 +3181,7 @@ function legsBlock(t){
 Store.loadLocal();
 window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
-Object.assign(window.__app,{NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
+Object.assign(window.__app,{activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
