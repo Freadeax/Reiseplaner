@@ -856,6 +856,64 @@ function validateV3(t){
   if(t.transport!=null)V3.validateTransport(t.transport);
   V3.validateReferences(t);
 }
+/* Mutatoren für die Format-3-Formulare (Claude, #8; Signaturen von ChatGPT). Reine Kandidaten: die Quelle bleibt unverändert,
+   kein Store/DOM/Sync. Jeder Kandidat wird vollständig geprüft; mit v3-Angaben wird er Format 3, nie zurück auf 2.
+   target: {kind:'offer', id} oder {kind:'ledger', key}. */
+function v3Candidate(t,fn,ref){
+  if(!V3)throw new Error('Format 3 kann diese App-Version nicht bearbeiten.');
+  const c=clone(t);fn(c);
+  if(t.schemaVersion===3||V3.needsV3(c))c.schemaVersion=3;
+  validateExtras(c);
+  /* Die bewusst geänderte Geldangabe des Zielpostens ist gewollt; alles andere bleibt durch den Verpflichtungsschutz geprüft */
+  const cmp=clone(c);if(ref)ref.restore(cmp,t);
+  const issues=commitmentIssues(t,cmp);if(issues.length)throw new Error('Nicht möglich: '+issues.join(' · ')+'.');
+  return c;
+}
+function v3Ref(t,target){
+  if(!target||typeof target!=='object')throw new Error('Unbekannter Posten.');
+  if(target.kind==='offer'){const o=(t.offers||[]).find(x=>x.id===target.id);if(!o)throw new Error('Angebot nicht gefunden.');const oa=offerAmounts(o);
+    return {label:o.name,entry:o,planCost:oa.unknown.length?null:oa.total,get:c=>(c.offers||[]).find(x=>x.id===target.id),
+      restore:(c,src)=>{const i=(c.offers||[]).findIndex(x=>x.id===target.id),j=(src.offers||[]).findIndex(x=>x.id===target.id);if(i>=0&&j>=0)c.offers[i]=clone(src.offers[j])}}}
+  if(target.kind==='ledger'){
+    if(typeof target.key!=='string'||!LEDGER_KEY.test(target.key))throw new Error('Unbekannter Posten.');
+    const row=ledgerRows(t).find(r=>r.key===target.key);
+    if(!row)throw new Error('Posten nicht gefunden.');
+    const e=(t.ledger||{})[target.key]||{status:'offen',amount:null,paid:0,due:''};
+    const openPrice=cost(Object.assign({},t,{ledger:{}})).lines.some(l=>l.key===target.key&&l.open);
+    return {label:row.label,entry:e,planCost:row.amount!=null?row.amount:openPrice?null:row.plan,
+      get:c=>{c.ledger=c.ledger||{};if(!c.ledger[target.key])c.ledger[target.key]={status:'offen',amount:null,paid:0,due:''};return c.ledger[target.key]},
+      restore:(c,src)=>{c.ledger=c.ledger||{};if(src.ledger&&src.ledger[target.key])c.ledger[target.key]=clone(src.ledger[target.key]);else delete c.ledger[target.key]}}}
+  throw new Error('Unbekannter Posten.');
+}
+function financeEntry(t,target){const r=v3Ref(t,target),e=clone(r.entry);return {label:r.label,entry:e,planCost:r.planCost,math:V3.cancelMath(e,r.planCost),warnings:V3.cancelWarnings(e,r.planCost)}}
+function cancelEntry(t,target,f){
+  const r=v3Ref(t,target),fee=f&&f.fee!==''&&f.fee!=null?Math.round(num(f.fee,NaN)*100)/100:null;
+  if(f&&f.fee!==''&&f.fee!=null&&!(fee>=0))throw new Error('Stornogebühr ungültig.');
+  return v3Candidate(t,c=>{r.get(c).cancel={on:String(f&&f.on||''),fee}},r);
+}
+function addRefund(t,target,f){
+  const r=v3Ref(t,target),amount=Math.round(num(f&&f.amount,NaN)*100)/100;
+  if(!(amount>0))throw new Error('Erstattung muss größer als 0 € sein.');
+  return v3Candidate(t,c=>{const e=r.get(c);e.refunds=(e.refunds||[]).concat([{id:String(f&&f.id||''),on:String(f&&f.on||''),amount}])},r);
+}
+function uncancel(t,target){
+  const r=v3Ref(t,target);if(!r.entry.cancel)throw new Error('Dieser Posten ist nicht storniert.');
+  /* Erstattungen bleiben immer erhalten (SCHEMA_V3 S10) */
+  return v3Candidate(t,c=>{delete r.get(c).cancel},r);
+}
+function setTransport(t,transport){
+  const tr=V3?V3.validateTransport(transport):null;
+  const ids=x=>[].concat(x&&x.out||[],x&&x.back||[]).map(s=>s.id);
+  /* gebundene Abschnitte: weder entfernen noch tauschen, ändern oder umsortieren (Inhalt über commitmentIssues, Reihenfolge hier) */
+  const bound=id=>Object.keys(t.ledger||{}).some(k=>(k==='tr:'+id||k.startsWith('tr:'+id+':'))&&V3.segmentRemovalCheck({[k]:t.ledger[k]},id).ok===false);
+  ['out','back'].forEach(dir=>{const before=(t.transport&&t.transport[dir]||[]).map(x=>x.id).filter(bound),after=(tr&&tr[dir]||[]).map(x=>x.id).filter(id=>before.includes(id));
+    if(before.length&&JSON.stringify(before)!==JSON.stringify(after))throw new Error('Gebuchte Anreise-Abschnitte dürfen nicht entfernt, verschoben oder umsortiert werden.')});
+  const keep=new Set(ids(tr));
+  return v3Candidate(t,c=>{c.transport=tr;
+    /* Planwerte entfernter Abschnitte ohne Historie verschwinden; Geld-/Stornohistorie bleibt immer am ursprünglichen Posten */
+    Object.keys(c.ledger||{}).forEach(k=>{const m=k.match(/^tr:([a-z0-9]+)/);if(!m||keep.has(m[1]))return;const e=c.ledger[k];
+      if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||e.cancel||(e.refunds&&e.refunds.length)))delete c.ledger[k]})});
+}
 function cost(t){
   const P=Math.max(1,Math.round(num(t.persons,2))), N=nightsOf(t), pl=placeOf(t), st=stayOf(t), lines=[];
   const add=(cat,label,sub,c,src,key)=>lines.push({cat,t:label,s:sub,c:+c||0,src:src||'est',key:key||''});
@@ -2147,7 +2205,8 @@ function commitmentIssues(before,after){
  Object.entries(before.check||{}).forEach(([k,done])=>{if(done&&k.startsWith('b-')&&JSON.stringify(signature(before,'act:'+k.slice(2)))!==JSON.stringify(signature(after,'act:'+k.slice(2))))out.push('Gebuchte Unternehmung würde verändert');});
  /* Format 3: Erstattungen und Storno sind selbst Verpflichtung/Historie; abgeschlossen stornierte Posten binden den Termin nicht mehr,
     ihre Zahlungsangaben bleiben aber unveränderlich. Anreise-Abschnitte (tr:) werden über ihren Inhalt verglichen. */
- const segSig=(t,k)=>{const m=k.match(/^tr:([a-z0-9]+)(?::([a-z0-9]+))?$/);if(!m||!t.transport)return null;const seg=[].concat(t.transport.out||[],t.transport.back||[]).find(x=>x.id===m[1]);if(!seg)return null;return m[2]?(seg.addons||[]).find(a=>a.id===m[2])||null:Object.assign({},seg,{addons:undefined})};
+ const normTr=t=>{if(!t.transport||!V3)return null;try{return V3.validateTransport(t.transport)}catch(e){return t.transport}};
+ const segSig=(t,k)=>{const m=k.match(/^tr:([a-z0-9]+)(?::([a-z0-9]+))?$/),tr=normTr(t);if(!m||!tr)return null;const seg=[].concat(tr.out||[],tr.back||[]).find(x=>x.id===m[1]);if(!seg)return null;return m[2]?(seg.addons||[]).find(a=>a.id===m[2])||null:Object.assign({},seg,{addons:undefined})};
  Object.entries(before.ledger||{}).forEach(([k,e])=>{const v3m=v3Money(before,e);if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||v3m))return;
   const settled=v3m&&e.cancel&&V3.cancelSettled(V3.cancelMath(e,null));
   if(!settled&&k.startsWith('tr:')&&JSON.stringify(segSig(before,k))!==JSON.stringify(segSig(after,k)))out.push('Gebuchter Anreise-Abschnitt würde verändert oder entfernt');
@@ -3616,7 +3675,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});

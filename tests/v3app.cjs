@@ -86,6 +86,53 @@ assert.equal(a.v3Banner(a.silvesterTemplate()), '', 'Format 2 ohne Hinweis');
   assert(ci(open, moved2).some(x => /Termin/.test(x)), 'Gebühr unbekannt: Termin bleibt gebunden');
 }
 
+/* Formular-Mutatoren (Kandidaten, Quelle unverändert) */
+{
+  const src = J(t), L = key => ({ kind: 'ledger', key });
+  const fe = a.financeEntry(src, L(actKey));
+  assert.deepEqual([fe.math.netPaid, fe.math.cost, fe.math.cancelled], [20, 20, true]);
+  /* gebundener Flug: Entfernen vor Storno blockiert, Ändern und Umsortieren ebenso */
+  const noFlight = J(src.transport); noFlight.out = noFlight.out.filter(x => x.id !== 'sflug');
+  assert.throws(() => a.setTransport(src, noFlight), /Gebuchte Anreise-Abschnitte/);
+  const swapped = J(src.transport); swapped.out.reverse();
+  a.setTransport(src, swapped); /* nur ein gebundener Abschnitt: dessen Inhalt bleibt gleich, Reihenfolgehinweis kommt aus dem Plan-Check */
+  const two = J(src); two.ledger['tr:szubr'] = { status: 'gebucht', amount: null, paid: 0, due: '' };
+  assert.throws(() => a.setTransport(two, swapped), /Gebuchte Anreise-Abschnitte/, 'zwei gebundene Abschnitte umsortiert');
+  const cheaper = J(src.transport); cheaper.out[1].cost = 10;
+  assert.throws(() => a.setTransport(src, cheaper), /Anreise-Abschnitt/);
+  /* Ungebundenen Rückflug ändern geht */
+  const back = J(src.transport); back.back[0].cost = 99;
+  const cb = a.setTransport(src, back);
+  assert.equal(cb.transport.back[0].cost, 99); assert.equal(cb.schemaVersion, 3); assert.deepEqual(J(src), J(t), 'Quelle unverändert');
+  /* Storno des Flugs mit Gebühr, Erstattung, dann ist Entfernen erlaubt und die Historie bleibt */
+  const c1 = a.cancelEntry(src, L('tr:sflug'), { on: '2026-11-20', fee: '50' });
+  assert.deepEqual(c1.ledger['tr:sflug'].cancel, { on: '2026-11-20', fee: 50 });
+  assert.equal(a.cost(c1).lines.find(l => l.key === 'tr:sflug').c, 50, 'Flug zählt mit Gebühr');
+  assert.throws(() => a.setTransport(c1, noFlight), /Gebuchte Anreise-Abschnitte/, 'Erstattung noch offen: weiter gebunden');
+  assert.throws(() => a.addRefund(c1, L('tr:sflug'), { id: 'rfbig', on: '2026-11-25', amount: '500' }), /übersteigen/);
+  const c2 = a.addRefund(c1, L('tr:sflug'), { id: 'rftwo', on: '2026-11-25', amount: '128' });
+  assert.deepEqual([a.financeEntry(c2, L('tr:sflug')).math.feeOpen, a.financeEntry(c2, L('tr:sflug')).math.refundOpen], [0, 0]);
+  const c3 = a.setTransport(c2, noFlight);
+  assert(c3.ledger['tr:sflug'] && c3.ledger['tr:sflug'].refunds.length === 1, 'Geldhistorie bleibt am ursprünglichen Posten');
+  assert(!c3.transport.out.some(x => x.id === 'sflug'));
+  /* Storno zurücknehmen: Erstattung bleibt (S10) */
+  const c4 = a.uncancel(c2, L('tr:sflug'));
+  assert(!c4.ledger['tr:sflug'].cancel && c4.ledger['tr:sflug'].refunds.length === 1);
+  assert.equal(a.financeEntry(c4, L('tr:sflug')).math.open, 128, '178 Plan − (178 − 128 erstattet) netto = 128 offen');
+  assert.throws(() => a.uncancel(src, L('tr:sflug')), /nicht storniert/);
+  /* Eingaben und Ziele */
+  assert.throws(() => a.cancelEntry(src, L('tr:sflug'), { on: '2026-11-20', fee: 'abc' }), /ungültig/);
+  assert.throws(() => a.cancelEntry(src, L('tr:sflug'), { on: 'gestern', fee: 1 }), /Stornodatum/);
+  assert.throws(() => a.cancelEntry(src, { kind: 'stay' }, { on: '2026-11-20', fee: 1 }), /Unbekannter Posten/);
+  assert.throws(() => a.cancelEntry(src, L('xc:gibtsnicht'), { on: '2026-11-20', fee: 1 }), /nicht gefunden/);
+  assert.equal(a.cancelEntry(src, L(actKey), { on: '2026-11-21', fee: null }).ledger[actKey].cancel.fee, null, 'Gebühr unbekannt');
+  /* Format 2 wird beim ersten Storno zu Format 3, nie zurück */
+  const v2t = a.silvesterTemplate(); v2t.schemaVersion = 2;
+  const k2 = Object.keys(a.cost(v2t).lines.reduce((m, l) => (l.key && l.key.startsWith('act:') ? (m[l.key] = 1) : 0, m), {}))[0];
+  const up = a.cancelEntry(v2t, L(k2), { on: '2026-11-21', fee: 0 });
+  assert.equal(up.schemaVersion, 3); assert.equal(v2t.schemaVersion, 2, 'Quelle bleibt Format 2');
+}
+
 /* Abgrenzung */
 const v2 = a.silvesterTemplate(); v2.schemaVersion = 2;
 assert.throws(() => a.validateExtras(Object.assign(J(v2), { transport: t.transport })), /Format 3|Formats 3/, 'v3-Felder in v2 abgelehnt');
@@ -94,4 +141,4 @@ assert.throws(() => a.validateExtras(Object.assign(J(t), { party: [{ id: 'pa1', 
 assert.throws(() => a.validateExtras(Object.assign(J(t), { ledger: { 'tr:sweg': { status: 'offen', amount: null, paid: 0, due: '' } } })), /verweist auf keinen/);
 assert.throws(() => a.validateExtras(Object.assign(J(t), { schemaVersion: 4 })), /Unbekannte Reiseversion/);
 assert.notEqual(a.serverRowProblem({ id: t.id, version: 1, data: Object.assign(J(t), { party: [{ id: 'pa1', name: 'A' }] }) }), null, 'nicht unterstützte v3-Angaben → geschützt als nicht lesbar');
-console.log('Format 3 (Lese-Release): Prüfung, Anreise aus Abschnitten (eigene km, p. P., Gepäck, offener Preis), Storno mit Gebühr, Nettozahlung und getrennte Erstattungen, unbekannte Gebühr sichtbar, unveränderter Rundlauf (Sync, Sicherung, Import, Neuladen), Schreibsperre und Abgrenzung zu Format 2/4 geprüft.');
+console.log('Format 3 (Lese-Release): Prüfung, Anreise aus Abschnitten (eigene km, p. P., Gepäck, offener Preis), Storno mit Gebühr, Nettozahlung und getrennte Erstattungen, unbekannte Gebühr sichtbar, unveränderter Rundlauf (Sync, Sicherung, Import, Neuladen), Schreibsperre, Verpflichtungsschutz, Formular-Mutatoren (Storno, Erstattung, Rücknahme, Abschnitte; Quelle unverändert, gebundene Abschnitte geschützt, Historie bleibt) und Abgrenzung zu Format 2/4 geprüft.');
