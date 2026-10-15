@@ -107,4 +107,64 @@ assert.throws(() => V.validateTransport({ out: [seg({ id: 'sxxx', foo: 1 })] }),
 const ics = V.transportIcs(t3, { tripId: 'tabc', now: new Date('2027-01-01T00:00:00Z') })[0].join('\n');
 assert(/DTSTART:20270501T203000Z/.test(ics) && /DTEND:20270501T221500Z/.test(ics), 'Berlin 22:30 = 20:30Z, Athen 01:15 = 22:15Z');
 assert(/DTSTART;VALUE=DATE:20270501/.test(V.transportIcs(t2)[0].join('\n')));
-console.log('Datenvertrag-v3-Logik: Storno S1–S10 (Erstattungen getrennt, keine Verrechnung, Cent), Unterkunft U1–U3, Anreise T1–T7 (Kosten nur aus eigener Grundlage, Zeitzonen, Mitternacht, Umstiege, Flughafenpuffer als Richtwert, ungeprüft ohne Zeiten), Validierung und Kalender geprüft.');
+/* ---------- Review-Runde 2 ---------- */
+/* R2-1: Zeitumstellung, fehlende Angaben, kein geratenes Datum */
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'sgap', dep: { date: '2026-03-29', time: '02:30', tz: 'Europe/Berlin' } })] }), /Zeitumstellung nicht/, 'Berlin 29.03.2026 02:30 existiert nicht');
+assert.equal(V.resolveLocal('2026-10-25', '02:30', 'Europe/Berlin').status, 'ambiguous', 'Berlin 25.10.2026 02:30 doppelt');
+assert.equal(V.resolveLocal('2026-10-25', '03:30', 'Europe/Berlin').status, 'ok');
+assert.equal(V.resolveLocal('2026-05-01', '10:00', null).status, 'incomplete', 'Uhrzeit ohne Zeitzone ist kein Zeitpunkt');
+const amb = V.validateTransport({ out: [
+  seg({ id: 'samb', mode: 'bahn', dep: { date: '2026-10-25', time: '01:00', tz: 'Europe/Berlin' }, arr: { date: '2026-10-25', time: '02:30', tz: 'Europe/Berlin' } }),
+  seg({ id: 'snxt', mode: 'bahn', dep: { date: '2026-10-25', time: '02:35', tz: 'Europe/Berlin' }, arr: { date: '2026-10-25', time: '04:00', tz: 'Europe/Berlin' } })] });
+const ambC = V.transportTimeline(amb).checks;
+assert(ambC.some(c => /doppelt vorhanden/.test(c.text)) && ambC.some(c => /Anschluss ungeprüft/.test(c.text)), 'mehrdeutig → ungeprüft, kein „Umstieg passt“');
+assert(!ambC.some(c => /Umstieg nur/.test(c.text)));
+const noTz = V.validateTransport({ out: [seg({ id: 'snotz', mode: 'flug', dep: { date: '2027-05-01', time: '22:30', tz: null }, arr: { date: null, time: '01:15', tz: null } })] });
+const ntl = V.transportTimeline(noTz, { start: '2027-05-01' });
+assert(!ntl.checks.some(c => /Folgetag|nach dem Reisebeginn/.test(c.text)), 'kein geratenes Datum + 1 aus 22:30 → 01:15');
+assert.equal(ntl.arrival, null);
+assert(/DTSTART;VALUE=DATE:20270501/.test(V.transportIcs(noTz)[0].join('\n')), 'Uhrzeit ohne Zeitzone: ganztägig statt falscher UTC-Zeit');
+const noDate = V.validateTransport({ out: [seg({ id: 'snodt', mode: 'flug', dep: { date: null, time: null, tz: null } })] });
+assert.equal(V.transportIcs(noDate).length, 0, 'ohne Datum kein erfundener Termin');
+assert(/DTSTART;VALUE=DATE:20261025/.test(V.transportIcs(amb)[0].join('\n')) === false && /DTSTART:2026102/.test(V.transportIcs(amb)[0].join('\n')), 'Abfahrt 01:00 eindeutig → UTC');
+{ const ev = V.transportIcs({ out: [amb.out[1]], back: [] })[0].join('\n'); assert(/DTSTART;VALUE=DATE:20261025/.test(ev) && !/DTSTART:2026/.test(ev), 'Abfahrt 02:35 am 25.10.: doppelt → ganztägig, kein UTC-Termin'); }
+/* R2-2: unbekannte Gebühr ist nie abgeschlossen; Erstattung ohne Storno senkt keine Kosten */
+assert.equal(V.cancelSettled(V.cancelMath({ paid: 200, cancel: C(null) }, 200)), false);
+assert.equal(V.cancelSettled(V.cancelMath({ paid: 200, refunds: [R(150)], cancel: C(50) }, 200)), true, 'S3 abgeschlossen');
+assert.equal(V.cancelSettled(V.cancelMath({ paid: 200, cancel: C(50) }, 200)), false, 'S2: Erstattung offen');
+assert.equal(V.cancelSettled(V.cancelMath({ paid: 0 }, 0)), false, 'nicht storniert bindet weiter nach bestehenden Regeln');
+assert.equal(V.cancelMath({ paid: 200, refunds: [R(50)] }, 200).cost, 200, 'Erstattung ohne Storno senkt keine Kosten');
+assert(V.cancelWarnings({ paid: 0, cancel: C(300) }, 200).some(w => /über dem bisherigen Betrag/.test(w)), 'Gebühr über Betrag: Warnung, keine Ablehnung');
+V.validateMoneyMoves({ paid: 0, cancel: C(300) }, 'X');
+/* R2-4: Löschen behält Historie, gebunden und nicht abgeschlossen → blockiert */
+const lg = { 'tr:sflug': { status: 'gebucht', amount: 240, paid: 240, due: '' }, 'tr:sflug:abag': { status: 'offen', amount: null, paid: 0, due: '' } };
+let rc = V.segmentRemovalCheck(lg, 'sflug');
+assert.equal(rc.ok, false); assert.deepEqual(rc.blocking, ['tr:sflug']); assert.deepEqual(rc.keep.sort(), ['tr:sflug', 'tr:sflug:abag']);
+lg['tr:sflug'].cancel = C(40); lg['tr:sflug'].refunds = [R(200)];
+assert.equal(V.segmentRemovalCheck(lg, 'sflug').ok, true, 'abgeschlossen storniert: entfernbar, Historie bleibt');
+lg['tr:sflug'].cancel = C(null);
+assert.equal(V.segmentRemovalCheck(lg, 'sflug').ok, false, 'Gebühr unbekannt: weiter gebunden');
+/* R2-3: needsV3, Serialisierung, Referenzen */
+const base2 = { id: 'tx', schemaVersion: 2, ledger: { 'xc:a': { status: 'offen', amount: null, paid: 5, due: '' } }, offers: [{ id: 'o1' }] };
+assert.equal(V.needsV3(base2), false);
+assert.equal(V.needsV3(Object.assign({}, base2, { transport: { out: [], back: [] }, party: [], journal: {} })), false, 'leere v3-Felder zählen nicht');
+const stripped = V.serializeTrip(Object.assign({}, base2, { transport: { out: [], back: [] }, party: [], expenses: [] }));
+assert(!('transport' in stripped) && !('party' in stripped) && !('expenses' in stripped), 'v2 schreibt keine leeren v3-Felder');
+assert.equal(V.needsV3(Object.assign({}, base2, { offers: [{ id: 'o1', cancel: C(null) }] })), true);
+assert.throws(() => V.serializeTrip(Object.assign({}, base2, { transport: { out: [seg({ id: 'svvv' })], back: [] } })), /Formats 3/);
+const v3 = Object.assign({}, base2, { schemaVersion: 3, transport: { out: [], back: [] }, zukunft: 1 });
+assert.deepEqual(V.serializeTrip(v3), JSON.parse(JSON.stringify(v3)), 'Format 3 läuft unverändert rund');
+const refT = { transport: t1, ledger: { 'tr:sflug': { status: 'offen', paid: 0 }, 'tr:sflug:abag': { status: 'offen', paid: 0 } } };
+V.validateReferences(refT);
+assert.throws(() => V.validateReferences({ transport: t1, ledger: { 'tr:sweg': { status: 'offen', paid: 0 } } }), /verweist auf keinen/);
+V.validateReferences({ transport: t1, ledger: { 'tr:sweg': { status: 'offen', paid: 10 } } });
+assert.throws(() => V.validateReferences({ ledger: { 'tr:X!': { status: 'offen', paid: 1 } } }), /ungültiger/);
+/* R2-4 Grenzen und Zahlen */
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'sadd', addons: Array.from({ length: 21 }, (_, i) => ({ id: 'ad' + String(i).padStart(3, '0'), label: 'x', cost: 1 })) })] }), /20 Zusatzposten/);
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'snan', mode: 'auto', km: NaN })] }), /Kilometer/);
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'sinf', cost: Infinity })] }), /Betrag/);
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'sdtx', dep: { date: '2027-02-30', time: null, tz: null } })] }), /Datum/);
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'sdupa', addons: [{ id: 'sdupa', label: 'x', cost: 1 }] })] }), /doppelte/, 'IDs über Abschnitte und Zusatzposten eindeutig');
+assert.throws(() => V.validateTransport({ out: [seg({ id: 'sboth' })], back: [seg({ id: 'sboth' })] }), /doppelte/, 'IDs über Hin- und Rückweg eindeutig');
+
+console.log('Datenvertrag-v3-Logik: Storno S1–S10 (Erstattungen getrennt, keine Verrechnung, Cent), Unterkunft U1–U3, Anreise T1–T7 (Kosten nur aus eigener Grundlage, Zeitzonen, Mitternacht, Umstiege, Flughafenpuffer als Richtwert, ungeprüft ohne Zeiten), Validierung und Kalender sowie Review-Runde 2 (Zeitumstellung, unvollständige Zeiten, kein geratenes Datum, unbekannte Gebühr nie abgeschlossen, Gebühr über Betrag als Warnung, Löschschutz mit Historie, needsV3/Serialisierung, Referenzen, Grenzen) geprüft.');

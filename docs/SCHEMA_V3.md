@@ -1,6 +1,6 @@
 # Datenvertrag v3 · Entwurf zur gemeinsamen Prüfung
 
-Stand 15.10.2026, Entwurf von Claude, **überarbeitet nach Review-Runde 1** (ChatGPT, #8: Unterkunfts-Aggregation, kein `t.km`-Rückfall, Verteilungsbasis Teilzahlungen, Feldtreue). Berücksichtigt ChatGPTs Vorprüfung [`SCHEMA_V3_REVIEW.md`](SCHEMA_V3_REVIEW.md),
+Stand 15.10.2026, Entwurf von Claude, **überarbeitet nach Review-Runde 1** (ChatGPT, #8: Unterkunfts-Aggregation, kein `t.km`-Rückfall, Verteilungsbasis Teilzahlungen, Feldtreue) **und Runde 2** (R2-1 bis R2-4, siehe §9). §1/§2 sind fachlich angenommen, die Rechenlogik steht in `v3logic.js` (Tests `tests/v3logic.cjs`), ist aber noch nicht verdrahtet. Berücksichtigt ChatGPTs Vorprüfung [`SCHEMA_V3_REVIEW.md`](SCHEMA_V3_REVIEW.md),
 den Versionsschutz aus #8 und den Plan [`PLAN_WEITERENTWICKLUNG.md`](PLAN_WEITERENTWICKLUNG.md) (A1/A2/A6, D8–D10).
 **Status: Entwurf. Nichts davon ist umgesetzt, keine Migration, keine Freigabe.** Produktionsmigrationen erst nach
 ausdrücklicher Freigabe durch Philipp.
@@ -94,10 +94,10 @@ Das ist der sichere Fall aus der Review. Die UI zeigt vor der Rücknahme genau d
 | `id` | ID | stabil |
 | `mode` | `'auto'\|'bahn'\|'flug'\|'bus'\|'faehre'\|'mietwagen'\|'transfer'\|'taxi'\|'rad'` | Verkehrsmittel |
 | `from`, `to` | Text ≤ 80 | Ort, Bahnhof oder Flughafen (bei Flug optional IATA-Code `/^[A-Z]{3}$/` in `fromCode/toCode`) |
-| `dep`, `arr` | `{date:'YYYY-MM-DD', time:'HH:MM'\|null, tz:IANA\|null}` | Ortszeiten mit Zeitzone; `time:null` = unbekannt |
+| `dep`, `arr` | `{date:'YYYY-MM-DD'\|null, time:'HH:MM'\|null, tz:IANA\|null}` oder `null` | Ortszeiten. Jeder Teil darf unbekannt sein (offene Reise). Eine Uhrzeit, die es wegen der Zeitumstellung nicht gibt, wird abgelehnt |
 | `carrier`, `number` | Text ≤ 40 | z. B. Airline und Flugnummer (keine Buchungsnummer, die gehört in die Notizen) |
 | `cost` | Geld\|null, `per:'pp'\|'grp'` | Planwert. Gebucht, bezahlt und fällig laufen über das Buchungsbuch unter `tr:<id>` |
-| `addons` | `[{id, label, cost, per}]` | Gepäck, Sitzplatz, Parken usw., Buchungsbuch `tr:<id>:<addonId>` |
+| `addons` | `[{id, label, cost, per}]`, höchstens 20 | Gepäck, Sitzplatz, Parken usw., Buchungsbuch `tr:<id>:<addonId>` |
 | `checkin` | `{opens:{date,time,tz}\|null, note}` | Online-Check-in (nur Eingabe) |
 
 ### Regeln
@@ -191,7 +191,7 @@ Das ist der sichere Fall aus der Review. Die UI zeigt vor der Rücknahme genau d
 ## 6 · Einführung in Schritten
 
 1. **E2 Migration** (CHECK `in (2,3)` + Downgrade-Trigger), DB-Tests lokal und in CI, Freigabe Philipp, live.
-2. **Lese-Release:** Clients lesen und validieren v3, schreiben aber noch nur v2, weil die UI keine v3-Felder anbietet. Dieser Stand ist eine Weile live, damit gecachte Alt-Clients aktualisiert werden.
+2. **Lese-Release (R2-3):** Clients lesen und validieren den **ganzen** Vertrag inklusive Referenzen. v3-Reisen laufen **unverändert** rund (Bearbeiten alter Felder, Export/Import, Kopie, Wiederherstellung, Sync). Nur die **Erfassung** neuer v3-Angaben ist in der UI gesperrt. Format-2-Reisen schreiben keine, auch keine leeren, v3-Felder (`serializeTrip`). Dieser Stand ist eine Weile live, damit gecachte Alt-Clients aktualisiert werden. Freischaltbedingung: E2 nachweislich in der Produktion (Dashboard), nicht aus Preview abgeleitet.
 3. **Funktionen einzeln freischalten:** zuerst Storno/Erstattung (§1), dann Anreise-Abschnitte (§2), dann Ausgaben/Aufteilung (§3) und Tagebuch (§4). Jeder Schritt mit eigenen Tests und Browser-Klickweg.
 
 ## 7 · Testplan
@@ -204,9 +204,24 @@ Das ist der sichere Fall aus der Review. Die UI zeigt vor der Rücknahme genau d
 - DB (`test:db`): CHECK 3 erlaubt, 4 abgelehnt, Rückstufung 3→2 abgelehnt (auch für Eigentümer), v2 unverändert.
 - Browser: Storno mit Vorschau, Rücknahme-Vorschau (S10), Flugabschnitte inklusive Zeitzone, Aufteilung bei 320 px.
 
+## 9 · Review-Runde 2 (ChatGPT) und Umsetzung in `v3logic.js`
+
+| Punkt | Regel | Funktion / Test |
+| --- | --- | --- |
+| R2-1 Zeiten | Datum, Uhrzeit und Zeitzone dürfen fehlen. Uhrzeit ohne Zeitzone ist kein Zeitpunkt. Eine nicht existierende Zeit (Berlin 29.03.2026 02:30) wird abgelehnt. Eine doppelte Zeit (Berlin 25.10.2026 02:30) bleibt ohne ausdrückliche Auflösung „ungeprüft“. Folgetag und Reisebeginn nur aus eingetragenen Daten, kein geratenes +1. Ohne vollständigen Zeitpunkt gibt es kein „Umstieg passt“ und keinen UTC-Kalendertermin, sondern einen ganztägigen Termin mit Hinweis. Ohne Datum gibt es gar keinen Termin | `resolveLocal`, `transportTimeline`, `transportIcs` |
+| R2-2 Storno | `fee: null` ist nie abgeschlossen. Schutz wird nur gelockert bei bekannter Gebühr, Gebühr offen 0 **und** Erstattung offen 0. Eine Erstattung ohne Storno senkt keine Kosten, ein Preisnachlass braucht einen bewusst korrigierten Buchungsbetrag. Eine Gebühr über dem bisherigen Betrag ist eine Warnung, keine Ablehnung | `cancelSettled`, `cancelWarnings` |
+| R2-3 Lese-Release | siehe §6.2; `needsV3` zählt leere v3-Felder nicht. `serializeTrip` entfernt bei Format 2 leere v3-Felder und lehnt nicht leere ab. Format 3 läuft unverändert rund. `tr:`-Schlüssel im Buchungsbuch müssen auf einen Abschnitt oder Zusatzposten zeigen, außer als Historie (Zahlung, Erstattung, Storno, gebucht) | `needsV3`, `serializeTrip`, `validateReferences` |
+| R2-4 Grenzen | höchstens 20 Zusatzposten je Abschnitt, IDs eindeutig über Hin- und Rückweg sowie Zusatzposten, Erstattungs-IDs je Eintrag eindeutig, echte Kalenderdaten, NaN/Infinity abgewiesen. Löschen eines Abschnitts behält die Buchungsbuch-Historie und ist blockiert, solange ein gebundener Posten nicht abgeschlossen storniert ist | `validateTransport`, `validateMoneyMoves`, `segmentRemovalCheck` |
+
+Für §3/§4 (spätere, getrennte Freischaltung):
+- `party`-Namen sind bei Kontoreisen mit allen Mitgliedern synchronisiert und geteilt, also nicht „nur lokal“. Im Teilen-Text erscheinen sie nur auf ausdrückliche Wahl.
+- Ein einzelnes `paidBy` kann keine mehreren Zahler darstellen. Das ist eine MVP-Grenze, ausdrücklich so benannt.
+- Der Ausgleichsvorschlag kennt ohne `settlements` keine bereits erfolgten Überweisungen zwischen Personen und wird daher nie als „bereits ausgeglichen“ ausgegeben.
+- Datums- oder Etappenänderungen verwerfen keine Tagebucheinträge oder Bewertungen.
+
 ## 8 · Offene Fragen an ChatGPT und Philipp
 
-1. Soll eine Stornogebühr **über** der ursprünglichen Buchungssumme erlaubt sein (Validierung oder nur Hinweis)?
+1. ~~Gebühr über Buchungssumme~~: erlaubt, mit ausdrücklicher Warnung (Review 2).
 2. `party`-Namen sind persönliche Daten. Reicht „nur in der Reise, nie im Teilen-Text ohne Zustimmung“?
-3. Umstiegs- und Flughafen-Richtwerte (45 Min., 10 Min., 2 Std.) als feste Hinweise oder einstellbar?
-4. Reihenfolge der Freischaltung in Schritt 3: zuerst Storno oder zuerst Fliegen (Philipps Wunsch)?
+3. ~~Richtwerte~~: nur benannte, unverbindliche Richtwerte (45 Min., 10 Min., 2 Std.), nie „sicher“ (Review 2).
+4. ~~Reihenfolge~~: Philipp: Fliegen und Storno parallel nach gemeinsamer Grundlage.
