@@ -371,6 +371,13 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 
 /* Audit-Nacharbeit: durchgehend erreichbare Bedienelemente, auch bei Touch. */
 @media screen{
+ .shelf-tools{gap:16px}.shelf-tools form{align-items:end}.shelf-tools input[type=search]{background:var(--bg)}
+ .shelf-tools form>.fld:last-child{flex:0 1 190px}
+ .trip-spotlight{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;padding:24px;border:1px solid var(--line);border-left:5px solid var(--spruce);border-radius:18px;background:var(--spruce-soft)}
+ .trip-spotlight>div{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 220px}.trip-spotlight h2{overflow-wrap:anywhere}
+}
+@media screen and (max-width:600px){.trip-spotlight{padding:18px}.trip-spotlight>.btn{width:100%}.shelf-tools form>.fld:last-child{flex:1 1 160px}}
+@media screen{
  .brand,.sync,#sync{min-height:44px}
  .brand-mark{width:44px;height:44px}
  .add{min-height:44px;min-width:44px;padding:10px 8px}
@@ -1371,7 +1378,7 @@ function remoteChanged(){if(UI.view==='konto'&&typeof document!=='undefined'&&do
 document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
 
 /* ================= Zustand & Routing ================= */
-const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',checkFilter:'all',checkQuery:'',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
+const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',checkFilter:'all',checkQuery:'',tripQuery:'',tripFilter:'all',tripSort:'next',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
 const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
 const MODULE_INFO={
  ueber:['Orientieren','Das Wichtigste und eure nächsten Schritte.'],
@@ -1431,8 +1438,28 @@ document.addEventListener('click',e=>{
 });
 
 /* ================= Ansichten ================= */
+const SHELF_FILTERS={all:'Alle',current:'Unterwegs',next:'Kommend',open:'Datum offen',past:'Vergangen'};
+function shelfText(value){return String(value||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss')}
+function tripShelf(trips,options,now){
+ const o=options||{},filter=Object.prototype.hasOwnProperty.call(SHELF_FILTERS,o.filter)?o.filter:'all',query=shelfText(o.query).trim(),sort=['next','name','recent'].includes(o.sort)?o.sort:'next';
+ const counts={all:trips.length,current:0,next:0,open:0,past:0},rank={current:0,next:1,open:2,past:3};
+ const rows=trips.map(t=>{const phase=tripPhase(t,now),key=!phase?'open':phase.phase==='unterwegs'?'current':phase.phase==='vor'?'next':'past';counts[key]++;return {trip:t,phase,key}});
+ const title=(a,b)=>String(a.trip.title||'').localeCompare(String(b.trip.title||''),'de')||String(a.trip.id).localeCompare(String(b.trip.id));
+ const order=(a,b)=>rank[a.key]-rank[b.key]||(a.key==='past'?String(b.trip.end).localeCompare(String(a.trip.end)):a.key!=='open'?String(a.trip.start).localeCompare(String(b.trip.start)):0)||title(a,b);
+ const ordered=rows.slice().sort(order),spotlight=ordered.find(r=>r.key==='current'||r.key==='next')||null;
+ const shown=rows.filter(r=>{const t=r.trip,place=placeOf(t),stay=stayOf(t);return (filter==='all'||r.key===filter)&&(!query||shelfText([t.title,t.dest,place&&place.name,place&&place.region,stay&&stay.name].join(' ')).includes(query))});
+ shown.sort(sort==='name'?title:sort==='recent'?(a,b)=>String(b.trip.created||'').localeCompare(String(a.trip.created||''))||title(a,b):order);
+ return {rows:shown,counts,spotlight,filter,query,sort};
+}
+function tripShelfTools(shelf){
+ return '<div class="panel shelf-tools"><form id="trip-search" class="row" role="search"><label class="fld" style="flex:1"><span>Reise, Ziel oder Unterkunft</span><input type="search" id="trip-q" maxlength="120" value="'+esc(UI.tripQuery||'')+'" placeholder="Welche Auszeit suchst du?"></label><button type="submit" class="btn ghost sm">Suchen</button><label class="fld"><span>Sortieren</span><select id="trip-sort"><option value="next"'+(shelf.sort==='next'?' selected':'')+'>Als Nächstes</option><option value="name"'+(shelf.sort==='name'?' selected':'')+'>Name A–Z</option><option value="recent"'+(shelf.sort==='recent'?' selected':'')+'>Zuletzt angelegt</option></select></label></form><div class="row" aria-label="Reisen nach Zeitraum">'+Object.entries(SHELF_FILTERS).map(([key,label])=>chipb('trip-filter',key,label+' ('+shelf.counts[key]+')',shelf.filter===key)).join('')+'</div><div class="between"><p class="small muted" role="status">'+shelf.rows.length+' von '+shelf.counts.all+' Reisen sichtbar. Zeitgruppen folgen dem Datum, nicht dem Buchungsstatus.</p><button type="button" class="lnk" data-act="trip-reset"'+(shelf.query||shelf.filter!=='all'||shelf.sort!=='next'?'':' disabled')+'>Ansicht zurücksetzen</button></div></div>';
+}
+function tripSpotlight(row){
+ if(!row)return '';const t=row.trip;
+ return '<aside class="trip-spotlight"><div><span class="eyebrow">'+(row.key==='current'?'Gerade unterwegs':'Eure nächste Auszeit')+'</span><h2>'+esc(t.title)+'</h2><p class="small muted">'+esc(rangeText(t))+' · '+esc(phaseText(row.phase))+'</p></div><button type="button" class="btn" data-go="r-'+esc(t.id)+'-'+(row.key==='current'?'plan':'ueber')+'">'+(row.key==='current'?'Zum Tagesplan':'Weiterplanen')+' <span aria-hidden="true">↗</span></button></aside>';
+}
 function vReisen(){
-  const list=Store.list();
+  const list=Store.list(),shelf=tripShelf(list,{filter:UI.tripFilter,query:UI.tripQuery,sort:UI.tripSort});
   const card=t=>{const c=cost(t),ph=tripPhase(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
     return '<button type="button" class="card click trip-card" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3>'+(Store.isAccount()?'<div class="badges">'+syncBadge(t.id)+(Store.role(t.id)!=='owner'?'<span class="badge">'+ROLE_TXT[Store.role(t.id)]+'</span>':'')+'</div>':'')+'<p class="small muted">'+esc(rangeText(t))+'</p>'+
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
@@ -1442,7 +1469,7 @@ function vReisen(){
    '<section class="block home-hero"><svg class="hero-art" viewBox="0 0 280 280" fill="none" aria-hidden="true"><circle cx="140" cy="140" r="120" stroke="currentColor"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="2"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg><span class="eyebrow">Dein nächstes schönes Stück Auszeit</span><h1>Die Vorfreude beginnt hier.</h1><p class="lead muted">Ideen sammeln, gemeinsam abwägen und entspannt losfahren. Alles für eure Reise an einem Ort.</p><div class="hero-meta"><span>'+list.length+(list.length===1?' gespeicherte Reise':' gespeicherte Reisen')+'</span><span>Ausflug · Wochenende · Urlaub</span></div>'+
    (Store.isAccount()&&guestPendingCount()?'<div class="note"><b>'+guestPendingCount()+' Reise(n) ohne Konto in diesem Browser.</b><p>Sie werden nicht automatisch übertragen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und ins Konto übernehmen</button></div></div>':'')+(!Store.isAccount()&&Sync.cloud()?'<p class="small muted">Gastmodus: Reisen nur in diesem Browser. <button type="button" class="lnk" data-go="konto">Anmelden für Online-Speicherung und Teilen</button></p>':'')+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button><button type="button" class="btn ghost" data-go="entdecken">Ziele im Umkreis entdecken</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
-   '<section class="block"><div class="section-heading"><h2>Meine Reisen</h2><p>Eure Pläne, ein Griff entfernt.</p></div>'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
+   '<section class="block"><div class="section-heading"><h2>Meine Reisen</h2><p>Eure Pläne, ein Griff entfernt.</p></div>'+(list.length?(!shelf.query&&shelf.filter==='all'?tripSpotlight(shelf.spotlight):'')+tripShelfTools(shelf)+(shelf.rows.length?'<div class="grid wide">'+shelf.rows.map(r=>card(r.trip)).join('')+'</div>':'<div class="empty"><b>Keine Reise passt zu dieser Ansicht</b><span>Suchwort oder Zeitgruppe ändern. Eure Reisen wurden nicht gelöscht.</span><button type="button" class="btn ghost" data-act="trip-reset">Alle Reisen zeigen</button></div>'):'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
    '<details class="panel home-support"><summary><b>Neu hier? So funktioniert’s</b></summary><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></details>';
 }
@@ -2062,6 +2089,8 @@ document.addEventListener('click',async e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.getAttribute('data-act'), val=b.getAttribute('data-val'), t=cur();
   if(act==='appearance-open'||act==='appearance-set')return;
+  if(act==='trip-filter'){UI.tripFilter=Object.prototype.hasOwnProperty.call(SHELF_FILTERS,val)?val:'all';render();return}
+  if(act==='trip-reset'){UI.tripFilter='all';UI.tripQuery='';UI.tripSort='next';render();return}
   if(act==='corrupt-download'&&Store.corruptRaw!==null){downloadText(Store.corruptRaw,'Reiseplaner-Rohdaten-'+new Date().toISOString().slice(0,10)+'.txt','text/plain;charset=utf-8');return}
   if(act==='corrupt-confirm'&&Store.corruptRaw!==null){UI.confirm='corrupt-reset';render();return}
   if(act==='corrupt-cancel'){UI.confirm=null;render();return}
@@ -2195,10 +2224,12 @@ document.addEventListener('input',e=>{
   if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
 });
 document.addEventListener('submit',e=>{
+ if(e.target.id==='trip-search'){e.preventDefault();UI.tripQuery=String($('#trip-q').value||'').slice(0,120);render();const field=$('#trip-q');if(field)field.focus();return}
  if(e.target.id!=='check-search')return;e.preventDefault();
  UI.checkQuery=String($('#check-q').value||'').slice(0,120);render();const field=$('#check-q');if(field)field.focus();
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='trip-sort'){UI.tripSort=['next','name','recent'].includes(e.target.value)?e.target.value:'next';render();return}
  if(e.target.id!=='trip-area')return;const t=cur(),tab=e.target.value;
  if(t&&TABS.some(x=>x[0]===tab)){go('r-'+t.id+'-'+tab);const content=$('#view');if(content)content.focus();}
 });
@@ -3055,6 +3086,7 @@ function legsBlock(t){
 /* ================= Start ================= */
 Store.loadLocal();
 window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

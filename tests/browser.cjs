@@ -697,6 +697,29 @@ async function sheetKeyboard(browser,base,name,ctxOpts){
  console.log(name+': Dialogfokus, Tab-Grenzen, Escape/Rückkehr und Kopf-Touchflächen geprüft.');
 }
 
+async function tripShelfFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Reiseregal: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.clock.setFixedTime(new Date('2027-05-02T12:00:00'));await p.goto(base+'/index.html');
+ await p.evaluate(()=>{const a=window.__app;[
+  a.newTrip({id:'tshelfnow',title:'Aktuelle Auszeit',dateMode:'fix',start:'2027-05-01',end:'2027-05-03'}),
+  a.newTrip({id:'tshelfnext',title:'Kommende Auszeit',dateMode:'fix',start:'2027-05-10',end:'2027-05-12'}),
+  a.newTrip({id:'tshelfopen',title:'München entdecken',dateMode:'open'}),
+  a.newTrip({id:'tshelfpast',title:'Winterreise',dateMode:'fix',start:'2027-01-01',end:'2027-01-02'})
+ ].forEach(t=>a.Store.put(t,true));a.go('reisen')});
+ const original=await p.evaluate(()=>JSON.stringify(window.__app.Store.list()));
+ assert.equal(await p.locator('.trip-card').count(),4);
+ await p.click('.trip-spotlight [data-go]');assert((await p.getAttribute('.tab[aria-current="page"]','data-go')).endsWith('-plan'));
+ await p.click('.app-nav [data-go="reisen"]');await p.click('[data-act="trip-filter"][data-val="open"]');
+ assert.equal(await p.locator('.trip-card').count(),1);
+ await p.fill('#trip-q','MUNCHEN');await p.press('#trip-q','Enter');assert.equal(await p.locator('.trip-card').count(),1);
+ await p.click('[data-act="trip-filter"][data-val="past"]');assert((await viewText(p)).includes('Keine Reise passt'));
+ await p.click('[data-act="trip-reset"]');assert.equal(await p.locator('.trip-card').count(),4);
+ await p.selectOption('#trip-sort','name');assert((await p.locator('.trip-card').first().textContent()).includes('Aktuelle Auszeit'));
+ await noOverflow(p,name+' Reiseregal');assert.equal(await p.evaluate(()=>JSON.stringify(window.__app.Store.list())),original);
+ await ctx.close();console.log(name+': Reiseregal-Suche, Filter, Reset, Sortierung und Spotlight geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -718,6 +741,8 @@ async function sheetKeyboard(browser,base,name,ctxOpts){
     await checklistModules(browser,base,'module-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await sheetKeyboard(browser,base,'dialog-desktop',{viewport:{width:1280,height:900}});
     await sheetKeyboard(browser,base,'dialog-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await tripShelfFlow(browser,base,'regal-desktop',{viewport:{width:1280,height:900}});
+    await tripShelfFlow(browser,base,'regal-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

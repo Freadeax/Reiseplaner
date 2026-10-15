@@ -22,6 +22,8 @@ Oben über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (w
 
 ## Was bereits geht
 
+- **Persönliches Reiseregal:** Reisen nach Titel, Ziel oder Unterkunft durchsuchen, nach Zeitgruppe filtern und sinnvoll sortieren. Eine laufende oder kommende Reise wird hervorgehoben. Zeitgruppen ändern keinen Buchungsstatus; die Ansicht löscht oder verändert keine Reisen.
+
 - Reisen mit festem, flexiblem oder offenem Zeitraum anlegen und bearbeiten, leer oder mit einer Vorlage (Wochenende, Städtereise, Tagesausflug, Sommer-, Winterurlaub; Silvester als ausgefülltes Beispiel)
 - **Entdecken (Umkreis-Katalog, v3.1):** Abfahrtsort per Standort, Ortssuche oder Städteliste wählen, Kilometerbereich (z. B. „Wochenende 80–350 km“ oder frei von–bis), Themen, Monat, Dauer, „Mit Kindern“ und „Auch bei Schlechtwetter“. Der Katalog schlägt aus 102 Zielen in Deutschland und elf Nachbarländern mit 468 Attraktionen passende Ziele vor, mit Zwischenstopps auf dem Weg und Ausflügen vom Ziel. „Überrasch mich“ wählt zufällig unter den besten Treffern. Auf Knopfdruck entsteht eine Reise mit verteiltem Tagesgerüst. Keine Preise und keine Öffnungszeiten: übernommene Ideen stehen auf „Preis offen“, bis ihr einen Betrag eintragt. Kilometer und Fahrzeit sind gekennzeichnete Schätzungen (Luftlinie × 1,3)
 - **Seit v3.3:** „Ziel direkt finden“ über den ganzen Katalog, teilbarer Link je Ziel (`#ziel-<id>`), „Ähnliche Ziele“ im Ziel-Blatt.

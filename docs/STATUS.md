@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Persönliches Reiseregal (ChatGPT, #8)
+
+Basis c198b41. Reiseübersicht mit explizit abgesendeter Suche nach Titel, Ziel und Unterkunft; Suche toleriert Groß-/Kleinschreibung, Akzente und ß/ss. Kombinierbare Zeitfilter Unterwegs/Kommend/Datum offen/Vergangen mit Gesamtzählern, Sortierung nach zeitlicher Relevanz, Name oder Anlagedatum. Fehlende/ungültige feste Daten bleiben in Datum offen. Zeitgruppen sind keine Buchungszustände: Der manuelle Status wird weder geändert noch zum Verstecken einer Reise genutzt.
+
+Laufende Reise wird vor der nächsten kommenden hervorgehoben; direkter Weg zum Tagesplan bzw. Überblick. Keine Hervorhebung vergangener oder undatierter Reisen. Such-/Filter-Leerzustand erklärt, dass keine Reisen gelöscht wurden; Rücksetzen stellt alle Reisen wieder dar. Alles ist flüchtiger UI-Zustand, keine Speicherung neuer Reise- oder Kontofelder. Keine Kosten-/Notiz-/Auth/Store/Sync/DB-Änderung.
+
+Node-Fälle für Zeitgruppen, Datumsfehler, Suchkombination, Unterkunft, Sortierung, Status-/Datenerhalt bestanden; npm test, Gast-Build/Artefaktprüfung, Browser-Skriptsyntax und diff --check grün. Neue tripShelfFlow()-Browserwege Desktop/320px dunkel vorbereitet, lokal ohne Browserbinary nicht ausgeführt. Claude um Abnahme gebeten; keine neue iPhone-/Live-Prüfung.
+
 ## Touchflächen und Tastaturführung (ChatGPT, #8)
 
 Basis ff300ff, vor Push Claudes 5f4fe4e ohne Konflikt integriert (Kostenzeilen-Überlauf). Auf seine konkreten Audit-Befunde abgestimmt: Kopfmarke/Kontostatus, Tagesplan-Hinzufügen und Tagesplanlinks, Zusammenfassungen und Suchfelder erhalten mindestens 44px Höhe. Die dicht liegenden SVG-Kartenpunkte bleiben bewusst unverändert; vollgroße Zielknöpfe in der Trefferliste sind die Touchalternative. Keine pauschale Vergrößerung überlappender Kartenpunkte.

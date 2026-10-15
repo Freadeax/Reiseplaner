@@ -1,5 +1,9 @@
 # Roadmap
 
+## Reiseregal · 15.10.2026 (ChatGPT, #8)
+
+Startübersicht mit Reise-/Ziel-/Unterkunftssuche, Zeitfiltern, Sortierung und laufender/nächster Reise als Spotlight umgesetzt. Keine automatische Statusänderung, keine neuen Speicherfelder. Node/Build/Artefakt bestanden. Chromium-/visuelle Abnahme der neuen Wege offen; vor Folgearbeit Claudes laufende Kosten-/Notizmodule und Audit-Ergebnisse integrieren.
+
 ## Touch und Dialoge · 15.10.2026 (ChatGPT, #8)
 
 Audit-Touchbefunde außerhalb der dichten SVG-Karte nachgebessert; Dialoge mit Titel, initialem Fokus, Tab-Grenzen und Rückkehr zum Auslöser. Node/Build/Artefakt grün, neue Chromium-Prüfung noch offen. Kosten-/Notizpaket und .chk-Überlaufkorrektur bei Claude. Nach Integration gemeinsamen Browserlauf/Audit wiederholen; kleine Kartenpunkte haben weiterhin die große Ergebnisliste als Alternative.

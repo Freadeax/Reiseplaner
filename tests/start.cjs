@@ -92,3 +92,33 @@ fresh.openSheet('<h2>Test</h2>');opener.isConnected=false;fresh.closeSheet();
 assert.equal(ctx.document.activeElement,fallbackView,'Entfernter Auslöser führt zurück in den Inhalt');
 ctx.document.querySelector=oldQuery;
 console.log('Detailfenster: Dialogname, initialer Fokus, Tab und Rückkehr zum Auslöser mit DOM-Doubles geprüft.');
+
+// Reiseregal: abgeleitete Zeitgruppen, stabiles Sortieren, kombinierte Suche ohne Mutation.
+const noon=new Date('2027-05-02T12:00:00');
+const shelfTrips=[
+ fresh.newTrip({id:'tpast',title:'Winter',dateMode:'fix',start:'2027-01-01',end:'2027-01-02'}),
+ fresh.newTrip({id:'topen',title:'München',dest:'München',dateMode:'open',created:'2027-05-01',stayId:'sfind',customStays:[{id:'sfind',custom:true,name:'Hotel Seeblick'}]}),
+ fresh.newTrip({id:'tnext',title:'Sommer',status:'vorbei',dateMode:'fix',start:'2027-05-10',end:'2027-05-12'}),
+ fresh.newTrip({id:'tnow',title:'Auszeit',dateMode:'fix',start:'2027-05-01',end:'2027-05-03'}),
+ fresh.newTrip({id:'tbad',title:'Noch prüfen',dateMode:'fix',start:'2027-05-30',end:'2027-05-01'})
+];
+const shelfBefore=JSON.stringify(shelfTrips),shelf=fresh.tripShelf(shelfTrips,{},noon);
+assert.deepEqual(JSON.parse(JSON.stringify(shelf.counts)),{all:5,current:1,next:1,open:2,past:1});
+assert.equal(shelf.spotlight.trip.id,'tnow');
+assert.equal(shelf.rows[0].trip.id,'tnow');assert.equal(shelf.rows[1].trip.id,'tnext');
+assert.equal(shelf.rows[4].trip.id,'tpast');
+assert.equal(fresh.tripShelf(shelfTrips,{filter:'next'},noon).rows[0].trip.status,'vorbei','Manueller Status bleibt unangetastet');
+assert.equal(fresh.tripShelf(shelfTrips,{filter:'open',query:'MUNCHEN'},noon).rows[0].trip.id,'topen');
+assert.equal(fresh.tripShelf(shelfTrips,{query:'seeblick'},noon).rows[0].trip.id,'topen');
+assert.equal(fresh.tripShelf(shelfTrips,{sort:'recent'},noon).rows[0].trip.id,'topen');
+assert.equal(fresh.tripShelf(shelfTrips,{filter:'past',query:'München'},noon).rows.length,0);
+assert.equal(fresh.tripShelf(shelfTrips,{filter:'constructor',sort:'bad'},noon).rows.length,5);
+assert.equal(fresh.tripShelf([shelfTrips[0],shelfTrips[1]],{},noon).spotlight,null);
+assert.equal(fresh.tripShelf(shelfTrips,{sort:'name'},noon).rows[0].trip.id,'tnow');
+assert.equal(JSON.stringify(shelfTrips),shelfBefore);
+fresh.Store.put(shelfTrips[1],true);fresh.UI.tripFilter='all';fresh.UI.tripQuery='MUNCHEN';
+assert(fresh.vReisen().includes('Hotel Seeblick'));
+fresh.UI.tripQuery='kein-treffer';
+assert(fresh.vReisen().includes('Keine Reise passt zu dieser Ansicht'));
+fresh.UI.tripQuery='';
+console.log('Reiseregal: Zeitgruppen, laufende Reise, offene/ungültige Daten, Suche, Sortierung und Datenerhalt geprüft.');
