@@ -550,6 +550,33 @@ async function run(browser, base, name, ctxOpts, now) {
   await ctx.close();
 }
 
+async function completion(browser, base, name, ctxOpts) {
+  const ctx=await browser.newContext(ctxOpts),p=await ctx.newPage();
+  p.on('pageerror',e=>errors.push(name+' completion: '+e.message));
+  await p.goto(base);
+  await p.evaluate(()=>{
+    const a=window.__app,t=a.newTrip({id:'tcomplete',title:'Angaben ergänzen',dateMode:'fix',start:'2027-06-01',end:'2027-06-01',nights:0,origin:'Göppingen',dest:'Ulm',km:60,budget:500});
+    const idea=a.customActFromForm({title:'Eigenes Museum',cat:'eigen',cost:'',hours:'',per:'pp'},'ccomplete');
+    t.customActs=[idea];t.items=[{uid:'icomplete',act:idea.id,day:0,slot:'morgen'}];a.Store.put(t,true);a.go('r-'+t.id+'-ueber');
+  });
+  await p.click('[data-next-step="activity-prices"] [data-act="act-view"]');
+  await p.fill('#ap-cost','12');await p.click('[data-act="act-price"]');
+  assert.equal(await p.locator('[data-next-step="activity-prices"]').count(),0,name+': offener Preis nach Eingabe noch als Aufgabe');
+  await p.click('[data-next-step="duration"] [data-act="act-edit"]');
+  await p.fill('#ae-hours','2');await p.click('[data-act="act-edit-preview"]');
+  await p.click('[data-act="act-change-confirm"]');
+  assert.equal(await p.locator('[data-next-step="duration"]').count(),0,name+': Dauer nach Eingabe noch als Aufgabe');
+  await p.click('.tab[data-go$="-unternehmen"]');
+  await p.click('[data-act="fmissing"][data-val="price"]');
+  assert((await viewText(p)).includes('0 von 1 Ideen sichtbar'),name+': Preisfilter zählt falsch');
+  await p.click('[data-act="activity-filters-reset"]');
+  assert.equal(await p.locator('[data-act="plan-act"]').count(),1,name+': Filterreset zeigt Idee nicht');
+  await p.click('[data-act="fmissing"][data-val="duration"]');
+  assert((await viewText(p)).includes('0 von 1 Ideen sichtbar'),name+': Dauerfilter zählt falsch');
+  await p.click('[data-act="activity-filters-reset"]');
+  await noOverflow(p,name+' Angaben ergänzen');
+  await ctx.close();
+}
 async function offline(browser, base) {
   if (!fs.existsSync(path.join(ROOT, 'sw.js'))) return;
   const ctx = await browser.newContext();
@@ -585,6 +612,8 @@ async function offline(browser, base) {
     await run(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' }, now);
     await entdecken(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } });
     await entdecken(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' });
+    await completion(browser, base, 'desktop', { viewport: {width:1280,height:900} });
+    await completion(browser, base, 'dunkel-schmal', { viewport: {width:320,height:640},colorScheme:'dark' });
     await offline(browser, base);
   } finally {
     await browser.close();

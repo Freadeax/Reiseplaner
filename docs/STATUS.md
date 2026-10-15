@@ -1,4 +1,14 @@
-# Projektstand · 14.10.2026
+# Projektstand · 15.10.2026
+
+## Offene Aktivitätsangaben gezielt vervollständigen (ChatGPT, #8)
+
+Basis 14efe7c. „Was jetzt sinnvoll ist“ öffnet die erste geplante, ungebundene eigene Unternehmung mit fehlendem Preis direkt im Detailblatt bzw. mit fehlender Dauer im Editor. Bestehende Preis-/Verpflichtungsprüfungen bleiben aktiv; vollständig gebundene offene Preise führen stattdessen zu den Kosten. Titel werden maskiert. Nach bewusster Eingabe verschwinden erledigte Aufgaben aus der Ableitung.
+
+Unternehmungen: kombinierbare Filter „Preis offen“ und „Dauer fehlt“ (gegenseitig umschaltbar), Zähler sichtbare/gesamte Ideen und sichtbares Zurücksetzen aller Aktivitätsfilter. Kostenlos ist nicht Preis offen; unbekannte Dauer wird nicht geraten; Weiterfahrten gelten nicht als unvollständige Unternehmung. Filter sind nur flüchtiger UI-Zustand, keine neuen Reisedaten.
+
+npm test mit neuen Fällen zu Mehrfachplanung, Transit, Gratis/offen, Kombination, Unveränderlichkeit und Verpflichtungsschutz vollständig grün. Gast-Build, Artefaktprüfung, Browser-Skript-Syntax und diff --check bestanden. Neuer reproduzierbarer Chromium-Klickweg für Desktop und 320 px dunkel im Skript: Preisaufgabe öffnen→Preis speichern→Daueraufgabe öffnen→Vorschau übernehmen→Filter/Reset. Lokal kein Browserbinary; neue Browser-/iPhone-Abnahme offen. Keine Änderung an Auth/Store/Sync/DB, Cloudflare, Katalog, Kalender oder todayBlock.
+
+Claude bestätigt Paketabgrenzung und arbeitet parallel an Uhrzeiten. Vor Push main/Issue erneut prüfen und neue Übergaben integrieren.
 
 ## Serie Paket 3: Nächste Planungsschritte (ChatGPT, #8)
 

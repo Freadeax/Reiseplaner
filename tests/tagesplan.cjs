@@ -14,6 +14,34 @@ const ctx = { window: win, document: { addEventListener() {}, querySelector() { 
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
 
+/* Fehlende Angaben: gezielte Aktionen nur für geplante, editierbare eigene Ideen. */
+{
+  const t=a.newTrip({nights:0,dest:'Ulm',origin:'Göppingen',budget:500,km:60});
+  const open=a.customActFromForm({title:'Museum <A>',cat:'eigen',per:'pp',cost:'',hours:''},'cgaps');
+  const free=a.customActFromForm({title:'Spaziergang',cat:'eigen',per:'pp',free:true,hours:'1'},'cfreegap');
+  const transit={id:'ctransit',custom:true,t:'Weiterfahrt',transit:true,costOpen:true,cost:0};
+  t.customActs=[open,free,transit];t.items=[{uid:'gap1',act:open.id,day:0,slot:'morgen'},{uid:'gap2',act:open.id,day:0,slot:'abend'}];
+  const before=JSON.stringify(t),gaps=a.activityGaps(t);
+  assert.equal(gaps.length,2,'Weiterfahrten nicht als unvollständige Unternehmung');
+  assert.equal(gaps.filter(x=>x.price).length,1,'Mehrfachplanung zählt eine Idee');
+  assert.equal(gaps.filter(x=>x.duration).length,1);
+  const price=a.planningNextSteps(t).find(x=>x.id==='activity-prices');assert.equal(price.action,'act-view');assert.equal(price.value,open.id);
+  const duration=a.planningNextSteps(t).find(x=>x.id==='duration');assert.equal(duration.action,'act-edit');assert.equal(duration.value,open.id);
+  assert(a.nextStepsBlock(t).includes('data-val="cgaps"'));
+  assert(a.nextStepsBlock(t).includes('Museum &lt;A&gt;'),'Titel als Text maskiert');
+  a.UI.fmissing='price';assert(a.tUnternehmen(t).includes('1 von 3 Ideen sichtbar'));
+  a.UI.ffree=true;assert(a.tUnternehmen(t).includes('0 von 3 Ideen sichtbar'),'Filter kombinierbar');
+  a.UI.ffree=false;a.UI.fmissing='duration';assert(a.tUnternehmen(t).includes('1 von 3 Ideen sichtbar'));
+  a.UI.fmissing='';
+  assert.equal(JSON.stringify(t),before,'Ableitung/Filter ändern Reise nicht');
+  t.ledger={'act:cgaps':{status:'gebucht',amount:40,paid:10}};
+  assert.equal(a.planningNextSteps(t).find(x=>x.id==='activity-prices').action,'','Gebuchte Preisangabe führt zu Kosten, nicht zum Umgehen des Schutzes');
+  assert.equal(a.planningNextSteps(t).find(x=>x.id==='duration').action,'','Gebuchte Dauer nicht direkt bearbeiten');
+  delete t.ledger;open.cost=12;open.costOpen=false;open.hours=2;open.dur='ca. 2 Std.';
+  assert(!a.planningNextSteps(t).some(x=>x.id==='activity-prices'));
+  assert(!a.planningNextSteps(t).some(x=>x.id==='duration'));
+}
+
 /* Nächste Schritte: rein abgeleitet, dringende Zahlungen zuerst, Tagesausflüge ohne Hotelpflicht. */
 {
   const t=a.newTrip({nights:0,budget:0,origin:'',dest:''}),before=JSON.stringify(t);

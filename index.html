@@ -1154,7 +1154,7 @@ function remoteChanged(){if(UI.view==='konto'&&typeof document!=='undefined'&&do
 document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
 
 /* ================= Zustand & Routing ================= */
-const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
+const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
 const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
 function go(h,keepScroll){
   h=(h||'').replace(/^#/,'');
@@ -1224,9 +1224,13 @@ function stackBar(c){
   return '<div class="sbar" role="img" aria-label="Kosten nach Kategorie">'+keys.map(k=>'<i style="width:'+(c.byCat[k]/tot*100)+'%;background:'+COSTCAT[k][1]+'"></i>').join('')+'</div><div class="legend">'+keys.map(k=>'<span><i style="background:'+COSTCAT[k][1]+'"></i>'+COSTCAT[k][0]+' <b class="num">'+eur(c.byCat[k])+'</b></span>').join('')+'</div>';
 }
 /* Abgeleitete Orientierung ohne Fortschrittsprozente oder automatische Planänderung. */
+function activityGaps(t){
+ const planned=new Set((t.items||[]).map(i=>i.act));
+ return actsFor(t).filter(a=>!a.transit).map(a=>({act:a,planned:planned.has(a.id),price:!!(a.custom&&a.costOpen&&!num(a.cost,0)),duration:actHours(a)==null,locked:activityCommitted(t,a.id)}));
+}
 function planningNextSteps(t){
  const out=[],c=cost(t),f=financeSummary(t),o=activeOffer(t),load=dayLoad(t),oc=openCosts(t);
- const add=(id,priority,title,reason,tab,action='')=>out.push({id,priority,title,reason,tab,action});
+ const add=(id,priority,title,reason,tab,action='',value='',label='Ansehen')=>out.push({id,priority,title,reason,tab,action,value,label});
  const late=f.due.filter(r=>r.overdue),soon=f.due.filter(r=>!r.overdue&&r.days<=14);
  if(late.length)add('payments',10,'Überfällige Zahlung klären',late.length+' Posten mit offenem Betrag und vergangener Fälligkeit. Keine Zahlung wird automatisch ausgelöst.','kosten');
  else if(soon.length)add('payments',15,'Anstehende Zahlung prüfen',soon.length+' Posten werden innerhalb von 14 Tagen fällig.','kosten');
@@ -1240,14 +1244,16 @@ function planningNextSteps(t){
  if(num(t.budget,0)>0&&c.total>num(t.budget,0))add('budget',18,'Plan liegt über dem Budget',eur(c.total-num(t.budget,0))+' über der Vorgabe – zusätzlich können noch Kosten offen sein.','kosten');
  else if(!num(t.budget,0))add('budget',55,'Gesamtbudget festlegen','Eine Obergrenze hilft beim Vergleich; Kosten ohne Budget sind weiterhin Planwerte.','','edit-trip');
  if(oc.length)add('costs',50,'Offene Kosten und Gebühren prüfen',oc.slice(0,3).join(' · ')+(oc.length>3?' · '+(oc.length-3)+' weitere Hinweise in den Kosten':''),'kosten');
+ const gaps=activityGaps(t).filter(x=>x.planned),prices=gaps.filter(x=>x.price),price=prices.find(x=>!x.locked);
+ if(prices.length)add('activity-prices',42,'Preise der Unternehmungen ergänzen',prices.length+' eingeplante Idee(n) ohne Preis.'+(price?' Beginnt mit „'+price.act.t+'“.':' Bestehende Verpflichtungen zunächst im Zahlungsbuch klären.'),'kosten',price?'act-view':'',price?price.act.id:'',price?'Preis eintragen':'Zahlungsbuch prüfen');
  const busy=load.filter(d=>d.over),unknown=load.reduce((n,d)=>n+d.unknown,0);
  if(busy.length)add('load',32,'Überladene Tage entlasten',busy.length+' Tag(e) haben mehr Programm als nach geschätzter Fahrtzeit verfügbar ist. Pausen und Wege zusätzlich prüfen.','plan');
- if(unknown)add('duration',65,'Dauer der Unternehmungen prüfen',unknown+' eingeplante Punkt(e) ohne bekannte Dauer. Freie Zeit ist dadurch nicht bestätigt.','unternehmen');
+ if(unknown){const duration=gaps.find(x=>x.duration&&x.act.custom&&!x.locked);add('duration',65,'Dauer der Unternehmungen prüfen',unknown+' eingeplante Punkt(e) ohne bekannte Dauer. Freie Zeit ist dadurch nicht bestätigt.'+(duration?' Ergänzt zuerst „'+duration.act.t+'“.':''),'unternehmen',duration?'act-edit':'',duration?duration.act.id:'',duration?'Dauer ergänzen':'Unternehmungen prüfen');}
  if(!(t.items||[]).length)add('ideas',80,'Ein Highlight sammeln','Optional: eine passende Idee wählen und Erholungszeit frei lassen. Ihr müsst den Tagesplan nicht füllen.','unternehmen');
  return out.sort((a,b)=>a.priority-b.priority||a.id.localeCompare(b.id));
 }
 function nextStepsBlock(t){
- const rows=planningNextSteps(t),row=x=>'<article class="card"><h3>'+esc(x.title)+'</h3><p class="small">'+esc(x.reason)+'</p><div class="foot"><button type="button" class="btn ghost sm" '+(x.action?'data-act="'+x.action+'"':'data-go="r-'+esc(t.id)+'-'+x.tab+'"')+'>Ansehen</button></div></article>';
+ const rows=planningNextSteps(t),row=x=>'<article class="card" data-next-step="'+esc(x.id)+'"><h3>'+esc(x.title)+'</h3><p class="small">'+esc(x.reason)+'</p><div class="foot"><button type="button" class="btn ghost sm" '+(x.action?'data-act="'+esc(x.action)+'" data-val="'+esc(x.value)+'"':'data-go="r-'+esc(t.id)+'-'+x.tab+'"')+'>'+esc(x.label)+'</button></div></article>';
  return '<section class="block" data-next-steps><div class="between"><h2>Was jetzt sinnvoll ist</h2><span class="badge">Aus eurem aktuellen Plan</span></div><p class="small muted">Die wichtigsten nächsten Schritte zuerst. Hinweise sind keine Buchungsfreigabe und ändern euren Plan nicht.</p>'+(rows.length?'<div class="grid">'+rows.slice(0,3).map(row).join('')+'</div>'+(rows.length>3?'<details class="panel"><summary><b>'+ (rows.length-3)+' weitere Hinweise</b></summary><div class="grid">'+rows.slice(3).map(row).join('')+'</div></details>':''):'<p>Keine zusätzlichen Schritte aus diesen Kriterien. Öffnungen, Tarife, genaue Zeiten und Buchungsbedingungen trotzdem beim Anbieter prüfen.</p>')+'</section>';
 }
 function tUeber(t){
@@ -1391,16 +1397,19 @@ function sheetActivityPreview(t,draft){
 }
 function tUnternehmen(t){
   if(t.catalog==='allgaeu'&&!t.place) return '<section class="block"><div class="empty"><b>Erst einen Ort wählen</b><button type="button" class="btn" data-go="r-'+t.id+'-unterkunft">Ort wählen</button></div></section>';
-  let list=actsFor(t);
+  let list=actsFor(t);const gaps=activityGaps(t),priceIds=new Set(gaps.filter(x=>x.price).map(x=>x.act.id)),durationIds=new Set(gaps.filter(x=>x.duration).map(x=>x.act.id));
   const cnt={};(t.items||[]).forEach(i=>cnt[i.act]=(cnt[i.act]||0)+1);
   if(UI.fcat!=='alle') list=list.filter(a=>(a.cat||'eigen')===UI.fcat);
   if(UI.ffree) list=list.filter(a=>actCost(t,a).free);
   if(UI.findoor) list=list.filter(a=>a.indoor);
   if(UI.fcard) list=list.filter(a=>a.cardPp!=null||a.src==='plus');
+  if(UI.fmissing==='price')list=list.filter(a=>priceIds.has(a.id));
+  if(UI.fmissing==='duration')list=list.filter(a=>durationIds.has(a.id));
   const cats=['alle'].concat(Object.keys(CAT));
   return '<section class="block"><h2>Unternehmungen</h2><p class="lead muted small">Antippen für Ablauf, Kosten und Links. „Einplanen“ legt sie in den Tagesplan.</p>'+(t.destGeo?'<div class="row"><button type="button" class="btn ghost sm" data-act="cat-trip-ideas">Mehr Ideen aus dem Katalog rund ums Ziel</button></div>':'')+
   '<div class="row">'+cats.map(c=>chipb('fcat',c,c==='alle'?'Alle':CAT[c],UI.fcat===c)).join('')+'</div>'+
   '<div class="row">'+chipb('ffree','1','Kostenlos',UI.ffree)+chipb('findoor','1','Bei Schlechtwetter',UI.findoor)+(t.catalog==='allgaeu'?chipb('fcard','1','Mit Gästekarte',UI.fcard):'')+'</div>'+
+  '<div class="row">'+chipb('fmissing','price','Preis offen ('+priceIds.size+')',UI.fmissing==='price')+chipb('fmissing','duration','Dauer fehlt ('+durationIds.size+')',UI.fmissing==='duration')+'<button type="button" class="lnk" data-act="activity-filters-reset">Filter zurücksetzen</button></div><p class="small muted" role="status">'+list.length+' von '+actsFor(t).length+' Ideen sichtbar. Die Filter ändern eure Planung nicht.</p>'+
   (list.length?'<div class="grid">'+list.map(a=>{const c=actCost(t,a);return '<div class="card" style="border-top:4px solid '+CATCOL[a.cat||'eigen']+'"><span class="eyebrow">'+esc(CAT[a.cat||'eigen'])+(a.ort?' · '+esc(a.ort):'')+'</span><h3>'+esc(a.t)+'</h3><p class="small">'+esc(a.s||a.note||'')+'</p>'+
     '<div class="badges">'+(a.dur?'<span class="badge">'+esc(a.dur)+'</span>':'')+(a.indoor?'<span class="badge">drinnen</span>':'')+(a.book?'<span class="badge">buchen</span>':'')+(a.warn?'<span class="badge bad">Hinweis</span>':'')+(a.custom?'':srcBadge(a.src))+(cnt[a.id]?'<span class="badge ok">'+cnt[a.id]+'× eingeplant</span>':'')+'</div>'+
     '<p class="small"><b>'+esc(c.txt)+'</b></p><div class="foot"><button type="button" class="btn sm" data-act="plan-act" data-val="'+esc(a.id)+'">+ Einplanen</button><button type="button" class="btn ghost sm" data-act="act-view" data-val="'+esc(a.id)+'">Details</button></div></div>'}).join('')+'</div>':'<div class="empty">Nichts passt zu den Filtern.</div>')+
@@ -1799,6 +1808,8 @@ document.addEventListener('click',async e=>{
    case 'ffree': UI.ffree=!UI.ffree;break;
    case 'findoor': UI.findoor=!UI.findoor;break;
    case 'fcard': UI.fcard=!UI.fcard;break;
+   case 'fmissing': UI.fmissing=UI.fmissing===val?'':val;break;
+   case 'activity-filters-reset':UI.fcat='alle';UI.ffree=false;UI.findoor=false;UI.fcard=false;UI.fmissing='';break;
    case 'act-view': sheetAct(t,val);return;
    case 'plan-act': sheetAct(t,val);return;
    case 'plan-do':{const day=+$('#pl-day').value,slot=$('#pl-slot').value;t.items=(t.items||[]).concat([{uid:uid('i'),act:val,day,slot}]);t.packageId='';save(t);closeSheet();render();toast(b,'Eingeplant');return}
@@ -2690,7 +2701,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

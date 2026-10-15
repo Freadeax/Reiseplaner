@@ -1,5 +1,9 @@
 # Roadmap
 
+## Gezielte Vervollständigung · 15.10.2026
+
+Direkte Aktionen aus der Übersicht für offene Aktivitätspreise/Dauern und Aktivitätsfilter mit Zählern/Reset implementiert. Node geprüft, neuer Chromium-Klickweg im Testskript, Ausführung offen. Keine neuen Speicherfelder. Parallel bei Claude: genaue Uhrzeiten mit gebuchten Termin-Signaturen; vor weiterem Eingriff in Zeiten aktuelle Übergabe lesen.
+
 ## Serie: Unterkunft, Kostenposten, nächste Schritte · ChatGPT
 
 Paket 1 Orts-/Unterkunftswechsel mit Kandidat, Vorschau und Verpflichtungsschutz implementiert; initiale Auswahl direkt, erneute gleiche Auswahl erhält Buchungszustand. Paket 2 eigene Kostenposten bearbeiten/entfernen mit Zahlungsbindung ebenfalls implementiert und Node-geprüft. Paket 3 nächste Aktionen in der Übersicht implementiert, rein abgeleitet und ohne Buchungsfreigabe. Neue Chromium-Abnahmen offen. Kein Konto-/E-Mail-/Cloudflare-Eingriff.
