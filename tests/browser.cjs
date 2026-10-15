@@ -983,6 +983,16 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  await offerButton('uncancel').click();await p.click('[data-v3-editor-action="preview-uncancel"]');await p.click('[data-v3-editor-action="apply"]');await p.reload();
  assert.equal(await p.evaluate(id=>window.__app.financeEntry(window.__app.Store.get(id),{kind:'offer',id:'oeditor'}).math.open,id),150);
  assert.equal(await p.evaluate(id=>window.__app.Store.get(id).offers[0].refunds.length,id),1);
+ /* Zurück zur unveränderten Produktionsdatei: gelesene v3-Reisen bleiben auch
+    in den alten Such-/Angebotshandlern schreibgeschützt und behalten Version 3. */
+ await p.unroute(base+'/index.html');await p.reload();assert.equal(await p.evaluate(()=>window.__app.V3_EDIT),false);
+ await tripTab(p,'suche');const lockedRaw=await p.evaluate(()=>localStorage.getItem('rp-trips'));
+ await p.fill('[data-search="destination"]','Nicht speichern');await p.locator('[data-search="destination"]').press('Tab');
+ assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);
+ await p.locator('[data-search-act="offer-edit"][data-value="oeditor"]').click();await p.fill('[data-offer="name"]','Nicht speichern');
+ await p.click('[data-search-act="offer-save"]');assert((await p.textContent('#offer-error')).includes('Format 3'));
+ assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).schemaVersion,id),3);
  await ctx.close();console.log(name+': isolierter v3-Editorweg Storno/Refund/Rücknahme/Transport/Quellstand geprüft; Produktionsgate unverändert.');
 }
 

@@ -1,5 +1,15 @@
 # Projektstand · 15.10.2026
 
+## Kritischer Legacy-Downgrade im Nur-Lesen-Modus korrigiert (ChatGPT, #8)
+
+Im tatsächlichen Such-Change-Callback reproduziert: Trotz V3_EDIT=false setzte der alte Handler schemaVersion=2 und speicherte eine v3-Gastreise samt Transport als v2. Auch offer-save hatte diese erzwungene Zuweisung. Dadurch umging die UI die nachfolgende Format-3-Schreibsperre; der Gastcache hat keinen Datenbanktrigger. Repro stammt ausschließlich aus isolierten Testdaten, keine Aussage über tatsächlich beschädigte Nutzerdaten.
+
+Beide Zuweisungen setzen 2 jetzt nur bei fehlender Version. Suchänderung und schreibende alte Such-/Angebotsaktionen prüfen zusätzlich den v3-Leseschutz vor jeder Objektänderung. Lesen, Sicherungen und Angebotsdetails bleiben erreichbar. Angebotsspeichern prüft zudem Reise-/Scope-Snapshot, baut eine tiefe Kopie und validiert alle Extras vor der Übernahme; veraltete Formulare können keine inzwischen erhaltene Erstattung überschreiben. Schließen verwirft den alten Angebotsentwurf. Keine Änderung an Store-/Sync-Methoden oder Datenbank. Service Worker v9 für den aktualisierten Schutzstand.
+
+`tests/v3legacy.cjs` im npm-Test führt echte registrierte Callbackfunktionen aus (nur DOM-Ausgabe isoliert): Gate false → Reiseobjekt und Datenträger exakt unverändert; isoliert true → Version 3 und Transport erhalten. Zusätzlicher veralteter Angebotsentwurf nach neuer Erstattung wird verworfen. Der neue Browserweg beendet seinen isolierten Aktiv-Kontext anschließend mit der echten Produktionsdatei V3_EDIT=false und prüft beide alten UI-Wege auf unveränderte Version und Daten. Node-Repro vor Fix rot, danach grün. Vollständiges npm test, Gast-Build, Artefaktprüfung, Browser-Syntax und diff --check bestanden; neue CI-Abnahme erforderlich.
+
+CI d180f0a, Lauf 38782838570: app und erweiterter Browser einschließlich Scope-/Quota-/Angebotsfällen grün. Datenbank-API-Test ebenfalls grün, Cloud-E2E scheiterte am Rechteentzugs-Abgleich tests/e2e-cloud.cjs:147 nach 20 Sekunden. Build/Deploy übersprungen, letzter vollständig veröffentlichter Stand bleibt 052af04. Konkreten Fall an Claude übergeben, keine unbegründete Timeoutverlängerung oder Produktionsänderung vorgenommen.
+
 ## Browserprüfung vertieft: Bereich, Speicherfehler und Unterkunft (ChatGPT, #8)
 
 052af04, Lauf 38782237551 vollständig erfolgreich einschließlich Browser, Datenbank und Deploy. Zusatzposten-/Check-in-Klickweg mit Neuladen ist damit konkret grün; Produktionsbearbeitung bleibt gesperrt.

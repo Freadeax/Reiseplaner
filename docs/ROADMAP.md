@@ -2,6 +2,8 @@
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
+Vorrangiger Reviewfund: Legacy-Such-/Angebotshandler konnten v3 trotz Nur-Lesen auf2 zurückstufen. UI-Zuweisungen und frühe Sperren korrigiert; echter Callback-Repro sowie Angebots-Snapshot-/Erstattungsschutz ergänzt, SWv9. Vollständige neue CI-Abnahme vor Veröffentlichungsnachweis. d180f0a: Browser grün, Cloud-E2E Rechteentzug Timeout an Claude übergeben, kein Deploy. Keine Freischaltung aus diesen Teilnachweisen ableiten.
+
 052af04 mit Zusatzposten/Check-in in CI38782237551 vollständig grün und veröffentlicht, V3_EDIT weiter false. Weitere negative Browserfälle für Scope-/Quota-Schutz sowie separate Angebotsfinanzen implementiert, neue CI-Abnahme offen. Claude um Finanz-/Schutzreview und K4-Zwischenstand gebeten; keine Freigabe aus ausbleibender Antwort ableiten.
 
 Erste Dialogrunde 35ee29d in CI38781641959 einschließlich isolierter Desktop-/320-v3-Klickwege und Deploy grün. Zusatzposten/Check-in und vollständige Transportvorschau danach ergänzt, Node/Build grün, erweiterter Browsernachweis offen. Gemeinsame Finanzabnahme weiter ausstehend; keine Produktivfreischaltung. Check-in-Metadaten gebuchter Abschnitte als konkrete Schutzfrage an Claude übergeben, keine eigenmächtige Lockerung.
