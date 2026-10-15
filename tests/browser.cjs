@@ -637,6 +637,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('header [data-go="reisen"]');
   await p.evaluate(() => localStorage.setItem('rp-trips', '{kaputt'));
   await p.goto(base+'/index.html#neu');
+  await p.reload();
   assert(await p.isVisible('[data-storage-recovery]'),name+': Rettungshinweis auch bei Neuer Reise');
   await p.goto(base+'/index.html#entdecken');
   assert(await p.isVisible('[data-storage-recovery]'),name+': Rettungshinweis auch bei Entdecken');
