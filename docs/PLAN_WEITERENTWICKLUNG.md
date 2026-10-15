@@ -68,6 +68,35 @@ im Entdecken-Bereich. Treffer = mindestens eine Art passt.
 | C5 | **Ergebnisse erklären**: je Ziel „passt zu 3 von 4 Wünschen · 55 Min. Fahrt · 2 Regenalternativen“, „lieber nicht“ wirkt als Ausschluss oder Abwertung, nicht nur als fehlender Treffer | abgeleitet |
 | C6 | **Alternative Auswahl**: „Ja / Nein / Vielleicht“-Stapel mit Beispielbildern bzw. Beispielzielen, aus den Antworten entsteht das Profil (optional, nach C1) | abgeleitet (UI) |
 
+### Schnittstelle C2/C5: `CATX.rankProfile(result, profile)` (umgesetzt, Claude)
+
+Bewertet **Ziele** (`result.places`, roh oder normalisiert, z. B. aus `searchLocal` oder der Datenbank), nicht einzelne Attraktionen.
+Eingaben werden mit `CATX.checkProfile(profile)` bereinigt, Unbekanntes fällt weg.
+
+| Feld | Werte | Standard |
+| --- | --- | --- |
+| `kinds` | `{ art: 'must' \| 'like' \| 'avoid' }`, Arten aus `CATX.KINDS` | `{}` |
+| `month` | 1–12 | `null` |
+| `nights` | 0–60 | `null` |
+| `pace` | `'ruhig' \| 'gemischt' \| 'aktiv'` | `null` |
+| `party` | `'paar' \| 'familie' \| 'freunde' \| 'allein'` | `null` |
+| `weatherSafe` | `true`/`false` | `false` |
+| `maxMin` | 5–2000 (max. Autofahrt in Minuten) | `null` |
+| `travel` | `'auto' \| 'bahn' \| 'flug'` | `null` |
+| `budgetPp` | ≥ 0 | `null` |
+
+Regeln:
+- „unbedingt“ zählt nur über bekannte Merkmale: die Art des Ziels oder eine im Reisemonat passende Attraktion dieser Art.
+- Eine Fahrzeitgrenze gilt nur mit bekannter Luftlinie als erfüllt und wird als Schätzung (× 1,3) benannt.
+- Bahn- und Flugverbindungen sowie Preise kennt der Katalog nicht. Sie erfüllen nie ein Muss und erscheinen als `unknown`.
+- Ein Budget wird nie als erfüllt gewertet, schließt aber auch nicht aus.
+- „lieber nicht“ ist eine erklärte weiche Abwertung (`type:'minus'`, Text „lieber nicht, abgewertet“), kein Ausschluss.
+- Das Tempo ist eine benannte Annahme aus der Art des Ziels.
+
+Rückgabe je Ziel: `{ place, score, mustOk, must:{met:[art], missing:[art|'fahrzeit'], unknown:['fahrzeit'|'budget']}, why:[{type:'plus'|'minus'|'info'|'unknown', text}], wishes, met, summary:'passt zu x von y Wünschen', spots (saisonal passend), closed, indoor, family, roadKm, minutes, minutesEstimated:true }`.
+Sortierung: `mustOk` zuerst, dann `score`, dann Luftlinie, dann `id` (deterministisch). Ziele mit `mustOk:false` bleiben in der Liste. Die UI kann sie ausblenden, muss dann aber die Anzahl nennen.
+Tests: `tests/profile.cjs`.
+
 ## D · Claudes 11 Erweiterungsideen (strukturiert, erweitert)
 
 ### D-I Fristen, Geld, Termine

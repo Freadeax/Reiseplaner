@@ -113,6 +113,82 @@
     }).sort(function (a, b) { return b.score - a.score || a.place.airKm - b.place.airKm; });
   }
 
+  /* Profil-Bewertung für „Worauf habt ihr Lust?“ (Claude, #8, Plan C2/C5). Bewertet Ziele (places), nicht einzelne Attraktionen.
+     profile.kinds: { art: 'must' | 'like' | 'avoid' }  – unbedingt / gern / lieber nicht
+     profile.month 1–12 | null, nights Zahl | null, pace 'ruhig'|'gemischt'|'aktiv'|null, party 'paar'|'familie'|'freunde'|'allein'|null,
+     weatherSafe bool, maxMin Zahl | null (max. Fahrzeit Auto, Minuten), travel 'auto'|'bahn'|'flug'|null, budgetPp Zahl | null.
+     Regeln: „unbedingt“ nur durch bekannte Merkmale (Art des Ziels oder saisonal passende Attraktion dieser Art). Fahrzeit-Muss nur mit
+     bekannter Luftlinie (Schätzung × 1,3, als Schätzung benannt). Bahn-/Flugverbindungen und Preise kennt der Katalog nicht: sie erfüllen
+     nie ein Muss, sondern erscheinen als „unbekannt“. „Lieber nicht“ ist eine ausdrücklich erklärte weiche Abwertung, kein Ausschluss.
+     Rückgabe je Ziel: { place, score, mustOk, must:{met,missing,unknown}, why:[{type:'plus'|'minus'|'info'|'unknown', text}],
+       wishes, met, summary, spots, indoor, family, roadKm, minutes, minutesEstimated:true } ; sortiert mustOk, score, Luftlinie, id. */
+  var LEVELS = { must: 1, like: 1, avoid: 1 }, PACES = { ruhig: 1, gemischt: 1, aktiv: 1 }, PARTIES = { paar: 1, familie: 1, freunde: 1, allein: 1 },
+    TRAVELS = { auto: 1, bahn: 1, flug: 1 };
+  var CALM = ['therme', 'genuss', 'wasser', 'natur'], ACTIVE = ['berge', 'natur', 'winter', 'unterwelt'];
+  function checkProfile(pr) {
+    pr = pr || {};
+    var kinds = {};
+    Object.keys(pr.kinds || {}).forEach(function (k) { if (KINDS[k] && LEVELS[pr.kinds[k]]) kinds[k] = pr.kinds[k]; });
+    var num = function (v, lo, hi) { v = v === '' || v == null ? null : +v; return v != null && isFinite(v) && v >= lo && v <= hi ? v : null; };
+    return { kinds: kinds, month: num(pr.month, 1, 12), nights: num(pr.nights, 0, 60), pace: PACES[pr.pace] ? pr.pace : null,
+      party: PARTIES[pr.party] ? pr.party : null, weatherSafe: !!pr.weatherSafe, maxMin: num(pr.maxMin, 5, 2000),
+      travel: TRAVELS[pr.travel] ? pr.travel : null, budgetPp: num(pr.budgetPp, 0, 1e6) };
+  }
+  function rankProfile(result, profile) {
+    var pr = checkProfile(profile), ks = Object.keys(pr.kinds);
+    return (result.places || []).map(function (raw) {
+      var p = normPlace(raw); /* idempotent: rohe Katalog- bzw. Datenbankzeilen und bereits normalisierte Ziele */
+      var why = [], score = 0, must = { met: [], missing: [], unknown: [] }, wishes = 0, met = 0;
+      var plus = function (t) { why.push({ type: 'plus', text: t }); }, minus = function (t) { why.push({ type: 'minus', text: t }); },
+        info = function (t) { why.push({ type: 'info', text: t }); }, unk = function (t) { why.push({ type: 'unknown', text: t }); };
+      var spots = p.spots.filter(function (s) { return spotSeason(s, pr.month) !== false; });
+      var count = function (k) { return spots.filter(function (s) { return s.kind === k; }).length; };
+      ks.forEach(function (k) {
+        var lv = pr.kinds[k], has = p.kinds.indexOf(k) >= 0, n = count(k), name = KINDS[k];
+        if (lv === 'avoid') {
+          if (has || n) { var pen = (has ? 3 : 0) + Math.min(3, n); score -= pen; minus(name + ' gehört dazu (lieber nicht, abgewertet)'); }
+          return;
+        }
+        wishes++;
+        if (has || n) {
+          met++; score += (lv === 'must' ? 4 : 3) + Math.min(2, n * 0.5);
+          plus(name + (n ? ' · ' + n + (n === 1 ? ' Idee' : ' Ideen') : ''));
+          if (lv === 'must') must.met.push(k);
+        } else if (lv === 'must') { must.missing.push(k); minus(name + ' fehlt (unbedingt gewünscht)'); }
+      });
+      var sf = seasonFit(p, pr.month);
+      if (pr.month) { wishes++; if (sf === true) { met++; score += 3; plus('gute Reisezeit'); } else if (sf === false) { score -= 4; minus('Reisemonat außerhalb der empfohlenen Zeit'); } else info('keine Saisonangabe'); }
+      var nf = nightsFit(p, pr.nights);
+      if (pr.nights != null) { wishes++; if (nf === true) { met++; score += 2; plus('passt zur Dauer'); } else if (nf === false) { score -= 2; minus('Dauer passt schlecht'); } }
+      var fam = spots.filter(function (s) { return s.family; }).length, indoor = spots.filter(function (s) { return s.indoor; }).length;
+      if (pr.party === 'familie') { wishes++; if (fam) { met++; score += Math.min(3, fam); plus(fam + (fam === 1 ? ' Idee' : ' Ideen') + ' für Kinder'); } else info('keine Attraktion ausdrücklich für Kinder markiert'); }
+      if (pr.weatherSafe) { wishes++; if (indoor >= 2) { met++; score += Math.min(4, indoor * 1.5); plus(indoor + '× drinnen, auch bei Regen'); } else { score -= 2; minus(indoor ? 'nur 1 Idee drinnen' : 'kaum etwas drinnen'); } }
+      if (pr.pace) {
+        var calm = p.kinds.filter(function (k) { return CALM.indexOf(k) >= 0; }).length, act = p.kinds.filter(function (k) { return ACTIVE.indexOf(k) >= 0; }).length;
+        if (pr.pace === 'ruhig' && calm) { score += 1.5; plus('eher ruhig (Annahme aus der Art des Ziels)'); }
+        if (pr.pace === 'aktiv' && act) { score += 1.5; plus('eher aktiv (Annahme aus der Art des Ziels)'); }
+      }
+      var minutes = p.airKm != null ? driveMin(p.airKm) : null, rk = p.airKm != null ? roadKm(p.airKm) : null;
+      if (pr.maxMin != null && (!pr.travel || pr.travel === 'auto')) {
+        if (minutes == null) { must.unknown.push('fahrzeit'); unk('Fahrzeit unbekannt'); }
+        else if (minutes <= pr.maxMin) { info('ca. ' + minutes + ' Min. Fahrt (Schätzung)'); }
+        else { must.missing.push('fahrzeit'); minus('ca. ' + minutes + ' Min. Fahrt, mehr als ' + pr.maxMin + ' Min. (Schätzung)'); }
+      }
+      if (pr.travel === 'bahn' || pr.travel === 'flug') {
+        if (pr.maxMin != null) must.unknown.push('fahrzeit');
+        unk((pr.travel === 'bahn' ? 'Bahnverbindung' : 'Flugverbindung') + ' im Katalog nicht geprüft');
+      }
+      if (pr.budgetPp != null) { must.unknown.push('budget'); unk('Kosten im Katalog nicht bekannt, Budget nicht bewertet'); }
+      /* Budget ist nie erfüllt (unbekannt), schließt aber auch nicht aus; eine Fahrzeitgrenze gilt nur mit bekannter Schätzung als erfüllt. */
+      var mustOk = must.missing.length === 0 && must.unknown.indexOf('fahrzeit') < 0;
+      return { place: p, score: Math.round(score * 10) / 10, mustOk: mustOk, must: must, why: why, wishes: wishes, met: met,
+        summary: wishes ? 'passt zu ' + met + ' von ' + wishes + (wishes === 1 ? ' Wunsch' : ' Wünschen') : 'ohne Wünsche',
+        spots: spots, closed: p.spots.length - spots.length, indoor: indoor, family: fam, roadKm: rk, minutes: minutes, minutesEstimated: true };
+    }).sort(function (a, b) {
+      return (b.mustOk - a.mustOk) || (b.score - a.score) || ((a.place.airKm == null ? 1e9 : a.place.airKm) - (b.place.airKm == null ? 1e9 : b.place.airKm)) || (a.place.id < b.place.id ? -1 : a.place.id > b.place.id ? 1 : 0);
+    });
+  }
+
   /* „Überrasch mich“: unter den besten Treffern zufällig, damit nicht immer dasselbe Ziel kommt */
   function surprise(ranked, rnd) {
     if (!ranked.length) return null;
@@ -396,7 +472,7 @@
 
   var api = { ROAD_FACTOR: ROAD_FACTOR, AVG_KMH: AVG_KMH, MAX_KM: MAX_KM, KINDS: KINDS, KIND_CAT: KIND_CAT, RANGES: RANGES, ORIGINS: ORIGINS,
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
-    checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
+    checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, rankProfile: rankProfile, checkProfile: checkProfile, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
     roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, localTransferMin: localTransferMin, ROUTE_BASE: ROUTE_BASE, routeUrl: routeUrl, parseRoute: parseRoute, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

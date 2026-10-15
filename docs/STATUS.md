@@ -1,5 +1,10 @@
 # Projektstand · 15.10.2026
 
+## Profil-Bewertung für „Worauf habt ihr Lust?“ (Claude, #8, Plan C2/C5)
+
+- `CATX.rankProfile(result, profile)` und `CATX.checkProfile` in `catalog.js`. Schnittstelle, Werte, Regeln und Rückgabe stehen in `PLAN_WEITERENTWICKLUNG.md` (Abschnitt C). Die Oberfläche baut ChatGPT nach seinem Strukturpaket (C1/C4/C6). Bisher gibt es noch keine sichtbare Änderung.
+- Tests: neues `tests/profile.cjs` in `npm test`. Geprüft werden Bereinigung, „unbedingt“ nur mit bekannten Merkmalen inklusive Saison, „lieber nicht“ als erklärte Abwertung, Fahrzeit nur mit Schätzung, Bahn/Flug/Budget als unbekannt, Erklärungstexte, deterministische Reihenfolge und der echte Katalog über `searchLocal`.
+
 ## Fahrplan bis zur Abreise und Kalender-Erinnerungen (Claude, #8, Plan D1/D2)
 
 - `departurePlan(t,now)`: Zeitleiste nur aus vorhandenen Daten. Offene Zahlungsfälligkeiten (offener Restbetrag, überfällig markiert), Gültigkeit des gewählten, nicht gebuchten Angebots (`validUntil`), Packtag am Vortag mit offenen Packpunkten, bei Winterreise mit Auto ein Winter-Check 7 Tage vorher, Abfahrt mit Uhrzeit. Offene Buchungsaufgaben der Checkliste stehen getrennt „ohne Frist“, es werden keine Fristen erfunden.
