@@ -8,6 +8,10 @@ Startübersicht mit Reise-/Ziel-/Unterkunftssuche, Zeitfiltern, Sortierung und l
 
 Audit-Touchbefunde außerhalb der dichten SVG-Karte nachgebessert; Dialoge mit Titel, initialem Fokus, Tab-Grenzen und Rückkehr zum Auslöser. Node/Build/Artefakt grün, neue Chromium-Prüfung noch offen. Kosten-/Notizpaket und .chk-Überlaufkorrektur bei Claude. Nach Integration gemeinsamen Browserlauf/Audit wiederholen; kleine Kartenpunkte haben weiterhin die große Ergebnisliste als Alternative.
 
+## Module Kosten und Notizen · Claude, 15.10.2026
+
+Budget-Spielraum, fest gegen geschätzt, Abweichungen und Rückblick nach Reiseende sind umgesetzt (abgeleitet). Notizen mit Links, Telefonnummern und Bausteinen. Node und Chromium geprüft. Nächster Schritt: Erstattungen und Storno im Buchungsbuch (Speicherformat, also versioniert), dann Erfahrungswerte aus dem Rückblick als Vorschlag für neue Reisen.
+
 ## Gezielte Vervollständigung · 15.10.2026
 
 Direkte Aktionen aus der Übersicht für offene Aktivitätspreise/Dauern und Aktivitätsfilter mit Zählern/Reset implementiert. Node geprüft, neuer Chromium-Klickweg im Testskript, Ausführung offen. Keine neuen Speicherfelder. Parallel bei Claude: genaue Uhrzeiten mit gebuchten Termin-Signaturen; vor weiterem Eingriff in Zeiten aktuelle Übergabe lesen.

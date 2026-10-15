@@ -720,6 +720,35 @@ async function tripShelfFlow(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': Reiseregal-Suche, Filter, Reset, Sortierung und Spotlight geprüft.');
 }
 
+/* Kosten-Budget und Notiz-Bausteine (Claude, #8) */
+async function costNotes(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));
+ const p=await ctx.newPage();p.on('pageerror',e=>errors.push(name+' Kosten/Notizen: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);return t.id});
+ await p.goto(base+'/index.html#r-'+id+'-kosten');
+ await p.waitForSelector('[data-budget]');
+ const bt=await p.textContent('[data-budget]');
+ assert(/Spielraum|über dem Budget/.test(bt),name+': Budgetzeile fehlt');
+ assert(await p.isVisible('[data-budget] .budget-bar'),name+': Budgetbalken fehlt');
+ await noOverflow(p,name+' Kosten mit Budget');
+ await p.goto(base+'/index.html#r-'+id+'-notiz');
+ const before=await p.inputValue('textarea[data-f="notes"]');
+ await p.click('[data-act="note-add"][data-val="notfall"]');
+ const after=await p.inputValue('textarea[data-f="notes"]');
+ assert(after.startsWith(before.trim())&&after.includes('112'),name+': Baustein nicht angehängt oder Bestand verändert');
+ assert(!(await p.$('[data-act="note-add"][data-val="notfall"]')),name+': Baustein weiter angeboten');
+ await p.fill('textarea[data-f="notes"]',after+'\nUnterkunft https://example.org/haus · Tel. +49 8321 12345');
+ await p.click('h2');
+ await p.waitForSelector('#notes-extra a[href="https://example.org/haus"]');
+ assert(await p.$('#notes-extra a[href="tel:+49832112345"]'),name+': Telefonlink fehlt');
+ await p.reload();
+ assert((await p.inputValue('textarea[data-f="notes"]')).includes('example.org/haus'),name+': Notiz nach Neuladen weg');
+ await noOverflow(p,name+' Notizen');
+ await ctx.close();console.log(name+': Budget im Kostenmodul, Notiz-Bausteine, Links und Telefon geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -738,6 +767,8 @@ async function tripShelfFlow(browser,base,name,ctxOpts){
     await appearances(browser,base,'design-mobil',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await appearances(browser,base,'design-dunkel',{viewport:{width:320,height:640},colorScheme:'dark'});
     await checklistModules(browser,base,'module-desktop',{viewport:{width:1280,height:900}});
+    await costNotes(browser,base,'kosten-notizen-desktop',{viewport:{width:1280,height:900}});
+    await costNotes(browser,base,'kosten-notizen-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await checklistModules(browser,base,'module-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await sheetKeyboard(browser,base,'dialog-desktop',{viewport:{width:1280,height:900}});
     await sheetKeyboard(browser,base,'dialog-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});

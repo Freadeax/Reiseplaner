@@ -43,7 +43,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 | P1 | Exakte Reisezeiten | **Teilweise umgesetzt (Claude, 15.10.):** Uhrzeit je Termin, Abfahrt und Check-in, Überschneidungen, Termine vor der Ankunft, Kalender. Wege zwischen Terminen mit bekannter Lage werden geschätzt und geprüft. Zeitzonen und echte Auto-Fahrzeiten (OpenStreetMap-Routing auf Knopfdruck) umgesetzt. Offen: Bahn-Fahrpläne (nur Link zur Verbindungssuche), Verkehr/Pausen |
 | P2 | Anbieter | Suchlinks direkt beim Anbieter prüfen; Live-Adapter nur mit erlaubtem Zugriff; feste Gebühren/Mindestnächte/Saisonwechsel sauber behandeln |
 | P2 | Katalog und konkrete Silvesterreise | Feratel/Holidu, Ersatz Haus Haug, erneuerte Preise, 2–4 gleichwertige konkrete Angebote; höchstens 1.500 € für zwei, ohne offene Pflichtkosten als 0 zu behandeln |
-| P2 | Eigene Ideen und Rückblick | Indoor-Merkmal, tatsächliche Ausgaben, später Realtime als Benachrichtigung |
+| P2 | Eigene Ideen und Rückblick | Indoor-Merkmal umgesetzt. **Rückblick teilweise (Claude, 15.10.):** Plan gegen erfasste Beträge und Abweichungen im Kostenmodul. Offen: Erfahrungswerte für neue Reisen, später Realtime als Benachrichtigung |
 
 ## Durchsicht gegen PUBLIC_PRODUCT
 

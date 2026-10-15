@@ -154,7 +154,7 @@ section.block:first-child{border-top:0;padding-top:4px}
 /* Checks */
 .checks-list{display:flex;flex-direction:column;gap:6px}
 .chk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:.93rem}
-.chk{flex-wrap:wrap}.chk>span{flex:1 1 9em;min-width:0;overflow-wrap:anywhere}
+.chk{flex-wrap:wrap}.budget-bar{height:10px;border-radius:5px;background:var(--surface-3);overflow:hidden;border:1px solid var(--line)}.budget-bar>span{display:block;height:100%;background:var(--accent,var(--ok))}.chk>span{flex:1 1 9em;min-width:0;overflow-wrap:anywhere}
 .chk b{flex:none;font-family:var(--f-mono);font-size:.7rem;padding:2px 6px;border-radius:4px;margin-top:2px}
 .chk.warn b{background:var(--warn);color:var(--bg)}.chk.info b{background:var(--surface-3)}.chk.ok b{background:var(--ok);color:var(--bg)}
 
@@ -1148,6 +1148,38 @@ function ledgerSection(t){
    (f.due.length?'<div class="checks-list">'+f.due.slice(0,5).map(d=>'<div class="chk '+(d.overdue?'warn':'info')+'"><b>'+(d.overdue?'!':'i')+'</b><span>'+esc(d.label)+': '+eur(d.open)+(d.overdue?' überfällig seit ':' fällig am ')+esc(fmtLong(pd(d.due)))+'</span></div>').join('')+'</div>':'')+
    (rows.length?'<details class="panel"'+(Object.keys(t.ledger||{}).length?' open':'')+'><summary><b>Posten bearbeiten</b> <small class="muted">'+rows.length+' Posten</small></summary><div class="stack">'+rows.map(row).join('')+'</div></details>':'<p class="muted">Noch keine buchbaren Posten.</p>')+'</section>';
 }
+/* Budget-Übersicht und Rückblick (Claude, #8): rein abgeleitet aus cost(), Buchungsbuch und Angebot, keine Speicherfelder.
+   „Fest“ = gebuchter Betrag eingetragen oder Status gebucht bzw. Unterkunft gebucht; alles andere bleibt Planwert. */
+function budgetCheck(t,now){
+  const c=cost(t),base=cost(Object.assign({},t,{ledger:{}})),f=financeSummary(t),b=num(t.budget,0),P=c.P,days=Math.max(1,daysOf(t).length);
+  const cats={};const cat=k=>cats[k]=cats[k]||{key:k,label:(COSTCAT[k]||[k])[0],plan:0,now:0,fixed:0,paid:0};
+  Object.keys(base.byCat).forEach(k=>{cat(k).plan=base.byCat[k]});
+  Object.keys(c.byCat).forEach(k=>{cat(k).now=c.byCat[k]});
+  f.rows.filter(r=>!r.orphan).forEach(r=>{const x=cat(r.cat||'eigen');if(r.amount!=null||r.status==='gebucht')x.fixed+=r.cost;x.paid+=r.paid});
+  if(f.stay){const x=cat('unterkunft');if(f.stay.booked)x.fixed+=f.stay.cost;x.paid+=f.stay.paid}
+  const list=Object.values(cats).filter(x=>x.plan>0.005||x.now>0.005||x.paid>0.005).sort((a,b2)=>b2.now-a.now);
+  const fixed=list.reduce((s,x)=>s+Math.min(x.fixed,x.now||x.fixed),0),reserve=c.byCat.puffer||0;
+  const devs=f.rows.filter(r=>!r.orphan&&r.amount!=null&&Math.abs(r.amount-r.plan)>=Math.max(5,r.plan*0.1)).map(r=>({label:r.label,plan:r.plan,actual:r.amount,diff:r.amount-r.plan})).sort((x,y)=>Math.abs(y.diff)-Math.abs(x.diff));
+  const ph=tripPhase(t,now);
+  return {budget:b,total:c.total,plan:base.total,fixed,estimated:Math.max(0,c.total-fixed-reserve),reserve,paid:f.paid,open:f.open,
+    left:b?b-c.total:null,leftPerPersonDay:b?(b-c.total)/P/days:null,over:b>0&&c.total>b+0.005,share:b?c.total/b:null,
+    cats:list,devs,unrecorded:f.rows.filter(r=>!r.orphan&&r.amount==null&&r.status!=='gebucht').length,
+    phase:ph?ph.phase:null,P,days};
+}
+function budgetSection(t,now){
+  const x=budgetCheck(t,now);
+  const pct=v=>Math.round(v*100)+' %';
+  const head=x.budget?(x.over?'<b>'+eur(-x.left)+' über dem Budget</b> von '+eur(x.budget):'Noch <b>'+eur(x.left)+'</b> Spielraum im Budget von '+eur(x.budget)+' · etwa '+eur(x.leftPerPersonDay)+' pro Person und Tag'):'Kein Budget angegeben. <button type="button" class="lnk" data-act="edit-trip">Budget in den Eckdaten eintragen</button>';
+  const bar=x.budget?'<div class="budget-bar" role="img" aria-label="Plan '+pct(x.share)+' des Budgets"><span style="width:'+Math.min(100,x.share*100).toFixed(1)+'%"></span></div><p class="small muted">Plan '+eur(x.total)+' = '+pct(x.share)+' des Budgets'+(x.over?' (über 100 %)':'')+'.</p>':'';
+  const rows=x.cats.map(k=>'<tr><td>'+esc(k.label)+'</td><td class="r">'+eur(k.plan)+'</td><td class="r">'+eur(k.now)+'</td><td class="r">'+(k.fixed?eur(k.fixed):'–')+'</td><td class="r">'+(k.paid?eur(k.paid):'–')+'</td></tr>').join('');
+  const retro=x.phase==='nach'?'<h3>Rückblick</h3><p class="small">Ursprünglicher Plan '+eur(x.plan)+' · mit erfassten Beträgen '+eur(x.total)+' · bezahlt '+eur(x.paid)+(x.total-x.plan?' · Abweichung <b>'+(x.total>x.plan?'+':'−')+eur(Math.abs(x.total-x.plan))+'</b>':'')+'.</p>'+
+   (x.unrecorded?'<p class="small muted">'+x.unrecorded+' Posten ohne erfassten Betrag zählen weiter mit ihrem Planwert. Tatsächliche Beträge unter „Buchungen & Zahlungen“ nachtragen, damit der Rückblick stimmt.</p>':'<p class="small muted">Alle Posten haben einen erfassten Betrag.</p>'):'';
+  const devs=x.devs.length?'<h3>Abweichungen vom Plan</h3><ul class="plain">'+x.devs.slice(0,6).map(d=>'<li>'+esc(d.label)+': geplant '+eur(d.plan)+', erfasst '+eur(d.actual)+' <b>('+(d.diff>0?'+':'−')+eur(Math.abs(d.diff))+(d.diff>0?' teurer':' günstiger')+')</b></li>').join('')+'</ul>':'';
+  return '<section class="block" data-budget><h2>Budget</h2><p>'+head+'</p>'+bar+
+   '<div class="kpis"><div class="kpi"><small>Fest</small><b class="num">'+eur(x.fixed)+'</b><small>gebucht oder Betrag erfasst</small></div><div class="kpi"><small>Noch geschätzt</small><b class="num">'+eur(x.estimated)+'</b><small>Planwerte, können sich ändern</small></div>'+(x.reserve?'<div class="kpi"><small>Puffer</small><b class="num">'+eur(x.reserve)+'</b><small>Reserve, kein fester Posten</small></div>':'')+'</div>'+
+   (rows?'<div class="tbl-wrap"><table><caption class="small muted">Je Bereich: ursprünglicher Plan, aktueller Stand, davon fest und bezahlt</caption><thead><tr><th>Bereich</th><th class="r">Plan</th><th class="r">Aktuell</th><th class="r">Fest</th><th class="r">Bezahlt</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+
+   devs+retro+'</section>';
+}
 function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'Reise'}
 
 /* ================= Speicher ================= */
@@ -1763,7 +1795,7 @@ function tKosten(t){
    order.filter(k=>groups[k]).map(k=>'<tr class="grp"><td>'+COSTCAT[k][0]+'</td><td></td><td class="r">'+eur(c.byCat[k])+'</td></tr>'+groups[k].map(l=>'<tr><td>'+esc(l.t)+'<small>'+esc(l.s)+'</small></td><td>'+srcBadge(l.src)+'</td><td class="r">'+eur(l.c)+'</td></tr>').join('')).join('')+
    '<tr class="total"><td>Gesamt</td><td></td><td class="r">'+eur(c.total)+'</td></tr><tr><td>pro Person</td><td></td><td class="r">'+eur(c.total/c.P)+'</td></tr></tbody></table></div>'+
    (c.saved?'<p class="small" style="color:var(--ok)">Gästekarte spart beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  scenarioSection(t)+offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-edit" data-val="'+esc(e.id)+'">Bearbeiten</button><button type="button" class="lnk" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" step="0.01" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
+  budgetSection(t)+scenarioSection(t)+offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-edit" data-val="'+esc(e.id)+'">Bearbeiten</button><button type="button" class="lnk" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" step="0.01" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
   '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Änderung prüfen</button></div>').join('')+'</div>':'<p class="muted">Keine sichere automatische Einsparung gefunden. Das bedeutet nicht, dass der Plan bereits optimal ist.</p>')+'<p class="small muted">Spartipps verändern keine gebuchten Termine, Zahlungen oder Fälligkeiten. Selbstkochen wird nur mit bestätigter Küche vorgeschlagen. Puffer entfernen ist keine Einsparung.</p></section>';
 }
 /* Bestehende Verpflichtungen dürfen automatische Spartipps nicht verändern. */
@@ -1884,8 +1916,45 @@ function tCheck(t){
  (v.visible?v.groups.filter(g=>g.rows.length).map(g=>'<details class="panel check-group" open><summary><strong>'+esc(g.name)+'</strong><span class="small muted">'+(g.total-g.done)+' offen · '+g.done+' erledigt</span></summary><div class="checks-list">'+g.rows.map(({item:i,done})=>'<div class="check-row"><label class="chk '+(done?'ok':'info')+'"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"'+(done?' checked':'')+'><span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>'+(i[3]?'<button type="button" class="lnk" data-act="cc-del" data-val="'+esc(i[3])+'" aria-label="Eigenen Punkt '+esc(i[1])+' entfernen">Entfernen</button>':'')+'</div>').join('')+'</div></details>').join(''):'<div class="empty"><b>'+ (v.mode==='open'&&!v.query?'Alle aktuellen Punkte abgehakt':'Keine passenden Punkte')+'</b><span>'+ (v.mode==='open'&&!v.query?'Das bestätigt keine Buchungen oder vollständige Reisebereitschaft.':'Suchwort oder Statusfilter ändern. Eure Punkte wurden nicht gelöscht.')+'</span><button type="button" class="btn ghost sm" data-act="check-reset">Alle Punkte zeigen</button></div>')+
  '<div class="panel"><h3>Eigene Vorbereitung ergänzen</h3><label class="fld"><span>Neuer Checklistenpunkt</span><input type="text" id="cc-t" maxlength="160" placeholder="z. B. Ladegerät einpacken"></label><div class="row"><button type="button" class="btn sm" data-act="cc-add">Hinzufügen</button></div></div></section>';
 }
+/* Notizen (Claude, #8): Links und Telefonnummern aus dem Freitext erkennen, Bausteine anhängen. Bleibt im Feld notes. */
+const NOTE_BLOCKS={
+  kontakte:['Kontakte',t=>{const st=stayOf(t);return 'Kontakte\n- Unterkunft: '+(st&&st.name?st.name:'')+' · Telefon: · Adresse:\n- Gastgeber/Rezeption:\n- Mitreisende:'}],
+  anreise:['Anreise & Ankunft',t=>'Anreise & Ankunft\n- Parken:\n- Check-in / Schlüssel:'+(t.checkinTime?' ab '+t.checkinTime:'')+'\n- WLAN:'],
+  buchungen:['Buchungen (privat)',()=>'Buchungen (privat, nicht teilen)\n- Unterkunft: Buchungsnr.\n- Tickets/Kurse:\n- Stornofrist:'],
+  notfall:['Notfall',()=>'Notfall\n- Notruf in der EU: 112\n- Ärztlicher Bereitschaftsdienst in Deutschland: 116117\n- Krankenversicherung / Auslandsschutz:\n- Sperrnotruf Karten (Deutschland): 116 116']
+};
+function notesLinks(text){
+  const out=[],seen=new Set();
+  String(text||'').replace(/https?:\/\/[^\s<>"']+/gi,m=>{const u=m.replace(/[.,;:!?)\]]+$/,''),x=u.match(/^https?:\/\/([a-z0-9.-]+\.[a-z]{2,}|\[[0-9a-f:]+\])(?::\d+)?(\/[^?#]*)?/i);
+    if(x&&!seen.has(u)&&out.length<20){const path=x[2]||'';seen.add(u);out.push({url:u,label:x[1].toLowerCase().replace(/^www\./,'')+(path.length>1?path.slice(0,24)+(path.length>24?'…':''):'')})}return m});
+  return out;
+}
+function notesPhones(text){
+  const out=[],seen=new Set();
+  String(text||'').replace(/https?:\/\/\S+/gi,' ').replace(/(?:\+|\b0)[\d][\d \/()-]{5,}\d/g,m=>{const d=m.replace(/[^\d+]/g,'');const digits=d.replace(/\D/g,'').length;
+    if(digits>=7&&digits<=15&&!/^\d{4}-\d{2}-\d{2}/.test(m.trim())&&!seen.has(d)&&out.length<10){seen.add(d);out.push({tel:d,label:m.trim()})}return m});
+  return out;
+}
+function notesHas(t,key){const h=NOTE_BLOCKS[key][1](t).split('\n')[0];return String(t.notes||'').split('\n').some(l=>l.trim()===h)}
+function addNoteBlock(t,key){
+  if(!NOTE_BLOCKS[key])throw new Error('Unbekannter Baustein.');
+  if(notesHas(t,key))throw new Error('Der Baustein „'+NOTE_BLOCKS[key][0]+'“ steht schon in den Notizen.');
+  const cur=String(t.notes||'').replace(/\s+$/,'');
+  const next=(cur?cur+'\n\n':'')+NOTE_BLOCKS[key][1](t);
+  if(next.length>20000)throw new Error('Notizen sind zu lang für einen weiteren Baustein.');
+  t.notes=next;return t;
+}
+function notesExtras(t){
+  const L=notesLinks(t.notes),P=notesPhones(t.notes);
+  if(!L.length&&!P.length)return '<p class="small muted">Links (https://…) und Telefonnummern in den Notizen erscheinen hier zum Antippen.</p>';
+  return (L.length?'<h3>Links aus den Notizen</h3><ul class="plain">'+L.map(x=>'<li>'+lk(x.url,x.label)+'</li>').join('')+'</ul>':'')+
+   (P.length?'<h3>Telefon</h3><ul class="plain">'+P.map(x=>'<li><a class="lnk" href="tel:'+esc(x.tel)+'">'+esc(x.label)+' anrufen</a></li>').join('')+'</ul><p class="small muted">Erkannt am Zahlenformat, bitte vor dem Anruf prüfen.</p>':'');
+}
 function tNotiz(t){
-  return '<section class="block"><h2>Notizen</h2><p class="muted small">Ideen und wichtige Angaben zur Reise. Der Speicherstatus steht oben. Beim Teilen der Kurzfassung werden Notizen nur auf Wunsch aufgenommen.</p><textarea data-f="notes" aria-label="Notizen">'+esc(t.notes)+'</textarea></section>';
+  return '<section class="block"><h2>Notizen</h2><p class="muted small">Ideen und wichtige Angaben zur Reise. Der Speicherstatus steht oben. Beim Teilen der Kurzfassung werden Notizen nur auf Wunsch aufgenommen.</p><textarea data-f="notes" aria-label="Notizen">'+esc(t.notes)+'</textarea>'+
+   '<div class="row noprint" aria-label="Bausteine einfügen">'+Object.keys(NOTE_BLOCKS).map(k=>notesHas(t,k)?'<span class="badge ok">✓ '+esc(NOTE_BLOCKS[k][0])+'</span>':'<button type="button" class="btn ghost sm" data-act="note-add" data-val="'+k+'">+ '+esc(NOTE_BLOCKS[k][0])+'</button>').join('')+'</div>'+
+   '<p class="small muted">Bausteine hängen eine Gliederung an das Ende der Notizen an, die ihr dann ausfüllt. Buchungsnummern bleiben privat: Sie erscheinen nur in Mappe und Teilen-Text, wenn ihr Notizen dort ausdrücklich einschließt.</p>'+
+   '<div id="notes-extra" aria-live="polite">'+notesExtras(t)+'</div></section>';
 }
 /* Unterwegs: was heute und morgen ansteht, ohne Wischen durch den ganzen Plan */
 function dayList(t,d,last){
@@ -2187,6 +2256,7 @@ document.addEventListener('click',async e=>{
    case 'xc-add':{try{const e=costEntryFromForm({title:$('#xc-t').value,amount:$('#xc-c').value},uid('k'));t.extraCosts=(t.extraCosts||[]).concat([e]);save(t);}catch(err){alertMsg(err.message);return}break;}
    case 'xc-edit':sheetCostEntry(t,val);return;
    case 'xc-preview':{try{if(UI.costEntrySource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Posten erneut öffnen.');sheetCostEntryPreview(t,costEntryPreview(t,val,{title:$('#ce-title').value,amount:$('#ce-amount').value,note:$('#ce-note').value}));}catch(err){alertMsg(err.message)}return;}
+   case 'note-add':{try{addNoteBlock(t,val);save(t);render()}catch(err){alertMsg(err.message)}return;}
    case 'xc-del':{try{sheetCostEntryPreview(t,costEntryPreview(t,val,null,true));}catch(err){alertMsg(err.message)}return;
    }
    case 'xc-confirm':{try{applyCostEntry(t,UI.costEntryDraft);save(t);UI.costEntryDraft=null;closeSheet();render();}catch(err){alertMsg(err.message)}return;}
@@ -2212,7 +2282,7 @@ document.addEventListener('change',e=>{
   const f=el.getAttribute('data-f'); if(!f) return;
   if(el.closest('#draft')){setField(UI.draft,f,el.value);if(['start','end','nights'].includes(f))render();return}
   if(el.closest('#editform')){setField(UI.edit,f,el.value);return}
-  if(t){setField(t,f,el.value);save(t);if(f!=='notes')render()}
+  if(t){setField(t,f,el.value);save(t);if(f!=='notes')render();else{const box=document.getElementById('notes-extra');if(box)box.innerHTML=notesExtras(t)}}
 });
 document.addEventListener('input',e=>{
   if(Store.corruptRaw!==null)return;
@@ -3087,6 +3157,7 @@ function legsBlock(t){
 Store.loadLocal();
 window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
+Object.assign(window.__app,{NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

@@ -16,6 +16,14 @@ Detailblätter erhalten einen Titelbezug, Fokus beim Öffnen, Tab-/Umschalt-Tab-
 
 Node-Tests für Tab-Grenzen und DOM-Doubles für Öffnen/Name/Tab/Schließen/Rückkehr bestanden; npm test, Gast-Build/Artefaktprüfung, Browser-Skriptsyntax und diff --check grün. Neue Browserwege sheetKeyboard() für Desktop/320px dunkel vorbereitet, lokal ohne Browserbinary nicht ausgeführt. Claude um erneute Chromium-/Audit-Abnahme auf dem gemeinsamen Stand gebeten; keine neue iPhone-Prüfung.
 
+## Module Kosten und Notizen (Claude, #8)
+
+- Kosten: neuer Abschnitt „Budget“ (`budgetCheck`/`budgetSection`, nur abgeleitet, keine Speicherfelder). Spielraum gesamt und pro Person und Tag, Balken mit Prozentangabe und Text, Kennzahlen „fest“ (Status gebucht oder gebuchter Betrag erfasst, Unterkunft gebucht), „noch geschätzt“ und Puffer. Tabelle je Bereich: ursprünglicher Plan, aktueller Stand, fest, bezahlt. Liste der Abweichungen ab 5 € und 10 %. Nach Reiseende (Phase „vorbei“) Rückblick: Plan gegen erfasste Beträge, bezahlt, Anzahl Posten ohne erfassten Betrag. Ohne Budget gibt es einen Knopf zu den Eckdaten.
+- Notizen: Links (nur http/https) und Telefonnummern (7–15 Ziffern; Datum, PLZ, Preis und URL-Ziffern ausgeschlossen) werden als antippbare Liste gezeigt und nach dem Bearbeiten ohne Neuaufbau aktualisiert. Bausteine Kontakte, Anreise & Ankunft, Buchungen (privat) und Notfall (112, 116117, 116 116) hängen eine Gliederung an das Ende von `notes` an, der Bestand bleibt erhalten. Doppelte Bausteine und Notizen über 20.000 Zeichen werden abgelehnt.
+- Überlauf der Spartipp-Zeile bei 320 px behoben (`5f4fe4e`, `.chk` bricht um).
+- Tests: `npm test` mit neuem `tests/module.cjs` grün. `npm run test:browser` grün mit neuem Klickweg `costNotes` (Desktop und 320 px dunkel/touch: Budget sichtbar, kein Überlauf, Baustein angehängt, Link und Telefonlink erscheinen, Notiz nach Neuladen erhalten). Kein iPhone-Test.
+- Grenzen: Erkennung der Telefonnummern ist eine Heuristik. Der Rückblick zählt Posten ohne erfassten Betrag weiter mit Planwert; Erstattungen und Storno sind nicht abgebildet.
+
 ## UI-Sichtprüfung in Chromium (Claude, #8)
 
 - Neu: `tests/ui-audit.cjs`, Befehl `npm run audit:ui` (nicht Teil von `npm test`, Befunde sind Hinweise; `AUDIT_STRICT=1` macht sie zum Fehler, `SHOT_DIR=…` speichert Screenshots). Prüft Start, Entdecken, Ziel-Blatt, Reise (Überblick, Tagesplan, Kosten, Mappe) und Konto in 1280 hell/dunkel, 390 hell und 320 dunkel für jede Darstellung (book/studio/compact): WCAG-Textkontrast, Tippflächen unter 44 px, Bedienelemente ohne Namen, seitlicher Überlauf, sichtbarer Fokus, JS-Fehler.
