@@ -67,3 +67,27 @@ const existing=a.newTrip({origin:'Berlin',routeKm:400});
 assert.equal(a.validateBackup(a.backupData([existing]))[0].origin,'Berlin');
 assert.equal(a.routeKm(existing),400);
 console.log('Öffentliche Defaults, fehlende Strecke, Beispielbasis und bestehender Startort geprüft.');
+
+/* Vorlagengalerie und Vorschau: vier Gruppen, jede Vorlage genau einmal, kein Schreiben vor Bestätigung. */
+const templateIds=a.templateGroups().flatMap(g=>g.templates.map(t=>t.id));
+assert.equal(a.templateGroups().length,4);assert.equal(new Set(templateIds).size,a.TEMPLATES.length);
+assert.deepEqual(templateIds.slice().sort(),a.TEMPLATES.map(t=>t.id).sort());
+assert.equal((a.tplButtons().match(/data-act="tpl"/g)||[]).length,a.TEMPLATES.length);
+a.UI.templateGroup='flug';assert.equal((a.tplButtons().match(/data-act="tpl"/g)||[]).length,2);assert(a.tplButtons().includes('2 von '+a.TEMPLATES.length));
+a.UI.templateGroup='unbekannt';assert.equal((a.tplButtons().match(/data-act="tpl"/g)||[]).length,a.TEMPLATES.length);a.UI.templateGroup='all';
+const draft=a.newTrip({title:'Nicht gespeicherter eigener Entwurf'}),stored=new Map();let writes=0,fail=false;
+context.localStorage.getItem=k=>stored.get(k)||null;
+context.localStorage.setItem=(k,v)=>{if(fail&&k==='rp-trips')throw Error('Quota');writes++;stored.set(k,v)};
+a.Store.loadLocal();a.UI.draft=draft;const oldDraft=JSON.stringify(draft),before=JSON.stringify(a.Store.trips);
+for(const id of templateIds){const p=a.templatePreview(id);assert.equal(p.id,id);assert(a.templatePreviewHtml(p).includes('es wurde noch keine Reise angelegt'));assert.equal(JSON.stringify(a.Store.trips),before)}
+assert.equal(writes,0);assert.equal(JSON.stringify(a.UI.draft),oldDraft);assert.throws(()=>a.templatePreview('nicht-vorhanden'),/nicht verfügbar/);
+const flight=a.templatePreview('fernreise');assert(a.templatePreviewHtml(flight).includes('noch keine Flugverbindung'));assert(a.templatePreviewHtml(flight).includes('12 Punkte'));
+assert(!a.templatePreviewHtml(flight).includes('Planwert ≈'));
+const p=a.templatePreview('stadt');a.UI.templatePreview=p;
+assert.throws(()=>a.commitTemplatePreview('alter-token'),/nicht mehr aktuell/);assert.equal(writes,0);
+const result=a.commitTemplatePreview(p.token);assert.equal(Object.keys(a.Store.trips).length,1);assert(result.route.endsWith('-unterkunft'));assert(stored.get('rp-trips').includes('Städtereise'));assert.equal(a.UI.templatePreview,null);
+assert.equal(JSON.stringify(a.UI.draft),oldDraft,'Commit-Helfer löscht keinen offenen Entwurf');assert.throws(()=>a.commitTemplatePreview(p.token),/nicht mehr aktuell/);
+const collision=a.templatePreview('stadt');collision.trip.id=result.trip.id;a.UI.templatePreview=collision;const saved=JSON.stringify(a.Store.get(result.trip.id));assert.throws(()=>a.commitTemplatePreview(collision.token),/bereits vorhanden/);assert.equal(JSON.stringify(a.Store.get(result.trip.id)),saved);
+const retry=a.templatePreview('camping');a.UI.templatePreview=retry;fail=true;assert.throws(()=>a.commitTemplatePreview(retry.token),/nicht gespeichert/);assert.strictEqual(a.UI.templatePreview,retry);fail=false;a.commitTemplatePreview(retry.token);assert.equal(Object.keys(a.Store.trips).length,2,'Fehlgeschlagener Versuch wird mit derselben ID wiederholt');
+const changedScope=a.templatePreview('wellness');a.UI.templatePreview=changedScope;a.Store.scope='other';assert.throws(()=>a.commitTemplatePreview(changedScope.token),/Speicherbereich/);a.Store.scope='guest';a.UI.templatePreview=null;
+console.log('Vorlagengalerie: vier Gruppen, Vorschau unverändernd, bewusstes Speichern, doppelte/veraltete Bestätigung, Quota-Wiederholung und Speicherbereich geprüft.');

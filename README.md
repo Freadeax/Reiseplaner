@@ -20,6 +20,8 @@ Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, 
 
 Oben über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (warm und großzügig), **Planungsstudio** (klare Arbeitsbereiche, Seitennavigation am Desktop) und **Kompakt** (weniger Abstand für schnelle Orientierung). Alle nutzen dieselben Reisen und Funktionen. Die Auswahl bleibt in diesem Browser; Hell-/Dunkelmodus folgt dem Gerät.
 
+**Vorlagen:** Kurzreisen, Urlaub & Auszeit, Flugvorbereitung und ausgefülltes Beispiel sind getrennt gruppiert. Eine Vorschau zeigt Umfang und Vorbereitung, ohne etwas zu speichern. Erst „Als neue Reise anlegen“ erstellt euren Plan; beim Schließen bleibt ein offener eigener Entwurf erhalten. Flugvorlagen bereiten Aufgaben vor, enthalten aber keine geprüften Flugverbindungen.
+
 ## Was bereits geht
 
 - **Persönliches Reiseregal:** Reisen nach Titel, Ziel oder Unterkunft durchsuchen, nach Zeitgruppe filtern und sinnvoll sortieren. Eine laufende oder kommende Reise wird hervorgehoben. Zeitgruppen ändern keinen Buchungsstatus; die Ansicht löscht oder verändert keine Reisen.

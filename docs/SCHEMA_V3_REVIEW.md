@@ -1,5 +1,23 @@
 # Vorprüfung Datenvertrag v3 · 15.10.2026
 
+## Nachtrag: Review-Runde 2 und API-Prüfung
+
+c69c6ab berücksichtigt die wesentlichen Korrekturen der ersten Runde: unabhängige Erstattungen, Gebühren alter Unterkünfte weiter aggregieren, kein Zubringerpreis aus der alten Zielstrecke, Aufteilung nur tatsächlich geflossener Beträge und Feldtreue. Diese Rechenbasis ist im Issue bestätigt; das ist keine Produktionsfreischaltung.
+
+R2-Bedingungen: Datum/Uhrzeit/Zeitzone dürfen unbekannt sein. DST-Lücken ablehnen, mehrdeutige Ortszeiten ungeprüft lassen; ohne vollständigen Zeitpunkt kein behaupteter UTC-Termin oder sicherer Anschluss. Ohne Datum auch keinen ganztägigen Termin erfinden. Unbekannte Gebühr ist nie abgeschlossen. Arrays/IDs/Referenzen begrenzen und prüfen, Historie beim Entfernen erhalten. Ein v3-lesender Client muss v3 vollständig erhalten; leere v3-Felder dürfen nicht in v2-Dateien gelangen. Mitreisenden-Namen sind bei Kontoreisen synchronisiert/geteilt, nicht ausschließlich lokal. Mehrere Zahler und schon erfolgte private Ausgleichszahlungen bleiben ausdrückliche MVP-Grenzen.
+
+9097f46 setzt R2 in reinen Funktionen um. Zusätzliche, ausgeführte Node-Repros an Claude gemeldet:
+
+| Repro | Ausgabe in 9097f46 | Erforderliche Regel |
+| --- | --- | --- |
+| `cancelMath({paid:50}, null)` | Kosten 0, Erstattung offen 50 | Unbekannte Planbasis ist keine bekannte Null und begründet keine Überzahlung |
+| Abschnitt mit `status:'offen', paid:0, cancel.fee:null` entfernen | `ok:true` | Unbekannte Gebühr bleibt geschützt |
+| Gleicher Fall mit unbezahlter Gebühr 100 | `ok:true` | Offene Gebühr bleibt geschützt, unabhängig vom früheren Buchungsstatus |
+
+Freischaltbedingung ergänzend: v3 lesen genügt nicht, wenn die sichtbare v2-Kosten-/Budget- und Verpflichtungslogik Transport/Storno ignoriert. Bis zur vollständigen Verdrahtung braucht es ein Kompatibilitäts-Gate oder eine klar begrenzte schreibgeschützte Ansicht ohne falsche Kostenzusagen. E2 in Produktion separat bestätigen; erfolgreicher lokaler Stack, Preview oder CI beweist diesen Stand nicht.
+
+Die folgenden Abschnitte dokumentieren den ursprünglichen Reviewstand vor diesen Überarbeitungen.
+
 Review durch ChatGPT auf Basis von Claudes Vorschlägen in [#8](https://github.com/Freadeax/Reiseplaner/issues/8#issuecomment-6193378536), seiner [Korrektur zum Versionsschutz](https://github.com/Freadeax/Reiseplaner/issues/8#issuecomment-6193400570) und dem gemeinsamen Entwicklungsplan.
 
 Dies ist eine Vorprüfung, kein verabschiedeter Datenvertrag und keine Umsetzung. Der gemeinsame Entwurf für Anreiseabschnitte, Storno, Ausgaben/Aufteilung und Tagebuch liegt noch nicht vollständig vor. Produktionsmigration und Finanzsemantik sind nicht freigegeben.

@@ -1,5 +1,9 @@
 # Roadmap
 
+## Vorlagen und v3-Übergabe · 15.10.2026
+
+ChatGPT: Vier Vorlagengruppen, native Auswahl, unverändernde Vorschau und ausdrückliches Anlegen implementiert; bestehende Vorlagenfachlogik erhalten. Node/Build/Artefakt bestanden, neue Chromium-Abnahme folgt. Review-Runde2 zu v3 beantwortet, zwei konkrete Restfälle an Claude zur Korrektur übergeben. Nächste UI-Schicht: Flugabschnitts-Editor und Storno-/Erstattungsvorschau auf RPV3, zunächst ohne produktive v3-Erfassung. Vor Freischaltung müssen Produktionsmigration, Rechnung, Schutz und Feldtreue belegt sein. Claude bearbeitet Speichergrundlage und reine Logik; Schnittstellen/Übernahmen in #8.
+
 ## Vertiefung der Zielentscheidung · 15.10.2026
 
 ChatGPT: einzelne Wünsche in einer Profilübersicht entfernen, Profilersetzung sicher zurücknehmen, Muss-Ergebnisfilter mit benannten Alternativen, profilbezogener Vergleich und Schutz vor verspäteten Zielantworten implementiert. Markierte Ziele bleiben über Profil-/Bereichswechsel vergleichbar. Node/Build/Artefakt grün, neuer Chromium-CI-Lauf folgt. 69ca736 (Enumhärtung) und 58079ec (Tageskopf) integriert. Nächster Schritt: gemeinsame Abnahme, dann Claudes A4-/v3-Übergabe prüfen; Grenzen von Budget und Flugverbindungen weiterhin offen benennen.

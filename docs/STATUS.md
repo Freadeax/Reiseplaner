@@ -1,5 +1,17 @@
 # Projektstand · 15.10.2026
 
+## Vorlagengalerie mit bewusster Vorschau (ChatGPT, #8)
+
+Basis c6523ef, reine v3-Rechenmodule 8f482f1/9097f46 integriert, noch ohne Einbindung in die Oberfläche. Alle zwölf Vorlagen in vier Gruppen: Kurzreisen, Urlaub & Auszeit, Flugvorbereitung, ausgefülltes Beispiel. Native Gruppenauswahl mit sichtbaren Zahlen und gleichmäßigem Kartenraster, auch in „Neue Reise“. Neue Vorlagen ohne bekannte Gruppenzuordnung bleiben unter Urlaub sichtbar. TEMPLATES.make und TPL_CHECKS unverändert.
+
+Vorlagenauswahl schreibt nichts: Vorschau zeigt Reiseart, Nächte, Anreise, Zeitraum, Ziel, Reisende und vorbereitete Aufgaben. Offene Preise bleiben offen; der Beispiel-Planwert ist ausdrücklich kein geprüftes Angebot. Flugvorlagen enthalten Vorbereitung, keine Flugverbindung. Erst „Als neue Reise anlegen“ speichert. Schließen erhält Reisen und ungespeicherten Formularentwurf. Token, ID-Kollision und Speicherbereich werden geprüft; Doppelklick/veraltete Bestätigung legt keine zweite Reise an. Speicherfehler lässt die Vorschau für einen kontrollierten Wiederholungsversuch erhalten; zwischenzeitlich geänderte Daten werden nicht überschrieben.
+
+Geprüft: npm test einschließlich Galerie/Vorschau/Abbruchfreiheit, explizitem Speichern, ID-/Token-/Bereichsschutz und Quota-Wiederholung; Gast-Build, Artefaktprüfung, Browser-/Audit-Skriptsyntax und diff --check. Chromium-Klickwege und Audit-Fixture auf den neuen Bestätigungsschritt umgestellt, Vorschau als Audit-Ansicht ergänzt. Neue Browser-CI-Abnahme steht aus, kein lokaler iPhone-Test. Keine Änderung an Store-/Sync-Methoden oder Datenbank.
+
+## Datenvertrag: Review-Runde 2 beantwortet (ChatGPT, #8)
+
+c69c6ab geprüft, Aufteilung bestätigt: Claude liefert Validierung/Rechnung/Kompatibilität, ChatGPT Editor-/Vorschau-Schicht. R2 fordert unvollständige/mehrdeutige Zeitpunkte ohne erfundene UTC-Zeit, unbekannte Stornogebühr nie abgeschlossen, vollständigen v3-Rundlauf, begrenzte Arrays und unverlierbare Historie. Nach R2-Übernahme in 9097f46 zwei konkrete Rest-Repros an Claude zurückgemeldet: cancelMath mit unbekannter Planbasis darf keine Erstattung aus 0 ableiten; segmentRemovalCheck muss auch unbezahlte/ungeklärte Stornos sperren. Vor voller v3-Bedienung muss die Kosten- und Schutzlogik v3 verstehen; ein reiner Leser darf keine v2-Summen als vollständige Rechnung anzeigen. Produktions-E2-Nachweis bleibt offen und wird nicht aus Preview/CI abgeleitet. Details im Reviewdokument und Issue #8.
+
 ## Rechenlogik für Fliegen und Storno (Claude, #8, Datenvertrag v3)
 
 - Neue Datei `v3logic.js` (UMD, `window.RPV3`), reine Funktionen nach `SCHEMA_V3.md` (Fassung `c69c6ab`), **noch nicht in der App verdrahtet**. Format 3 bleibt gesperrt.

@@ -433,6 +433,15 @@ button.profile-tag{cursor:pointer}button.profile-tag:hover{border-color:var(--sp
 .cat-result-tools .form{margin-top:12px}
 .cat-reasons{font-size:.88rem;margin:10px 0}
 .cat-reasons li{margin:6px 0;overflow-wrap:anywhere}
+.template-gallery{margin-top:20px}.template-filter{max-width:420px}
+.template-group{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.template-heading{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}.template-heading>span{font-size:1.6rem;color:var(--spruce)}.template-heading h3{margin:0;font-size:1.05rem}.template-heading p{margin:5px 0 0}
+.template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.template-card{display:flex;flex-direction:column;gap:10px;min-height:150px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.template-card:hover{border-color:var(--spruce)}.template-more{margin-top:auto;color:var(--spruce);font-size:.85rem;font-weight:600}
+.template-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}.template-facts>div{padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.template-facts dt{font-size:.8rem;color:var(--muted)}.template-facts dd{margin:6px 0 0;overflow-wrap:anywhere}
+.template-preparation summary{min-height:44px;cursor:pointer;padding-block:12px}.template-preparation li{margin-block:8px}
+@media(max-width:480px){.template-facts{grid-template-columns:1fr}.template-card{min-height:130px}}
 @media(max-width:850px){.mood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.mood-grid{grid-template-columns:1fr;gap:10px}.mood-card{padding:16px}.mood-card[data-level="must"]{padding:15px}.mood-presets{grid-template-columns:1fr 1fr}.mood-preset{padding:12px;font-size:.9rem}}
 /* Audit-Nacharbeit: durchgehend erreichbare Bedienelemente, auch bei Touch. */
@@ -1086,12 +1095,44 @@ const TPL_CHECKS={
   wellness:['Spa- und Massagetermine reservieren','Bademantel und Saunatücher: vor Ort vorhanden?','Badesachen und Schlappen','Ruhezeiten im Tagesplan freihalten']
 };
 function tplTrip(base,kind){const t=newTrip(Object.assign({budget:0},base));t.customChecks=(TPL_CHECKS[kind]||[]).map(x=>({id:uid('k'),t:x}));return t}
-function tplButtons(){return '<div class="opts">'+TEMPLATES.map(x=>'<button type="button" class="opt" data-act="tpl" data-val="'+x.id+'">'+esc(x.name)+'<small>'+esc(x.sub)+'</small></button>').join('')+'</div>'}
+const TEMPLATE_GROUPS=[
+ {id:'kurz',name:'Kurzreisen',sub:'Ein freier Tag oder ein kleines Wochenende.',icon:'↗',ids:['tag','wochenende','stadt']},
+ {id:'urlaub',name:'Urlaub & Auszeit',sub:'Erholen, aktiv sein oder mehrere Orte verbinden.',icon:'☼',ids:['strand','winter','rundreise','camping','aktiv','wellness']},
+ {id:'flug',name:'Flugvorbereitung',sub:'Mit Aufgaben für Dokumente, Gepäck und Transfer.',icon:'✈',ids:['fernreise','badeflug']},
+ {id:'beispiel',name:'Ausgefülltes Beispiel',sub:'Den Planer mit einer fertigen Beispielreise kennenlernen.',icon:'◇',ids:['silvester']}
+];
+function templateGroups(){const known=new Set(TEMPLATE_GROUPS.flatMap(g=>g.ids));return TEMPLATE_GROUPS.map(g=>Object.assign({},g,{templates:TEMPLATES.filter(t=>g.ids.includes(t.id)||g.id==='urlaub'&&!known.has(t.id))}))}
+function tplButtons(){const groups=templateGroups(),selected=groups.some(g=>g.id===UI.templateGroup)?UI.templateGroup:'all',shown=groups.filter(g=>selected==='all'||selected===g.id);
+ return '<div class="template-gallery"><label class="fld template-filter"><span>Welche Art von Start passt zu euch?</span><select data-template-filter><option value="all"'+(selected==='all'?' selected':'')+'>Alle Vorlagen ('+TEMPLATES.length+')</option>'+groups.map(g=>'<option value="'+g.id+'"'+(selected===g.id?' selected':'')+'>'+g.name+' ('+g.templates.length+')</option>').join('')+'</select></label><p class="small muted" role="status">'+shown.reduce((n,g)=>n+g.templates.length,0)+' von '+TEMPLATES.length+' Vorlagen. Erst ansehen, dann bewusst als neue Reise anlegen.</p>'+
+ shown.map(g=>'<section class="template-group" data-template-group="'+g.id+'"><div class="template-heading"><span aria-hidden="true">'+g.icon+'</span><div><h3>'+g.name+' <small>('+g.templates.length+')</small></h3><p class="small muted">'+g.sub+'</p></div></div><div class="template-grid">'+g.templates.map(t=>'<button type="button" class="template-card" data-act="tpl" data-val="'+t.id+'" aria-label="Vorlage '+esc(t.name)+' ansehen"><b>'+esc(t.name)+'</b><span class="small muted">'+esc(t.sub)+'</span><span class="template-more">Vorschau ansehen <span aria-hidden="true">↗</span></span></button>').join('')+'</div></section>').join('')+'</div>';
+}
+function templatePreview(id){const tpl=TEMPLATES.find(t=>t.id===id);if(!tpl)throw new Error('Diese Vorlage ist nicht verfügbar.');const trip=tpl.make();validateBackup(backupData([trip]));return {token:uid('p'),id,trip,scope:Store.scope,group:templateGroups().find(g=>g.templates.some(t=>t.id===id)).name,name:tpl.name,sub:tpl.sub}}
+function templatePreviewHtml(p){const t=p.trip,checks=t.customChecks||[],example=p.id==='silvester';
+ return '<span class="eyebrow">Vorlage · '+esc(p.group)+'</span><h2>'+esc(p.name)+'</h2><p class="lead muted">'+esc(p.sub)+'</p><p class="note" role="status">Nur eine Vorschau – es wurde noch keine Reise angelegt.</p>'+
+ '<div class="badges"><span class="badge">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+(nightsOf(t)?nightsOf(t)+' Nächte':'Ohne Übernachtung')+'</span><span class="badge">'+esc({auto:'Auto',bahn:'Bahn',flug:'Flug / Bus'}[t.travel]||'Anreise offen')+'</span></div>'+
+ '<dl class="template-facts"><div><dt>Zeitraum</dt><dd>'+esc(rangeText(t))+'</dd></div><div><dt>Ziel</dt><dd>'+esc((placeOf(t)||{}).name||t.dest||'Noch offen')+'</dd></div><div><dt>Reisende</dt><dd>'+t.persons+' Personen · später änderbar</dd></div><div><dt>Programm</dt><dd>'+(t.items.length?t.items.length+' Punkte als Beispiel vorbereitet':'Noch frei planbar')+'</dd></div></dl>'+
+ (example?'<div class="note"><b>Ausgefüllte Beispielreise, kein geprüftes Angebot</b><p>Planwert ≈ '+eur(cost(t).total)+'. Zeiten, Verfügbarkeit und Preise selbst prüfen. Ihr legt eine eigene Kopie an.</p></div>':'<p class="small muted">Ziel, genaue Reisedaten, Unterkunft und Kosten bleiben offen. Eine Vorlage ist weder eine Buchung noch eine Budgetzusage.</p>')+
+ (checks.length?'<details class="template-preparation"><summary>Vorbereitung ansehen · '+checks.length+' Punkte</summary><ul>'+checks.map(c=>'<li>'+esc(c.t)+'</li>').join('')+'</ul></details>':'<p class="small muted">Die Standard-Packliste richtet sich nach der Reiseart und ergänzt sich später aus euren Unternehmungen.</p>')+
+ (t.travel==='flug'?'<p class="small muted">Enthält Vorbereitungspunkte, noch keine Flugverbindung, Flughäfen oder gebuchten Tickets. Die Anreiseplanung wird getrennt erweitert.</p>':'')+
+ (UI.view==='neu'&&UI.draft?'<p class="small muted">Beim Schließen bleibt euer bisheriger, ungespeicherter Entwurf erhalten. Beim Anlegen startet ihr stattdessen mit dieser Vorlage.</p>':'')+
+ '<p id="template-error" role="alert"></p><div class="row"><button type="button" class="btn" data-act="tpl-apply" data-val="'+esc(p.token)+'">Als neue Reise anlegen</button><button type="button" class="btn ghost" data-act="sheet-x">Zurück zur Auswahl</button></div>';
+}
+function sheetTemplate(id){const p=templatePreview(id);openSheet(templatePreviewHtml(p));UI.templatePreview=p}
+function commitTemplatePreview(token){
+ const p=UI.templatePreview;if(!p||p.token!==token)throw new Error('Die Vorschau ist nicht mehr aktuell. Bitte die Vorlage erneut öffnen.');
+ if(p.scope!==Store.scope)throw new Error('Der Speicherbereich hat sich geändert. Bitte die Vorlage erneut öffnen.');
+ const t=clone(p.trip),existing=Store.get(t.id);
+ if(existing&&(existing!==p.attemptedTrip||JSON.stringify(existing)!==p.attemptedSnapshot))throw new Error('Diese Reise-ID ist bereits vorhanden oder wurde geändert. Bitte eine neue Vorschau öffnen.');
+ validateBackup(backupData([t]));
+ if(!Store.put(t,true)){p.attemptedTrip=t;p.attemptedSnapshot=JSON.stringify(t);throw new Error('Die neue Reise konnte nicht gespeichert werden. Die Vorschau bleibt zum erneuten Versuch erhalten.');}
+ UI.templatePreview=null;return {trip:t,route:'r-'+t.id+'-'+(p.id==='silvester'?'ueber':t.catalog==='allgaeu'?'angebote':'unterkunft')};
+}
 function silvesterTemplate(){
   const t=newTrip({title:'Silvester im Schnee',type:'winter',status:'planung',dateMode:'fix',start:'2026-12-30',end:'2027-01-03',budget:1500,catalog:'allgaeu',origin:'73110 Hattenhofen',
     notes:'Ziel: Wellness + Schnee, Anfängerkurs optional. Budget maximal 1.500 € zu zweit, Wunsch eher darunter.\nHeimkehr am 3.1. mit Erholungszeit; genaue Uhrzeit noch offen.'});
   return applyPkg(t,PKGS.find(p=>p.id==='oj-spar'));
 }
+document.addEventListener('change',e=>{const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-template-filter'))return;UI.templateGroup=TEMPLATE_GROUPS.some(g=>g.id===el.value)?el.value:'all';render();const select=$('[data-template-filter]');if(select&&select.focus)select.focus()});
 
 /* ================= Unterwegs, Kalender & Reisemappe =================
    Reine Ableitungen aus einer Reise. Kein neues Speicherfeld, rp-trips bleibt unverändert. */
@@ -1664,7 +1705,7 @@ function vReisen(){
   return unreadableShelf()+(Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
    '<section class="block home-hero"><svg class="hero-art" viewBox="0 0 280 280" fill="none" aria-hidden="true"><circle cx="140" cy="140" r="120" stroke="currentColor"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="2"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg><span class="eyebrow">Dein nächstes schönes Stück Auszeit</span><h1>Die Vorfreude beginnt hier.</h1><p class="lead muted">Ideen sammeln, gemeinsam abwägen und entspannt losfahren. Alles für eure Reise an einem Ort.</p><div class="hero-meta"><span>'+list.length+(list.length===1?' gespeicherte Reise':' gespeicherte Reisen')+'</span><span>Ausflug · Wochenende · Urlaub</span></div>'+
    (Store.isAccount()&&guestPendingCount()?'<div class="note"><b>'+guestPendingCount()+' Reise(n) ohne Konto in diesem Browser.</b><p>Sie werden nicht automatisch übertragen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und ins Konto übernehmen</button></div></div>':'')+(!Store.isAccount()&&Sync.cloud()?'<p class="small muted">Gastmodus: Reisen nur in diesem Browser. <button type="button" class="lnk" data-go="konto">Anmelden für Online-Speicherung und Teilen</button></p>':'')+
-   '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button><button type="button" class="btn ghost" data-go="entdecken">Ziele im Umkreis entdecken</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
+   '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button><button type="button" class="btn ghost" data-go="entdecken">Ziele im Umkreis entdecken</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen bereiten Reiseart, Dauer und passende Aufgaben vor. In der Vorschau seht ihr, was enthalten ist. Das Silvester-Beispiel enthält eine geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
    '<section class="block"><div class="section-heading"><h2>Meine Reisen</h2><p>Eure Pläne, ein Griff entfernt.</p></div>'+(list.length?(!shelf.query&&shelf.filter==='all'?tripSpotlight(shelf.spotlight):'')+tripShelfTools(shelf)+(shelf.rows.length?'<div class="grid wide">'+shelf.rows.map(r=>card(r.trip)).join('')+'</div>':'<div class="empty"><b>Keine Reise passt zu dieser Ansicht</b><span>Suchwort oder Zeitgruppe ändern. Eure Reisen wurden nicht gelöscht.</span><button type="button" class="btn ghost" data-act="trip-reset">Alle Reisen zeigen</button></div>'):'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
    '<details class="panel home-support"><summary><b>Neu hier? So funktioniert’s</b></summary><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></details>';
@@ -2285,6 +2326,7 @@ function sheetTabTarget(nodes,current,backwards){
  return null;
 }
 function openSheet(html){
+ UI.templatePreview=null;
  if(!$('.sheet'))sheetOpener=document.activeElement||null;
  if(document.body&&document.body.style&&sheetScroll===null){sheetScroll=document.body.style.overflow||'';document.body.style.overflow='hidden'}
  UI.secureJob=(UI.secureJob||0)+1;
@@ -2295,6 +2337,7 @@ function openSheet(html){
  if(s.focus)s.focus();
 }
 function closeSheet(){
+ UI.templatePreview=null;
  UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
  $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
  if(sheetScroll!==null&&document.body&&document.body.style){document.body.style.overflow=sheetScroll;sheetScroll=null}
@@ -2422,7 +2465,8 @@ document.addEventListener('click',async e=>{
     if(k==='dateMode'&&val==='fix'&&!o.start){const n=new Date();o.start=iso(new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()+30)));o.end=iso(new Date(pd(o.start).getTime()+864e5*Math.max(o.type==='tag'?0:1,num(o.nights,3))))}
     const host=pm[1]==='d'?$('#draft'):$('#editform');if(pm[1]==='d'){render()}else host.innerHTML=tripForm(o,'e-');return}
   if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>=pd(d.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
-  if(act==='tpl-silvester'||act==='tpl'){const x=TEMPLATES.find(y=>y.id===(act==='tpl'?val:'silvester'));if(!x)return;const s=x.make();s.id=uid('t');save(s,true);UI.draft=null;go('r-'+s.id+'-'+(x.id==='silvester'?'ueber':s.catalog==='allgaeu'?'angebote':'unterkunft'));return}
+  if(act==='tpl-silvester'||act==='tpl'){try{sheetTemplate(act==='tpl'?val:'silvester')}catch(err){alertMsg(err.message)}return}
+  if(act==='tpl-apply'){try{const r=commitTemplatePreview(val);UI.draft=null;closeSheet();go(r.route)}catch(err){const el=$('#template-error');if(el)el.textContent=err.message;else alertMsg(err.message)}return}
   if(!t) return;
   switch(act){
    case 'backup-trip': downloadBackup([t]);return;
@@ -3507,6 +3551,7 @@ Object.assign(window.__app,{toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});
+Object.assign(window.__app,{TEMPLATE_GROUPS,templateGroups,tplButtons,templatePreview,templatePreviewHtml,sheetTemplate,commitTemplatePreview});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
