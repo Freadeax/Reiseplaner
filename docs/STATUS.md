@@ -1,5 +1,14 @@
 # Projektstand · 15.10.2026
 
+## Schutz vor nicht lesbaren Serverfassungen (Claude, #8)
+
+- Anlass: Ein Test mit dem heutigen Code als „alter Client“ hat gezeigt, dass eine Serverzeile, die die App nicht validieren kann (z. B. eine künftige Speicherversion 3), beim Abgleich still übersprungen wurde. Danach konnte die veraltete lokale Kopie über „Meine Version behalten“ die neuere Online-Fassung überschreiben. Das war ein echter Datenverlust.
+- Jetzt: `pull` prüft jede neue Serverfassung **vor** der Warteschlange mit `serverRowProblem` (Validierung, ID passt zur Zeile). Eine nicht lesbare Fassung wird nie in den Speicher übernommen, sondern als `meta.unreadable` markiert, mit dem Hinweis „vermutlich neuere App-Version“ nur bei `schemaVersion > 2`, sonst „nicht lesbar“ mit Prüfgrund. Der Schutz wirkt in `Store.put` (lehnt ab und nimmt die Änderung im Speicher zurück), `Store.remove`, `push` (hält zurück) und `resolve` (nur „eigene Kopie“ erlaubt, „mine/server/discard“ lehnen ab), also nicht nur über deaktivierte Knöpfe.
+- Sichtbar: Badge „online nicht lesbar“, Status zählt die Reise mit, Hinweis in der Reise (lokaler Stand schreibgeschützt, Knöpfe „Lokalen Stand als eigene Reise behalten“ und „Seite neu laden“ mit Service-Worker-Update). Platzhalter im Reiseregal auch ohne lokale Reise. Wird die Fassung wieder lesbar, wird sie normal übernommen. Bei Löschung oder Rechteentzug verschwindet der Platzhalter.
+- Keine Änderung am Reiseformat. Die Markierung steht nur in den Kontometadaten (`meta`), ältere Apps ignorieren sie.
+- Tests: neues `tests/sync-unreadable.cjs` in `npm test` (Repro jetzt grün, Ablehnung in put/remove/push/resolve, Server unverändert, eigene Kopie als v2 online, Original unberührt, Platzhalter auch nach Neuladen, ausstehende lokale Änderung bleibt, Export enthält lokalen Stand, fremde Reise mit Leserecht, neutral „nicht lesbar“, Erholung, Löschung, Rechteentzug, Kontowechsel). `npm run test:browser` grün. DB- und E2E-Ergebnis siehe Abschnitt darunter bzw. CI am Commit.
+- Grenzen: Bereits ausgerollte, im Browser zwischengespeicherte Alt-Versionen haben diesen Schutz nicht, bis sie aktualisiert sind. Dafür ist der serverseitige Downgrade-Schutz (neue Migration) vorgeschlagen und wartet auf Philipps ausdrückliche Freigabe.
+
 ## Tagesplan: Programmkosten je Tag und freie Zeitfenster (Claude, #8)
 
 - `dayCosts(t)`: Kosten der Unternehmungen je Tag. Mehrtagesposten (Kurs, Skipass, Verleih) werden anteilig auf ihre Tage verteilt, ein gebuchter Betrag für mehrfach eingeplante Ideen im Verhältnis der Planwerte. Offene Preise werden je Tag gezählt und nicht als 0 € verschwiegen. Unterkunft, Essen, Anreise und Puffer sind bewusst nicht tagesbezogen. `freeSlots(t,day)` liefert die leeren Tagesabschnitte.

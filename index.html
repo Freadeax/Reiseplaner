@@ -1255,6 +1255,9 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   canEdit(id){return this.role(id)!=='viewer'},
   pending(){return Object.keys(this.queue).length},
   put(t,now){
+    if(this.isAccount()&&this.meta[t.id]&&this.meta[t.id].unreadable){
+      try{const s=JSON.parse(this.lastRaw||'{}');const old=s&&s.trips&&s.trips[t.id];if(old)this.trips[t.id]=old;else delete this.trips[t.id]}catch(e){}
+      alertMsg(UNREADABLE_TXT+' Änderungen werden nicht gespeichert. Ihr könnt den lokalen Stand als eigene Reise behalten.');if(typeof render==='function')setTimeout(render,0);return false}
     if(this.isAccount()&&!this.canEdit(t.id)){const m=this.meta[t.id];if(m&&m.sv)this.trips[t.id]=JSON.parse(m.sv);alertMsg('Nur Leserecht: Änderungen an dieser Reise werden nicht gespeichert.');if(typeof render==='function')setTimeout(render,0);return false}
     t.updated=Date.now();this.trips[t.id]=t;
     if(this.isAccount()){const q=this.queue[t.id];this.queue[t.id]={op:'upsert',at:Date.now()};if(q&&q.op==='delete')this.queue[t.id].op='upsert';if(this.meta[t.id])delete this.meta[t.id].failed}
@@ -1265,6 +1268,7 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   async remove(id){
     if(this.isAccount()){
       const m=this.meta[id];
+      if(m&&m.unreadable)throw new Error(UNREADABLE_TXT+' Sie kann erst gelöscht werden, wenn diese App sie lesen kann (Seite neu laden).');
       if(m&&m.version&&this.role(id)!=='owner')throw new Error('Nur der Eigentümer kann die Reise löschen. Ihr könnt die Reise stattdessen verlassen.');
       delete this.trips[id];
       if(m&&m.version)this.queue[id]={op:'delete',at:Date.now()};else{delete this.queue[id];delete this.meta[id]}
@@ -1301,7 +1305,7 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
     for(const id of Object.keys(Store.queue)){
       if(Store.scope!==scope)return changed;
       const q=Store.queue[id],m=Store.meta[id]||{};
-      if(m.conflict||m.lost||(m.failed&&m.failedAt===q.at))continue;
+      if(m.unreadable||m.conflict||m.lost||(m.failed&&m.failedAt===q.at))continue;
       if(q.op==='delete'){
         if(!m.version){delete Store.queue[id];delete Store.meta[id];continue}
         const row=await c.deleteTrip(id,m.version);if(Store.scope!==scope)return changed;
@@ -1341,6 +1345,12 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
     let changed=false;const seen=new Set();
     for(const row of rows){
       seen.add(row.id);const q=Store.queue[row.id],m=Store.meta[row.id];
+      if(!row.deleted_at&&(!m||m.version!==row.version||m.unreadable)){
+        const bad=serverRowProblem(row);
+        if(bad){Store.meta[row.id]=Object.assign(m||{},{unreadable:bad});if(!m||!m.version){Store.meta[row.id].role=row.role;Store.meta[row.id].owner=row.owner_id}changed=true;continue}
+        if(m&&m.unreadable){delete m.unreadable;changed=true;if(!q){Store.trips[row.id]=clone(row.data);this.apply(row);continue}}
+      }
+      if(row.deleted_at&&m&&m.unreadable){delete m.unreadable;if(!Store.trips[row.id]&&!m.version){delete Store.meta[row.id];changed=true;continue}}
       if(row.deleted_at){
         if(q&&q.op==='upsert'){if(m&&m.version&&!m.conflict){m.conflict={op:'deleted',remote:row};changed=true}}
         else if(Store.trips[row.id]||m){delete Store.trips[row.id];delete Store.meta[row.id];delete Store.queue[row.id];changed=true}
@@ -1348,10 +1358,10 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
       }
       if(q){if(m)m.role=row.role;continue}
       if(!m||m.version!==row.version||!Store.trips[row.id]){
-        try{validateExtras(row.data)}catch(e){continue}
         Store.trips[row.id]=clone(row.data);this.apply(row);changed=true;
       }else if(m.role!==row.role){this.apply(row);changed=true}
     }
+    for(const id of Object.keys(Store.meta)){const m=Store.meta[id];if(m&&m.unreadable&&!seen.has(id)&&!Store.trips[id]){delete Store.meta[id];changed=true}}
     for(const id of Object.keys(Store.trips)){const m=Store.meta[id];
       if(m&&m.version&&!seen.has(id)){if(Store.queue[id])m.lost=true;else{delete Store.trips[id];delete Store.meta[id];this.notice='Eine Reise ist nicht mehr für euch freigegeben und wurde von diesem Gerät entfernt.'}changed=true}}
     return changed;
@@ -1360,6 +1370,14 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
   resolve(id,how){
     const m=Store.meta[id];if(!m)return;
     const remote=m.conflict&&m.conflict.remote;
+    const remoteBad=m.unreadable||(remote&&!remote.deleted_at&&serverRowProblem(remote));
+    if(remoteBad){
+      if(how!=='copy')throw new Error(UNREADABLE_TXT+' Sie wird weder überschrieben noch übernommen. Den lokalen Stand könnt ihr als eigene Reise behalten.');
+      const t=Store.trips[id];
+      if(t){let nid;do{nid=uid('t')}while(Store.trips[nid]);const n=clone(t);n.id=nid;n.title=(String(t.title||'Reise').slice(0,64)+' (eigene Kopie)').slice(0,80);Store.trips[nid]=n;Store.queue[nid]={op:'upsert',at:Date.now()}}
+      delete Store.trips[id];delete Store.queue[id];delete m.conflict;if(!m.unreadable)m.unreadable=remoteBad;
+      Store.saveLocal();this.schedule(0);return;
+    }
     if(how==='server'&&remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote);delete Store.queue[id]}
     else if(how==='mine'&&remote&&!remote.deleted_at){m.version=remote.version;delete m.conflict;Store.queue[id]={op:'upsert',at:Date.now()}}
     else if(how==='copy'){const t=Store.trips[id]||(remote&&remote.data);if(t){let nid;do{nid=uid('t')}while(Store.trips[nid]);const n=clone(t);n.id=nid;n.title=(String(t.title||'Reise').slice(0,64)+' (eigene Kopie)').slice(0,80);Store.trips[nid]=n;Store.queue[nid]={op:'upsert',at:Date.now()}}
@@ -1421,7 +1439,25 @@ function adoptGuestTrips(ids){
   Sync.schedule(0);return added;
 }
 function guestPendingCount(){if(!Store.isAccount())return 0;const g=guestTrips();if(!g)return 0;let done=[];try{done=JSON.parse(localStorage.getItem('rp-adopted:'+Store.scope)||'[]')}catch(e){}return g.filter(t=>t&&!done.includes(t.id)).length}
-function tripSyncState(id){if(!Store.isAccount())return '';const m=Store.meta[id]||{},q=Store.queue[id];if(m.conflict)return 'konflikt';if(m.lost)return 'kein-zugriff';if(m.failed&&q&&m.failedAt===q.at)return 'fehler';if(q)return 'ausstehend';return m.version?'online':'ausstehend'}
+/* Serverzeilen, die diese App nicht validieren kann, werden nie still übersprungen oder überschrieben (Claude, #8).
+   newer: Speicherversion höher als bekannt → vermutlich neuere App. Sonst allgemein „nicht lesbar“ mit Prüfgrund. */
+const UNREADABLE_TXT='Die Online-Fassung dieser Reise kann diese App-Version nicht lesen.';
+function serverRowProblem(row){
+  const d=row&&row.data;
+  try{if(!d||typeof d!=='object'||Array.isArray(d))throw new Error('Keine gültigen Reisedaten.');if(d.id!==row.id)throw new Error('Reise-ID passt nicht zur Zeile.');validateExtras(d);return null}
+  catch(e){const sv=d&&typeof d==='object'?Number(d.schemaVersion):NaN;return {version:row.version,newer:Number.isFinite(sv)&&sv>2,schema:Number.isFinite(sv)?sv:null,reason:String(e&&e.message||e).slice(0,200),title:d&&typeof d.title==='string'?d.title.slice(0,80):''}}
+}
+function unreadableList(){if(!Store.isAccount())return [];return Object.keys(Store.meta).filter(id=>Store.meta[id]&&Store.meta[id].unreadable).map(id=>({id,local:Store.trips[id]||null,u:Store.meta[id].unreadable}))}
+function unreadableText(u){return u.newer?'Online gespeichert mit Speicherversion '+u.schema+'. Vermutlich ist dort eine neuere App-Version im Einsatz. Seite neu laden (ggf. App schließen und wieder öffnen), damit diese App aktualisiert wird.':'Die Online-Fassung ist für diese App nicht lesbar (Prüfung: '+u.reason+'). Sie wurde nicht übernommen und wird nicht überschrieben.'}
+function unreadableBlock(t){
+  const m=Store.isAccount()&&Store.meta[t.id];if(!m||!m.unreadable)return '';
+  return '<section class="block"><div class="note" role="alert"><b>'+esc(UNREADABLE_TXT)+'</b><p>'+esc(unreadableText(m.unreadable))+'</p><p>Was ihr hier seht, ist der letzte lokal lesbare Stand. Er ist schreibgeschützt, damit die neuere Online-Fassung nicht überschrieben wird.</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="copy">Lokalen Stand als eigene Reise behalten</button><button type="button" class="btn ghost sm" data-act="reload-app">Seite neu laden</button></div></div></section>';
+}
+function unreadableShelf(){
+  const L=unreadableList().filter(x=>!x.local);if(!L.length)return '';
+  return '<section class="block"><div class="note" role="status"><h2>'+(L.length===1?'Eine Reise':L.length+' Reisen')+' online nicht lesbar</h2><ul class="plain">'+L.map(x=>'<li><b>'+esc(x.u.title||'Reise')+'</b><br><small>'+esc(unreadableText(x.u))+'</small></li>').join('')+'</ul><button type="button" class="btn ghost sm" data-act="reload-app">Seite neu laden</button></div></section>';
+}
+function tripSyncState(id){if(!Store.isAccount())return '';const m=Store.meta[id]||{},q=Store.queue[id];if(m.unreadable)return 'nicht-lesbar';if(m.conflict)return 'konflikt';if(m.lost)return 'kein-zugriff';if(m.failed&&q&&m.failedAt===q.at)return 'fehler';if(q)return 'ausstehend';return m.version?'online':'ausstehend'}
 function setSync(s){
   if(Store.conflict)s='conflict';else if(Store.localError)s='storage-error';
   const el=$('#sync');if(!el)return;
@@ -1429,7 +1465,7 @@ function setSync(s){
   if(s==='conflict')txt='Neuere Daten in anderer Ansicht – Änderungen sichern und neu laden';
   else if(s==='storage-error')txt='Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen';
   else if(!Store.isAccount())txt=Sync.cloud()?'Gast · nur in diesem Browser':'Nur in diesem Browser';
-  else{const n=Store.pending(),k=Object.values(Store.meta).filter(m=>m.conflict||m.lost).length;
+  else{const n=Store.pending(),k=Object.values(Store.meta).filter(m=>m.conflict||m.lost||m.unreadable).length;
     if(k)txt='Konflikt bei '+k+(k===1?' Reise':' Reisen')+' – bitte prüfen';
     else if(Sync.state==='error')txt='Speicherfehler online: '+Sync.error+(n?' · '+n+' lokal gespeichert':'');
     else if(Sync.state==='offline')txt='Offline · '+(n?n+' Änderung'+(n===1?'':'en')+' nur lokal gespeichert':'lokal gespeichert');
@@ -1531,7 +1567,7 @@ function vReisen(){
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
     (ph?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
     '<div class="between trip-price"><span><span class="small muted">Planwert gesamt</span><br><span class="price num">'+eur(c.total)+'</span></span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+(openCosts(t).length?'<span class="small" style="color:var(--warn)">Weitere Kosten sind noch offen</span>':'')+'<span class="trip-open"><span>Reise öffnen</span><span aria-hidden="true">↗</span></span></button>'};
-  return (Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
+  return unreadableShelf()+(Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
    '<section class="block home-hero"><svg class="hero-art" viewBox="0 0 280 280" fill="none" aria-hidden="true"><circle cx="140" cy="140" r="120" stroke="currentColor"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="2"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg><span class="eyebrow">Dein nächstes schönes Stück Auszeit</span><h1>Die Vorfreude beginnt hier.</h1><p class="lead muted">Ideen sammeln, gemeinsam abwägen und entspannt losfahren. Alles für eure Reise an einem Ort.</p><div class="hero-meta"><span>'+list.length+(list.length===1?' gespeicherte Reise':' gespeicherte Reisen')+'</span><span>Ausflug · Wochenende · Urlaub</span></div>'+
    (Store.isAccount()&&guestPendingCount()?'<div class="note"><b>'+guestPendingCount()+' Reise(n) ohne Konto in diesem Browser.</b><p>Sie werden nicht automatisch übertragen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und ins Konto übernehmen</button></div></div>':'')+(!Store.isAccount()&&Sync.cloud()?'<p class="small muted">Gastmodus: Reisen nur in diesem Browser. <button type="button" class="lnk" data-go="konto">Anmelden für Online-Speicherung und Teilen</button></p>':'')+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button><button type="button" class="btn ghost" data-go="entdecken">Ziele im Umkreis entdecken</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
@@ -2083,7 +2119,7 @@ function tMappe(t){
 function vReise(){
   const t=cur(); if(!t) return vReisen();
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
-  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
+  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+unreadableBlock(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
 }
 function render(){
   const v=$('#view');
@@ -2226,6 +2262,7 @@ document.addEventListener('click',async e=>{
   const g=e.target.closest('[data-go]'); if(g){e.preventDefault();UI.confirm=null;go(g.getAttribute('data-go'));return}
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.getAttribute('data-act'), val=b.getAttribute('data-val'), t=cur();
+  if(act==='reload-app'){try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{}).finally(()=>location.reload());else location.reload()}catch(e){location.reload()}return}
   if(act==='appearance-open'||act==='appearance-set')return;
   if(act==='trip-filter'){UI.tripFilter=Object.prototype.hasOwnProperty.call(SHELF_FILTERS,val)?val:'all';render();return}
   if(act==='trip-reset'){UI.tripFilter='all';UI.tripQuery='';UI.tripSort='next';render();return}
@@ -2610,7 +2647,7 @@ document.addEventListener('click',async e=>{
 
 /* ================= Konto, Freigaben, Konflikte (Issue #6) ================= */
 const ROLE_TXT={owner:'Eigentümer',editor:'Bearbeiten',viewer:'Lesen'};
-const SYNC_TXT={online:'online gespeichert',ausstehend:'Synchronisation ausstehend',konflikt:'Konflikt',fehler:'Speicherfehler','kein-zugriff':'kein Zugriff mehr'};
+const SYNC_TXT={'nicht-lesbar':'online nicht lesbar',online:'online gespeichert',ausstehend:'Synchronisation ausstehend',konflikt:'Konflikt',fehler:'Speicherfehler','kein-zugriff':'kein Zugriff mehr'};
 function syncBadge(id){const s=tripSyncState(id);if(!s)return '';const cls=s==='online'?'ok':s==='ausstehend'?'est':'bad';return '<span class="badge '+cls+'">'+SYNC_TXT[s]+'</span>'}
 function vKonto(){
   const c=Sync.cloud(),head='<section class="block"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><span class="eyebrow">Konto & Speicher</span><h1>Konto</h1></section>';
@@ -2701,7 +2738,7 @@ document.addEventListener('click',async e=>{
       case 'invite-revoke':await c.revokeInvite(val);await shareSheet(t);return;
       case 'member-remove':await c.removeMember(t.id,val);await shareSheet(t);return;
       case 'leave':await c.removeMember(val,Auth.user.id);closeSheet();await Sync.settle();go('reisen');alertMsg('Reise verlassen.');return;
-      case 'conf':Sync.resolve(t.id,b.getAttribute('data-how'));render();return;
+      case 'conf':try{Sync.resolve(t.id,b.getAttribute('data-how'))}catch(err){alertMsg(err.message)}render();return;
     }
   }catch(err){alertMsg(err.message)}
 });
@@ -3234,6 +3271,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
+Object.assign(window.__app,{serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */
