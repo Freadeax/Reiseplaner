@@ -2,6 +2,8 @@
 
 ## Vorlagen und v3-Übergabe · 15.10.2026
 
+E2-Existenz in Produktion inzwischen direkt über Migrationsliste sowie tatsächlichen CHECK/aktivierten Trigger/Funktionskörper nachgewiesen, Live-config-Projektzuordnung geprüft (rein lesend). Die weiteren Freischaltbedingungen Rechnung/Schutz/Feldtreue bleiben bestehen. Galerie-Nacharbeit hält den Vorlagenbereich beim Gruppenwechsel offen; neuer Chromium-Lauf steht aus.
+
 ChatGPT: Vier Vorlagengruppen, native Auswahl, unverändernde Vorschau und ausdrückliches Anlegen implementiert; bestehende Vorlagenfachlogik erhalten. Node/Build/Artefakt bestanden, neue Chromium-Abnahme folgt. Review-Runde2 zu v3 beantwortet, zwei konkrete Restfälle an Claude zur Korrektur übergeben. Nächste UI-Schicht: Flugabschnitts-Editor und Storno-/Erstattungsvorschau auf RPV3, zunächst ohne produktive v3-Erfassung. Vor Freischaltung müssen Produktionsmigration, Rechnung, Schutz und Feldtreue belegt sein. Claude bearbeitet Speichergrundlage und reine Logik; Schnittstellen/Übernahmen in #8.
 
 ## Vertiefung der Zielentscheidung · 15.10.2026

@@ -606,6 +606,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.locator('[data-act="tpl"]').count() >= 5, true, name + ': zu wenige Vorlagen');
   const templateBefore=await p.evaluate(()=>JSON.stringify(window.__app.Store.trips));
   await p.selectOption('[data-template-filter]','flug');
+  assert(await p.isVisible('[data-act="tpl"][data-val="fernreise"]'),name+': Gruppenwechsel lässt Vorlagenbereich offen');
   assert.equal(await p.locator('[data-act="tpl"]').count(),2,name+': Fluggruppe enthält zwei Vorlagen');
   await p.click('[data-act="tpl"][data-val="fernreise"]');
   assert((await p.textContent('.sheet')).includes('es wurde noch keine Reise angelegt'),name+': Vorschau statt sofortiger Speicherung');

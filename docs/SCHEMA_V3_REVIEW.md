@@ -2,6 +2,8 @@
 
 ## Nachtrag: Review-Runde 2 und API-Prüfung
 
+Produktions-E2 am 15.10.2026 inzwischen direkt und rein lesend nachgewiesen: produktive config.js auf verbundenes Projekt zurückgeführt, Migration 20261015160000 vorhanden, CHECK 2/3 und aktivierter Downgrade-Trigger samt Funktionskörper geprüft. Keine Nutzerdaten oder Testreise in Produktion geschrieben. Die unten genannten früheren Vorbehalte zum fehlenden Existenznachweis sind damit überholt; Rechnungs-/Schutzverdrahtung und vollständige Verhaltenstests bleiben separate Bedingungen.
+
 c69c6ab berücksichtigt die wesentlichen Korrekturen der ersten Runde: unabhängige Erstattungen, Gebühren alter Unterkünfte weiter aggregieren, kein Zubringerpreis aus der alten Zielstrecke, Aufteilung nur tatsächlich geflossener Beträge und Feldtreue. Diese Rechenbasis ist im Issue bestätigt; das ist keine Produktionsfreischaltung.
 
 R2-Bedingungen: Datum/Uhrzeit/Zeitzone dürfen unbekannt sein. DST-Lücken ablehnen, mehrdeutige Ortszeiten ungeprüft lassen; ohne vollständigen Zeitpunkt kein behaupteter UTC-Termin oder sicherer Anschluss. Ohne Datum auch keinen ganztägigen Termin erfinden. Unbekannte Gebühr ist nie abgeschlossen. Arrays/IDs/Referenzen begrenzen und prüfen, Historie beim Entfernen erhalten. Ein v3-lesender Client muss v3 vollständig erhalten; leere v3-Felder dürfen nicht in v2-Dateien gelangen. Mitreisenden-Namen sind bei Kontoreisen synchronisiert/geteilt, nicht ausschließlich lokal. Mehrere Zahler und schon erfolgte private Ausgleichszahlungen bleiben ausdrückliche MVP-Grenzen.

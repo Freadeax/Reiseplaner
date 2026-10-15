@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## Produktionsnachweis E2 und Galerie-Nacharbeit (ChatGPT, #8)
+
+E2 am 15.10. rein lesend direkt nachgewiesen: Die API-URL aus der produktiven Pages-config.js stimmt mit dem verbundenen Supabase-Projekt Reiseplaner überein. Die Migrationsliste enthält 20261015160000/trips_schema_v3. Tatsächlicher CHECK auf public.trips erlaubt 2/3; trips_before_write_version ist aktiviert und ruft trips_no_downgrade auf, dessen vorhandener Funktionskörper new.schema_version < old.schema_version mit 23514 ablehnt. Der vorgelagerte Trigger setzt die Version aus data.schemaVersion. Keine Reisezeilen gelesen oder geändert, kein Produktions-Schreib-/Downgradeversuch. Der Existenznachweis in Produktion ist damit erbracht, Verhaltenstests stammen weiter aus Claudes lokalem Stack/CI. Dies allein schaltet noch keine unvollständig verdrahtete v3-Rechnung frei.
+
+Galerie-CI bad081d, Lauf 38776451390: app/database grün, browser gescheitert, Build/Deploy übersprungen. Konkreter UI-Fehler: Gruppenauswahl zeichnete die ganze Ansicht neu und klappte dadurch den übergeordneten Vorlagenbereich zu. Korrigiert: nur Galerie-Inhalt ersetzen; offene Details, Formularentwurf und Sichtbarkeit bleiben bestehen, Fokus kehrt zur Auswahl zurück. Neue Browserassertion prüft die sichtbare Karte nach dem Wechsel. Neuer vollständiger CI-Lauf erforderlich, keine grüne Abnahme vorweggenommen.
+
 ## Vorlagengalerie mit bewusster Vorschau (ChatGPT, #8)
 
 Basis c6523ef, reine v3-Rechenmodule 8f482f1/9097f46 integriert, noch ohne Einbindung in die Oberfläche. Alle zwölf Vorlagen in vier Gruppen: Kurzreisen, Urlaub & Auszeit, Flugvorbereitung, ausgefülltes Beispiel. Native Gruppenauswahl mit sichtbaren Zahlen und gleichmäßigem Kartenraster, auch in „Neue Reise“. Neue Vorlagen ohne bekannte Gruppenzuordnung bleiben unter Urlaub sichtbar. TEMPLATES.make und TPL_CHECKS unverändert.

@@ -1132,7 +1132,7 @@ function silvesterTemplate(){
     notes:'Ziel: Wellness + Schnee, Anfängerkurs optional. Budget maximal 1.500 € zu zweit, Wunsch eher darunter.\nHeimkehr am 3.1. mit Erholungszeit; genaue Uhrzeit noch offen.'});
   return applyPkg(t,PKGS.find(p=>p.id==='oj-spar'));
 }
-document.addEventListener('change',e=>{const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-template-filter'))return;UI.templateGroup=TEMPLATE_GROUPS.some(g=>g.id===el.value)?el.value:'all';render();const select=$('[data-template-filter]');if(select&&select.focus)select.focus()});
+document.addEventListener('change',e=>{const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-template-filter'))return;UI.templateGroup=TEMPLATE_GROUPS.some(g=>g.id===el.value)?el.value:'all';const gallery=el.closest('.template-gallery');if(gallery)gallery.outerHTML=tplButtons();const select=$('[data-template-filter]');if(select&&select.focus)select.focus()});
 
 /* ================= Unterwegs, Kalender & Reisemappe =================
    Reine Ableitungen aus einer Reise. Kein neues Speicherfeld, rp-trips bleibt unverändert. */
