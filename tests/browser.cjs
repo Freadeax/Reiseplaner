@@ -42,6 +42,8 @@ async function planClick(p,selector){
  const target=p.locator(selector).first();
  const day=await target.evaluate(el=>{const col=el.closest('.dcol[data-day]');return col?col.getAttribute('data-day'):null});
  if(day!==null&&await p.isVisible('#plan-day'))await p.selectOption('#plan-day',day);
+ /* Werkzeuge im aufklappbaren Tageskopf: erst öffnen */
+ if(await target.evaluate(el=>!!el.closest('details.dmore:not([open])')))await target.evaluate(el=>{el.closest('details.dmore').open=true});
  await p.click(selector);
 }
 async function shot(p, name) { if (OUT) await p.screenshot({ path: path.join(OUT, name + '.png'), fullPage: true }); }
@@ -799,8 +801,10 @@ async function costNotes(browser,base,name,ctxOpts){
  await noOverflow(p,name+' Unternehmungen');
  await p.goto(base+'/index.html#r-'+id+'-ueber');
  if(await p.$('[data-departure]')){await p.click('[data-departure] summary');assert(await p.isVisible('[data-departure] .timeline li'),name+': Fahrplan leer');await noOverflow(p,name+' Fahrplan')}
- await p.goto(base+'/index.html#r-'+id+'-plan');await p.waitForSelector('.dcost');
- assert(/Programm/.test(await p.textContent('.dcost')),name+': Tageskosten fehlen');await noOverflow(p,name+' Tagesplan mit Tageskosten');
+ await tripTab(p,'plan');await p.waitForSelector('.dhead .dload');
+ assert(/Std\.|≈|frei|geplant/.test(await p.textContent('.dcol.day-selected .dload, .dcol .dload')),name+': Tageszeile fehlt');
+ await p.locator('.dcol:visible .dmore summary').first().click();
+ assert(/Programm/.test(await p.locator('.dcol:visible .dcost').first().textContent()),name+': Tageskosten fehlen');await noOverflow(p,name+' Tagesplan mit Tageskosten');
  await ctx.close();console.log(name+': Budget im Kostenmodul, Notiz-Bausteine, Links und Telefon, Unternehmungs-Suche/Sortierung geprüft.');
 }
 

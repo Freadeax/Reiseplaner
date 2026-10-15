@@ -154,7 +154,7 @@ section.block:first-child{border-top:0;padding-top:4px}
 /* Checks */
 .checks-list{display:flex;flex-direction:column;gap:6px}
 .chk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:.93rem}
-.chk{flex-wrap:wrap}.budget-bar{height:10px;border-radius:5px;background:var(--surface-3);overflow:hidden;border:1px solid var(--line)}.budget-bar>span{display:block;height:100%;background:var(--accent,var(--ok))}.chk>span{flex:1 1 9em;min-width:0;overflow-wrap:anywhere}
+.chk{flex-wrap:wrap}.dmore{margin-top:4px}.dmore>summary{font-size:.85rem;cursor:pointer;min-height:44px;display:flex;align-items:center}.dmore[open]>summary{margin-bottom:4px}.budget-bar{height:10px;border-radius:5px;background:var(--surface-3);overflow:hidden;border:1px solid var(--line)}.budget-bar>span{display:block;height:100%;background:var(--accent,var(--ok))}.chk>span{flex:1 1 9em;min-width:0;overflow-wrap:anywhere}
 .chk b{flex:none;font-family:var(--f-mono);font-size:.7rem;padding:2px 6px;border-radius:4px;margin-top:2px}
 .chk.warn b{background:var(--warn);color:var(--bg)}.chk.info b{background:var(--surface-3)}.chk.ok b{background:var(--ok);color:var(--bg)}
 
@@ -1949,9 +1949,14 @@ function tPlan(t){
   planDayPicker(t)+'<div class="board">'+days.map(d=>{const sp=special(d);
     const L=load[d.i],ru=dayRouteUrl(t,d.i);
     return '<div class="dcol'+(UI.planDay===d.i?' day-selected':'')+'" data-day="'+d.i+'"><div class="dhead"><b>'+esc(d.label)+'</b><span class="eyebrow">'+(d.i===0?'Anreise':d.i===days.length-1?'Abreise':sp)+(d.i===0&&sp||d.i===days.length-1&&sp?' · '+sp:'')+'</span>'+
-    (L.planned||L.unknown||L.drive?'<span class="dload'+(L.over?' over':'')+'">'+(L.over?'! zu voll: ':'')+'≈ '+String(L.planned).replace('.',',')+' von '+String(L.cap).replace('.',',')+' Std.'+(L.drive?' · Fahrt ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std.':'')+(L.unknown?' · '+L.unknown+'× Dauer offen':'')+'</span>':'')+
-    (()=>{const dc=dcost[d.i],fs=freeSlots(t,d.i);return '<span class="small muted dcost">'+(dc&&dc.total?'Programm ≈ '+eur(dc.total)+(dc.shared?' (davon '+eur(dc.shared)+' anteilig)':''):'Programm ohne Kosten')+(dc&&dc.open?' · '+dc.open+'× Preis offen':'')+(fs.length&&fs.length<SLOTS.length?' · frei: '+esc(fs.join(', ')):fs.length===SLOTS.length?' · ganzer Tag frei':'')+'</span>'})()+
-    '<span class="dtools">'+(days.length>1?'<button type="button" class="lnk" data-act="day-swap-open" data-val="'+d.i+'" aria-label="'+esc(d.label)+' mit anderem Tag tauschen">⇄ Tauschen</button>':'')+(ru?lk(ru,'Tagesroute'):'')+'</span></div>'+
+    (()=>{const dc=dcost[d.i],fs=freeSlots(t,d.i),hrs=v=>String(v).replace('.',','),
+      /* Tageskopf (Claude, #8): eine kurze Zeile mit Warnungen sichtbar, alles Weitere aufklappbar */
+      short=[L.planned||L.unknown?'≈ '+hrs(L.planned)+'/'+hrs(L.cap)+' Std.':'',dc&&dc.total?'≈ '+eur(dc.total):'',fs.length===SLOTS.length?'frei':fs.length?'frei: '+fs.length+'×':''].filter(Boolean).join(' · ');
+      return '<span class="dload'+(L.over?' over':'')+'">'+(L.over?'! zu voll · ':'')+(dc&&dc.open?'! '+dc.open+'× Preis offen · ':'')+(L.unknown?'! '+L.unknown+'× Dauer offen · ':'')+esc(short||'noch nichts geplant')+'</span>'+
+      '<details class="dmore"><summary>Details & Werkzeuge</summary>'+
+      (L.planned||L.unknown||L.drive?'<span class="small">Programm ≈ '+hrs(L.planned)+' von '+hrs(L.cap)+' Std.'+(L.drive?' · Fahrt ca. '+hrs(Math.round(L.drive/6)/10)+' Std.':'')+(L.unknown?' · '+L.unknown+'× Dauer offen':'')+'</span><br>':'')+
+      '<span class="small muted dcost">'+(dc&&dc.total?'Programm ≈ '+eur(dc.total)+(dc.shared?' (davon '+eur(dc.shared)+' anteilig)':''):'Programm ohne Kosten')+(dc&&dc.open?' · '+dc.open+'× Preis offen':'')+(fs.length&&fs.length<SLOTS.length?' · frei: '+esc(fs.join(', ')):fs.length===SLOTS.length?' · ganzer Tag frei':'')+'</span>'+
+      '<span class="dtools">'+(days.length>1?'<button type="button" class="lnk" data-act="day-swap-open" data-val="'+d.i+'" aria-label="'+esc(d.label)+' mit anderem Tag tauschen">⇄ Tauschen</button>':'')+(ru?lk(ru,'Tagesroute'):'')+'</span></details></div>'})()+
     SLOTS.map(([k,lab])=>{const its=items.filter(it=>it.day===d.i&&it.slot===k);
       let fixed='';
       if(d.i===0&&k==='morgen'){const arr=arrivalMin(t);fixed='<div class="item fixed">Anreise'+(pl?' · '+esc(pl.time):'')+'<small>ab '+esc(t.origin||'')+(t.departTime?' um '+esc(t.departTime):'')+(arr!=null?' · Ankunft ca. '+minTime(arr)+' (Schätzung)':'')+(t.checkinTime?' · Check-in ab '+esc(t.checkinTime):'')+'</small></div>'}

@@ -1,5 +1,10 @@
 # Projektstand · 15.10.2026
 
+## Tageskopf kompakt (Claude, #8, Befund B1-6)
+
+- Der Tageskopf im Tagesplan zeigt nur noch eine Zeile: Stunden geplant/verfügbar, Programmkosten, freie Abschnitte. Warnungen bleiben sichtbar und stehen als Text mit „!“ voran („zu voll“, „Preis offen“, „Dauer offen“). Ausführliche Auslastung, Fahrzeit, Kostenaufteilung, freie Abschnitte sowie „Tauschen“ und „Tagesroute“ stehen unter „Details & Werkzeuge“ (`details.dmore`, Tippfläche 44 px). Breiten und Raster bleiben bei ChatGPTs Layout.
+- `tests/browser.cjs`: `planClick` öffnet bei Bedarf den Tageskopf, der Tageskosten-Check nutzt `tripTab` und die sichtbare Tagesspalte. `npm test` und `npm run test:browser` grün.
+
 ## B/C vollständig in CI geprüft und veröffentlicht (ChatGPT, #8)
 
 Maßgeblicher Code-Stand 2306b7f: [Tests & Pages, Lauf 38750712216](https://github.com/Freadeax/Reiseplaner/actions/runs/38750712216) vollständig grün: app, browser, database, build und deploy. Chromium prüfte Desktop/Mobil/320px dunkel einschließlich Wunschprofil/Speichern/Stapel, sichtbarer Gruppennavigation, Tagesauswahl, Druck aller Tage, Dialog-Scrollsperre und Packhinweisen. Automatische Pages-Veröffentlichung erfolgreich. Kein iPhone-/Safari-Test und keine zusätzliche manuelle visuelle B5-Abnahme durch ChatGPT. Frühere offene Chromium-Hinweise unten sind historisch und werden hiermit für B/C ersetzt.
