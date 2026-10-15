@@ -108,3 +108,32 @@ console.log('Module: Notizen (Links, Telefonnummern, Bausteine ohne Datenverlust
   assert.equal(JSON.stringify(t), before, 'Filtern/Sortieren ändert die Reise nicht');
 }
 console.log('Module: Unternehmungen (Suche, eingeplant/offen, Sortierung nach Preis/Dauer/Name) geprüft.');
+
+/* Tagesplan: Programmkosten je Tag und freie Zeitfenster */
+{
+  const t = a.newTrip({ persons: 2, nights: 2, dateMode: 'fix', start: '2026-11-06', end: '2026-11-08' });
+  const mk = (id, f) => a.customActFromForm(Object.assign({ cat: 'eigen', per: 'pp' }, f), id);
+  t.customActs = [mk('da', { title: 'Therme', cost: '20', hours: '3' }), mk('db', { title: 'Museum', cost: '', hours: '2' }), mk('dc', { title: 'Führung', cost: '30', per: 'grp', hours: '1' })];
+  t.items = [{ uid: 'x1', act: 'da', day: 0, slot: 'nachm' }, { uid: 'x2', act: 'da', day: 1, slot: 'morgen' }, { uid: 'x3', act: 'db', day: 1, slot: 'abend' }, { uid: 'x4', act: 'dc', day: 2, slot: 'mittag' }];
+  const before = JSON.stringify(t);
+  let d = a.dayCosts(t);
+  assert.deepEqual(d.map(x => x.total), [40, 40, 30]);
+  assert.equal(d[1].open, 1, 'offener Preis gezählt, nicht als 0 € verschwiegen');
+  assert.equal(JSON.stringify(t), before);
+  /* Gebuchter Betrag für eine zweimal eingeplante Idee: im Verhältnis der Planwerte verteilt */
+  a.setLedger(t, 'act:da', 'amount', '100');
+  d = a.dayCosts(t);
+  assert.deepEqual(d.map(x => x.total), [50, 50, 30], 'Buchung 100 € auf zwei Termine verteilt');
+  assert.equal(d[0].shared, 50, 'verteilte Buchung als anteilig markiert');
+  const sum = d.reduce((x, y) => x + y.total, 0), lines = a.cost(t).lines.filter(l => l.key && l.key.startsWith('act:')).reduce((x, l) => x + l.c, 0);
+  assert.equal(sum, lines, 'Summe der Tage = Unternehmungskosten');
+  assert.deepEqual(a.freeSlots(t, 0), ['Vormittag', 'Mittag', 'Abend']);
+  assert.equal(a.freeSlots(t, 5).length, 4);
+  /* Katalogreise: Kurs, Skipass, Verleih anteilig, Gesamtkosten unverändert */
+  const s = a.silvesterTemplate(), c0 = a.cost(s).total, ds = a.dayCosts(s);
+  assert.equal(a.cost(s).total, c0);
+  const multi = a.cost(s).lines.filter(l => l.days && l.days.length).reduce((x, l) => x + l.c, 0);
+  const shared = ds.reduce((x, y) => x + y.shared, 0);
+  assert(Math.abs(multi - shared) < 0.05, 'Mehrtagesposten vollständig auf Tage verteilt (' + multi + ' / ' + shared + ')');
+}
+console.log('Module: Tagesplan (Programmkosten je Tag, Buchungen verteilt, offene Preise, freie Zeitfenster) geprüft.');

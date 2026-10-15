@@ -1,5 +1,12 @@
 # Projektstand · 15.10.2026
 
+## Tagesplan: Programmkosten je Tag und freie Zeitfenster (Claude, #8)
+
+- `dayCosts(t)`: Kosten der Unternehmungen je Tag. Mehrtagesposten (Kurs, Skipass, Verleih) werden anteilig auf ihre Tage verteilt, ein gebuchter Betrag für mehrfach eingeplante Ideen im Verhältnis der Planwerte. Offene Preise werden je Tag gezählt und nicht als 0 € verschwiegen. Unterkunft, Essen, Anreise und Puffer sind bewusst nicht tagesbezogen. `freeSlots(t,day)` liefert die leeren Tagesabschnitte.
+- Anzeige im Tageskopf: „Programm ≈ … € (davon … anteilig) · n× Preis offen · frei: Nachmittag, Abend“.
+- `cost()` hängt dafür nur zusätzliche Eigenschaften an Zeilen (`day`, `days`, `split`). Summen und Anzeige bleiben gleich (Test: Gesamtkosten der Vorlage unverändert, Tagessumme = Unternehmungskosten, Mehrtagesposten vollständig verteilt).
+- Tests: `tests/module.cjs` und Browser `kosten-notizen-*` (Tageskosten sichtbar, kein Überlauf bei 320 px). `npm test` und `npm run test:browser` grün.
+
 ## Routenvorschläge gegen Zwischenänderungen schützen (ChatGPT, #8)
 
 Basis e3e1ea7, vor Push Claudes 8275621 integriert. Einziger Konflikt im Browser-Testskript; Kosten-/Notiz- und Routingwege erhalten. Claude bestätigt erfolgreiche Chromium-Abnahme für c198b41/e3e1ea7 auf seinem gemeinsamen Stand. Routensuche verwendet einen tiefen Start-Snapshot statt eines während der asynchronen Ortssuche veränderlichen Reiseobjekts. Übernehmen prüft zusätzlich zur Reise-ID den vollständigen Quellstand. Zwischenzeitliche Änderungen (auch Notiz/Budget) verlangen konservativ eine neue Berechnung; eine Ablehnung verändert nichts. Veraltete Vorschläge werden in der Oberfläche beschriftet und können nicht per Übernehmen-Knopf angewandt werden. Der Quellstand liegt nur im flüchtigen Vorschlag, nicht in gespeicherten Reisedaten. Keine Schema-/Auth/Store/Sync/DB-/Kosten-/Notizänderung.
