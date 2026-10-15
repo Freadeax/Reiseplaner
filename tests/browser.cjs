@@ -760,6 +760,8 @@ async function costNotes(browser,base,name,ctxOpts){
  await p.click('[data-act="aplanned"][data-val="geplant"]');const planned=await count();
  await p.click('[data-act="aplanned"][data-val="offen"]');assert.equal(planned+await count(),total,name+': eingeplant + offen ≠ alle');
  await noOverflow(p,name+' Unternehmungen');
+ await p.goto(base+'/index.html#r-'+id+'-ueber');
+ if(await p.$('[data-departure]')){await p.click('[data-departure] summary');assert(await p.isVisible('[data-departure] .timeline li'),name+': Fahrplan leer');await noOverflow(p,name+' Fahrplan')}
  await p.goto(base+'/index.html#r-'+id+'-plan');await p.waitForSelector('.dcost');
  assert(/Programm/.test(await p.textContent('.dcost')),name+': Tageskosten fehlen');await noOverflow(p,name+' Tagesplan mit Tageskosten');
  await ctx.close();console.log(name+': Budget im Kostenmodul, Notiz-Bausteine, Links und Telefon, Unternehmungs-Suche/Sortierung geprüft.');

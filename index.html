@@ -1047,7 +1047,7 @@ function icsFold(line){
 /* Feld hours: bei Ideen des Winterkatalogs Text mit Öffnungszeiten, bei Umkreis-Katalog und eigenen Ideen Dauer in Stunden (Zahl).
    Nur der Text ist eine Zeitangabe zum Anzeigen; die Zahl liest actHours() als Dauer. */
 function openHoursText(a){return a&&typeof a.hours==='string'?a.hours:''}
-function icsData(t,now){
+function icsData(t,now,opts){
   const a=pd(t.start),b=pd(t.end);
   if(t.dateMode!=='fix'||!a||!b||b<a)return null;
   const days=daysOf(t),pl=placeOf(t),st=stayOf(t),where=pl?pl.name:(t.dest||'');
@@ -1073,8 +1073,14 @@ function icsData(t,now){
       'DESCRIPTION:'+icsEsc((tm!=null?'Geplante Uhrzeit: '+it.time+'. Öffnungszeiten beim Anbieter prüfen.':'Grobes Zeitfenster: '+(SLOTNAME[it.slot]||'')+'. Genaue Uhrzeit und Öffnungszeiten beim Anbieter prüfen.')+(h?'\nDauer ca. '+String(h).replace('.',',')+' Std. (Schätzung)':'')+(x.dur&&!h?'\nDauer: '+x.dur:'')+(openHoursText(x)?'\nLaut Katalog (unbestätigt): '+openHoursText(x):'')),
       u?'URL:'+u:'','STATUS:TENTATIVE','TRANSP:TRANSPARENT'])});
   Object.keys(t.ledger||{}).length&&financeSummary(t).due.forEach(d=>{const x=pd(d.due);ev(t.id+'-due-'+d.key.replace(/[^A-Za-z0-9-]/g,'-'),['DTSTART;VALUE=DATE:'+dt(x),'DTEND;VALUE=DATE:'+dt(new Date(x.getTime()+864e5)),'SUMMARY:'+icsEsc('Zahlung fällig: '+d.label+' ('+eur(d.open)+')'),'DESCRIPTION:'+icsEsc('Aus dem Zahlungsbuch der Reise „'+t.title+'“. Betrag laut eurer Erfassung.'),'TRANSP:TRANSPARENT'])});
+  /* Erinnerungen (Plan D2): offene Zahlungen, Angebotsgültigkeit, Packtag, Winter-Check als ganztägige Termine mit Alarm um 9 Uhr */
+  let reminders=0;
+  if(opts&&opts.reminders){const dp=departurePlan(t,now);if(dp)dp.items.filter(x=>x.kind!=='abfahrt'&&!x.overdue).forEach((x,i)=>{reminders++;
+    ev(t.id+'-erinnerung-'+x.kind+'-'+i+'-'+x.date,['DTSTART;VALUE=DATE:'+x.date.replace(/-/g,''),'DTEND;VALUE=DATE:'+dt(new Date(pd(x.date).getTime()+864e5)),'SUMMARY:'+icsEsc(x.label+' · '+t.title),
+      'DESCRIPTION:'+icsEsc((x.detail?x.detail+'\n':'')+'Erinnerung aus dem Reiseplaner. Stand des Exports, Änderungen danach sind hier nicht enthalten.'),'TRANSP:TRANSPARENT',
+      'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(x.label),'TRIGGER;RELATED=START:PT9H','END:VALARM'])})}
   L.push('END:VCALENDAR');
-  return {text:L.map(icsFold).join('\r\n')+'\r\n',events,skipped};
+  return {text:L.map(icsFold).join('\r\n')+'\r\n',events,skipped,reminders};
 }
 /* Kurzfassung als Text, z. B. für Messenger. Notizen nur auf ausdrücklichen Wunsch (Buchungsnummern). */
 function tripText(t,opts){
@@ -1649,7 +1655,7 @@ function nextStepsBlock(t){
 function tUeber(t){
   const c=cost(t), b=num(t.budget,0), pl=placeOf(t), st=stayOf(t), ch=checks(t), pk=PKGS.find(p=>p.id===t.packageId);
   const open=[];checklist(t)[0][1].forEach(i=>{if(!(t.check&&t.check[i[0]]))open.push(i)});
-  return todayBlock(t)+nextStepsBlock(t)+'<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
+  return todayBlock(t)+departureBlock(t)+nextStepsBlock(t)+'<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
   '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+'</small></div>'+
   '<div class="kpi"><small>Dauer</small><b class="num">'+c.N+' Nächte</b><small>'+c.P+' Personen</small></div>'+
   '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
@@ -1784,6 +1790,37 @@ function sheetActivityPreview(t,draft){
   const before=(t.customActs||[]).find(a=>a.id===draft.id),after=(draft.candidate.customActs||[]).find(a=>a.id===draft.id);
   openSheet('<h2>'+ (draft.remove?'Unternehmung löschen?':'Änderung prüfen')+'</h2><p><b>'+esc(before.t)+'</b></p>'+(draft.remove?'<p>Die Idee und '+draft.count+' eingeplante(r) Termin(e) werden entfernt. Angaben im Zahlungsbuch werden nicht gelöscht.</p>':'<dl class="facts"><dt>Titel danach</dt><dd>'+esc(after.t)+'</dd><dt>Preis vorher</dt><dd>'+esc(actCost(t,before).txt)+'</dd><dt>Preis danach</dt><dd>'+esc(actCost(draft.candidate,after).txt)+'</dd><dt>Dauer danach</dt><dd>'+esc(after.dur||'unbekannt')+'</dd></dl><p class="small">Termine und Aktivitäts-ID bleiben erhalten. Prüft Öffnung und tatsächliche Dauer beim Anbieter.</p>')+
    '<dl class="facts"><dt>Plan vorher</dt><dd>'+eur(draft.before)+'</dd><dt>Plan danach</dt><dd>'+eur(draft.after)+'</dd></dl><p class="small muted">Planwerte; offene Preise sind nicht enthalten. Keine Stornierung oder Erstattung wird ausgelöst.</p><div class="row"><button type="button" class="btn'+(draft.remove?' warn':'')+'" data-act="act-change-confirm">'+(draft.remove?'Ja, Idee und Termine löschen':'Änderung übernehmen')+'</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.activityDraft=draft;
+}
+/* Fahrplan bis zur Abreise (Claude, #8, Plan D1): nur aus vorhandenen Daten abgeleitet, keine erfundenen Fristen.
+   Datiert: Zahlungsfälligkeiten (offen), Gültigkeit des gewählten, nicht gebuchten Angebots, Packtag, Winter-Hinweis, Abfahrt.
+   Ohne Datum: offene Buchungsaufgaben aus der Checkliste. */
+function departurePlan(t,now){
+  const a=pd(t.start);if(t.dateMode!=='fix'||!a)return null;
+  const today=todayUTC(now),todayIso=iso(today),startIso=iso(a),out=[],undated=[];
+  const add=(date,kind,label,detail,go)=>{if(!date)return;out.push({date,kind,label,detail:detail||'',go:go||'',overdue:date<todayIso,days:Math.round((pd(date)-today)/864e5)})};
+  const f=financeSummary(t);
+  f.due.forEach(d=>add(d.due,'zahlung','Zahlung fällig: '+d.label,eur(d.open)+' offen','kosten'));
+  const o=activeOffer(t);
+  if(o&&!o.booked&&o.validUntil&&pd(o.validUntil))add(o.validUntil,'angebot','Angebot gilt bis: '+o.name,'Danach Preis und Verfügbarkeit neu prüfen','angebote');
+  const g=checklist(t),chk=t.check||{};
+  let packAll=0,packOpen=0;g.forEach(x=>{if(/^Packliste/.test(x[0]))x[1].forEach(i=>{packAll++;if(!chk[i[0]])packOpen++})});
+  const pack=new Date(a.getTime()-864e5);
+  if(packAll&&iso(pack)>=todayIso)add(iso(pack),'packen','Packen',packOpen?packOpen+' von '+packAll+' Punkten offen · Ausweise und Versicherungskarten bereitlegen':'Packliste vollständig abgehakt','check');
+  if(t.type==='winter'&&t.travel==='auto'){const w=new Date(a.getTime()-7*864e5);if(iso(w)>=todayIso)add(iso(w),'auto','Auto winterfest?','Winterreifen, Schneeketten, Frostschutz prüfen')}
+  add(startIso,'abfahrt','Abfahrt'+(t.departTime?' um '+t.departTime:''),t.origin?'ab '+t.origin:'');
+  (g[0]?g[0][1]:[]).forEach(i=>{if(!chk[i[0]])undated.push({label:i[1],detail:i[2]||'',go:'check'})});
+  out.sort((x,y)=>x.date.localeCompare(y.date)||(x.kind==='abfahrt')-(y.kind==='abfahrt'));
+  return {items:out,undated,daysLeft:Math.round((a-today)/864e5)};
+}
+function departureBlock(t,now){
+  const ph=tripPhase(t,now);if(!ph||ph.phase!=='vor')return '';
+  const p=departurePlan(t,now);if(!p)return '';
+  const when=x=>x.overdue?'<b style="color:var(--bad)">! überfällig seit '+esc(fmtLong(pd(x.date)))+'</b>':x.days===0?'<b>heute</b>':x.days===1?'morgen':'in '+x.days+' Tagen · '+esc(fmtLong(pd(x.date)));
+  const row=x=>'<li class="dp-'+x.kind+'"><span class="eyebrow">'+when(x)+'</span><br><b>'+esc(x.label)+'</b>'+(x.detail?' <small class="muted">· '+esc(x.detail)+'</small>':'')+(x.go?' <button type="button" class="lnk" data-go="r-'+t.id+'-'+x.go+'">Ansehen</button>':'')+'</li>';
+  return '<section class="block" data-departure><details class="panel"'+(p.items.some(x=>x.overdue||x.days<=7&&x.kind!=='abfahrt')?' open':'')+'><summary><b>Fahrplan bis zur Abreise</b> <small class="muted">noch '+p.daysLeft+(p.daysLeft===1?' Tag':' Tage')+' · '+p.items.filter(x=>x.kind!=='abfahrt').length+' Termine'+(p.undated.length?' · '+p.undated.length+' offene Buchungen':'')+'</small></summary>'+
+   '<ol class="plain timeline">'+p.items.map(row).join('')+'</ol>'+
+   (p.undated.length?'<h3>Noch zu buchen (ohne Frist)</h3><ul class="plain">'+p.undated.map(x=>'<li>'+esc(x.label)+(x.detail?' <small class="muted">· '+esc(x.detail)+'</small>':'')+'</li>').join('')+'</ul>':'')+
+   '<p class="small muted">Nur Fristen, die ihr eingetragen habt, plus Packtag und Abfahrt. Stornofristen und Zahlungsziele aus Buchungsbestätigungen bitte unter „Buchungen & Zahlungen“ als Fälligkeit eintragen. Im Kalenderexport der Mappe erscheinen Zahlungen und Packtag mit Erinnerung.</p></details></section>';
 }
 /* Programmkosten je Tag (Claude, #8): Unternehmungen direkt, Kurs/Skipass/Verleih anteilig über ihre Tage, gebuchte Beträge
    im Verhältnis der Planwerte verteilt. Unterkunft, Essen, Anreise und Puffer sind nicht tagesbezogen und fehlen bewusst. */
@@ -2089,13 +2126,13 @@ function todayBlock(t){
 }
 /* Reisemappe: druckbare Zusammenfassung, Kalenderdatei und Text zum Teilen */
 function tMappe(t){
-  const days=daysOf(t),pl=placeOf(t),st=stayOf(t),c=cost(t),ics=icsData(t),book=checklist(t)[0][1],warn=checks(t).filter(x=>x[0]==='warn'),last=days.length-1;
+  const days=daysOf(t),pl=placeOf(t),st=stayOf(t),c=cost(t),ics=icsData(t,undefined,{reminders:true}),book=checklist(t)[0][1],warn=checks(t).filter(x=>x[0]==='warn'),last=days.length-1;
   const keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
   return '<section class="block noprint"><h2>Reisemappe</h2><p class="lead muted small">Alles Wichtige kompakt: zum Drucken oder Speichern als PDF, als Kalenderdatei oder als Text für den Messenger. Daten verlassen das Gerät nur, wenn ihr Datei oder Text selbst weitergebt.</p>'+
    '<div class="row"><button type="button" class="btn sm" data-act="mappe-print">Drucken / PDF</button>'+
    '<button type="button" class="btn ghost sm" data-act="mappe-ics"'+(ics?'':' disabled')+'>Kalender (.ics)</button>'+
    '<button type="button" class="btn ghost sm" data-act="mappe-share">Als Text teilen</button></div>'+
-   (ics?'<p class="small muted">Kalender: '+ics.events+' Einträge. Zeitfenster sind grob (Vormittag 9–12, Mittag 12–14, Nachmittag 14–18, Abend 18–22 Uhr) und als vorläufig markiert.'+(ics.skipped?' '+ics.skipped+' Punkt(e) nach dem letzten Reisetag werden nicht exportiert.':'')+'</p>':'<p class="small muted">Kalenderexport nur mit festem An- und Abreisedatum möglich. Unter „Eckdaten“ einstellen.</p>')+
+   (ics?'<p class="small muted">Kalender: '+ics.events+' Einträge'+(ics.reminders?', davon '+ics.reminders+' Erinnerungen (Zahlungen, Packtag) mit Alarm um 9 Uhr':'')+'. Zeitfenster sind grob (Vormittag 9–12, Mittag 12–14, Nachmittag 14–18, Abend 18–22 Uhr) und als vorläufig markiert.'+(ics.skipped?' '+ics.skipped+' Punkt(e) nach dem letzten Reisetag werden nicht exportiert.':'')+'</p>':'<p class="small muted">Kalenderexport nur mit festem An- und Abreisedatum möglich. Unter „Eckdaten“ einstellen.</p>')+
    '<label class="small"><input type="checkbox" data-act="mappe-notes"'+(UI.mappeNotes?' checked':'')+'> Notizen in Mappe und Text aufnehmen (können Buchungsnummern enthalten)</label></section>'+
    '<section class="block mappe"><span class="eyebrow">Reisemappe · Stand '+esc(fmtLong(todayUTC()))+'</span><h2>'+esc(t.title)+'</h2>'+
    '<dl class="facts"><dt>Zeitraum</dt><dd>'+esc(rangeText(t))+'</dd><dt>Personen</dt><dd>'+c.P+'</dd><dt>Ziel</dt><dd>'+esc(pl?pl.name+' · '+pl.region:(t.dest||'noch offen'))+'</dd>'+
@@ -2294,7 +2331,7 @@ document.addEventListener('click',async e=>{
    case 'backup-trip': downloadBackup([t]);return;
    case 'rain-plan':{const [id,d]=val.split('|');sheetAct(t,id,+d);return}
    case 'mappe-print': try{window.print()}catch(err){alertMsg('Drucken wird hier nicht unterstützt. Bitte im Browser öffnen.')}return;
-   case 'mappe-ics':{const d=icsData(t);if(!d){alertMsg('Kalenderexport braucht feste Reisedaten.');return}downloadText(d.text,fileSafe(t.title)+'.ics','text/calendar;charset=utf-8');return}
+   case 'mappe-ics':{const d=icsData(t,undefined,{reminders:true});if(!d){alertMsg('Kalenderexport braucht feste Reisedaten.');return}downloadText(d.text,fileSafe(t.title)+'.ics','text/calendar;charset=utf-8');return}
    case 'mappe-share':{const txt=tripText(t,{notes:!!UI.mappeNotes});
      try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
      try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
@@ -3271,7 +3308,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

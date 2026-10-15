@@ -1,5 +1,12 @@
 # Projektstand · 15.10.2026
 
+## Fahrplan bis zur Abreise und Kalender-Erinnerungen (Claude, #8, Plan D1/D2)
+
+- `departurePlan(t,now)`: Zeitleiste nur aus vorhandenen Daten. Offene Zahlungsfälligkeiten (offener Restbetrag, überfällig markiert), Gültigkeit des gewählten, nicht gebuchten Angebots (`validUntil`), Packtag am Vortag mit offenen Packpunkten, bei Winterreise mit Auto ein Winter-Check 7 Tage vorher, Abfahrt mit Uhrzeit. Offene Buchungsaufgaben der Checkliste stehen getrennt „ohne Frist“, es werden keine Fristen erfunden.
+- Überblick: aufklappbarer Block „Fahrplan bis zur Abreise“ (nur Phase „vor“). Er öffnet sich automatisch, wenn etwas überfällig ist oder innerhalb von 7 Tagen ansteht. „Überfällig“ steht als Text mit „!“, nicht nur als Farbe.
+- Kalender: `icsData(t,now,{reminders:true})` ergänzt zukünftige Fristen als ganztägige Termine mit Alarm um 9 Uhr (`VALARM`, `TRIGGER;RELATED=START:PT9H`). Mappe-Download und Mappe-Text nutzen das. Ohne Option bleibt die Ausgabe unverändert (bestehende Tests).
+- Tests: `tests/module.cjs` (Reihenfolge, überfällig, Restbetrag, bezahlt entfällt, Erinnerungen nur zukünftig, Option aus = unverändert, kein Fahrplan ohne feste Daten, Block nur vor der Reise). Browser: Fahrplan aufklappbar, kein Überlauf. `npm test` und `npm run test:browser` grün. Ob iPhone-Kalender den Alarm übernimmt, ist nicht geprüft.
+
 ## Schutz vor nicht lesbaren Serverfassungen (Claude, #8)
 
 - Anlass: Ein Test mit dem heutigen Code als „alter Client“ hat gezeigt, dass eine Serverzeile, die die App nicht validieren kann (z. B. eine künftige Speicherversion 3), beim Abgleich still übersprungen wurde. Danach konnte die veraltete lokale Kopie über „Meine Version behalten“ die neuere Online-Fassung überschreiben. Das war ein echter Datenverlust.

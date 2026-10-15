@@ -137,3 +137,37 @@ console.log('Module: Unternehmungen (Suche, eingeplant/offen, Sortierung nach Pr
   assert(Math.abs(multi - shared) < 0.05, 'Mehrtagesposten vollständig auf Tage verteilt (' + multi + ' / ' + shared + ')');
 }
 console.log('Module: Tagesplan (Programmkosten je Tag, Buchungen verteilt, offene Preise, freie Zeitfenster) geprüft.');
+
+/* Fahrplan bis zur Abreise und Kalender-Erinnerungen */
+{
+  const now = new Date('2026-11-20T10:00:00Z');
+  const t = a.newTrip({ type: 'winter', travel: 'auto', origin: 'Göppingen', departTime: '08:30', dateMode: 'fix', start: '2026-12-30', end: '2027-01-03', nights: 4 });
+  t.extraCosts = [a.costEntryFromForm({ title: 'Skikurs', amount: '200' }, 'kurs'), a.costEntryFromForm({ title: 'Alt', amount: '50' }, 'alt')];
+  a.setLedger(t, 'xc:kurs', 'due', '2026-12-01'); a.setLedger(t, 'xc:kurs', 'paid', '50');
+  a.setLedger(t, 'xc:alt', 'due', '2026-11-10');
+  const before = JSON.stringify(t);
+  const p = a.departurePlan(t, now);
+  assert.equal(JSON.stringify(t), before, 'keine Mutation');
+  const kinds = p.items.map(x => x.kind + ':' + x.date);
+  assert.deepEqual(kinds, ['zahlung:2026-11-10', 'zahlung:2026-12-01', 'auto:2026-12-23', 'packen:2026-12-29', 'abfahrt:2026-12-30'], 'chronologisch, nur echte Fristen');
+  assert(p.items[0].overdue && !p.items[1].overdue, 'überfällig erkannt');
+  assert(p.items[1].detail.includes('150'), 'offener Restbetrag, nicht Gesamtbetrag');
+  assert(p.items[4].label.includes('08:30'));
+  assert.equal(p.daysLeft, 40);
+  assert(p.undated.length >= 1 && p.undated.every(x => x.go === 'check'), 'offene Buchungen ohne erfundene Frist');
+  /* bezahlt → keine Zahlungsfrist mehr */
+  a.setLedger(t, 'xc:kurs', 'paid', '200');
+  assert(!a.departurePlan(t, now).items.some(x => x.label.includes('Skikurs')));
+  /* Kalender: Erinnerungen nur auf Wunsch, nur zukünftige, mit Alarm */
+  const plain = a.icsData(t, now), rem = a.icsData(t, now, { reminders: true });
+  assert.equal(plain.reminders, 0); assert(!/VALARM/.test(plain.text), 'ohne Option unverändert');
+  assert.equal(rem.reminders, 2, 'Winter-Check und Packtag, überfällige Zahlung nicht');
+  assert.equal((rem.text.match(/BEGIN:VALARM/g) || []).length, 2);
+  assert(/TRIGGER;RELATED=START:PT9H/.test(rem.text) && /DTSTART;VALUE=DATE:20261229/.test(rem.text));
+  assert.equal(rem.events, plain.events + 2);
+  /* Ohne feste Daten kein Fahrplan; Block nur vor der Reise */
+  assert.equal(a.departurePlan(a.newTrip({ dateMode: 'open' }), now), null);
+  assert(a.departureBlock(t, now).includes('Fahrplan bis zur Abreise'));
+  assert.equal(a.departureBlock(t, new Date('2027-01-01T10:00:00Z')), '');
+}
+console.log('Module: Fahrplan bis zur Abreise (Fristen, Packtag, Abfahrt, ohne erfundene Fristen) und Kalender-Erinnerungen geprüft.');
