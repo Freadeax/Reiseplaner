@@ -110,6 +110,7 @@ Node.js ab Version 20 genügt; es gibt keine Laufzeit-Abhängigkeiten:
 ```bash
 npm test
 npm run test:browser   # Klicktest in Chromium, braucht Playwright; ohne Playwright übersprungen
+npm run audit:ui       # Sichtprüfung (Kontrast, Tippflächen, Überlauf, Fokus) aller Darstellungen; Hinweise, kein Pflichttest
 npm run build          # Website-Artefakt nach public/ (mit RP_SUPABASE_* aus der Umgebung)
 npm run check:artifact # nur erlaubte Dateien, keine Schlüssel
 supabase start         # lokaler Supabase-Stack (Docker, Supabase CLI 2.120.0)

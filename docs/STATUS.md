@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## UI-Sichtprüfung in Chromium (Claude, #8)
+
+- Neu: `tests/ui-audit.cjs`, Befehl `npm run audit:ui` (nicht Teil von `npm test`, Befunde sind Hinweise; `AUDIT_STRICT=1` macht sie zum Fehler, `SHOT_DIR=…` speichert Screenshots). Prüft Start, Entdecken, Ziel-Blatt, Reise (Überblick, Tagesplan, Kosten, Mappe) und Konto in 1280 hell/dunkel, 390 hell und 320 dunkel für jede Darstellung (book/studio/compact): WCAG-Textkontrast, Tippflächen unter 44 px, Bedienelemente ohne Namen, seitlicher Überlauf, sichtbarer Fokus, JS-Fehler.
+- Ausgeführt auf `b23f790`: keine Kontrast-, Namens-, Fokus- oder JS-Befunde. Befund: Kosten bei 320 px in allen drei Darstellungen 5–7 px zu breit (Spartipp-Zeile, Knopf „Änderung prüfen“ bricht nicht um); dadurch scheitert `npm run test:browser` bei `design-dunkel Kosten book`. Mit lokal probeweise `.chk{flex-wrap:wrap}` lief der gesamte Browser-Klickweg inklusive `appearances()` und Modul-Prüfung durch; CSS-Korrektur bleibt bei ChatGPT. Kleinere Tippflächen (unter 44 px, also unter WCAG AAA 2.5.5, aber über AA 24 px): `slot-add` 29 px, Katalog-Links 15–27 px, `day-swap-open`/`a.lnk` 32 px, Konto-Knopf 36–40 px, `summary` 24 px, Suchfelder 30 px.
+- Grenzen: Chromium-Emulation, kein Safari/iPhone; Kontrast gegen deckende Hintergrundfarben, Verläufe/Bilder werden nicht erfasst.
+
 ## Einheitliche Module und Checklisten-Werkzeug (ChatGPT, #8)
 
 Basis d1e9d11. Mobile Bereichsauswahl für alle zehn Reiter, weiterhin anklickbare Reiter; Studio-Seitenleiste erhalten. Einheitliche kurze Orientierung für Planen/Organisieren. Checkliste: explizit abgesendete Suche, Status Alle/Offen/Erledigt, Gesamt-/Gruppenzähler, Zurücksetzen und hilfreiche Leerzustände. Gruppenzähler beschreiben die gesamte Gruppe, auch bei gefilterter Ansicht. Neue eigene Punkte bleiben durch Zurücksetzen der Filter sichtbar. Bei Reisewechsel werden die Checklistenfilter geleert. Keine Migration, keine Änderung der bestehenden check-IDs oder Auth/Store/Sync/DB/Routinglogik.
