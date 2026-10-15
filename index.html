@@ -1251,7 +1251,9 @@ function setLedger(t,key,field,value){
   else throw new Error('Unbekanntes Feld.');
   const row=ledgerRows(Object.assign({},t,{ledger:Object.assign({},l,{[key]:e})})).find(r=>r.key===key);
   if(row&&e.paid>row.cost+0.005)throw new Error('Bezahlt ('+eur(e.paid)+') ist höher als der Betrag des Postens ('+eur(row.cost)+'). Bitte zuerst den gebuchten Betrag eintragen.');
-  if(e.status==='offen'&&e.amount==null&&!e.paid&&!e.due)delete l[key];else l[key]=e;
+  /* Nur wirklich leere Einträge entfernen: weitere Felder (künftig z. B. Erstattungen/Storno, SCHEMA_V3 §5 Feldtreue) bleiben erhalten */
+  const extra=Object.keys(e).some(k=>!['status','amount','paid','due'].includes(k));
+  if(e.status==='offen'&&e.amount==null&&!e.paid&&!e.due&&!extra)delete l[key];else l[key]=e;
   validateLedger(l);
   t.ledger=l;return t;
 }
@@ -1368,7 +1370,8 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
 /* Abgleich mit Supabase. Grundsätze: Nur der Server bestätigt "online gespeichert"; Änderungen werden nur
    mit der zuletzt bekannten Version geschrieben (atomar in der Datenbank); bei Abweichung entsteht ein
    sichtbarer Konflikt statt eines stillen Überschreibens. Löschungen werden als Markierung übertragen. */
-const toServer=t=>{const d=migrateTrip(clone(t));d.schemaVersion=2;return d};
+/* Version nie zurückstufen: migrateTrip liefert die gültige Version der Reise (SCHEMA_V3 §5) */
+const toServer=t=>migrateTrip(clone(t));
 const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,notice:'',
   cloud(){return typeof window!=='undefined'&&window.RPCloud&&window.RPCloud.enabled()?window.RPCloud:null},
   active(){return Store.isAccount()&&!!this.cloud()&&!!Auth.user&&Auth.user.id===Store.scope},
@@ -2553,7 +2556,7 @@ window.addEventListener('hashchange',()=>go(location.hash,true));
 document.addEventListener('change',e=>{
   const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-ledger'))return;
   const t=cur();if(!t||Store.corruptRaw!==null)return;
-  try{setLedger(t,el.getAttribute('data-ledger'),el.getAttribute('data-ledger-f'),el.value);t.schemaVersion=2;save(t);render()}
+  try{setLedger(t,el.getAttribute('data-ledger'),el.getAttribute('data-ledger-f'),el.value);if(t.schemaVersion==null)t.schemaVersion=2;save(t);render()}
   catch(err){alertMsg(err.message);render()}
 });
 function alertMsg(m){let n=$('#msg');if(!n){n=document.createElement('div');n.id='msg';n.setAttribute('role','alert');n.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;max-width:90vw';document.body.appendChild(n)}n.textContent=m;n.hidden=false;clearTimeout(n._t);n._t=setTimeout(()=>{n.hidden=true},2600)}
@@ -2707,7 +2710,7 @@ document.addEventListener('click',e=>{
  if(act==='offer-delete-yes'&&o){if(o.booked||num(o.paid,0)>0||t.activeOfferId===o.id)throw new Error('Dieses Angebot ist geschützt.');t.offers=t.offers.filter(x=>x.id!==id);closeSheet();}
  if(act==='offer-use'&&o){if(stayCommitted(t)&&t.activeOfferId!==o.id)throw new Error('Eine gebuchte oder bezahlte Unterkunft ist markiert. Erst Buchungsstand im Bereich Unterkunft prüfen.');if(!offerCurrent(o,t)||o.availability==='unavailable')throw new Error('Zeitraum, Personen, Gültigkeit oder Verfügbarkeit passen nicht.');openSheet('<h2>Für die Planung auswählen?</h2><p>'+esc(o.name)+' · '+eur(offerAmounts(o).total)+' bekannte Unterkunftskosten. '+esc(offerAmounts(o).unknown.join(', '))+'</p><p>Das ersetzt die Unterkunft in eurer Kostenplanung. Es wird keine Buchung ausgelöst.</p><button class="btn" data-search-act="offer-use-yes" data-value="'+o.id+'">Unterkunft auswählen</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button>');return;}
  if(act==='offer-use-yes'&&o){if(!offerCurrent(o,t)||o.availability==='unavailable'||t.check&&t.check.stay&&t.activeOfferId!==o.id)throw new Error('Auswahl nicht mehr zulässig.');applyOffer(t,o);closeSheet();}
- t.schemaVersion=2;save(t);render();
+ if(t.schemaVersion==null)t.schemaVersion=2;save(t);render();
  }catch(err){const box=$('#offer-error');if(box)box.textContent=err.message;else alertMsg(err.message);}
 });
 
@@ -3500,7 +3503,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});

@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## Grundlage für Format 3: Feldtreue und keine erzwungene Rückstufung (Claude, #8)
+
+- `toServer` setzt die Version nicht mehr fest auf 2, sondern übernimmt die von `migrateTrip` gültige Version. Buchungsbuch- und Angebotsspeichern setzen 2 nur, wenn noch keine Version gesetzt ist. Format 3 wird von der App **noch nicht** gelesen oder geschrieben, `migrateTrip` lehnt es weiter ab (Lese-Release folgt nach Freigabe des Datenvertrags).
+- `setLedger` entfernt einen „leeren“ Eintrag nur noch, wenn er keine weiteren Schlüssel hat. Künftige Felder wie Erstattungen oder Storno gehen so nicht verloren (Review 4).
+- Neuer Test `tests/fidelity.cjs` in `npm test`: unbetroffene und unbekannte Felder (auch Zusatzschlüssel im Buchungsbuch) überstehen `setField`, Buchungsbuch-Änderungen, `toServer`, Export/Import, Importkopie und Neuladen. `npm test` grün.
+
 ## Datenbank: Speicherformat 3 zulassen, Rückstufung sperren (Claude, #8, Plan E2)
 
 - Freigabe Philipp am 15.10.2026. Neue Migration `20261015160000_trips_schema_v3.sql`: CHECK `schema_version in (2,3)` und Trigger `trips_before_write_version` (läuft nach `trips_before_write`). Er lehnt `new.schema_version < old.schema_version` mit `23514` und der Meldung „neuere App-Version … neu laden“ ab, auch für Eigentümer. Bestehende Zeilen und Migrationen bleiben unverändert, Clients schreiben weiterhin Format 2.
