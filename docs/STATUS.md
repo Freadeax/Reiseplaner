@@ -1,5 +1,9 @@
 # Projektstand · 15.10.2026
 
+## Plan iOS-App, Fotos und Reisebücher (Claude, #8)
+
+Nur Planung, nichts implementiert: [PLAN_IOS_APP.md](PLAN_IOS_APP.md). Empfehlung Capacitor-Hülle um die bestehende Web-App (eine Codebasis, `v3logic.js` bleibt einzige Rechenwahrheit), Speicheradapter statt `localStorage`, Format 4 für Medien/Bücher nur mit Vertrag und Migration, Fotos zuerst lokal, Reisebuch mit automatischem Erstentwurf und PDF. Am Code festgestellt: keine Kontolöschung (App-Store-Pflicht), Supabase Storage ungenutzt, Universal Links unter github.io-Unterpfad nicht möglich (daher E-Mail-Code). Offene Entscheidungen von Philipp in §11 (Apple-Konto, Zielgruppe, Foto-Cloud, Mac). Keine Tests, da reine Doku.
+
 ## Katalog K3/K4: Daten v4, vier neue Arten, 73 Referenzpunkte (Claude, #8)
 
 Implementiert: Katalog Version 4 mit **368 Zielen und 1.774 Attraktionen** (v3: 200 Ziele). Neue Quelldateien `catalog/src/nord-2, mitte, ost-2, west-2, suedwest, bayern-2, alpen-ost, alpen-west`. Neue Arten `baden` (Baden & Strand), `tiere` (Tiere & Wildparks), `freizeit` (Freizeit & Erlebnis), `aktiv` (Rad, Kanu & Klettern) in `catalog.js` und im Prüfskript; dadurch erscheinen ChatGPTs vier vorbereitete Wunschkarten. 24 neue Referenzpunkte (u. a. Bamberg, Bern, Bozen, Flensburg, Klagenfurt, Luzern, Potsdam, Straßburg), jetzt 73. Seed-Migration `20261015210000_catalog_seed_v4.sql` und manueller Fallback `supabase/manual/apply-catalog-v4.sql` erzeugt.
