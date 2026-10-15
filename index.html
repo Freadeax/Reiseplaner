@@ -809,7 +809,7 @@ function sheetRouteEndpoint(t,d){
  const c=d.candidate;
  openSheet('<h2>Start oder Ziel ändern?</h2><dl class="facts"><dt>Start vorher</dt><dd>'+esc(t.origin||'Offen')+'</dd><dt>Start danach</dt><dd>'+esc(c.origin||'Offen')+'</dd><dt>Ziel vorher</dt><dd>'+esc(t.dest||(placeOf(t)||{}).name||'Offen')+'</dd><dt>Ziel danach</dt><dd>'+esc(c.dest||(placeOf(c)||{}).name||'Offen')+'</dd><dt>Bisherige Strecke</dt><dd>'+d.beforeKm+' km einfach'+(d.beforeTime?' · ca. '+d.beforeTime+' Min.':'')+'</dd><dt>Strecke danach</dt><dd>'+(d.changes.routeChanged?'Offen – bitte neu berechnen oder eintragen':'Etappen bestimmen weiterhin die Strecke')+'</dd></dl><p>Nur nach Übernahme werden die betroffenen Koordinaten und alten Routenwerte zurückgesetzt. Das ist keine Ersparnis: Fahrtkosten und Fahrzeit müssen neu geprüft werden.</p><p class="small muted">Unterkunft, Buchungen, Zahlungen und Termine werden nicht automatisch angepasst. Bei Rundreisen bleiben die Etappen erhalten; ein neuer Start setzt nur deren erste Anfahrt zurück.</p><div class="row"><button type="button" class="btn" data-act="route-endpoint-apply">Änderung übernehmen</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.routeEndpointDraft=d;
 }
-function arrivalMin(t){const dep=timeMin(t.departTime);if(dep==null||t.travel!=='auto')return null;const m=outboundMin(t);return m>0?dep+m+tzDiffMin(t):null}
+function arrivalMin(t){const trv=v3Transport(t);if(trv){const a=V3.transportTimeline(trv,{}).arrival;return a&&a.time&&a.date&&a.date===t.start?timeMin(a.time):null}const dep=timeMin(t.departTime);if(dep==null||t.travel!=='auto')return null;const m=outboundMin(t);return m>0?dep+m+tzDiffMin(t):null}
 
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
 function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
@@ -1010,6 +1010,8 @@ function scenarioSection(t){
 function checks(t){
   const out=[], st=stayOf(t), days=daysOf(t), c=cost(t);
   if(!st){if(nightsOf(t)>0)out.push(['warn','Noch keine Unterkunft gewählt','unterkunft'])}
+  if(v3Transport(t))V3.transportTimeline(v3Transport(t),{start:t.start,end:t.end}).checks.forEach(x=>{if(x.level==='warn'||/Folgetag/.test(x.text))out.push([x.level==='warn'?'warn':'info','Anreise: '+x.text,'unterkunft'])});
+  if(isV3(t)){const f=financeSummary(t).v3||{};if(f.unknownFee)out.push(['warn',f.unknownFee+'× Stornogebühr noch unbekannt','kosten']);if(f.refundOpen)out.push(['info','Erstattungen offen: '+eur(f.refundOpen),'kosten']);if(f.feeOpen)out.push(['warn','Stornogebühren offen: '+eur(f.feeOpen),'kosten'])}
   if(st&&st.gone) out.push(['warn',st.name+': Inserat war am '+fmtLong(pd(st.gone))+' auf den hinterlegten Portalen nicht mehr auffindbar','unterkunft']);
   if(st&&st.card==='?'&&!t.cardConfirmed) out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
   if(st&&st.card&&!t.cardConfirmed)out.push(['warn','Gästekarte für diesen Aufenthalt unbestätigt: keine Rabatte eingerechnet','unterkunft']);
@@ -1300,6 +1302,8 @@ function icsData(t,now,opts){
     ev(t.id+'-erinnerung-'+x.kind+'-'+i+'-'+x.date,['DTSTART;VALUE=DATE:'+x.date.replace(/-/g,''),'DTEND;VALUE=DATE:'+dt(new Date(pd(x.date).getTime()+864e5)),'SUMMARY:'+icsEsc(x.label+' · '+t.title),
       'DESCRIPTION:'+icsEsc((x.detail?x.detail+'\n':'')+'Erinnerung aus dem Reiseplaner. Stand des Exports, Änderungen danach sind hier nicht enthalten.'),'TRANSP:TRANSPARENT',
       'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(x.label),'TRIGGER;RELATED=START:PT9H','END:VALARM'])})}
+  /* Anreise-Abschnitte (Format 3): UTC nur bei eindeutigem Zeitpunkt, sonst ganztägig, ohne Datum kein Termin */
+  if(v3Transport(t))V3.transportIcs(v3Transport(t),{tripId:t.id,now}).forEach(e=>{events++;L.push(...e)});
   L.push('END:VCALENDAR');
   return {text:L.map(icsFold).join('\r\n')+'\r\n',events,skipped,reminders};
 }
@@ -2054,6 +2058,7 @@ function departurePlan(t,now){
   const pack=new Date(a.getTime()-864e5);
   if(packAll&&iso(pack)>=todayIso)add(iso(pack),'packen','Packen',packOpen?packOpen+' von '+packAll+' Punkten offen · Ausweise und Versicherungskarten bereitlegen':'Packliste vollständig abgehakt','check');
   if(t.type==='winter'&&t.travel==='auto'){const w=new Date(a.getTime()-7*864e5);if(iso(w)>=todayIso)add(iso(w),'auto','Auto winterfest?','Winterreifen, Schneeketten, Frostschutz prüfen')}
+  if(v3Transport(t))[].concat(v3Transport(t).out||[],v3Transport(t).back||[]).forEach(sg=>{const ci=sg.checkin&&sg.checkin.opens;if(ci&&ci.date&&ci.date>=todayIso)add(ci.date,'checkin','Online-Check-in'+(sg.number?' '+sg.number:'')+(ci.time?' ab '+ci.time+(ci.tz?' ('+ci.tz+')':''):''),sg.checkin.note||'Frist laut Airline','unterkunft')});
   add(startIso,'abfahrt','Abfahrt'+(t.departTime?' um '+t.departTime:''),t.origin?'ab '+t.origin:'');
   (g[0]?g[0][1]:[]).forEach(i=>{if(!chk[i[0]])undated.push({label:i[1],detail:i[2]||'',go:'check'})});
   out.sort((x,y)=>x.date.localeCompare(y.date)||(x.kind==='abfahrt')-(y.kind==='abfahrt'));

@@ -133,6 +133,24 @@ assert.equal(a.v3Banner(a.silvesterTemplate()), '', 'Format 2 ohne Hinweis');
   assert.equal(up.schemaVersion, 3); assert.equal(v2t.schemaVersion, 2, 'Quelle bleibt Format 2');
 }
 
+/* Plan-Check, Ankunft, Kalender, Fahrplan aus Abschnitten */
+{
+  const x = J(t);
+  x.transport.out[1].checkin = { opens: { date: '2026-12-29', time: '08:30', tz: 'Europe/Berlin' }, note: 'Lufthansa-App' };
+  x.transport.out.push({ id: 'stransf', mode: 'transfer', from: 'MUC', to: 'Oberjoch', cost: 120, dep: { date: '2026-12-30', time: '10:00', tz: 'Europe/Berlin' }, arr: { date: '2026-12-30', time: '13:00', tz: 'Europe/Berlin' } });
+  a.validateExtras(x);
+  assert.equal(a.arrivalMin(x), 13 * 60, 'Ankunft aus letztem Hinweg-Abschnitt');
+  const y = J(x); y.transport.out[2].arr.tz = null; assert.equal(a.arrivalMin(y), 13 * 60, 'Uhrzeit laut Eingabe am Anreisetag');
+  assert(!a.checks(x).some(c => c[0] === 'warn' && /Anreise:/.test(c[1])), 'stimmige Kette ohne Anreise-Warnung');
+  const late = J(x); late.transport.out[1].dep.time = '07:00';
+  assert(a.checks(late).some(c => c[0] === 'warn' && /Anreise: .*Min\. am Flughafen/.test(c[1])), 'Flughafenpuffer als Plan-Check-Warnung');
+  const ics = a.icsData(x, new Date('2026-11-01T00:00:00Z'));
+  assert(/SUMMARY:Flug: STR → MUC/.test(ics.text) && /DTSTART:20261230T073000Z/.test(ics.text), 'Flug im Kalender in UTC');
+  assert(/UID:.*-srueck@reiseplaner/.test(ics.text) && /DTSTART;VALUE=DATE:20270103/.test(ics.text), 'Rückflug ohne Zeit ganztägig');
+  const dp = a.departurePlan(x, new Date('2026-11-01T10:00:00Z'));
+  assert(dp.items.some(i => i.kind === 'checkin' && i.date === '2026-12-29' && /ab 08:30/.test(i.label)), 'Online-Check-in im Fahrplan');
+}
+
 /* Abgrenzung */
 const v2 = a.silvesterTemplate(); v2.schemaVersion = 2;
 assert.throws(() => a.validateExtras(Object.assign(J(v2), { transport: t.transport })), /Format 3|Formats 3/, 'v3-Felder in v2 abgelehnt');
