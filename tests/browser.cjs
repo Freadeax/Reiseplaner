@@ -89,7 +89,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   assert.equal(await p.inputValue('[data-profile-kind="natur"]'),'must',name+': andere Wünsche erhalten');
   await p.click('[data-act="cat-mood-mode"][data-val="deck"]');
   await p.click('[data-act="cat-vote"][data-val="natur|avoid"]');
-  assert((await p.textContent('.mood-deck')).includes('Karte 2 von 12'),name+': Stapel geht weiter');
+  assert((await p.textContent('.mood-deck')).includes('Karte 2 von '+await p.evaluate(()=>window.__app.catMoodKeys().length)),name+': Stapel geht weiter');
   await p.click('[data-act="cat-deck-back"]');
   await p.click('[data-act="cat-vote"][data-val="natur|like"]');
   await p.click('[data-act="cat-mood-mode"][data-val="cards"]');

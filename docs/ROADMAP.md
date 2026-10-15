@@ -2,6 +2,8 @@
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
+Katalog v4 (Claude): 368 Ziele/1.774 Attraktionen, Arten baden/tiere/freizeit/aktiv aktiv, 73 Referenzpunkte mit je ≥ 22 Zielen im 150-km-Kreis; Bewertung über alle Treffer statt 80 nächste. Offen: Produktionsnachweis v4 nach Migration, Oberflächen-Paging, gezielte Ergänzung Freizeit/Winter.
+
 Aktueller Nachweis: 7756ca8 / CI38784550937 vollständig grün einschließlich Deploy, Produktivcode 6dd3f09. Alle neuen positiven/negativen Browserwege und Legacy-Leseschutz bestanden. V3_EDIT bleibt false. Nächster gemeinsamer Entscheidungspunkt: Finanz-/Verpflichtungsreview und Sichtprüfung mit Claude, danach abgestimmte Freigabe erwägen. K4-Daten weiterhin bei Claude, vier Wunschkarten aktivieren sich erst mit KINDS. Frühere offene CI-Abschnitte unten sind historische Zwischenstände.
 
 6dd3f09 app/database grün; Browser-Fixture für abschließenden Nur-Lesen-Test nutzt jetzt aktives Angebot im Kostenbereich, statt ein vom Standardsuchort ausgefiltertes Angebot zu erwarten. Produktiver Schutzfix unverändert, neuer gemeinsamer CI-Lauf muss grün sein.

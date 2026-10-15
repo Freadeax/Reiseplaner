@@ -1,0 +1,2761 @@
+{
+ "group": "suedwest",
+ "places": [
+  {
+   "id": "trier",
+   "name": "Trier – Römerstadt an der Mosel",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.756,
+   "lon": 6.641,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Älteste Stadt Deutschlands mit Porta Nigra, Kaiserthermen, Amphitheater und Dom – fast alles zu Fuß erreichbar.",
+   "angle": "Morgens an der Porta Nigra starten, mittags durch die Römerbauten nach Süden laufen und zum Sonnenuntergang zur Mariensäule hinauf.",
+   "spots": [
+    {
+     "id": "trier-porta-nigra",
+     "name": "Porta Nigra",
+     "kind": "kultur",
+     "lat": 49.76,
+     "lon": 6.644,
+     "hours": 1,
+     "family": true,
+     "summary": "Mächtiges römisches Stadttor, innen begehbar mit Blick über die Simeonstraße."
+    },
+    {
+     "id": "trier-dom",
+     "name": "Trierer Dom & Liebfrauenkirche",
+     "kind": "kultur",
+     "lat": 49.756,
+     "lon": 6.643,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ältester Bischofskirchen-Komplex Deutschlands, direkt daneben die gotische Liebfrauenkirche."
+    },
+    {
+     "id": "trier-basilika",
+     "name": "Konstantinbasilika & Kurfürstliches Palais",
+     "kind": "kultur",
+     "lat": 49.753,
+     "lon": 6.643,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Riesige römische Palastaula, davor der Rokoko-Palastgarten."
+    },
+    {
+     "id": "trier-kaiserthermen",
+     "name": "Kaiserthermen",
+     "kind": "kultur",
+     "lat": 49.75,
+     "lon": 6.64,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Ruinen einer kaiserlichen Badeanlage mit unterirdischen Bedienungsgängen.",
+     "tip": "Die Gänge unter den Thermen sind bei Hitze angenehm kühl."
+    },
+    {
+     "id": "trier-landesmuseum",
+     "name": "Rheinisches Landesmuseum Trier",
+     "kind": "kultur",
+     "lat": 49.751,
+     "lon": 6.639,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Große Römer-Sammlung mit Mosaiken, Grabmälern und dem Trierer Goldschatz."
+    },
+    {
+     "id": "trier-mariensaeule",
+     "name": "Mariensäule",
+     "kind": "natur",
+     "lat": 49.752,
+     "lon": 6.621,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Aussichtspunkt auf dem Westufer mit Blick über Mosel und Altstadt."
+    }
+   ]
+  },
+  {
+   "id": "bernkastel-kues",
+   "name": "Bernkastel-Kues & Mittelmosel",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.916,
+   "lon": 7.071,
+   "kinds": [
+    "genuss",
+    "wasser",
+    "burg",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Fachwerk-Marktplatz, Burgruine über Steillagen und der Moselradweg Richtung Traben-Trarbach.",
+   "angle": "Vormittags zur Burg Landshut hinauf, dann mit dem Rad an der Mosel entlang nach Traben-Trarbach und mit dem Schiff oder Bus zurück.",
+   "spots": [
+    {
+     "id": "bernkastel-kues-marktplatz",
+     "name": "Marktplatz & Spitzhäuschen",
+     "kind": "stadt",
+     "lat": 49.916,
+     "lon": 7.071,
+     "hours": 1,
+     "summary": "Fachwerk-Ensemble mit dem schiefen Spitzhäuschen im Kern der Altstadt."
+    },
+    {
+     "id": "bernkastel-kues-landshut",
+     "name": "Burgruine Landshut",
+     "kind": "burg",
+     "lat": 49.912,
+     "lon": 7.077,
+     "hours": 1.5,
+     "summary": "Ruine über der Stadt mit Blick auf die Moselschleife und Weinberge.",
+     "tip": "Steiler Aufstieg durch die Weinberge – festes Schuhwerk."
+    },
+    {
+     "id": "bernkastel-kues-moselradweg",
+     "name": "Moselradweg Bernkastel–Traben-Trarbach",
+     "kind": "aktiv",
+     "lat": 49.93,
+     "lon": 7.09,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Uferabschnitt entlang der Moselschleifen, gut für Familien."
+    },
+    {
+     "id": "bernkastel-kues-traben-trarbach",
+     "name": "Traben-Trarbach mit Brückentor",
+     "kind": "stadt",
+     "lat": 49.951,
+     "lon": 7.117,
+     "hours": 2,
+     "summary": "Jugendstil-Weinort mit Brückentor und Weinkellern unter der Stadt."
+    },
+    {
+     "id": "bernkastel-kues-buddha-museum",
+     "name": "Buddha-Museum Traben-Trarbach",
+     "kind": "kultur",
+     "lat": 49.951,
+     "lon": 7.114,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Große Sammlung buddhistischer Kunst in einem Jugendstil-Weinlager."
+    }
+   ]
+  },
+  {
+   "id": "saarburg",
+   "name": "Saarburg & Saartal",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.607,
+   "lon": 6.549,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "freizeit",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kleinstadt mit Wasserfall mitten im Ort, Burgruine, Glockengießerei und Sommerrodelbahn über dem Saartal.",
+   "angle": "Erst Wasserfall und Burg, dann mit der Sesselbahn hinauf zur Rodelbahn – bei Regen bleibt die Glockengießerei.",
+   "spots": [
+    {
+     "id": "saarburg-wasserfall",
+     "name": "Wasserfall im Ortskern",
+     "kind": "natur",
+     "lat": 49.608,
+     "lon": 6.551,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Der Leukbach stürzt zwischen den Häusern der Altstadt in die Tiefe."
+    },
+    {
+     "id": "saarburg-burg",
+     "name": "Burgruine Saarburg",
+     "kind": "burg",
+     "lat": 49.608,
+     "lon": 6.546,
+     "hours": 1,
+     "family": true,
+     "summary": "Burgreste auf dem Felssporn über der Stadt mit Blick ins Saartal."
+    },
+    {
+     "id": "saarburg-glockengiesserei",
+     "name": "Glockengießerei Mabilon (Museum)",
+     "kind": "technik",
+     "lat": 49.607,
+     "lon": 6.552,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ehemalige Glockengießerei mit erhaltenen Werkstätten und Gießgrube."
+    },
+    {
+     "id": "saarburg-rodelbahn",
+     "name": "Sommerrodelbahn Saarburg",
+     "kind": "freizeit",
+     "lat": 49.604,
+     "lon": 6.54,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rodelbahn am Warsberg, erreichbar mit einer Sesselbahn."
+    },
+    {
+     "id": "saarburg-saar-radweg",
+     "name": "Saar-Radweg Richtung Konz",
+     "kind": "aktiv",
+     "lat": 49.64,
+     "lon": 6.565,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ebene Uferstrecke an der Saar, mit Bahnanschluss für die Rückfahrt."
+    }
+   ]
+  },
+  {
+   "id": "idar-oberstein",
+   "name": "Idar-Oberstein & Erbeskopf",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.712,
+   "lon": 7.315,
+   "kinds": [
+    "kultur",
+    "unterwelt",
+    "natur",
+    "tiere"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Edelsteinstadt mit Felsenkirche, Schaubergwerk und Museum, dazu der höchste Berg von Rheinland-Pfalz.",
+   "angle": "Regentag im Berg und im Museum, Sonnentag am Erbeskopf – beides lässt sich am selben Wochenende tauschen.",
+   "spots": [
+    {
+     "id": "idar-oberstein-felsenkirche",
+     "name": "Felsenkirche Oberstein",
+     "kind": "kultur",
+     "lat": 49.711,
+     "lon": 7.323,
+     "hours": 1,
+     "summary": "Kirche in einer Felsnische hoch über Oberstein, erreichbar über einen Felsenweg."
+    },
+    {
+     "id": "idar-oberstein-edelsteinmuseum",
+     "name": "Deutsches Edelsteinmuseum",
+     "kind": "kultur",
+     "lat": 49.724,
+     "lon": 7.31,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Große Sammlung von Edelsteinen und Schliffen aus aller Welt."
+    },
+    {
+     "id": "idar-oberstein-steinkaulenberg",
+     "name": "Edelsteinminen Steinkaulenberg",
+     "kind": "unterwelt",
+     "lat": 49.727,
+     "lon": 7.29,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Schaubergwerk, in dem früher Achat und Jaspis abgebaut wurden."
+    },
+    {
+     "id": "idar-oberstein-wildenburg",
+     "name": "Wildfreigehege Wildenburg",
+     "kind": "tiere",
+     "lat": 49.77,
+     "lon": 7.234,
+     "hours": 2,
+     "family": true,
+     "summary": "Wildgehege an einer Burgruine im Hunsrück mit Aussichtsturm."
+    },
+    {
+     "id": "idar-oberstein-erbeskopf",
+     "name": "Erbeskopf",
+     "kind": "berge",
+     "lat": 49.729,
+     "lon": 7.091,
+     "hours": 2,
+     "summary": "Höchster Gipfel von Rheinland-Pfalz im Nationalpark Hunsrück-Hochwald.",
+     "tip": "Im Winter mit Rodelhängen und kleinem Skigebiet."
+    }
+   ]
+  },
+  {
+   "id": "bostalsee",
+   "name": "Bostalsee & Keltenland",
+   "region": "Saarland",
+   "country": "DE",
+   "lat": 49.561,
+   "lon": 7.067,
+   "kinds": [
+    "baden",
+    "wasser",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Großer Freizeitsee im Nordsaarland mit Badestränden und Rundweg, nahebei ein keltischer Ringwall.",
+   "angle": "Morgens zum Ringwall wandern, nachmittags an den See zum Baden oder auf das Tretboot.",
+   "spots": [
+    {
+     "id": "bostalsee-see",
+     "name": "Bostalsee – Strand & Rundweg",
+     "kind": "baden",
+     "lat": 49.561,
+     "lon": 7.067,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badestellen, Bootsverleih und ein ebener Rundweg um den ganzen See."
+    },
+    {
+     "id": "bostalsee-ringwall",
+     "name": "Keltischer Ringwall Otzenhausen",
+     "kind": "kultur",
+     "lat": 49.632,
+     "lon": 7.016,
+     "hours": 2,
+     "summary": "Gewaltige Steinwälle einer Keltenfestung im Wald."
+    },
+    {
+     "id": "bostalsee-keltenpark",
+     "name": "Keltenpark Otzenhausen",
+     "kind": "kultur",
+     "lat": 49.626,
+     "lon": 7.008,
+     "hours": 1,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Nachgebautes Keltendorf am Fuß des Ringwalls."
+    },
+    {
+     "id": "bostalsee-st-wendel",
+     "name": "Basilika St. Wendelin",
+     "kind": "kultur",
+     "lat": 49.467,
+     "lon": 7.168,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotische Wallfahrtskirche über der Altstadt von Sankt Wendel."
+    }
+   ]
+  },
+  {
+   "id": "saarbruecken",
+   "name": "Saarbrücken",
+   "region": "Saarland",
+   "country": "DE",
+   "lat": 49.234,
+   "lon": 6.995,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "tiere",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Barocke Ludwigskirche, Schloss mit Museum, lebhafter St. Johanner Markt und ein großer Garten an der Grenze.",
+   "angle": "Vormittags Schloss und Ludwigskirche, nachmittags in den Deutsch-Französischen Garten, abends auf den St. Johanner Markt.",
+   "spots": [
+    {
+     "id": "saarbruecken-ludwigskirche",
+     "name": "Ludwigskirche",
+     "kind": "kultur",
+     "lat": 49.234,
+     "lon": 6.988,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Barocke Predigtkirche, Wahrzeichen der Stadt."
+    },
+    {
+     "id": "saarbruecken-schloss",
+     "name": "Saarbrücker Schloss & Historisches Museum Saar",
+     "kind": "kultur",
+     "lat": 49.232,
+     "lon": 6.991,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Schloss über der Saar mit Landesgeschichte in unterirdischen Festungsräumen."
+    },
+    {
+     "id": "saarbruecken-st-johanner-markt",
+     "name": "St. Johanner Markt",
+     "kind": "stadt",
+     "lat": 49.233,
+     "lon": 6.998,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Altstadtplatz mit Brunnen und vielen Lokalen."
+    },
+    {
+     "id": "saarbruecken-dfg",
+     "name": "Deutsch-Französischer Garten",
+     "kind": "natur",
+     "lat": 49.217,
+     "lon": 6.977,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Großer Park mit Gondelbahn, Spielplätzen und Wasserorgel."
+    },
+    {
+     "id": "saarbruecken-zoo",
+     "name": "Zoo Saarbrücken",
+     "kind": "tiere",
+     "lat": 49.244,
+     "lon": 7.031,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Hügeliger Zoo am Eschberg mit Menschenaffen und Streichelgehege."
+    }
+   ]
+  },
+  {
+   "id": "bliesgau",
+   "name": "Bliesgau & Homburg",
+   "region": "Saarland",
+   "country": "DE",
+   "lat": 49.237,
+   "lon": 7.256,
+   "kinds": [
+    "natur",
+    "kultur",
+    "unterwelt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Biosphärenreservat mit Barockstädtchen Blieskastel, Sandsteinhöhlen in Homburg und Römerfunden.",
+   "angle": "Mit den Höhlen als kühlem Programm in der Mittagshitze starten, dann durch die Streuobstwiesen nach Blieskastel.",
+   "spots": [
+    {
+     "id": "bliesgau-blieskastel",
+     "name": "Altstadt Blieskastel",
+     "kind": "stadt",
+     "lat": 49.237,
+     "lon": 7.256,
+     "hours": 1,
+     "summary": "Barocke Kleinstadt mit Schlosskirche und Brunnen."
+    },
+    {
+     "id": "bliesgau-gollenstein",
+     "name": "Gollenstein",
+     "kind": "kultur",
+     "lat": 49.246,
+     "lon": 7.248,
+     "hours": 0.5,
+     "summary": "Fast sieben Meter hoher Menhir oberhalb von Blieskastel."
+    },
+    {
+     "id": "bliesgau-schlossberghoehlen",
+     "name": "Schlossberghöhlen Homburg",
+     "kind": "unterwelt",
+     "lat": 49.322,
+     "lon": 7.338,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Riesige Buntsandsteinhöhlen mit Gängen auf mehreren Etagen.",
+     "tip": "Auch im Sommer kühl – Jacke mitnehmen."
+    },
+    {
+     "id": "bliesgau-schwarzenacker",
+     "name": "Römermuseum Schwarzenacker",
+     "kind": "kultur",
+     "lat": 49.29,
+     "lon": 7.313,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Ausgegrabene römische Siedlung mit rekonstruierten Häusern."
+    },
+    {
+     "id": "bliesgau-bliesbruck",
+     "name": "Kulturpark Bliesbruck-Reinheim",
+     "kind": "kultur",
+     "lat": 49.124,
+     "lon": 7.183,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Grenzüberschreitender Archäologiepark mit Römervilla und Keltengrab."
+    }
+   ]
+  },
+  {
+   "id": "dahner-felsenland",
+   "name": "Dahner Felsenland",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.15,
+   "lon": 7.78,
+   "kinds": [
+    "natur",
+    "burg",
+    "freizeit",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Bizarre Sandsteinfelsen, Felsenburgen und ein Baumwipfelpfad im Süden des Pfälzerwalds.",
+   "angle": "Felsen am Vormittag mit wenig Betrieb, Baumwipfelpfad am Nachmittag – bei Regen ins Dynamikum nach Pirmasens.",
+   "spots": [
+    {
+     "id": "dahner-felsenland-altdahn",
+     "name": "Burgengruppe Altdahn",
+     "kind": "burg",
+     "lat": 49.147,
+     "lon": 7.792,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Drei Felsenburgen mit in den Stein gehauenen Räumen und Treppen."
+    },
+    {
+     "id": "dahner-felsenland-jungfernsprung",
+     "name": "Jungfernsprung",
+     "kind": "natur",
+     "lat": 49.151,
+     "lon": 7.778,
+     "hours": 1,
+     "summary": "Steile Felswand direkt über Dahn mit Aussicht über das Tal."
+    },
+    {
+     "id": "dahner-felsenland-teufelstisch",
+     "name": "Teufelstisch Hinterweidenthal",
+     "kind": "natur",
+     "lat": 49.2,
+     "lon": 7.755,
+     "hours": 1,
+     "family": true,
+     "summary": "Pilzförmiger Felsen, daneben ein großer Erlebnisspielplatz."
+    },
+    {
+     "id": "dahner-felsenland-biosphaerenhaus",
+     "name": "Biosphärenhaus & Baumwipfelpfad Fischbach",
+     "kind": "freizeit",
+     "lat": 49.087,
+     "lon": 7.712,
+     "hours": 3,
+     "family": true,
+     "summary": "Ausstellung über den Wald und Pfad durch die Baumkronen."
+    },
+    {
+     "id": "dahner-felsenland-dynamikum",
+     "name": "Dynamikum Pirmasens",
+     "kind": "technik",
+     "lat": 49.198,
+     "lon": 7.599,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Mitmach-Science-Center in einer alten Schuhfabrik."
+    }
+   ]
+  },
+  {
+   "id": "speyer",
+   "name": "Speyer",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.317,
+   "lon": 8.438,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kaiserdom mit Krypta, jüdisches Erbe, Museum und Aquarium an einer breiten Prachtstraße.",
+   "angle": "Den Dom zuerst besuchen, durch die Maximilianstraße zum Altpörtel laufen und den Tag am Rheinufer ausklingen lassen.",
+   "spots": [
+    {
+     "id": "speyer-dom",
+     "name": "Kaiserdom zu Speyer",
+     "kind": "kultur",
+     "lat": 49.317,
+     "lon": 8.443,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Romanischer Weltkulturerbe-Dom mit Kaisergräbern in der Krypta."
+    },
+    {
+     "id": "speyer-judenhof",
+     "name": "Judenhof mit Mikwe",
+     "kind": "kultur",
+     "lat": 49.316,
+     "lon": 8.437,
+     "hours": 1,
+     "summary": "Reste der mittelalterlichen Synagoge und ein unterirdisches Ritualbad."
+    },
+    {
+     "id": "speyer-museum",
+     "name": "Historisches Museum der Pfalz",
+     "kind": "kultur",
+     "lat": 49.316,
+     "lon": 8.44,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Landesgeschichte, Domschatz und wechselnde Ausstellungen."
+    },
+    {
+     "id": "speyer-altpoertel",
+     "name": "Altpörtel & Maximilianstraße",
+     "kind": "stadt",
+     "lat": 49.318,
+     "lon": 8.432,
+     "hours": 1,
+     "summary": "Hohes Stadttor am Ende der breiten Einkaufsstraße."
+    },
+    {
+     "id": "speyer-sea-life",
+     "name": "Sea Life Speyer",
+     "kind": "tiere",
+     "lat": 49.312,
+     "lon": 8.449,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Aquarium am Rhein mit Becken von der Quelle bis ins Meer."
+    }
+   ]
+  },
+  {
+   "id": "mainz",
+   "name": "Mainz & Rheinhessen-Rand",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.999,
+   "lon": 8.272,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Dom, Gutenberg-Museum und Chagall-Fenster in der Stadt des Buchdrucks, dazu Rheinufer und Weinstuben.",
+   "angle": "Samstags auf den Markt am Dom, danach die blauen Chagall-Fenster bei Sonne ansehen und abends am Rhein sitzen.",
+   "spots": [
+    {
+     "id": "mainz-dom",
+     "name": "Mainzer Dom",
+     "kind": "kultur",
+     "lat": 49.999,
+     "lon": 8.274,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Romanischer Kaiserdom mitten in der Altstadt."
+    },
+    {
+     "id": "mainz-gutenberg",
+     "name": "Gutenberg-Museum",
+     "kind": "kultur",
+     "lat": 50,
+     "lon": 8.275,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum der Druckkunst mit Gutenberg-Bibeln und Vorführungen."
+    },
+    {
+     "id": "mainz-st-stephan",
+     "name": "St. Stephan mit Chagall-Fenstern",
+     "kind": "kultur",
+     "lat": 49.996,
+     "lon": 8.267,
+     "hours": 0.5,
+     "indoor": true,
+     "slot": "mittag",
+     "summary": "Kirche mit tiefblauen Glasfenstern von Marc Chagall."
+    },
+    {
+     "id": "mainz-zitadelle",
+     "name": "Zitadelle Mainz",
+     "kind": "burg",
+     "lat": 49.993,
+     "lon": 8.28,
+     "hours": 1,
+     "summary": "Barocke Festungsanlage über der Stadt mit Wallweg."
+    },
+    {
+     "id": "mainz-rheinufer",
+     "name": "Rheinufer am Fischtor",
+     "kind": "wasser",
+     "lat": 50.002,
+     "lon": 8.279,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Uferpromenade mit Blick hinüber nach Kastel und zu den Schiffen."
+    }
+   ]
+  },
+  {
+   "id": "worms",
+   "name": "Worms – Nibelungen- und Lutherstadt",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.632,
+   "lon": 8.362,
+   "kinds": [
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Romanischer Dom, sehr alter jüdischer Friedhof, Lutherdenkmal und Nibelungensage.",
+   "angle": "Am Heiligen Sand beginnen, dann über Dom und Lutherdenkmal zum Nibelungenmuseum in der Stadtmauer.",
+   "spots": [
+    {
+     "id": "worms-dom",
+     "name": "Wormser Dom St. Peter",
+     "kind": "kultur",
+     "lat": 49.63,
+     "lon": 8.36,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Spätromanischer Dom mit barockem Hochaltar."
+    },
+    {
+     "id": "worms-heiliger-sand",
+     "name": "Jüdischer Friedhof Heiliger Sand",
+     "kind": "kultur",
+     "lat": 49.629,
+     "lon": 8.354,
+     "hours": 1,
+     "summary": "Alter Friedhof mit Grabsteinen aus dem Mittelalter, Teil des SchUM-Welterbes."
+    },
+    {
+     "id": "worms-synagoge",
+     "name": "Synagoge & Raschi-Haus",
+     "kind": "kultur",
+     "lat": 49.634,
+     "lon": 8.365,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Wiederaufgebaute Synagoge mit Mikwe und Museum im Judenviertel."
+    },
+    {
+     "id": "worms-lutherdenkmal",
+     "name": "Lutherdenkmal",
+     "kind": "kultur",
+     "lat": 49.631,
+     "lon": 8.362,
+     "hours": 0.5,
+     "summary": "Großes Denkmal zur Erinnerung an Luthers Auftritt vor dem Reichstag 1521."
+    },
+    {
+     "id": "worms-nibelungenmuseum",
+     "name": "Nibelungenmuseum",
+     "kind": "kultur",
+     "lat": 49.632,
+     "lon": 8.367,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum in zwei Türmen der Stadtmauer zur Nibelungensage."
+    }
+   ]
+  },
+  {
+   "id": "koblenz",
+   "name": "Koblenz & Deutsches Eck",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 50.36,
+   "lon": 7.6,
+   "kinds": [
+    "stadt",
+    "burg",
+    "wasser",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Zusammenfluss von Rhein und Mosel, Seilbahn zur Festung Ehrenbreitstein und Schloss Stolzenfels.",
+   "angle": "Mit der Seilbahn am späten Nachmittag zur Festung fahren und von oben den Sonnenuntergang über dem Deutschen Eck ansehen.",
+   "spots": [
+    {
+     "id": "koblenz-deutsches-eck",
+     "name": "Deutsches Eck",
+     "kind": "kultur",
+     "lat": 50.364,
+     "lon": 7.606,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Landzunge mit Reiterdenkmal am Zusammenfluss von Rhein und Mosel."
+    },
+    {
+     "id": "koblenz-seilbahn",
+     "name": "Seilbahn Koblenz",
+     "kind": "freizeit",
+     "lat": 50.363,
+     "lon": 7.608,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Seilbahn über den Rhein hinauf zur Festung."
+    },
+    {
+     "id": "koblenz-ehrenbreitstein",
+     "name": "Festung Ehrenbreitstein",
+     "kind": "burg",
+     "lat": 50.366,
+     "lon": 7.615,
+     "hours": 3,
+     "family": true,
+     "slot": "abend",
+     "summary": "Große Festung mit Museen und weiter Aussicht über beide Flüsse."
+    },
+    {
+     "id": "koblenz-altstadt",
+     "name": "Altstadt & Liebfrauenkirche",
+     "kind": "stadt",
+     "lat": 50.36,
+     "lon": 7.596,
+     "hours": 1.5,
+     "summary": "Gassen, Plätze und Kirchen zwischen Moselufer und Florinsmarkt."
+    },
+    {
+     "id": "koblenz-stolzenfels",
+     "name": "Schloss Stolzenfels",
+     "kind": "burg",
+     "lat": 50.303,
+     "lon": 7.592,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Romantisches Schloss über dem Rhein mit eingerichteten Räumen."
+    }
+   ]
+  },
+  {
+   "id": "mannheim",
+   "name": "Mannheim & Schwetzingen",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 49.487,
+   "lon": 8.47,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Barockschloss, Quadratestadt, Technikmuseum und großer Stadtpark – mit dem Schwetzinger Schlossgarten in Reichweite.",
+   "angle": "Bei Regen ins Technoseum und die Reiss-Engelhorn-Museen, bei Sonne Luisenpark oder Schwetzinger Schlossgarten.",
+   "spots": [
+    {
+     "id": "mannheim-schloss",
+     "name": "Barockschloss Mannheim",
+     "kind": "kultur",
+     "lat": 49.483,
+     "lon": 8.462,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Riesige Barockanlage, heute Universität mit Museumsräumen."
+    },
+    {
+     "id": "mannheim-wasserturm",
+     "name": "Wasserturm & Friedrichsplatz",
+     "kind": "stadt",
+     "lat": 49.484,
+     "lon": 8.476,
+     "hours": 0.5,
+     "summary": "Jugendstil-Platz mit Wasserturm, Wasserspielen und Arkaden."
+    },
+    {
+     "id": "mannheim-luisenpark",
+     "name": "Luisenpark",
+     "kind": "natur",
+     "lat": 49.484,
+     "lon": 8.495,
+     "hours": 3,
+     "family": true,
+     "summary": "Großer Park mit Gondoletta-Booten, Pflanzenhaus und Tiergehegen."
+    },
+    {
+     "id": "mannheim-technoseum",
+     "name": "Technoseum",
+     "kind": "technik",
+     "lat": 49.477,
+     "lon": 8.497,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Technik- und Arbeitsmuseum mit laufenden Maschinen und Experimenten."
+    },
+    {
+     "id": "mannheim-rem",
+     "name": "Reiss-Engelhorn-Museen",
+     "kind": "kultur",
+     "lat": 49.489,
+     "lon": 8.461,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Archäologie, Kulturgeschichte und große Sonderausstellungen."
+    },
+    {
+     "id": "mannheim-schwetzingen",
+     "name": "Schlossgarten Schwetzingen",
+     "kind": "natur",
+     "lat": 49.384,
+     "lon": 8.57,
+     "hours": 2.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Barock- und Landschaftsgarten mit Moschee, Tempeln und Wasserspielen."
+    }
+   ]
+  },
+  {
+   "id": "bad-kreuznach",
+   "name": "Bad Kreuznach & Nahetal",
+   "region": "Rheinland-Pfalz",
+   "country": "DE",
+   "lat": 49.842,
+   "lon": 7.866,
+   "kinds": [
+    "therme",
+    "natur",
+    "genuss",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Brückenhäuser über der Nahe, Gradierwerke im Salinental, Rotenfels und die Ebernburg.",
+   "angle": "Vormittags am Rotenfels wandern, nachmittags durchs Salinental zur Therme – Salzluft inklusive.",
+   "spots": [
+    {
+     "id": "bad-kreuznach-brueckenhaeuser",
+     "name": "Brückenhäuser",
+     "kind": "stadt",
+     "lat": 49.844,
+     "lon": 7.867,
+     "hours": 0.5,
+     "summary": "Häuser, die seit Jahrhunderten auf der alten Nahebrücke stehen."
+    },
+    {
+     "id": "bad-kreuznach-salinental",
+     "name": "Salinental mit Gradierwerken",
+     "kind": "natur",
+     "lat": 49.829,
+     "lon": 7.862,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Lange Gradierwerke, an denen Sole herabrieselt."
+    },
+    {
+     "id": "bad-kreuznach-rotenfels",
+     "name": "Rotenfels",
+     "kind": "natur",
+     "lat": 49.818,
+     "lon": 7.842,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Hohe Felswand über der Nahe mit Aussicht von der Kante.",
+     "tip": "Am Rand unbedingt auf den Wegen bleiben."
+    },
+    {
+     "id": "bad-kreuznach-ebernburg",
+     "name": "Ebernburg",
+     "kind": "burg",
+     "lat": 49.808,
+     "lon": 7.832,
+     "hours": 1,
+     "summary": "Burg über Bad Münster am Stein mit Blick ins Nahe- und Alsenztal."
+    },
+    {
+     "id": "bad-kreuznach-roemerhalle",
+     "name": "Römerhalle",
+     "kind": "kultur",
+     "lat": 49.851,
+     "lon": 7.871,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Museum mit großen römischen Mosaiken aus einer Villa."
+    }
+   ]
+  },
+  {
+   "id": "darmstadt",
+   "name": "Darmstadt & Grube Messel",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 49.873,
+   "lon": 8.655,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur",
+    "baden"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Jugendstil auf der Mathildenhöhe, Hundertwassers Waldspirale, Landesmuseum und das Fossil-Welterbe Grube Messel.",
+   "angle": "Mathildenhöhe am Morgen, Landesmuseum mittags, an heißen Tagen ins Naturbad Woog mitten in der Stadt.",
+   "spots": [
+    {
+     "id": "darmstadt-mathildenhoehe",
+     "name": "Mathildenhöhe",
+     "kind": "kultur",
+     "lat": 49.876,
+     "lon": 8.667,
+     "hours": 2,
+     "summary": "Welterbe-Künstlerkolonie mit Hochzeitsturm und russischer Kapelle."
+    },
+    {
+     "id": "darmstadt-waldspirale",
+     "name": "Waldspirale",
+     "kind": "kultur",
+     "lat": 49.866,
+     "lon": 8.668,
+     "hours": 0.5,
+     "summary": "Wohnhaus von Friedensreich Hundertwasser mit begrüntem Dach."
+    },
+    {
+     "id": "darmstadt-landesmuseum",
+     "name": "Hessisches Landesmuseum",
+     "kind": "kultur",
+     "lat": 49.874,
+     "lon": 8.655,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Großes Mehrspartenmuseum mit Fossilien aus Messel und Kunst."
+    },
+    {
+     "id": "darmstadt-woog",
+     "name": "Großer Woog",
+     "kind": "baden",
+     "lat": 49.871,
+     "lon": 8.664,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Naturbadesee mitten in der Stadt."
+    },
+    {
+     "id": "darmstadt-grube-messel",
+     "name": "Grube Messel",
+     "kind": "natur",
+     "lat": 49.917,
+     "lon": 8.756,
+     "hours": 2,
+     "family": true,
+     "summary": "Welterbe-Fossilienfundstelle mit Besucherzentrum und Aussichtsplattform."
+    }
+   ]
+  },
+  {
+   "id": "wiesbaden",
+   "name": "Wiesbaden",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 50.082,
+   "lon": 8.242,
+   "kinds": [
+    "stadt",
+    "therme",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kurstadt mit Kurhaus, Wasserkraftbahn auf den Neroberg, historischer Therme und Schloss am Rhein.",
+   "angle": "An einem kühlen Tag in die Kaiser-Friedrich-Therme, an einem warmen mit der Nerobergbahn hinauf und ins Opelbad.",
+   "spots": [
+    {
+     "id": "wiesbaden-kurhaus",
+     "name": "Kurhaus & Kurpark",
+     "kind": "kultur",
+     "lat": 50.085,
+     "lon": 8.245,
+     "hours": 1,
+     "summary": "Prachtbau mit Kolonnaden und weitläufigem Park."
+    },
+    {
+     "id": "wiesbaden-nerobergbahn",
+     "name": "Nerobergbahn & Neroberg",
+     "kind": "technik",
+     "lat": 50.093,
+     "lon": 8.235,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Wasserballastbahn hinauf zum Aussichtsberg mit russischer Kirche."
+    },
+    {
+     "id": "wiesbaden-opelbad",
+     "name": "Opelbad",
+     "kind": "baden",
+     "lat": 50.096,
+     "lon": 8.232,
+     "hours": 2.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Freibad am Hang des Nerobergs mit Blick über die Stadt."
+    },
+    {
+     "id": "wiesbaden-kaiser-friedrich-therme",
+     "name": "Kaiser-Friedrich-Therme",
+     "kind": "therme",
+     "lat": 50.082,
+     "lon": 8.24,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Historisches Thermalbad mit Jugendstil-Räumen."
+    },
+    {
+     "id": "wiesbaden-museum",
+     "name": "Museum Wiesbaden",
+     "kind": "kultur",
+     "lat": 50.077,
+     "lon": 8.243,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Kunst und Naturgeschichte unter einem Dach."
+    },
+    {
+     "id": "wiesbaden-biebrich",
+     "name": "Schloss Biebrich & Schlosspark",
+     "kind": "kultur",
+     "lat": 50.039,
+     "lon": 8.233,
+     "hours": 1,
+     "summary": "Barockschloss direkt am Rheinufer mit großem Park."
+    }
+   ]
+  },
+  {
+   "id": "taunus",
+   "name": "Taunus (Feldberg & Saalburg)",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 50.23,
+   "lon": 8.51,
+   "kinds": [
+    "natur",
+    "berge",
+    "kultur",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Höchster Taunusgipfel, rekonstruiertes Römerkastell, Freilichtmuseum und Zoo im Grünen vor Frankfurt.",
+   "angle": "Bei klarer Sicht morgens auf den Großen Feldberg, nachmittags durch Saalburg oder Hessenpark – mit Kindern stattdessen Opel-Zoo.",
+   "spots": [
+    {
+     "id": "taunus-feldberg",
+     "name": "Großer Feldberg",
+     "kind": "berge",
+     "lat": 50.232,
+     "lon": 8.457,
+     "hours": 2,
+     "summary": "Höchster Berg des Taunus mit Aussichtsturm und weiter Sicht.",
+     "tip": "Bei Inversionswetterlage liegt das Rhein-Main-Gebiet oft unter Nebel."
+    },
+    {
+     "id": "taunus-saalburg",
+     "name": "Römerkastell Saalburg",
+     "kind": "kultur",
+     "lat": 50.271,
+     "lon": 8.567,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Wiederaufgebautes Limeskastell mit Museum in den rekonstruierten Bauten."
+    },
+    {
+     "id": "taunus-hessenpark",
+     "name": "Freilichtmuseum Hessenpark",
+     "kind": "kultur",
+     "lat": 50.272,
+     "lon": 8.507,
+     "hours": 3,
+     "family": true,
+     "summary": "Historische Häuser aus ganz Hessen mit Handwerk und Tieren."
+    },
+    {
+     "id": "taunus-opel-zoo",
+     "name": "Opel-Zoo Kronberg",
+     "kind": "tiere",
+     "lat": 50.194,
+     "lon": 8.483,
+     "hours": 3,
+     "family": true,
+     "summary": "Zoo am Taunushang mit Elefanten, Giraffen und Spielplätzen."
+    },
+    {
+     "id": "taunus-koenigstein",
+     "name": "Burgruine Königstein",
+     "kind": "burg",
+     "lat": 50.18,
+     "lon": 8.468,
+     "hours": 1,
+     "summary": "Große Festungsruine über der Kurstadt Königstein."
+    },
+    {
+     "id": "taunus-bad-homburg",
+     "name": "Kurpark Bad Homburg",
+     "kind": "natur",
+     "lat": 50.226,
+     "lon": 8.62,
+     "hours": 1.5,
+     "summary": "Kurpark mit Brunnen, Siam-Tempel und russischer Kapelle."
+    }
+   ]
+  },
+  {
+   "id": "bad-wimpfen",
+   "name": "Bad Wimpfen & Neckartal",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 49.23,
+   "lon": 9.162,
+   "kinds": [
+    "burg",
+    "stadt",
+    "tiere",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Stauferpfalz über dem Neckar, Burgen mit Greifvogelwarte und das Science Center in Heilbronn.",
+   "angle": "Mit dem Rad am Neckar entlang von Burg zu Burg – bei Regen nach Heilbronn in die experimenta.",
+   "spots": [
+    {
+     "id": "bad-wimpfen-altstadt",
+     "name": "Altstadt & Blauer Turm",
+     "kind": "stadt",
+     "lat": 49.231,
+     "lon": 9.161,
+     "hours": 1.5,
+     "summary": "Fachwerkgassen und Reste der Kaiserpfalz hoch über dem Neckar."
+    },
+    {
+     "id": "bad-wimpfen-guttenberg",
+     "name": "Burg Guttenberg & Greifenwarte",
+     "kind": "tiere",
+     "lat": 49.311,
+     "lon": 9.106,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Burg mit Flugvorführungen von Greifvögeln."
+    },
+    {
+     "id": "bad-wimpfen-hornberg",
+     "name": "Burg Hornberg",
+     "kind": "burg",
+     "lat": 49.326,
+     "lon": 9.124,
+     "hours": 1,
+     "summary": "Burg des Götz von Berlichingen über Weinbergen am Neckar."
+    },
+    {
+     "id": "bad-wimpfen-neckarradweg",
+     "name": "Neckartal-Radweg Bad Wimpfen–Gundelsheim",
+     "kind": "aktiv",
+     "lat": 49.27,
+     "lon": 9.15,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flache Strecke am Fluss vorbei an Burgen, mit Bahn für die Rückfahrt."
+    },
+    {
+     "id": "bad-wimpfen-experimenta",
+     "name": "experimenta Heilbronn",
+     "kind": "technik",
+     "lat": 49.15,
+     "lon": 9.213,
+     "hours": 4,
+     "indoor": true,
+     "family": true,
+     "summary": "Großes Science Center mit vielen Mitmachstationen."
+    }
+   ]
+  },
+  {
+   "id": "schwaebisch-hall",
+   "name": "Schwäbisch Hall & Hohenlohe",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 49.112,
+   "lon": 9.737,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Fachwerkstadt am Kocher mit großer Freitreppe, Kunsthalle, Kloster Comburg und Freilandmuseum.",
+   "angle": "Vormittags Kunsthalle Würth oder Freilandmuseum, nachmittags zur Comburg und abends über die Holzstege am Kocher.",
+   "spots": [
+    {
+     "id": "schwaebisch-hall-marktplatz",
+     "name": "Marktplatz & St. Michael",
+     "kind": "stadt",
+     "lat": 49.112,
+     "lon": 9.737,
+     "hours": 1,
+     "summary": "Breite Freitreppe hinauf zur Kirche, ringsum Fachwerk."
+    },
+    {
+     "id": "schwaebisch-hall-kunsthalle-wuerth",
+     "name": "Kunsthalle Würth",
+     "kind": "kultur",
+     "lat": 49.115,
+     "lon": 9.734,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Moderne und zeitgenössische Kunst in einem Neubau über der Altstadt."
+    },
+    {
+     "id": "schwaebisch-hall-comburg",
+     "name": "Großcomburg",
+     "kind": "kultur",
+     "lat": 49.103,
+     "lon": 9.746,
+     "hours": 1.5,
+     "summary": "Ehemaliges Kloster wie eine Burg auf einem Bergsporn."
+    },
+    {
+     "id": "schwaebisch-hall-wackershofen",
+     "name": "Hohenloher Freilandmuseum Wackershofen",
+     "kind": "kultur",
+     "lat": 49.132,
+     "lon": 9.698,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Bauernhöfe und Dorfhäuser mit Tieren und Mitmachangeboten."
+    },
+    {
+     "id": "schwaebisch-hall-langenburg",
+     "name": "Schloss Langenburg",
+     "kind": "burg",
+     "lat": 49.253,
+     "lon": 9.856,
+     "hours": 1.5,
+     "summary": "Hohenloher Residenzschloss über dem Jagsttal."
+    }
+   ]
+  },
+  {
+   "id": "maulbronn",
+   "name": "Kloster Maulbronn & Kraichgau",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 49.001,
+   "lon": 8.812,
+   "kinds": [
+    "kultur",
+    "natur",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Am besten erhaltene Klosteranlage nördlich der Alpen, dazu Bretten, eine Ruine an der Enz und ein Panorama in Pforzheim.",
+   "angle": "Kloster am frühen Vormittag mit wenig Gruppen, danach durch die Kraichgauhügel nach Bretten.",
+   "spots": [
+    {
+     "id": "maulbronn-kloster",
+     "name": "Kloster Maulbronn",
+     "kind": "kultur",
+     "lat": 49.001,
+     "lon": 8.812,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Zisterzienserkloster und Welterbe mit Kreuzgang und Brunnenhaus."
+    },
+    {
+     "id": "maulbronn-bretten",
+     "name": "Bretten & Melanchthonhaus",
+     "kind": "stadt",
+     "lat": 49.036,
+     "lon": 8.706,
+     "hours": 1.5,
+     "summary": "Fachwerkstadt mit Gedenkhaus für den Reformator Melanchthon."
+    },
+    {
+     "id": "maulbronn-loeffelstelz",
+     "name": "Burgruine Löffelstelz",
+     "kind": "burg",
+     "lat": 48.948,
+     "lon": 8.843,
+     "hours": 1,
+     "summary": "Ruine über Mühlacker mit Blick ins Enztal."
+    },
+    {
+     "id": "maulbronn-gasometer",
+     "name": "Gasometer Pforzheim",
+     "kind": "kultur",
+     "lat": 48.889,
+     "lon": 8.721,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Großes Rundpanorama in einem alten Gasbehälter."
+    }
+   ]
+  },
+  {
+   "id": "karlsruhe",
+   "name": "Karlsruhe",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 49.009,
+   "lon": 8.404,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "tiere",
+    "technik"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Fächerstadt mit Schloss, Medienkunstzentrum ZKM, Zoo am Bahnhof und Turmberg in Durlach.",
+   "angle": "Regentag im ZKM, Sonnentag im Zoo – zum Abschluss mit der Bergbahn auf den Turmberg.",
+   "spots": [
+    {
+     "id": "karlsruhe-schloss",
+     "name": "Schloss & Badisches Landesmuseum",
+     "kind": "kultur",
+     "lat": 49.014,
+     "lon": 8.404,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Schloss im Mittelpunkt des Stadtgrundrisses mit Museum und Turmblick."
+    },
+    {
+     "id": "karlsruhe-zkm",
+     "name": "ZKM | Zentrum für Kunst und Medien",
+     "kind": "kultur",
+     "lat": 49.002,
+     "lon": 8.383,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Medienkunst zum Ausprobieren in einer alten Munitionsfabrik."
+    },
+    {
+     "id": "karlsruhe-zoo",
+     "name": "Zoologischer Stadtgarten",
+     "kind": "tiere",
+     "lat": 48.998,
+     "lon": 8.401,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Zoo mit Seen und Bootsfahrt direkt am Hauptbahnhof."
+    },
+    {
+     "id": "karlsruhe-turmberg",
+     "name": "Turmberg & Turmbergbahn",
+     "kind": "natur",
+     "lat": 49,
+     "lon": 8.487,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Standseilbahn hinauf zum Aussichtsturm über Durlach."
+    }
+   ]
+  },
+  {
+   "id": "bad-wildbad",
+   "name": "Bad Wildbad & Enztal",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.75,
+   "lon": 8.55,
+   "kinds": [
+    "therme",
+    "freizeit",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Kurort im Nordschwarzwald mit Bergbahn, Baumwipfelpfad, Hängebrücke und maurischem Thermalbad.",
+   "angle": "Morgens mit der Sommerbergbahn hinauf, Baumwipfelpfad und Hängebrücke kombinieren und den Nachmittag im Thermalbad verbringen.",
+   "spots": [
+    {
+     "id": "bad-wildbad-sommerbergbahn",
+     "name": "Sommerbergbahn",
+     "kind": "technik",
+     "lat": 48.752,
+     "lon": 8.55,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Standseilbahn vom Ort hinauf auf den Sommerberg."
+    },
+    {
+     "id": "bad-wildbad-baumwipfelpfad",
+     "name": "Baumwipfelpfad Schwarzwald",
+     "kind": "freizeit",
+     "lat": 48.745,
+     "lon": 8.536,
+     "hours": 2,
+     "family": true,
+     "summary": "Holzpfad durch die Baumkronen mit Aussichtsturm und Rutsche."
+    },
+    {
+     "id": "bad-wildbad-wildline",
+     "name": "Hängebrücke Wildline",
+     "kind": "freizeit",
+     "lat": 48.743,
+     "lon": 8.54,
+     "hours": 1,
+     "summary": "Lange Fußgänger-Hängebrücke über ein Tal am Sommerberg."
+    },
+    {
+     "id": "bad-wildbad-palais-thermal",
+     "name": "Palais Thermal",
+     "kind": "therme",
+     "lat": 48.752,
+     "lon": 8.551,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad in historischen Räumen mit maurischer Halle."
+    },
+    {
+     "id": "bad-wildbad-hirsau",
+     "name": "Klosterruine Hirsau",
+     "kind": "kultur",
+     "lat": 48.734,
+     "lon": 8.733,
+     "hours": 1,
+     "summary": "Große Klosterruine im Nagoldtal bei Calw."
+    }
+   ]
+  },
+  {
+   "id": "tuebingen",
+   "name": "Tübingen",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.52,
+   "lon": 9.055,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Universitätsstadt mit Neckarfront, Stocherkähnen, Schloss und dem Zisterzienserkloster Bebenhausen vor der Tür.",
+   "angle": "Am Nachmittag Stocherkahn fahren, dann zum Sonnenuntergang zur Wurmlinger Kapelle.",
+   "spots": [
+    {
+     "id": "tuebingen-altstadt",
+     "name": "Altstadt & Stiftskirche",
+     "kind": "stadt",
+     "lat": 48.52,
+     "lon": 9.057,
+     "hours": 1.5,
+     "summary": "Steile Gassen, Marktplatz und Stiftskirche mit Turmaufstieg."
+    },
+    {
+     "id": "tuebingen-stocherkahn",
+     "name": "Stocherkahnfahrt am Neckar",
+     "kind": "wasser",
+     "lat": 48.519,
+     "lon": 9.055,
+     "hours": 1,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Langsame Kahnfahrt vor Hölderlinturm und Neckarfront."
+    },
+    {
+     "id": "tuebingen-schloss",
+     "name": "Schloss Hohentübingen & Museum Alte Kulturen",
+     "kind": "kultur",
+     "lat": 48.519,
+     "lon": 9.051,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss über der Stadt mit Eiszeitkunst und antiken Funden."
+    },
+    {
+     "id": "tuebingen-bebenhausen",
+     "name": "Kloster & Schloss Bebenhausen",
+     "kind": "kultur",
+     "lat": 48.561,
+     "lon": 9.059,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Gut erhaltenes Kloster mit Jagdschloss im Schönbuch."
+    },
+    {
+     "id": "tuebingen-wurmlinger-kapelle",
+     "name": "Wurmlinger Kapelle",
+     "kind": "natur",
+     "lat": 48.506,
+     "lon": 8.987,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Kapelle auf einem freien Hügel mit Blick zur Alb."
+    }
+   ]
+  },
+  {
+   "id": "hohenzollern",
+   "name": "Burg Hohenzollern & Zollernalb",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.335,
+   "lon": 8.96,
+   "kinds": [
+    "burg",
+    "berge",
+    "kultur",
+    "unterwelt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Märchenhafte Burg auf einem Kegelberg, Aussicht vom Albtrauf, eine Römervilla und ein Atomkeller-Museum.",
+   "angle": "Erst zum Zeller Horn, um die Burg im Morgenlicht zu sehen, dann hinauf zur Burg selbst.",
+   "spots": [
+    {
+     "id": "hohenzollern-burg",
+     "name": "Burg Hohenzollern",
+     "kind": "burg",
+     "lat": 48.323,
+     "lon": 8.968,
+     "hours": 3,
+     "family": true,
+     "summary": "Stammburg der Hohenzollern mit Schatzkammer und Bastionen."
+    },
+    {
+     "id": "hohenzollern-zeller-horn",
+     "name": "Zeller Horn",
+     "kind": "natur",
+     "lat": 48.302,
+     "lon": 8.982,
+     "hours": 1.5,
+     "slot": "morgen",
+     "summary": "Aussichtspunkt am Albtrauf mit Blick direkt auf die Burg."
+    },
+    {
+     "id": "hohenzollern-hechingen",
+     "name": "Altstadt Hechingen",
+     "kind": "stadt",
+     "lat": 48.351,
+     "lon": 8.963,
+     "hours": 1,
+     "summary": "Kleine Residenzstadt mit Stiftskirche unter der Burg."
+    },
+    {
+     "id": "hohenzollern-roemervilla",
+     "name": "Römisches Freilichtmuseum Hechingen-Stein",
+     "kind": "kultur",
+     "lat": 48.373,
+     "lon": 8.938,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rekonstruierte römische Gutsanlage mit Museum."
+    },
+    {
+     "id": "hohenzollern-atomkeller",
+     "name": "Atomkeller-Museum Haigerloch",
+     "kind": "technik",
+     "lat": 48.365,
+     "lon": 8.805,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Felsenkeller, in dem 1945 an einem Versuchsreaktor geforscht wurde."
+    }
+   ]
+  },
+  {
+   "id": "oberes-donautal",
+   "name": "Oberes Donautal (Beuron & Sigmaringen)",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.07,
+   "lon": 9.08,
+   "kinds": [
+    "natur",
+    "aktiv",
+    "burg",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Durchbruchstal der Donau mit Kalkfelsen, Burgen, Kloster Beuron und dem Hohenzollernschloss Sigmaringen.",
+   "angle": "Vormittags mit dem Kanu flussabwärts, nachmittags ins Schloss Sigmaringen – bei Niedrigwasser stattdessen per Rad.",
+   "spots": [
+    {
+     "id": "oberes-donautal-sigmaringen",
+     "name": "Schloss Sigmaringen",
+     "kind": "burg",
+     "lat": 48.088,
+     "lon": 9.217,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Großes Hohenzollernschloss auf einem Felsen über der Donau."
+    },
+    {
+     "id": "oberes-donautal-beuron",
+     "name": "Erzabtei Beuron",
+     "kind": "kultur",
+     "lat": 48.05,
+     "lon": 8.972,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Benediktinerabtei mit barocker Klosterkirche in der Donauschleife."
+    },
+    {
+     "id": "oberes-donautal-wildenstein",
+     "name": "Burg Wildenstein",
+     "kind": "burg",
+     "lat": 48.069,
+     "lon": 9.008,
+     "hours": 1,
+     "summary": "Burg hoch auf einer Felskante über dem Tal."
+    },
+    {
+     "id": "oberes-donautal-kanu",
+     "name": "Kanu auf der Donau",
+     "kind": "aktiv",
+     "lat": 48.068,
+     "lon": 9.11,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Kanustrecken durch das Felsental, Boote bei örtlichen Verleihern.",
+     "tip": "Befahrung ist pegelabhängig geregelt – vorher beim Verleih nachfragen."
+    },
+    {
+     "id": "oberes-donautal-donauradweg",
+     "name": "Donauradweg Beuron–Sigmaringen",
+     "kind": "aktiv",
+     "lat": 48.07,
+     "lon": 9.09,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Abwechslungsreiche Etappe zwischen Felsen und Wiesen, Bahn für die Rückfahrt."
+    }
+   ]
+  },
+  {
+   "id": "stauferland",
+   "name": "Stauferland (Hohenstaufen & Schwäbisch Gmünd)",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.76,
+   "lon": 9.73,
+   "kinds": [
+    "berge",
+    "kultur",
+    "stadt",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Drei Kaiserberge, Kloster Lorch und die Stauferstadt Schwäbisch Gmünd zwischen Rems und Fils.",
+   "angle": "Zum Sonnenuntergang auf den Hohenstaufen, vorher Gmünder Altstadt – bei Regen ins Urweltmuseum Hauff.",
+   "spots": [
+    {
+     "id": "stauferland-hohenstaufen",
+     "name": "Hohenstaufen",
+     "kind": "berge",
+     "lat": 48.743,
+     "lon": 9.718,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Kegelberg mit Burgresten und weitem Blick über das Albvorland."
+    },
+    {
+     "id": "stauferland-lorch",
+     "name": "Kloster Lorch",
+     "kind": "kultur",
+     "lat": 48.797,
+     "lon": 9.692,
+     "hours": 1,
+     "summary": "Hauskloster der Staufer mit Stauferrundbild."
+    },
+    {
+     "id": "stauferland-gmuend",
+     "name": "Altstadt Schwäbisch Gmünd & Heilig-Kreuz-Münster",
+     "kind": "stadt",
+     "lat": 48.799,
+     "lon": 9.798,
+     "hours": 1.5,
+     "summary": "Alte Stauferstadt mit gotischem Heilig-Kreuz-Münster und Fachwerkgassen."
+    },
+    {
+     "id": "stauferland-rechberg",
+     "name": "Hohenrechberg",
+     "kind": "burg",
+     "lat": 48.743,
+     "lon": 9.796,
+     "hours": 1.5,
+     "summary": "Burgruine und Wallfahrtskirche auf dem dritten Kaiserberg."
+    },
+    {
+     "id": "stauferland-hauff",
+     "name": "Urweltmuseum Hauff",
+     "kind": "kultur",
+     "lat": 48.636,
+     "lon": 9.519,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Fossilien aus dem Posidonienschiefer, darunter Ichthyosaurier."
+    }
+   ]
+  },
+  {
+   "id": "ulm",
+   "name": "Ulm",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.398,
+   "lon": 9.992,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Münster mit dem höchsten Kirchturm der Welt, Fischerviertel an der Blau und Klosterbibliothek Wiblingen.",
+   "angle": "Den Münsterturm früh besteigen, dann durchs Fischerviertel zur Donau – bei Regen nach Wiblingen in die Bibliothek.",
+   "spots": [
+    {
+     "id": "ulm-muenster",
+     "name": "Ulmer Münster",
+     "kind": "kultur",
+     "lat": 48.399,
+     "lon": 9.991,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Gotisches Münster mit über 760 Stufen bis zur Turmspitze."
+    },
+    {
+     "id": "ulm-fischerviertel",
+     "name": "Fischer- und Gerberviertel",
+     "kind": "stadt",
+     "lat": 48.396,
+     "lon": 9.989,
+     "hours": 1,
+     "summary": "Fachwerkgassen an der Blau mit dem Schiefen Haus."
+    },
+    {
+     "id": "ulm-stadtmauer",
+     "name": "Donauufer & Stadtmauer",
+     "kind": "wasser",
+     "lat": 48.395,
+     "lon": 9.996,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Spaziergang auf der Stadtmauer mit Blick nach Neu-Ulm."
+    },
+    {
+     "id": "ulm-wiblingen",
+     "name": "Kloster Wiblingen",
+     "kind": "kultur",
+     "lat": 48.361,
+     "lon": 9.986,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barocke Klosteranlage mit prachtvollem Bibliothekssaal."
+    },
+    {
+     "id": "ulm-tiergarten",
+     "name": "Tiergarten Ulm",
+     "kind": "tiere",
+     "lat": 48.413,
+     "lon": 10.023,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kleiner Tiergarten mit Aquarium in der Friedrichsau."
+    }
+   ]
+  },
+  {
+   "id": "federsee",
+   "name": "Federsee & Oberschwäbische Barockstraße",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 48.065,
+   "lon": 9.615,
+   "kinds": [
+    "natur",
+    "kultur",
+    "tiere"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Langer Steg durchs Moor zum Federsee, Pfahlbaumuseum und zwei Höhepunkte der Barockstraße.",
+   "angle": "Am frühen Morgen über den Steg – dann sind die meisten Vögel aktiv – und danach zur Barock-Bibliothek nach Bad Schussenried.",
+   "spots": [
+    {
+     "id": "federsee-steg",
+     "name": "Federseesteg",
+     "kind": "natur",
+     "lat": 48.067,
+     "lon": 9.626,
+     "hours": 1.5,
+     "family": true,
+     "slot": "morgen",
+     "summary": "Holzsteg durch Schilf und Moor bis an den offenen See.",
+     "tip": "Fernglas mitnehmen – das Ried ist ein Vogelschutzgebiet."
+    },
+    {
+     "id": "federsee-museum",
+     "name": "Federseemuseum",
+     "kind": "kultur",
+     "lat": 48.065,
+     "lon": 9.616,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Moorfunde und nachgebaute Pfahlbauhäuser aus der Steinzeit."
+    },
+    {
+     "id": "federsee-schussenried",
+     "name": "Bibliothekssaal Bad Schussenried",
+     "kind": "kultur",
+     "lat": 47.997,
+     "lon": 9.657,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Barocker Bibliothekssaal im ehemaligen Prämonstratenserkloster."
+    },
+    {
+     "id": "federsee-steinhausen",
+     "name": "Wallfahrtskirche Steinhausen",
+     "kind": "kultur",
+     "lat": 48.011,
+     "lon": 9.674,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Barocke Dorfkirche, oft als schönste Dorfkirche der Welt bezeichnet."
+    },
+    {
+     "id": "federsee-bussen",
+     "name": "Bussen",
+     "kind": "berge",
+     "lat": 48.164,
+     "lon": 9.556,
+     "hours": 1,
+     "summary": "Heiliger Berg Oberschwabens mit Wallfahrtskirche und Weitblick."
+    }
+   ]
+  },
+  {
+   "id": "ravensburg",
+   "name": "Ravensburg & Schussental",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 47.781,
+   "lon": 9.612,
+   "kinds": [
+    "stadt",
+    "freizeit",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Stadt der Türme, Museum Ravensburger, Spieleland und die größte Barockbasilika Deutschlands in Weingarten.",
+   "angle": "Mit Kindern einen Tag Spieleland, einen Tag Altstadt mit Museum und Veitsburg – Basilika Weingarten passt in jede Lücke.",
+   "spots": [
+    {
+     "id": "ravensburg-altstadt",
+     "name": "Altstadt & Mehlsack",
+     "kind": "stadt",
+     "lat": 47.78,
+     "lon": 9.614,
+     "hours": 1.5,
+     "summary": "Mittelalterliche Altstadt mit vielen Türmen und Toren."
+    },
+    {
+     "id": "ravensburg-museum",
+     "name": "Museum Ravensburger",
+     "kind": "kultur",
+     "lat": 47.781,
+     "lon": 9.611,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Geschichte der Spiele und Puzzles mit Mitmachstationen."
+    },
+    {
+     "id": "ravensburg-veitsburg",
+     "name": "Veitsburg",
+     "kind": "natur",
+     "lat": 47.778,
+     "lon": 9.62,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Aussichtsplatz über den Dächern der Altstadt."
+    },
+    {
+     "id": "ravensburg-weingarten",
+     "name": "Basilika Weingarten",
+     "kind": "kultur",
+     "lat": 47.81,
+     "lon": 9.643,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Riesige Barockbasilika auf dem Martinsberg."
+    },
+    {
+     "id": "ravensburg-spieleland",
+     "name": "Ravensburger Spieleland",
+     "kind": "freizeit",
+     "lat": 47.656,
+     "lon": 9.584,
+     "hours": 6,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freizeitpark für Familien mit jüngeren Kindern."
+    }
+   ]
+  },
+  {
+   "id": "todtnau",
+   "name": "Todtnau & Belchen",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 47.829,
+   "lon": 7.945,
+   "kinds": [
+    "natur",
+    "berge",
+    "freizeit",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Wasserfall, Sommerrodelbahn, Hängebrücke und der Aussichtsberg Belchen im Südschwarzwald.",
+   "angle": "Bei klarem Wetter abends auf den Belchen, tagsüber Wasserfall und Rodelbahn in Todtnau.",
+   "spots": [
+    {
+     "id": "todtnau-wasserfall",
+     "name": "Todtnauer Wasserfall",
+     "kind": "natur",
+     "lat": 47.842,
+     "lon": 7.958,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Einer der höchsten Wasserfälle Deutschlands mit Rundweg."
+    },
+    {
+     "id": "todtnau-hasenhorn",
+     "name": "Hasenhorn-Rodelbahn",
+     "kind": "freizeit",
+     "lat": 47.822,
+     "lon": 7.946,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Lange Ganzjahres-Rodelbahn am Hasenhorn mit Sessellift."
+    },
+    {
+     "id": "todtnau-blackforestline",
+     "name": "Hängebrücke blackforestline",
+     "kind": "freizeit",
+     "lat": 47.844,
+     "lon": 7.955,
+     "hours": 1,
+     "summary": "Lange Hängebrücke über das Tal beim Wasserfall."
+    },
+    {
+     "id": "todtnau-belchen",
+     "name": "Belchen",
+     "kind": "berge",
+     "lat": 47.822,
+     "lon": 7.833,
+     "hours": 2.5,
+     "slot": "abend",
+     "summary": "Kahler Gipfel mit Blick zu Alpen und Vogesen, erreichbar mit Gondelbahn."
+    }
+   ]
+  },
+  {
+   "id": "markgraeflerland",
+   "name": "Markgräflerland (Staufen & Badenweiler)",
+   "region": "Baden-Württemberg",
+   "country": "DE",
+   "lat": 47.85,
+   "lon": 7.72,
+   "kinds": [
+    "genuss",
+    "therme",
+    "kultur",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Weinorte am Schwarzwaldrand, Faust-Stadt Staufen, Römerbad und Therme in Badenweiler, Bergwerk im Münstertal.",
+   "angle": "Morgens zur Burgruine Staufen, mittags ins Bergwerk Teufelsgrund und am Nachmittag in die Therme in Badenweiler.",
+   "spots": [
+    {
+     "id": "markgraeflerland-staufen",
+     "name": "Staufen & Burgruine",
+     "kind": "stadt",
+     "lat": 47.881,
+     "lon": 7.731,
+     "hours": 2,
+     "summary": "Altstadt mit Faust-Sage und Burgruine in den Reben."
+    },
+    {
+     "id": "markgraeflerland-teufelsgrund",
+     "name": "Besucherbergwerk Teufelsgrund",
+     "kind": "unterwelt",
+     "lat": 47.84,
+     "lon": 7.826,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ehemaliges Silber- und Flussspatbergwerk im Münstertal."
+    },
+    {
+     "id": "markgraeflerland-st-trudpert",
+     "name": "Kloster St. Trudpert",
+     "kind": "kultur",
+     "lat": 47.861,
+     "lon": 7.787,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Barocke Klosterkirche am Eingang des Münstertals."
+    },
+    {
+     "id": "markgraeflerland-roemerbad",
+     "name": "Römische Badruine Badenweiler",
+     "kind": "kultur",
+     "lat": 47.802,
+     "lon": 7.672,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gut erhaltene römische Badeanlage unter einem Glasdach."
+    },
+    {
+     "id": "markgraeflerland-cassiopeia",
+     "name": "Cassiopeia Therme",
+     "kind": "therme",
+     "lat": 47.803,
+     "lon": 7.674,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad im Kurpark von Badenweiler."
+    }
+   ]
+  }
+ ]
+}

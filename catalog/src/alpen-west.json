@@ -1,0 +1,2463 @@
+{
+ "group": "alpen-west",
+ "places": [
+  {
+   "id": "bern-aare",
+   "name": "Bern & Aare",
+   "region": "Kanton Bern",
+   "country": "CH",
+   "lat": 46.948,
+   "lon": 7.447,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "baden",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Bundesstadt mit Laubengassen-Altstadt, Bärenpark und dem Sommerritual, sich von der Aare durch die Stadt treiben zu lassen.",
+   "angle": "Im Sommer nachmittags Aareschwimmen, danach zum Sonnenuntergang auf den Rosengarten oder den Gurten.",
+   "spots": [
+    {
+     "id": "bern-aare-altstadt",
+     "name": "Altstadt, Zytglogge & Berner Münster",
+     "kind": "stadt",
+     "lat": 46.948,
+     "lon": 7.448,
+     "hours": 2,
+     "family": true,
+     "summary": "Kilometerlange Lauben, Brunnenfiguren und der Münsterturm mit Blick über die Aareschlaufe.",
+     "tip": "Bei Regen bleibt man unter den Lauben fast trocken."
+    },
+    {
+     "id": "bern-aare-baerenpark",
+     "name": "BärenPark",
+     "kind": "tiere",
+     "lat": 46.948,
+     "lon": 7.46,
+     "hours": 1,
+     "family": true,
+     "summary": "Bärengehege am steilen Aareufer direkt unterhalb der Nydeggbrücke."
+    },
+    {
+     "id": "bern-aare-aareschwimmen",
+     "name": "Aareschwimmen zum Marzili",
+     "kind": "baden",
+     "lat": 46.943,
+     "lon": 7.443,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "slot": "nachm",
+     "summary": "Einstieg flussaufwärts, z. B. beim Eichholz, und mit der Strömung bis zum Freibad Marzili treiben.",
+     "tip": "Nur für sichere Schwimmer; Ausstiege vorher ansehen und Wassertemperatur prüfen."
+    },
+    {
+     "id": "bern-aare-gurten",
+     "name": "Gurten – Berns Hausberg",
+     "kind": "natur",
+     "lat": 46.919,
+     "lon": 7.441,
+     "hours": 2,
+     "family": true,
+     "slot": "abend",
+     "summary": "Mit der Standseilbahn hinauf zu Wiesen, Spielplatz und Rundblick auf Stadt und Alpen."
+    },
+    {
+     "id": "bern-aare-paul-klee",
+     "name": "Zentrum Paul Klee",
+     "kind": "kultur",
+     "lat": 46.949,
+     "lon": 7.474,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Wellenförmiger Museumsbau von Renzo Piano mit der größten Klee-Sammlung."
+    },
+    {
+     "id": "bern-aare-rosengarten",
+     "name": "Rosengarten",
+     "kind": "natur",
+     "lat": 46.952,
+     "lon": 7.461,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Parkterrasse über der Altstadt mit dem klassischen Blick auf Dächer und Münster."
+    }
+   ]
+  },
+  {
+   "id": "thun",
+   "name": "Thun & Thunersee",
+   "region": "Kanton Bern",
+   "country": "CH",
+   "lat": 46.758,
+   "lon": 7.628,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "burg",
+    "baden",
+    "berge"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Altstadt an der Aare mit Schloss, dazu Seeschlösser, Strandbad und der Pyramidenberg Niesen.",
+   "angle": "Vormittags Schloss Thun, mittags per Schiff nach Oberhofen und bei klarer Sicht noch auf den Niesen.",
+   "spots": [
+    {
+     "id": "thun-schloss",
+     "name": "Schloss Thun",
+     "kind": "burg",
+     "lat": 46.759,
+     "lon": 7.627,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Burg mit Museum im Rittersaal und Turmblick über Stadt und See."
+    },
+    {
+     "id": "thun-oberhofen",
+     "name": "Schloss Oberhofen",
+     "kind": "burg",
+     "lat": 46.731,
+     "lon": 7.669,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schloss mit Wasserturm direkt im Thunersee und Park am Ufer."
+    },
+    {
+     "id": "thun-schadau",
+     "name": "Schadaupark & Schloss Schadau",
+     "kind": "natur",
+     "lat": 46.749,
+     "lon": 7.639,
+     "hours": 1,
+     "family": true,
+     "summary": "Parkanlage am Seeausfluss mit Blick auf die Berner Alpen."
+    },
+    {
+     "id": "thun-strandbad",
+     "name": "Strandbad Thun",
+     "kind": "baden",
+     "lat": 46.741,
+     "lon": 7.633,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Großes Strandbad am Thunersee mit Liegewiesen und Seezugang."
+    },
+    {
+     "id": "thun-niesen",
+     "name": "Niesen",
+     "kind": "berge",
+     "lat": 46.645,
+     "lon": 7.651,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Standseilbahn ab Mülenen auf den Pyramidenberg mit Blick über Thuner- und Brienzersee.",
+     "tip": "Neben der Bahn verläuft eine der längsten Treppen der Welt – nur bei Sonderläufen begehbar."
+    }
+   ]
+  },
+  {
+   "id": "emmental",
+   "name": "Emmental (Burgdorf & Affoltern)",
+   "region": "Kanton Bern",
+   "country": "CH",
+   "lat": 47.059,
+   "lon": 7.627,
+   "kinds": [
+    "natur",
+    "genuss",
+    "burg",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Hügellandschaft mit Holzbrücken, Bauernhöfen, Käse und Biskuits, erschlossen ab der Zähringerstadt Burgdorf.",
+   "angle": "Mit dem Velo von Burgdorf zur Schaukäserei und zum Abend auf die Lueg – Rückweg bergab.",
+   "spots": [
+    {
+     "id": "emmental-schloss-burgdorf",
+     "name": "Schloss Burgdorf",
+     "kind": "burg",
+     "lat": 47.057,
+     "lon": 7.63,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Zähringerburg über der Altstadt mit Museum und Jugendherberge."
+    },
+    {
+     "id": "emmental-schaukaeserei",
+     "name": "Emmentaler Schaukäserei Affoltern",
+     "kind": "genuss",
+     "lat": 47.065,
+     "lon": 7.735,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Herstellung des Emmentalers mit Blick in die Käserei."
+    },
+    {
+     "id": "emmental-lueg",
+     "name": "Lueg (Aussichtspunkt)",
+     "kind": "natur",
+     "lat": 47.076,
+     "lon": 7.69,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Aussichtshügel mit Denkmal und Panorama über das Emmental bis zu den Alpen."
+    },
+    {
+     "id": "emmental-hasle-holzbruecke",
+     "name": "Holzbrücke Hasle-Rüegsau",
+     "kind": "kultur",
+     "lat": 47.016,
+     "lon": 7.651,
+     "hours": 0.5,
+     "summary": "Gedeckte Holzbrücke über die Emme mit großer Bogenspannweite."
+    },
+    {
+     "id": "emmental-kambly",
+     "name": "Kambly Erlebnis Trubschachen",
+     "kind": "genuss",
+     "lat": 46.923,
+     "lon": 7.846,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Biskuitfabrik mit Degustation, gut als Regenziel im oberen Emmental."
+    }
+   ]
+  },
+  {
+   "id": "bielersee",
+   "name": "Biel & Bielersee",
+   "region": "Kanton Bern",
+   "country": "CH",
+   "lat": 47.137,
+   "lon": 7.247,
+   "kinds": [
+    "wasser",
+    "natur",
+    "stadt",
+    "baden"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Zweisprachige Stadt am Jurafuß mit Schluchten, Rebdörfern und der St. Petersinsel.",
+   "angle": "Hin auf dem Schiff zur St. Petersinsel, zurück zu Fuß über den Damm nach Erlach – ein Halbtag ohne Auto.",
+   "spots": [
+    {
+     "id": "bielersee-altstadt",
+     "name": "Altstadt Biel",
+     "kind": "stadt",
+     "lat": 47.141,
+     "lon": 7.247,
+     "hours": 1,
+     "summary": "Kleine mittelalterliche Altstadt mit Ring und Burgplatz."
+    },
+    {
+     "id": "bielersee-st-petersinsel",
+     "name": "St. Petersinsel",
+     "kind": "natur",
+     "lat": 47.082,
+     "lon": 7.148,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Halbinsel mit Klosterhof, Wald und Badestellen; erreichbar per Schiff oder über den Heidenweg ab Erlach."
+    },
+    {
+     "id": "bielersee-twannbachschlucht",
+     "name": "Twannbachschlucht",
+     "kind": "natur",
+     "lat": 47.098,
+     "lon": 7.159,
+     "hours": 1.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schluchtweg von Twann hinauf Richtung Lamboing durch Wald und Felsen."
+    },
+    {
+     "id": "bielersee-taubenlochschlucht",
+     "name": "Taubenlochschlucht",
+     "kind": "natur",
+     "lat": 47.157,
+     "lon": 7.27,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Gesicherter Weg durch die Schlucht der Schüss von Bözingen nach Frinvillier."
+    },
+    {
+     "id": "bielersee-magglingen",
+     "name": "Magglingen & Standseilbahn",
+     "kind": "berge",
+     "lat": 47.128,
+     "lon": 7.219,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Mit der Bahn auf die Jurahöhe, von dort Weitblick über Seeland und Alpen."
+    },
+    {
+     "id": "bielersee-strandbad",
+     "name": "Strandbad Biel",
+     "kind": "baden",
+     "lat": 47.131,
+     "lon": 7.236,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Großes Strandbad am Nordostufer des Sees."
+    }
+   ]
+  },
+  {
+   "id": "basel",
+   "name": "Basel & Rheinschwimmen",
+   "region": "Kanton Basel-Stadt",
+   "country": "CH",
+   "lat": 47.557,
+   "lon": 7.588,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "baden",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Museumsstadt am Rheinknie mit Münster, Fähren, Zoo und dem sommerlichen Treibenlassen im Rhein.",
+   "angle": "Sommerabend: mit dem Schwimmsack vom Tinguely Museum bis zur Johanniterbrücke treiben und am Kleinbasler Ufer bleiben.",
+   "spots": [
+    {
+     "id": "basel-rheinschwimmen",
+     "name": "Rheinschwimmen in Kleinbasel",
+     "kind": "baden",
+     "lat": 47.562,
+     "lon": 7.598,
+     "hours": 1.5,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "slot": "nachm",
+     "summary": "Mit Schwimmsack flussabwärts entlang der Kleinbasler Rheinpromenade.",
+     "tip": "Nur am Kleinbasler Ufer schwimmen, Brückenpfeiler und Schiffe meiden."
+    },
+    {
+     "id": "basel-muenster",
+     "name": "Basler Münster & Pfalz",
+     "kind": "kultur",
+     "lat": 47.556,
+     "lon": 7.592,
+     "hours": 1,
+     "summary": "Rotes Sandsteinmünster mit Terrasse hoch über dem Rhein."
+    },
+    {
+     "id": "basel-faehre",
+     "name": "Rheinfähren",
+     "kind": "wasser",
+     "lat": 47.559,
+     "lon": 7.592,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Kleine Fähren an Seilen, nur von der Strömung über den Rhein getrieben."
+    },
+    {
+     "id": "basel-zoo",
+     "name": "Zoo Basel",
+     "kind": "tiere",
+     "lat": 47.547,
+     "lon": 7.579,
+     "hours": 3,
+     "family": true,
+     "summary": "Traditionsreicher Stadtzoo mit Vivarium nahe dem Bahnhof SBB."
+    },
+    {
+     "id": "basel-tinguely",
+     "name": "Museum Tinguely",
+     "kind": "kultur",
+     "lat": 47.559,
+     "lon": 7.612,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Bewegte Maschinenskulpturen von Jean Tinguely direkt am Rhein."
+    },
+    {
+     "id": "basel-beyeler",
+     "name": "Fondation Beyeler",
+     "kind": "kultur",
+     "lat": 47.587,
+     "lon": 7.653,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Kunstmuseum der Moderne in Riehen, Bau von Renzo Piano mit Park."
+    }
+   ]
+  },
+  {
+   "id": "rheinfelden",
+   "name": "Rheinfelden & Augusta Raurica",
+   "region": "Kanton Aargau",
+   "country": "CH",
+   "lat": 47.554,
+   "lon": 7.794,
+   "kinds": [
+    "kultur",
+    "stadt",
+    "therme",
+    "tiere",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Zähringerstädtchen am Hochrhein mit Solebad, dazu die größte römische Ausgrabungsstätte der Schweiz.",
+   "angle": "Vormittags Römerstadt mit Kindern, nachmittags durch die Altstadt und zum Abschluss ins Solebad.",
+   "spots": [
+    {
+     "id": "rheinfelden-augusta-raurica",
+     "name": "Römerstadt Augusta Raurica",
+     "kind": "kultur",
+     "lat": 47.533,
+     "lon": 7.721,
+     "hours": 3,
+     "family": true,
+     "summary": "Theater, Tempel, Römerhaus und unterirdische Kloake einer römischen Koloniestadt."
+    },
+    {
+     "id": "rheinfelden-haustierpark",
+     "name": "Römischer Haustierpark Augusta Raurica",
+     "kind": "tiere",
+     "lat": 47.531,
+     "lon": 7.727,
+     "hours": 1,
+     "family": true,
+     "summary": "Alte Haustierrassen, wie sie die Römer kannten."
+    },
+    {
+     "id": "rheinfelden-altstadt",
+     "name": "Altstadt Rheinfelden",
+     "kind": "stadt",
+     "lat": 47.555,
+     "lon": 7.795,
+     "hours": 1.5,
+     "summary": "Gassen, Stadtmauer und Rheinbrücke zur deutschen Schwesterstadt."
+    },
+    {
+     "id": "rheinfelden-sole-uno",
+     "name": "sole uno Rheinfelden",
+     "kind": "therme",
+     "lat": 47.553,
+     "lon": 7.802,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Solebad mit Innen- und Außenbecken im Kurpark."
+    }
+   ]
+  },
+  {
+   "id": "baden-lenzburg",
+   "name": "Baden & Lenzburg",
+   "region": "Kanton Aargau",
+   "country": "CH",
+   "lat": 47.473,
+   "lon": 8.307,
+   "kinds": [
+    "stadt",
+    "therme",
+    "burg",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Bäderstadt an der Limmat mit Thermalbad und Altstadt, dazu Schloss Lenzburg und das Wasserschloss der Schweiz.",
+   "angle": "Morgens Schloss Lenzburg, nachmittags Wasserschloss bei Brugg und abends ins Thermalbad nach Baden.",
+   "spots": [
+    {
+     "id": "baden-lenzburg-altstadt",
+     "name": "Altstadt Baden & Holzbrücke",
+     "kind": "stadt",
+     "lat": 47.474,
+     "lon": 8.307,
+     "hours": 1.5,
+     "summary": "Steile Altstadt über der Limmat mit gedeckter Holzbrücke und Landvogteischloss."
+    },
+    {
+     "id": "baden-lenzburg-fortyseven",
+     "name": "Thermalbad FORTYSEVEN",
+     "kind": "therme",
+     "lat": 47.479,
+     "lon": 8.312,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Neues Thermalbad von Mario Botta direkt an der Limmat."
+    },
+    {
+     "id": "baden-lenzburg-ruine-stein",
+     "name": "Ruine Stein",
+     "kind": "burg",
+     "lat": 47.475,
+     "lon": 8.305,
+     "hours": 0.5,
+     "slot": "abend",
+     "summary": "Burgruine über der Altstadt mit Blick über Baden."
+    },
+    {
+     "id": "baden-lenzburg-kloster-wettingen",
+     "name": "Kloster Wettingen",
+     "kind": "kultur",
+     "lat": 47.462,
+     "lon": 8.326,
+     "hours": 1,
+     "summary": "Ehemaliges Zisterzienserkloster an der Limmatschleife mit Kreuzgang."
+    },
+    {
+     "id": "baden-lenzburg-wasserschloss",
+     "name": "Wasserschloss (Zusammenfluss von Aare, Reuss und Limmat)",
+     "kind": "natur",
+     "lat": 47.497,
+     "lon": 8.233,
+     "hours": 1.5,
+     "summary": "Auenlandschaft, in der die drei großen Mittellandflüsse zusammenfließen."
+    },
+    {
+     "id": "baden-lenzburg-schloss-lenzburg",
+     "name": "Schloss Lenzburg",
+     "kind": "burg",
+     "lat": 47.386,
+     "lon": 8.181,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Hochburg auf einem Felshügel mit Museum und Kinderangeboten."
+    }
+   ]
+  },
+  {
+   "id": "zug",
+   "name": "Zug & Zugersee",
+   "region": "Kanton Zug",
+   "country": "CH",
+   "lat": 47.166,
+   "lon": 8.516,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "unterwelt",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kompakte Altstadt am Zugersee mit Sonnenuntergangspromenade, Hausberg, Tropfsteinhöhlen und Tierpark Goldau.",
+   "angle": "Tags Höllgrotten oder Tierpark, abends an der Seepromenade, wenn die Sonne über dem See untergeht.",
+   "spots": [
+    {
+     "id": "zug-altstadt",
+     "name": "Altstadt & Zytturm",
+     "kind": "stadt",
+     "lat": 47.167,
+     "lon": 8.516,
+     "hours": 1,
+     "summary": "Alte Gassen am Seeufer mit dem bunten Zytturm."
+    },
+    {
+     "id": "zug-seepromenade",
+     "name": "Seepromenade Zug",
+     "kind": "wasser",
+     "lat": 47.168,
+     "lon": 8.512,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Uferpromenade, an der die Sonne über dem Zugersee untergeht."
+    },
+    {
+     "id": "zug-zugerberg",
+     "name": "Zugerberg",
+     "kind": "berge",
+     "lat": 47.142,
+     "lon": 8.54,
+     "hours": 2,
+     "family": true,
+     "summary": "Mit Bus und Standseilbahn auf den Hausberg mit Spazierwegen und Seeblick."
+    },
+    {
+     "id": "zug-hoellgrotten",
+     "name": "Höllgrotten Baar",
+     "kind": "unterwelt",
+     "lat": 47.19,
+     "lon": 8.563,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Tropfsteinhöhlen im Lorzentobel mit kurzen Rundgängen."
+    },
+    {
+     "id": "zug-tierpark-goldau",
+     "name": "Natur- und Tierpark Goldau",
+     "kind": "tiere",
+     "lat": 47.048,
+     "lon": 8.548,
+     "hours": 3,
+     "family": true,
+     "summary": "Tierpark im Bergsturzgebiet mit frei laufendem Damwild und Bären."
+    }
+   ]
+  },
+  {
+   "id": "einsiedeln",
+   "name": "Einsiedeln & Sihlsee",
+   "region": "Kanton Schwyz",
+   "country": "CH",
+   "lat": 47.128,
+   "lon": 8.752,
+   "kinds": [
+    "kultur",
+    "baden",
+    "freizeit",
+    "berge",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Barocker Klosterwallfahrtsort über dem größten Stausee der Schweiz, dazu Hängebrücke und Bergbahnen im Ybrig.",
+   "angle": "Morgens Klosterkirche, nachmittags im Sihlsee baden oder auf die Hängebrücke am Hochstuckli.",
+   "spots": [
+    {
+     "id": "einsiedeln-kloster",
+     "name": "Kloster Einsiedeln",
+     "kind": "kultur",
+     "lat": 47.127,
+     "lon": 8.755,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Benediktinerabtei mit prachtvoller Barockkirche und Schwarzer Madonna."
+    },
+    {
+     "id": "einsiedeln-sihlsee",
+     "name": "Sihlsee",
+     "kind": "baden",
+     "lat": 47.11,
+     "lon": 8.785,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Voralpiner Stausee mit Badeplätzen und Uferwegen."
+    },
+    {
+     "id": "einsiedeln-hochstuckli",
+     "name": "Sattel-Hochstuckli (Hängebrücke & Rodelbahn)",
+     "kind": "freizeit",
+     "lat": 47.075,
+     "lon": 8.643,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Drehgondelbahn, lange Fußgänger-Hängebrücke und Sommerrodelbahn am Mostelberg."
+    },
+    {
+     "id": "einsiedeln-hoch-ybrig",
+     "name": "Hoch-Ybrig",
+     "kind": "berge",
+     "lat": 47.03,
+     "lon": 8.8,
+     "hours": 4,
+     "months": [
+      12,
+      1,
+      2,
+      3,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Berggebiet mit Seilbahnen: im Winter Skigebiet, im Sommer Wandern."
+    }
+   ]
+  },
+  {
+   "id": "rapperswil",
+   "name": "Rapperswil & Seedamm",
+   "region": "Kanton St. Gallen",
+   "country": "CH",
+   "lat": 47.227,
+   "lon": 8.817,
+   "kinds": [
+    "stadt",
+    "tiere",
+    "wasser",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Rosenstadt am oberen Zürichsee mit Schloss, Holzsteg über den See und Kinderzoo.",
+   "angle": "Mit Kindern erst in den Kinderzoo, dann auf dem Holzsteg nach Hurden und mit dem Schiff zurück.",
+   "spots": [
+    {
+     "id": "rapperswil-schloss",
+     "name": "Schloss Rapperswil & Lindenhof",
+     "kind": "burg",
+     "lat": 47.227,
+     "lon": 8.815,
+     "hours": 1,
+     "summary": "Schlosshügel mit Rundblick über Zürichsee und Obersee."
+    },
+    {
+     "id": "rapperswil-holzsteg",
+     "name": "Holzsteg Rapperswil–Hurden",
+     "kind": "natur",
+     "lat": 47.217,
+     "lon": 8.812,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Langer Fußgängersteg über den See auf der alten Pilgerroute."
+    },
+    {
+     "id": "rapperswil-kinderzoo",
+     "name": "Knies Kinderzoo",
+     "kind": "tiere",
+     "lat": 47.224,
+     "lon": 8.825,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Zoo für Kinder mit Streichelgehege und Reitmöglichkeiten."
+    },
+    {
+     "id": "rapperswil-rosengarten",
+     "name": "Rosengärten Rapperswil",
+     "kind": "natur",
+     "lat": 47.227,
+     "lon": 8.816,
+     "hours": 1,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Mehrere Rosengärten rund um Altstadt und Kloster."
+    },
+    {
+     "id": "rapperswil-ufenau",
+     "name": "Insel Ufenau",
+     "kind": "natur",
+     "lat": 47.218,
+     "lon": 8.778,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kleine Klosterinsel im Zürichsee, per Schiff erreichbar."
+    }
+   ]
+  },
+  {
+   "id": "engelberg",
+   "name": "Engelberg & Titlis",
+   "region": "Kanton Obwalden",
+   "country": "CH",
+   "lat": 46.82,
+   "lon": 8.408,
+   "kinds": [
+    "berge",
+    "winter",
+    "aktiv",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Klosterdorf unter dem Titlis mit Gletscher, Bergseen, Klettersteigen und Skigebiet.",
+   "angle": "Früh auf den Titlis, solange die Sicht klar ist, auf dem Rückweg am Trübsee aussteigen und zu Fuß weiter.",
+   "spots": [
+    {
+     "id": "engelberg-titlis",
+     "name": "Titlis & Cliff Walk",
+     "kind": "berge",
+     "lat": 46.772,
+     "lon": 8.437,
+     "hours": 4,
+     "summary": "Seilbahnen bis auf den Gletscher, Hängebrücke über der Felswand.",
+     "tip": "Warme Kleidung mitnehmen, oben herrscht oft Schnee."
+    },
+    {
+     "id": "engelberg-truebsee",
+     "name": "Trübsee",
+     "kind": "natur",
+     "lat": 46.791,
+     "lon": 8.399,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Bergsee mit Rundweg an der Titlis-Bahn."
+    },
+    {
+     "id": "engelberg-kloster",
+     "name": "Kloster Engelberg",
+     "kind": "kultur",
+     "lat": 46.82,
+     "lon": 8.402,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Benediktinerabtei mit Klosterkirche und Schaukäserei."
+    },
+    {
+     "id": "engelberg-brunni",
+     "name": "Brunni & Klettersteig Brunnistöckli",
+     "kind": "aktiv",
+     "lat": 46.837,
+     "lon": 8.428,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Sonnenseite von Engelberg mit Familienklettersteig und Bergweg.",
+     "tip": "Nur mit Klettersteigset und Helm."
+    },
+    {
+     "id": "engelberg-skigebiet",
+     "name": "Skigebiet Titlis",
+     "kind": "winter",
+     "lat": 46.786,
+     "lon": 8.382,
+     "hours": 6,
+     "months": [
+      12,
+      1,
+      2,
+      3,
+      4
+     ],
+     "summary": "Hochgelegenes Skigebiet bis auf den Gletscher."
+    }
+   ]
+  },
+  {
+   "id": "stoos",
+   "name": "Stoos & Muotathal",
+   "region": "Kanton Schwyz",
+   "country": "CH",
+   "lat": 46.977,
+   "lon": 8.663,
+   "kinds": [
+    "berge",
+    "aktiv",
+    "unterwelt",
+    "technik",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Autofreies Bergdorf mit der steilsten Standseilbahn, Gratwanderung und dem Höhlensystem Hölloch.",
+   "angle": "Zum Sonnenaufgang auf den Fronalpstock, danach die Gratwanderung, bei Regen ins Bundesbriefmuseum.",
+   "spots": [
+    {
+     "id": "stoos-stoosbahn",
+     "name": "Stoosbahn",
+     "kind": "technik",
+     "lat": 46.987,
+     "lon": 8.64,
+     "hours": 1,
+     "family": true,
+     "summary": "Sehr steile Standseilbahn mit drehbaren Kabinen ab Schwyz-Schlattli."
+    },
+    {
+     "id": "stoos-fronalpstock",
+     "name": "Fronalpstock",
+     "kind": "berge",
+     "lat": 46.972,
+     "lon": 8.637,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "slot": "morgen",
+     "summary": "Aussichtsgipfel mit Blick auf zehn Seen und den Vierwaldstättersee."
+    },
+    {
+     "id": "stoos-gratwanderung",
+     "name": "Gratwanderung Klingenstock–Fronalpstock",
+     "kind": "aktiv",
+     "lat": 46.968,
+     "lon": 8.66,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ausgesetzter Gratweg zwischen zwei Sesselbahnen.",
+     "tip": "Trittsicherheit nötig, bei Nässe meiden."
+    },
+    {
+     "id": "stoos-hoelloch",
+     "name": "Hölloch",
+     "kind": "unterwelt",
+     "lat": 46.963,
+     "lon": 8.73,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Eines der längsten Höhlensysteme der Welt, nur mit geführter Tour."
+    },
+    {
+     "id": "stoos-bundesbriefmuseum",
+     "name": "Bundesbriefmuseum Schwyz",
+     "kind": "kultur",
+     "lat": 47.023,
+     "lon": 8.653,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Museum zum Bundesbrief von 1291 und den Anfängen der Eidgenossenschaft."
+    }
+   ]
+  },
+  {
+   "id": "st-gallen",
+   "name": "St. Gallen & Stiftsbezirk",
+   "region": "Kanton St. Gallen",
+   "country": "CH",
+   "lat": 47.424,
+   "lon": 9.377,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "baden",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Textilstadt mit UNESCO-Stiftsbezirk und Stiftsbibliothek, Weiherbädern über den Dächern und Wildpark.",
+   "angle": "Vormittags Stiftsbibliothek, am Sommerabend mit der Mühleggbahn hinauf zu den Drei Weieren.",
+   "spots": [
+    {
+     "id": "st-gallen-stiftsbezirk",
+     "name": "Stiftsbezirk & Stiftsbibliothek",
+     "kind": "kultur",
+     "lat": 47.423,
+     "lon": 9.377,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barocker Bibliothekssaal und Kathedrale, UNESCO-Welterbe."
+    },
+    {
+     "id": "st-gallen-textilmuseum",
+     "name": "Textilmuseum St. Gallen",
+     "kind": "kultur",
+     "lat": 47.425,
+     "lon": 9.373,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Stickereien und Spitzen aus der Blütezeit der St. Galler Textilindustrie."
+    },
+    {
+     "id": "st-gallen-stadtlounge",
+     "name": "Stadtlounge (Roter Platz)",
+     "kind": "stadt",
+     "lat": 47.423,
+     "lon": 9.371,
+     "hours": 0.5,
+     "summary": "Mit rotem Belag überzogener Platz als begehbares Kunstwerk."
+    },
+    {
+     "id": "st-gallen-drei-weieren",
+     "name": "Drei Weieren",
+     "kind": "baden",
+     "lat": 47.418,
+     "lon": 9.385,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "slot": "abend",
+     "summary": "Historische Weiherbäder auf dem Hügel mit Blick über die Stadt."
+    },
+    {
+     "id": "st-gallen-peter-paul",
+     "name": "Wildpark Peter und Paul",
+     "kind": "tiere",
+     "lat": 47.441,
+     "lon": 9.388,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Wildpark am Stadtrand mit Steinböcken, Gämsen und Murmeltieren."
+    }
+   ]
+  },
+  {
+   "id": "appenzell",
+   "name": "Appenzell & Alpstein",
+   "region": "Kanton Appenzell Innerrhoden",
+   "country": "CH",
+   "lat": 47.331,
+   "lon": 9.409,
+   "kinds": [
+    "berge",
+    "natur",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Bemaltes Dorf als Basis für Säntis, Ebenalp, Seealpsee und Hoher Kasten im Alpstein.",
+   "angle": "Hoch mit der Ebenalpbahn, über Wildkirchli und Äscher hinab zum Seealpsee und von Wasserauen zurück.",
+   "spots": [
+    {
+     "id": "appenzell-dorf",
+     "name": "Dorfkern Appenzell",
+     "kind": "stadt",
+     "lat": 47.331,
+     "lon": 9.409,
+     "hours": 1,
+     "summary": "Hauptgasse mit bemalten Fassaden und Landsgemeindeplatz."
+    },
+    {
+     "id": "appenzell-museum",
+     "name": "Museum Appenzell",
+     "kind": "kultur",
+     "lat": 47.331,
+     "lon": 9.409,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Brauchtum, Trachten und Stickerei des Appenzellerlands."
+    },
+    {
+     "id": "appenzell-ebenalp",
+     "name": "Ebenalp, Wildkirchli & Äscher",
+     "kind": "berge",
+     "lat": 47.284,
+     "lon": 9.412,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Seilbahn ab Wasserauen, Höhlenkapelle und Felswand-Gasthaus."
+    },
+    {
+     "id": "appenzell-seealpsee",
+     "name": "Seealpsee",
+     "kind": "natur",
+     "lat": 47.27,
+     "lon": 9.399,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Bergsee unter dem Säntismassiv, zu Fuß ab Wasserauen."
+    },
+    {
+     "id": "appenzell-hoher-kasten",
+     "name": "Hoher Kasten",
+     "kind": "berge",
+     "lat": 47.285,
+     "lon": 9.484,
+     "hours": 2,
+     "summary": "Drehrestaurant-Gipfel mit Blick ins Rheintal; Seilbahn ab Brülisau."
+    },
+    {
+     "id": "appenzell-saentis",
+     "name": "Säntis",
+     "kind": "berge",
+     "lat": 47.249,
+     "lon": 9.343,
+     "hours": 2.5,
+     "summary": "Schwebebahn ab Schwägalp auf den höchsten Ostschweizer Gipfel."
+    }
+   ]
+  },
+  {
+   "id": "bodensee-sued",
+   "name": "Bodensee-Südufer (Arbon & Rorschach)",
+   "region": "Kanton Thurgau",
+   "country": "CH",
+   "lat": 47.515,
+   "lon": 9.433,
+   "kinds": [
+    "wasser",
+    "baden",
+    "technik",
+    "aktiv",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Schweizer Seeufer mit Hafenstädtchen, Fahrzeugmuseum, historischem Pfahlbad und flachem Uferradweg.",
+   "angle": "Mit dem Velo am See entlang von Romanshorn nach Rorschach, zwischendurch ins Saurer Museum und zum Schluss in die Badhütte.",
+   "spots": [
+    {
+     "id": "bodensee-sued-saurer",
+     "name": "Saurer Museum Arbon",
+     "kind": "technik",
+     "lat": 47.514,
+     "lon": 9.437,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Lastwagen, Busse und Stickmaschinen aus der Arboner Industriegeschichte."
+    },
+    {
+     "id": "bodensee-sued-schloss-arbon",
+     "name": "Schloss Arbon & Altstadt",
+     "kind": "kultur",
+     "lat": 47.517,
+     "lon": 9.436,
+     "hours": 1,
+     "summary": "Altstadt am Seeufer mit Schloss und historischem Museum."
+    },
+    {
+     "id": "bodensee-sued-badhuette",
+     "name": "Badhütte Rorschach",
+     "kind": "baden",
+     "lat": 47.479,
+     "lon": 9.494,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Historisches Pfahlbad auf Stelzen im See."
+    },
+    {
+     "id": "bodensee-sued-wuerth-haus",
+     "name": "Forum Würth Rorschach",
+     "kind": "kultur",
+     "lat": 47.476,
+     "lon": 9.484,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Kunstausstellungen im Würth Haus direkt am Seeufer."
+    },
+    {
+     "id": "bodensee-sued-radweg",
+     "name": "Bodensee-Radweg Romanshorn–Rorschach",
+     "kind": "aktiv",
+     "lat": 47.52,
+     "lon": 9.42,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Uferabschnitt des Bodensee-Radwegs mit Bahnhöfen in jedem Ort."
+    }
+   ]
+  },
+  {
+   "id": "kreuzlingen",
+   "name": "Kreuzlingen & Untersee",
+   "region": "Kanton Thurgau",
+   "country": "CH",
+   "lat": 47.65,
+   "lon": 9.175,
+   "kinds": [
+    "wasser",
+    "kultur",
+    "natur",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Schweizer Nachbarstadt von Konstanz mit Seeburgpark, Seemuseum und dem Napoleonmuseum Arenenberg am Untersee.",
+   "angle": "Von Kreuzlingen mit dem Schiff den Seerhein hinab nach Gottlieben und zu Fuß auf den Arenenberg.",
+   "spots": [
+    {
+     "id": "kreuzlingen-seeburgpark",
+     "name": "Seeburgpark",
+     "kind": "natur",
+     "lat": 47.65,
+     "lon": 9.192,
+     "hours": 1,
+     "family": true,
+     "summary": "Großer Uferpark mit Schlösschen und Spielplätzen am See."
+    },
+    {
+     "id": "kreuzlingen-seemuseum",
+     "name": "Seemuseum Kreuzlingen",
+     "kind": "kultur",
+     "lat": 47.649,
+     "lon": 9.19,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum zu Fischerei und Schifffahrt am Bodensee im Seeburgpark."
+    },
+    {
+     "id": "kreuzlingen-gottlieben",
+     "name": "Gottlieben",
+     "kind": "stadt",
+     "lat": 47.664,
+     "lon": 9.133,
+     "hours": 1,
+     "summary": "Kleines Dorf mit Fachwerkhäusern am Seerhein."
+    },
+    {
+     "id": "kreuzlingen-schiff",
+     "name": "Schiff auf Untersee und Rhein",
+     "kind": "wasser",
+     "lat": 47.651,
+     "lon": 9.179,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kursschiffe von Kreuzlingen den Seerhein und Untersee hinab Richtung Stein am Rhein."
+    },
+    {
+     "id": "kreuzlingen-arenenberg",
+     "name": "Napoleonmuseum Arenenberg",
+     "kind": "kultur",
+     "lat": 47.672,
+     "lon": 9.097,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss der Familie Napoleon mit Park und Blick über den Untersee."
+    }
+   ]
+  },
+  {
+   "id": "liechtenstein",
+   "name": "Vaduz & Liechtenstein",
+   "region": "Liechtenstein",
+   "country": "LI",
+   "lat": 47.141,
+   "lon": 9.521,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "berge",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kleinstaat mit Museumsmeile in Vaduz, Fürstenschloss über der Stadt und Bergdorf Malbun.",
+   "angle": "Bei Regen die Museen in Vaduz, bei klarer Sicht der Fürstensteig mit Blick ins Rheintal.",
+   "spots": [
+    {
+     "id": "liechtenstein-kunstmuseum",
+     "name": "Kunstmuseum Liechtenstein",
+     "kind": "kultur",
+     "lat": 47.139,
+     "lon": 9.522,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schwarzer Museumsbau mit moderner und zeitgenössischer Kunst."
+    },
+    {
+     "id": "liechtenstein-landesmuseum",
+     "name": "Liechtensteinisches Landesmuseum",
+     "kind": "kultur",
+     "lat": 47.138,
+     "lon": 9.522,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Geschichte und Natur des Fürstentums."
+    },
+    {
+     "id": "liechtenstein-schloss",
+     "name": "Schloss Vaduz",
+     "kind": "burg",
+     "lat": 47.14,
+     "lon": 9.526,
+     "hours": 0.5,
+     "summary": "Fürstenschloss über Vaduz, bewohnt und nur von außen zu sehen."
+    },
+    {
+     "id": "liechtenstein-fuerstensteig",
+     "name": "Fürstensteig",
+     "kind": "aktiv",
+     "lat": 47.147,
+     "lon": 9.546,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Gesicherter Felsweg ab Gaflei hoch über dem Rheintal.",
+     "tip": "Trittsicherheit und Schwindelfreiheit nötig."
+    },
+    {
+     "id": "liechtenstein-malbun",
+     "name": "Malbun",
+     "kind": "berge",
+     "lat": 47.102,
+     "lon": 9.609,
+     "hours": 3,
+     "family": true,
+     "summary": "Bergdorf mit Familienskigebiet im Winter und Wanderwegen im Sommer."
+    },
+    {
+     "id": "liechtenstein-rheindamm",
+     "name": "Rheindamm-Radweg",
+     "kind": "aktiv",
+     "lat": 47.14,
+     "lon": 9.505,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Radweg auf dem Rheindamm entlang der Grenze zur Schweiz."
+    }
+   ]
+  },
+  {
+   "id": "walensee",
+   "name": "Walensee & Flumserberg",
+   "region": "Kanton St. Gallen",
+   "country": "CH",
+   "lat": 47.115,
+   "lon": 9.215,
+   "kinds": [
+    "wasser",
+    "berge",
+    "baden",
+    "freizeit",
+    "natur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Fjordartiger See unter den Churfirsten mit autofreiem Quinten, Wasserfällen und Sommerrodelbahn am Flumserberg.",
+   "angle": "Mit dem Schiff nach Quinten und zu Fuß Richtung Seerenbachfälle, danach am Südufer baden.",
+   "spots": [
+    {
+     "id": "walensee-schiff",
+     "name": "Schiff auf dem Walensee",
+     "kind": "wasser",
+     "lat": 47.12,
+     "lon": 9.215,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kursschiffe verbinden die Dörfer am Nord- und Südufer."
+    },
+    {
+     "id": "walensee-quinten",
+     "name": "Quinten",
+     "kind": "natur",
+     "lat": 47.129,
+     "lon": 9.215,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Dorf am Nordufer ohne Straßenanschluss, mit Rebbergen und Uferweg."
+    },
+    {
+     "id": "walensee-seerenbach",
+     "name": "Seerenbachfälle",
+     "kind": "natur",
+     "lat": 47.138,
+     "lon": 9.192,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Mehrstufige Wasserfälle über dem Nordufer bei Betlis."
+    },
+    {
+     "id": "walensee-strandbad",
+     "name": "Strandbad Walenstadt",
+     "kind": "baden",
+     "lat": 47.123,
+     "lon": 9.306,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Seebad am Ostende des Walensees."
+    },
+    {
+     "id": "walensee-floomzer",
+     "name": "Floomzer Rodelbahn Flumserberg",
+     "kind": "freizeit",
+     "lat": 47.091,
+     "lon": 9.282,
+     "hours": 1,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Sommerrodelbahn auf dem Tannenboden."
+    }
+   ]
+  },
+  {
+   "id": "bad-ragaz",
+   "name": "Bad Ragaz & Heidiland",
+   "region": "Kanton St. Gallen",
+   "country": "CH",
+   "lat": 47.004,
+   "lon": 9.502,
+   "kinds": [
+    "therme",
+    "natur",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Kurort mit Thermalwasser aus der Taminaschlucht, dazu Heidis Maienfeld und die Altstadt von Chur.",
+   "angle": "Erst zu Fuß durch die Taminaschlucht zur Quelle, dann das Wasser in der Tamina Therme genießen.",
+   "spots": [
+    {
+     "id": "bad-ragaz-taminaschlucht",
+     "name": "Taminaschlucht & Altes Bad Pfäfers",
+     "kind": "natur",
+     "lat": 46.985,
+     "lon": 9.497,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Enge Schlucht mit Thermalquelle und barockem Badehaus."
+    },
+    {
+     "id": "bad-ragaz-tamina-therme",
+     "name": "Tamina Therme",
+     "kind": "therme",
+     "lat": 47.003,
+     "lon": 9.503,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad mit Wasser aus der Taminaquelle."
+    },
+    {
+     "id": "bad-ragaz-heididorf",
+     "name": "Heididorf Maienfeld",
+     "kind": "kultur",
+     "lat": 47.017,
+     "lon": 9.532,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Nachgebautes Heidi-Dorf mit Wanderwegen in die Weinberge."
+    },
+    {
+     "id": "bad-ragaz-chur",
+     "name": "Altstadt Chur",
+     "kind": "stadt",
+     "lat": 46.85,
+     "lon": 9.532,
+     "hours": 2,
+     "summary": "Älteste Stadt der Schweiz mit Kathedrale und Gassen."
+    }
+   ]
+  },
+  {
+   "id": "flims",
+   "name": "Flims & Rheinschlucht (Ruinaulta)",
+   "region": "Kanton Graubünden",
+   "country": "CH",
+   "lat": 46.836,
+   "lon": 9.284,
+   "kinds": [
+    "baden",
+    "natur",
+    "aktiv",
+    "winter",
+    "berge"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Bergsturzgebiet mit türkisfarbenen Waldseen, der Rheinschlucht Ruinaulta und großem Skigebiet.",
+   "angle": "Vormittags auf die Plattform Il Spir, nachmittags baden im Caumasee, wenn das Wasser am wärmsten ist.",
+   "spots": [
+    {
+     "id": "flims-caumasee",
+     "name": "Caumasee",
+     "kind": "baden",
+     "lat": 46.822,
+     "lon": 9.293,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Türkisfarbener Waldsee mit Badestrand und Bootsverleih."
+    },
+    {
+     "id": "flims-crestasee",
+     "name": "Crestasee",
+     "kind": "baden",
+     "lat": 46.826,
+     "lon": 9.315,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Kleinerer, ruhigerer Waldsee bei Trin."
+    },
+    {
+     "id": "flims-il-spir",
+     "name": "Aussichtsplattform Il Spir",
+     "kind": "natur",
+     "lat": 46.812,
+     "lon": 9.313,
+     "hours": 1,
+     "family": true,
+     "summary": "Plattform über der Rheinschlucht Ruinaulta."
+    },
+    {
+     "id": "flims-rafting",
+     "name": "Rafting in der Rheinschlucht Ruinaulta",
+     "kind": "aktiv",
+     "lat": 46.794,
+     "lon": 9.333,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Geführte Schlauchboottouren durch die Schlucht des Vorderrheins.",
+     "tip": "Nur mit Anbieter und Führer."
+    },
+    {
+     "id": "flims-skigebiet",
+     "name": "Skigebiet Flims Laax Falera",
+     "kind": "winter",
+     "lat": 46.817,
+     "lon": 9.253,
+     "hours": 6,
+     "months": [
+      12,
+      1,
+      2,
+      3,
+      4
+     ],
+     "summary": "Großes Skigebiet mit Snowparks über Laax und Flims."
+    }
+   ]
+  },
+  {
+   "id": "saint-ursanne",
+   "name": "Saint-Ursanne & Ajoie",
+   "region": "Kanton Jura",
+   "country": "CH",
+   "lat": 47.364,
+   "lon": 7.155,
+   "kinds": [
+    "stadt",
+    "natur",
+    "aktiv",
+    "unterwelt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Mittelalterliches Städtchen am Doubs mit Steinbrücke, Kanufahrten und Tropfsteinhöhlen in der Ajoie.",
+   "angle": "Morgens mit dem Kanu auf den Doubs, nachmittags in die Grottes de Réclère und abends durch Porrentruy.",
+   "spots": [
+    {
+     "id": "saint-ursanne-altstadt",
+     "name": "Altstadt Saint-Ursanne & Doubsbrücke",
+     "kind": "stadt",
+     "lat": 47.365,
+     "lon": 7.155,
+     "hours": 1.5,
+     "summary": "Stiftskirche, Stadttore und Steinbrücke über den Doubs."
+    },
+    {
+     "id": "saint-ursanne-doubs",
+     "name": "Kanu auf dem Doubs",
+     "kind": "aktiv",
+     "lat": 47.36,
+     "lon": 7.15,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Ruhige Flussabschnitte durch das Doubstal mit Bootsverleih vor Ort."
+    },
+    {
+     "id": "saint-ursanne-reclere",
+     "name": "Grottes de Réclère & Préhisto-Parc",
+     "kind": "unterwelt",
+     "lat": 47.413,
+     "lon": 6.996,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Tropfsteinhöhle mit Dinosaurier-Lehrpfad im Wald."
+    },
+    {
+     "id": "saint-ursanne-porrentruy",
+     "name": "Altstadt Porrentruy",
+     "kind": "stadt",
+     "lat": 47.416,
+     "lon": 7.076,
+     "hours": 1.5,
+     "summary": "Ehemalige Fürstbischofsresidenz mit Schloss und Brunnen."
+    }
+   ]
+  },
+  {
+   "id": "mulhouse",
+   "name": "Mulhouse & Écomusée",
+   "region": "Elsass",
+   "country": "FR",
+   "lat": 47.746,
+   "lon": 7.338,
+   "kinds": [
+    "technik",
+    "tiere",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Industriestadt mit großen Automobil- und Eisenbahnmuseen, Zoo und dem Freilichtmuseum Écomusée d'Alsace.",
+   "angle": "Regentag: morgens Cité du Train, nachmittags Cité de l'Automobile – beide sind große Hallen.",
+   "spots": [
+    {
+     "id": "mulhouse-automobile",
+     "name": "Cité de l'Automobile",
+     "kind": "technik",
+     "lat": 47.762,
+     "lon": 7.327,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Riesige Oldtimersammlung mit vielen Bugattis."
+    },
+    {
+     "id": "mulhouse-train",
+     "name": "Cité du Train",
+     "kind": "technik",
+     "lat": 47.744,
+     "lon": 7.313,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Eisenbahnmuseum mit Dampfloks und historischen Wagen."
+    },
+    {
+     "id": "mulhouse-zoo",
+     "name": "Parc Zoologique et Botanique de Mulhouse",
+     "kind": "tiere",
+     "lat": 47.733,
+     "lon": 7.348,
+     "hours": 3,
+     "family": true,
+     "summary": "Zoo mit Botanischem Garten am Stadtrand."
+    },
+    {
+     "id": "mulhouse-ecomusee",
+     "name": "Écomusée d'Alsace",
+     "kind": "kultur",
+     "lat": 47.852,
+     "lon": 7.285,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freilichtmuseum mit alten Fachwerkhäusern und Handwerk."
+    },
+    {
+     "id": "mulhouse-reunion",
+     "name": "Place de la Réunion & Temple Saint-Étienne",
+     "kind": "stadt",
+     "lat": 47.746,
+     "lon": 7.338,
+     "hours": 1,
+     "summary": "Bunter Hauptplatz mit Rathaus und neugotischer Kirche."
+    }
+   ]
+  },
+  {
+   "id": "obernai",
+   "name": "Obernai & Mont Sainte-Odile",
+   "region": "Elsass",
+   "country": "FR",
+   "lat": 48.462,
+   "lon": 7.482,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "natur"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Weinstädtchen am Fuß der Vogesen mit dem Wallfahrtsberg Sainte-Odile und der Gedenkstätte Struthof.",
+   "angle": "Morgens auf den Mont Sainte-Odile, nachmittags Struthof besuchen und abends über den Marktplatz von Obernai.",
+   "spots": [
+    {
+     "id": "obernai-altstadt",
+     "name": "Altstadt Obernai",
+     "kind": "stadt",
+     "lat": 48.462,
+     "lon": 7.482,
+     "hours": 1.5,
+     "summary": "Fachwerkhäuser, Marktplatz und Stadtmauer."
+    },
+    {
+     "id": "obernai-mont-sainte-odile",
+     "name": "Mont Sainte-Odile & Heidenmauer",
+     "kind": "kultur",
+     "lat": 48.437,
+     "lon": 7.404,
+     "hours": 2,
+     "summary": "Klosterberg mit Aussicht über die Rheinebene und keltischer Mauer."
+    },
+    {
+     "id": "obernai-struthof",
+     "name": "Gedenkstätte Natzweiler-Struthof",
+     "kind": "kultur",
+     "lat": 48.454,
+     "lon": 7.254,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Ehemaliges Konzentrationslager mit Dokumentationszentrum."
+    },
+    {
+     "id": "obernai-champ-du-feu",
+     "name": "Champ du Feu",
+     "kind": "berge",
+     "lat": 48.399,
+     "lon": 7.267,
+     "hours": 2,
+     "summary": "Hochfläche mit Aussichtsturm, im Winter Langlauf."
+    },
+    {
+     "id": "obernai-rosheim",
+     "name": "Rosheim",
+     "kind": "kultur",
+     "lat": 48.497,
+     "lon": 7.471,
+     "hours": 1,
+     "summary": "Kleinstadt mit romanischer Kirche Saints-Pierre-et-Paul."
+    }
+   ]
+  },
+  {
+   "id": "saverne",
+   "name": "Saverne & Rhein-Marne-Kanal",
+   "region": "Elsass",
+   "country": "FR",
+   "lat": 48.741,
+   "lon": 7.362,
+   "kinds": [
+    "stadt",
+    "burg",
+    "technik",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kanalstadt am Vogesenpass mit Rohan-Schloss, Felsenburg Haut-Barr und dem Schiffshebewerk von Arzviller.",
+   "angle": "Mit dem Velo am Kanal entlang zum Schiffshebewerk, zurück über die Burg Haut-Barr mit Blick in die Rheinebene.",
+   "spots": [
+    {
+     "id": "saverne-rohan",
+     "name": "Château des Rohan",
+     "kind": "burg",
+     "lat": 48.742,
+     "lon": 7.364,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Klassizistisches Schloss mit Museum am Kanal."
+    },
+    {
+     "id": "saverne-haut-barr",
+     "name": "Château du Haut-Barr",
+     "kind": "burg",
+     "lat": 48.728,
+     "lon": 7.339,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burgruine auf Sandsteinfelsen, „Auge des Elsass“."
+    },
+    {
+     "id": "saverne-plan-incline",
+     "name": "Schiffshebewerk Saint-Louis-Arzviller",
+     "kind": "technik",
+     "lat": 48.72,
+     "lon": 7.158,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schrägaufzug, der Schiffe in einem Trog über den Hang hebt."
+    },
+    {
+     "id": "saverne-kanal-radweg",
+     "name": "Radweg am Rhein-Marne-Kanal",
+     "kind": "aktiv",
+     "lat": 48.743,
+     "lon": 7.36,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Treidelpfad entlang des Kanals."
+    },
+    {
+     "id": "saverne-la-petite-pierre",
+     "name": "La Petite-Pierre",
+     "kind": "burg",
+     "lat": 48.858,
+     "lon": 7.316,
+     "hours": 1.5,
+     "summary": "Burgstädtchen im Naturpark Nordvogesen."
+    }
+   ]
+  },
+  {
+   "id": "wissembourg",
+   "name": "Wissembourg & Nordvogesen",
+   "region": "Elsass",
+   "country": "FR",
+   "lat": 49.037,
+   "lon": 7.945,
+   "kinds": [
+    "stadt",
+    "burg",
+    "unterwelt",
+    "natur"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Grenzstadt mit Fachwerk und Abteikirche, Burgruinen im Sandstein und Maginot-Linie.",
+   "angle": "Vormittags Fleckenstein, nachmittags ins Ouvrage de Schoenenbourg – unterirdisch auch bei Regen.",
+   "spots": [
+    {
+     "id": "wissembourg-altstadt",
+     "name": "Altstadt Wissembourg & Abteikirche",
+     "kind": "stadt",
+     "lat": 49.037,
+     "lon": 7.945,
+     "hours": 1.5,
+     "summary": "Fachwerkhäuser an der Lauter und gotische Abteikirche."
+    },
+    {
+     "id": "wissembourg-fleckenstein",
+     "name": "Burg Fleckenstein",
+     "kind": "burg",
+     "lat": 49.046,
+     "lon": 7.774,
+     "hours": 2,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Felsenburg im Sandstein mit Kinderspielpfad."
+    },
+    {
+     "id": "wissembourg-schoenenbourg",
+     "name": "Ouvrage de Schoenenbourg",
+     "kind": "unterwelt",
+     "lat": 48.966,
+     "lon": 7.927,
+     "hours": 2,
+     "indoor": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Unterirdisches Werk der Maginot-Linie."
+    },
+    {
+     "id": "wissembourg-hunspach",
+     "name": "Hunspach",
+     "kind": "kultur",
+     "lat": 48.952,
+     "lon": 7.943,
+     "hours": 1,
+     "summary": "Fachwerkdorf mit weißen Häusern."
+    }
+   ]
+  }
+ ]
+}

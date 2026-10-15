@@ -1,5 +1,21 @@
 # Projektstand · 15.10.2026
 
+## Katalog K3/K4: Daten v4, vier neue Arten, 73 Referenzpunkte (Claude, #8)
+
+Implementiert: Katalog Version 4 mit **368 Zielen und 1.774 Attraktionen** (v3: 200 Ziele). Neue Quelldateien `catalog/src/nord-2, mitte, ost-2, west-2, suedwest, bayern-2, alpen-ost, alpen-west`. Neue Arten `baden` (Baden & Strand), `tiere` (Tiere & Wildparks), `freizeit` (Freizeit & Erlebnis), `aktiv` (Rad, Kanu & Klettern) in `catalog.js` und im Prüfskript; dadurch erscheinen ChatGPTs vier vorbereitete Wunschkarten. 24 neue Referenzpunkte (u. a. Bamberg, Bern, Bozen, Flensburg, Klagenfurt, Luzern, Potsdam, Straßburg), jetzt 73. Seed-Migration `20261015210000_catalog_seed_v4.sql` und manueller Fallback `supabase/manual/apply-catalog-v4.sql` erzeugt.
+
+Abdeckung (Luftlinie ≤ 150 km): jeder der 73 Referenzpunkte hat mindestens 22 Ziele (Wien 22, Bozen 23, Flensburg 24 …), Median 42; ≤ 60 km mindestens 5. Arten: kultur 245, natur 192, stadt 165, wasser 114, burg 99, aktiv 90, baden 83, berge 76, familie 70, technik 67, genuss 62, tiere 58, unterwelt 49, therme 39, winter 34, freizeit 27.
+
+Daten: von Recherche-Agenten nach festem Briefing (keine Preise, Öffnungszeiten oder Uhrzeiten, nur bekannte dauerhafte Orte, Koordinaten realistisch) erstellt, maschinell geprüft (Länderboxen, Spot ≤ 25 km vom Ziel, verbotene Wörter, Pflichtfelder) und auf Dubletten gesichtet (doppeltes Hann. Münden entfernt, Ulmer Münster nicht zusätzlich bei Günzburg). **Nicht einzeln vor Ort oder gegen Quellen verifiziert**: Koordinaten sind Näherungen, Saisonmonate typische Werte. Fehlerhinweise bitte als Korrektur in `catalog/src`.
+
+Korrigiert (gefunden durch die größere Datenmenge):
+- Die Wunsch-Bewertung sah nur die **80 nächsten** Treffer (lokal seit K2, Datenbank `catalog_search` v1 schon immer mit `limit 80`). Bei „Richtig weg“ fielen dadurch ferne Ziele wie Berlin weg. Jetzt: lokal alle Treffer (bis 1.000), Datenbank `catalog_search_v2` in 200er-Seiten bis zur Gesamtzahl (`catDbAll`, höchstens 1.000); alte v1-Funktion ohne Gesamtzahl liefert weiter eine Seite.
+- `tests/catalog.cjs`: Der App-Teil hing seit K1 stumm (Kachel-Nachladen im Test-Dokument lief nie), Node endete mit 0 und die App-Prüfungen liefen nicht. Testdokument führt Skripte jetzt aus; Abschlusswächter lässt den Test scheitern, wenn er nicht bis zum Ende kommt. Alle übrigen Testdateien geben eine Abschlusszeile aus.
+
+Geprüft: `npm test` vollständig grün (neu: jede Art ≥ 10 Ziele, jeder Referenzpunkt ≥ 15 Ziele, lokales Paging über 80, Datenbank-Seitenabruf 450/ohne Gesamtzahl/Obergrenze). `npm run test:browser` (Chromium Desktop, mobil, 320 px dunkel) bestanden, Kartenstapel-Zähler jetzt aus `catMoodKeys`. Lokal mit Docker/Supabase: `db lint` ohne Fehler, `REQUIRE_DB=1 npm run test:db` (neu: alle Seiten über 200 Treffer = lokale Regel) und `test:e2e` bestanden. Kein iPhone-Test.
+
+Grenzen: Produktion bekommt v4 erst mit der Migration über die GitHub-Integration (oder den manuellen Fallback); bis dahin liefert die Datenbank v3, die App zeigt die Quelle. Die Ergebnisliste zeigt weiterhin alle bewerteten Treffer ohne eigenes „Mehr laden“. Nächster Schritt: Produktionsstand v4 read-only prüfen, danach optional Paging in der Oberfläche (ChatGPT) und weitere Lücken (Freizeitparks, Winter) gezielt füllen.
+
 ## Bestätigter Prüf- und Veröffentlichungsstand (ChatGPT, #8)
 
 Maßgeblicher UI-Code 6dd3f09, Test-Fixture 7756ca8: [CI 38784550937](https://github.com/Freadeax/Reiseplaner/actions/runs/38784550937) vollständig erfolgreich mit app, browser, database, build und deploy. Rückstufungsschutz/SWv9 sind veröffentlicht. Chromium prüfte Desktop und 320 px dunkel einschließlich neuer Abschnitts-/Gepäck-/Check-in-Dialoge, Storno/Erstattung/Rücknahme für Buchungsbuch und Unterkunft, Neuladen, veralteten Quellstand, Bereichswechsel, echte Storage-Quota-Ausnahme und Rückkehr zur unveränderten Produktionsdatei mit geprüfter Nur-Lesen-Sperre in beiden Legacy-Wegen. Frühere offene/gescheiterte CI-Hinweise unten sind damit historisch, keine Behauptung eines iPhone-/Safari-Tests.

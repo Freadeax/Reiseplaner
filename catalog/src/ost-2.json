@@ -1,0 +1,2717 @@
+{
+ "group": "ost-2",
+ "places": [
+  {
+   "id": "halle-saale",
+   "name": "Halle (Saale)",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.482,
+   "lon": 11.97,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Händelstadt mit Himmelsscheibe von Nebra, Franckeschen Stiftungen und grüner Saaleaue mitten in der Stadt.",
+   "angle": "Vormittags Landesmuseum und Altstadt, nachmittags über die Peißnitzinsel zur Burg Giebichenstein spazieren.",
+   "spots": [
+    {
+     "id": "halle-saale-landesmuseum",
+     "name": "Landesmuseum für Vorgeschichte (Himmelsscheibe)",
+     "kind": "kultur",
+     "lat": 51.481,
+     "lon": 11.962,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Original der Himmelsscheibe von Nebra und eindrucksvolle Ur- und Frühgeschichte."
+    },
+    {
+     "id": "halle-saale-haendel-haus",
+     "name": "Händel-Haus",
+     "kind": "kultur",
+     "lat": 51.485,
+     "lon": 11.969,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geburtshaus Georg Friedrich Händels mit Musikmuseum und Instrumentensammlung."
+    },
+    {
+     "id": "halle-saale-francke",
+     "name": "Franckesche Stiftungen",
+     "kind": "kultur",
+     "lat": 51.478,
+     "lon": 11.975,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockes Schulstadt-Ensemble mit Kunst- und Naturalienkammer."
+    },
+    {
+     "id": "halle-saale-moritzburg",
+     "name": "Kunstmuseum Moritzburg",
+     "kind": "kultur",
+     "lat": 51.486,
+     "lon": 11.963,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Spätgotische Burg mit Kunstmuseum für Moderne und Expressionismus."
+    },
+    {
+     "id": "halle-saale-giebichenstein",
+     "name": "Burg Giebichenstein",
+     "kind": "burg",
+     "lat": 51.501,
+     "lon": 11.958,
+     "hours": 1.5,
+     "slot": "nachm",
+     "summary": "Burgruine hoch über der Saale mit Blick ins Flusstal."
+    },
+    {
+     "id": "halle-saale-peissnitz",
+     "name": "Peißnitzinsel",
+     "kind": "natur",
+     "lat": 51.492,
+     "lon": 11.946,
+     "hours": 2,
+     "family": true,
+     "summary": "Parkinsel zwischen zwei Saalearmen mit Parkeisenbahn und Wiesen.",
+     "tip": "Gut mit dem Rad entlang des Saale-Radwegs erreichbar."
+    }
+   ]
+  },
+  {
+   "id": "merseburg-geiseltal",
+   "name": "Merseburg & Geiseltalsee",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.32,
+   "lon": 11.9,
+   "kinds": [
+    "baden",
+    "aktiv",
+    "kultur",
+    "technik"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Domstadt an der Saale und Deutschlands größter künstlicher See aus einem ehemaligen Braunkohletagebau.",
+   "angle": "Morgens Dom und Schloss Merseburg, danach mit dem Rad um den Geiseltalsee und zum Abkühlen an den Strand.",
+   "spots": [
+    {
+     "id": "merseburg-geiseltal-dom",
+     "name": "Dom & Schloss Merseburg",
+     "kind": "kultur",
+     "lat": 51.357,
+     "lon": 11.993,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Romanisch-gotischer Dom mit Ladegast-Orgel und Schloss über der Saale."
+    },
+    {
+     "id": "merseburg-geiseltal-chemiemuseum",
+     "name": "Deutsches Chemie-Museum Merseburg",
+     "kind": "technik",
+     "lat": 51.344,
+     "lon": 11.997,
+     "hours": 1.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Technikpark mit Großanlagen aus der mitteldeutschen Chemieindustrie."
+    },
+    {
+     "id": "merseburg-geiseltal-rundweg",
+     "name": "Geiseltalsee-Rundweg",
+     "kind": "aktiv",
+     "lat": 51.3,
+     "lon": 11.88,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Asphaltierter Rundweg um den Tagebausee, gut für Rad und Inliner."
+    },
+    {
+     "id": "merseburg-geiseltal-stoebnitz",
+     "name": "Badestrand Stöbnitz (Mücheln)",
+     "kind": "baden",
+     "lat": 51.31,
+     "lon": 11.826,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sandstrand am Nordufer des Geiseltalsees nahe der Marina Mücheln."
+    }
+   ]
+  },
+  {
+   "id": "neuseenland-sued",
+   "name": "Markkleeberger & Störmthaler See",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.262,
+   "lon": 12.42,
+   "kinds": [
+    "baden",
+    "aktiv",
+    "freizeit",
+    "technik",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    0
+   ],
+   "summary": "Südlicher Teil des Leipziger Neuseenlands mit Wildwasser-Kanupark, Badestränden und Freizeitpark.",
+   "angle": "Vormittags Wildwasserrafting im Kanupark, nachmittags Strand und abends zur schwimmenden Kirche Vineta.",
+   "spots": [
+    {
+     "id": "neuseenland-sued-kanupark",
+     "name": "Kanupark Markkleeberg",
+     "kind": "aktiv",
+     "lat": 51.259,
+     "lon": 12.435,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Künstliche Wildwasserstrecke für Rafting, Kajak und Hydrospeed.",
+     "tip": "Raftingtouren vorab buchen."
+    },
+    {
+     "id": "neuseenland-sued-strand",
+     "name": "Markkleeberger See (Strand)",
+     "kind": "baden",
+     "lat": 51.272,
+     "lon": 12.41,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Klarer Tagebausee mit Sandstränden und Rundweg."
+    },
+    {
+     "id": "neuseenland-sued-belantis",
+     "name": "Belantis",
+     "kind": "freizeit",
+     "lat": 51.264,
+     "lon": 12.318,
+     "hours": 6,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Größter Freizeitpark Ostdeutschlands mit Achterbahnen und Themenwelten."
+    },
+    {
+     "id": "neuseenland-sued-vineta",
+     "name": "Störmthaler See & Vineta",
+     "kind": "wasser",
+     "lat": 51.237,
+     "lon": 12.462,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "See mit schwimmender Kirchenskulptur, die an versunkene Dörfer erinnert."
+    },
+    {
+     "id": "neuseenland-sued-bergbau-technik-park",
+     "name": "Bergbau-Technik-Park",
+     "kind": "technik",
+     "lat": 51.255,
+     "lon": 12.476,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Riesige Tagebaubagger und Absetzer unter freiem Himmel."
+    }
+   ]
+  },
+  {
+   "id": "grimma-muldental",
+   "name": "Grimma & Muldental",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.238,
+   "lon": 12.726,
+   "kinds": [
+    "kultur",
+    "burg",
+    "aktiv",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Muldestadt mit Hängebrücke, Klosterruine und einer Kette von Burgen und Schlössern im Muldental.",
+   "angle": "Ein Burgentag: Colditz am Vormittag, Mildenstein am Nachmittag, zum Abschluss die Pöppelmannbrücke in Grimma.",
+   "spots": [
+    {
+     "id": "grimma-muldental-altstadt",
+     "name": "Altstadt Grimma & Pöppelmannbrücke",
+     "kind": "kultur",
+     "lat": 51.237,
+     "lon": 12.727,
+     "hours": 1.5,
+     "summary": "Renaissance-Altstadt an der Mulde mit wiederaufgebauter Steinbrücke."
+    },
+    {
+     "id": "grimma-muldental-nimbschen",
+     "name": "Klosterruine Nimbschen",
+     "kind": "kultur",
+     "lat": 51.216,
+     "lon": 12.744,
+     "hours": 1,
+     "summary": "Ruine des Klosters, aus dem Katharina von Bora floh."
+    },
+    {
+     "id": "grimma-muldental-hoefgen",
+     "name": "Schiffmühle Höfgen",
+     "kind": "technik",
+     "lat": 51.209,
+     "lon": 12.762,
+     "hours": 1,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schwimmende Mühle auf der Mulde im Dorf Höfgen."
+    },
+    {
+     "id": "grimma-muldental-colditz",
+     "name": "Schloss Colditz",
+     "kind": "burg",
+     "lat": 51.131,
+     "lon": 12.806,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Schloss mit Museum zur Geschichte der Kriegsgefangenen und ihren Fluchtversuchen."
+    },
+    {
+     "id": "grimma-muldental-mildenstein",
+     "name": "Burg Mildenstein Leisnig",
+     "kind": "burg",
+     "lat": 51.157,
+     "lon": 12.929,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Mittelalterliche Burg auf einem Felssporn über der Freiberger Mulde."
+    },
+    {
+     "id": "grimma-muldental-kanu",
+     "name": "Kanutour auf der Mulde",
+     "kind": "aktiv",
+     "lat": 51.22,
+     "lon": 12.745,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Ruhige Paddelstrecke zwischen Wiesen und Hängen im Muldental.",
+     "tip": "Pegelstand prüfen; nach Regen fließt die Mulde schnell."
+    }
+   ]
+  },
+  {
+   "id": "torgau",
+   "name": "Torgau & Elbe",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.56,
+   "lon": 13.005,
+   "kinds": [
+    "kultur",
+    "burg",
+    "tiere",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Renaissancestadt an der Elbe mit Schloss Hartenfels, Bärengraben und dem Ort der Begegnung von 1945.",
+   "angle": "Schloss und Bären am Vormittag, danach ein Stück Elberadweg und zum Sonnenuntergang zurück ans Elbufer.",
+   "spots": [
+    {
+     "id": "torgau-hartenfels",
+     "name": "Schloss Hartenfels",
+     "kind": "burg",
+     "lat": 51.56,
+     "lon": 13.007,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Renaissanceschloss mit Wendelstein und Schlosskapelle."
+    },
+    {
+     "id": "torgau-baerengraben",
+     "name": "Bärengraben am Schloss Hartenfels",
+     "kind": "tiere",
+     "lat": 51.56,
+     "lon": 13.008,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Braunbären im Schlossgraben, eine jahrhundertealte Tradition."
+    },
+    {
+     "id": "torgau-begegnung",
+     "name": "Denkmal der Begegnung",
+     "kind": "kultur",
+     "lat": 51.558,
+     "lon": 13.012,
+     "hours": 0.5,
+     "slot": "abend",
+     "summary": "Erinnerungsort an das Treffen amerikanischer und sowjetischer Truppen an der Elbe."
+    },
+    {
+     "id": "torgau-elberadweg",
+     "name": "Elberadweg bei Torgau",
+     "kind": "aktiv",
+     "lat": 51.55,
+     "lon": 13.02,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Abschnitt des Elberadwegs durch Auen und Dörfer."
+    },
+    {
+     "id": "torgau-grosser-teich",
+     "name": "Großer Teich Torgau",
+     "kind": "natur",
+     "lat": 51.567,
+     "lon": 12.993,
+     "hours": 1,
+     "summary": "Großer Teich am Stadtrand mit Spazierweg und Vogelbeobachtung."
+    }
+   ]
+  },
+  {
+   "id": "goitzsche",
+   "name": "Goitzsche & Muldestausee (Bitterfeld)",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.62,
+   "lon": 12.34,
+   "kinds": [
+    "baden",
+    "aktiv",
+    "technik",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Ehemalige Tagebaulandschaft mit großem See, Pegelturm, Aussichtsbogen und Filmindustrie-Museum.",
+   "angle": "Mit dem Rad um die Goitzsche, zum Abend auf den Bitterfelder Bogen; bei Regen ins Filmmuseum Wolfen.",
+   "spots": [
+    {
+     "id": "goitzsche-bogen",
+     "name": "Bitterfelder Bogen",
+     "kind": "kultur",
+     "lat": 51.617,
+     "lon": 12.307,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Begehbarer Stahlbogen auf einer Halde mit weitem Blick über das Seenland."
+    },
+    {
+     "id": "goitzsche-pegelturm",
+     "name": "Pegelturm Goitzsche",
+     "kind": "wasser",
+     "lat": 51.616,
+     "lon": 12.339,
+     "hours": 1,
+     "summary": "Turm im See, über einen Schwimmsteg erreichbar."
+    },
+    {
+     "id": "goitzsche-radrundweg",
+     "name": "Goitzsche-Radrundweg",
+     "kind": "aktiv",
+     "lat": 51.605,
+     "lon": 12.36,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundweg um den Großen Goitzschesee durch die Bergbaufolgelandschaft."
+    },
+    {
+     "id": "goitzsche-filmmuseum",
+     "name": "Industrie- und Filmmuseum Wolfen",
+     "kind": "technik",
+     "lat": 51.662,
+     "lon": 12.272,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Geschichte der Filmfabrik Wolfen und der ORWO-Filmherstellung."
+    },
+    {
+     "id": "goitzsche-muldestausee",
+     "name": "Muldestausee bei Pouch",
+     "kind": "baden",
+     "lat": 51.636,
+     "lon": 12.405,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stausee der Mulde mit Badestellen und Wasserwanderrastplätzen."
+    }
+   ]
+  },
+  {
+   "id": "eisleben-mansfeld",
+   "name": "Eisleben & Mansfelder Land",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.527,
+   "lon": 11.547,
+   "kinds": [
+    "kultur",
+    "unterwelt",
+    "baden",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Luthers Geburts- und Sterbeort, Kupferschiefer-Bergbau unter Tage und der Süße See zum Baden.",
+   "angle": "Unter Tage im Röhrigschacht, über Tage im Rosarium Sangerhausen; heiße Nachmittage am Süßen See ausklingen lassen.",
+   "spots": [
+    {
+     "id": "eisleben-mansfeld-geburtshaus",
+     "name": "Luthers Geburtshaus",
+     "kind": "kultur",
+     "lat": 51.528,
+     "lon": 11.549,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Welterbe-Museum zu Luthers Herkunft und Taufe."
+    },
+    {
+     "id": "eisleben-mansfeld-sterbehaus",
+     "name": "Luthers Sterbehaus",
+     "kind": "kultur",
+     "lat": 51.527,
+     "lon": 11.546,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Welterbe-Museum zu Luthers letzten Tagen und zur Erinnerungskultur."
+    },
+    {
+     "id": "eisleben-mansfeld-roehrigschacht",
+     "name": "Röhrigschacht Wettelrode",
+     "kind": "unterwelt",
+     "lat": 51.522,
+     "lon": 11.292,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Schaubergwerk mit Seilfahrt und Grubenbahn im Kupferschieferbergbau.",
+     "tip": "Warme Jacke mitnehmen, unter Tage ist es kühl."
+    },
+    {
+     "id": "eisleben-mansfeld-rosarium",
+     "name": "Rosarium Sangerhausen",
+     "kind": "natur",
+     "lat": 51.477,
+     "lon": 11.307,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Riesige Rosensammlung mit tausenden Sorten."
+    },
+    {
+     "id": "eisleben-mansfeld-suesser-see",
+     "name": "Süßer See",
+     "kind": "baden",
+     "lat": 51.493,
+     "lon": 11.675,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Natürlicher See zwischen Weinbergen mit Badestellen."
+    }
+   ]
+  },
+  {
+   "id": "kyffhaeuser",
+   "name": "Kyffhäuser & Bad Frankenhausen",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 51.38,
+   "lon": 11.1,
+   "kinds": [
+    "kultur",
+    "burg",
+    "unterwelt",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kaiser-Wilhelm-Denkmal auf dem Kyffhäuser, Gipshöhle und das monumentale Bauernkriegspanorama.",
+   "angle": "Barbarossa-Sage als Tagesroute: erst die Höhle, dann das Denkmal und zum Schluss das Panorama Museum.",
+   "spots": [
+    {
+     "id": "kyffhaeuser-denkmal",
+     "name": "Kyffhäuserdenkmal",
+     "kind": "burg",
+     "lat": 51.413,
+     "lon": 11.107,
+     "hours": 2,
+     "family": true,
+     "summary": "Monumentales Denkmal auf den Resten der Reichsburg mit Fernblick."
+    },
+    {
+     "id": "kyffhaeuser-barbarossahoehle",
+     "name": "Barbarossahöhle",
+     "kind": "unterwelt",
+     "lat": 51.398,
+     "lon": 11.053,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Gipshöhle mit Seen und hängenden Gipslappen."
+    },
+    {
+     "id": "kyffhaeuser-panorama",
+     "name": "Panorama Museum Bad Frankenhausen",
+     "kind": "kultur",
+     "lat": 51.362,
+     "lon": 11.099,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Werner Tübkes riesiges Rundgemälde zum Bauernkrieg."
+    },
+    {
+     "id": "kyffhaeuser-schiefer-turm",
+     "name": "Schiefer Turm Bad Frankenhausen",
+     "kind": "kultur",
+     "lat": 51.357,
+     "lon": 11.099,
+     "hours": 0.5,
+     "summary": "Kirchturm mit stärkerer Neigung als der Turm von Pisa."
+    }
+   ]
+  },
+  {
+   "id": "gotha-drei-gleichen",
+   "name": "Gotha & Drei Gleichen",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.93,
+   "lon": 10.76,
+   "kinds": [
+    "kultur",
+    "burg",
+    "tiere",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Residenzstadt mit Schloss Friedenstein und drei Burgen auf Hügeln an der A4.",
+   "angle": "Bei Regen Schloss Friedenstein, bei Sonne die Drei Gleichen mit Abendlicht an der Wachsenburg.",
+   "spots": [
+    {
+     "id": "gotha-drei-gleichen-friedenstein",
+     "name": "Schloss Friedenstein",
+     "kind": "kultur",
+     "lat": 50.946,
+     "lon": 10.705,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Barockschloss mit Ekhof-Theater, Kunstkammer und Herzoglichem Museum."
+    },
+    {
+     "id": "gotha-drei-gleichen-tierpark",
+     "name": "Tierpark Gotha",
+     "kind": "tiere",
+     "lat": 50.94,
+     "lon": 10.725,
+     "hours": 2,
+     "family": true,
+     "summary": "Überschaubarer Tierpark am Stadtrand."
+    },
+    {
+     "id": "gotha-drei-gleichen-waldbahn",
+     "name": "Thüringerwaldbahn",
+     "kind": "technik",
+     "lat": 50.944,
+     "lon": 10.7,
+     "hours": 2,
+     "family": true,
+     "summary": "Überlandstraßenbahn von Gotha bis an den Rand des Thüringer Waldes."
+    },
+    {
+     "id": "gotha-drei-gleichen-wachsenburg",
+     "name": "Veste Wachsenburg",
+     "kind": "burg",
+     "lat": 50.884,
+     "lon": 10.878,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Höhenburg der Drei Gleichen mit weitem Ausblick."
+    },
+    {
+     "id": "gotha-drei-gleichen-burg-gleichen",
+     "name": "Burg Gleichen",
+     "kind": "burg",
+     "lat": 50.904,
+     "lon": 10.845,
+     "hours": 1,
+     "summary": "Burgruine auf einem Kegelberg bei Wandersleben."
+    },
+    {
+     "id": "gotha-drei-gleichen-muehlburg",
+     "name": "Mühlburg",
+     "kind": "burg",
+     "lat": 50.88,
+     "lon": 10.835,
+     "hours": 1,
+     "summary": "Älteste der Drei Gleichen mit Burgturm."
+    }
+   ]
+  },
+  {
+   "id": "hainich",
+   "name": "Nationalpark Hainich & Bad Langensalza",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 51.085,
+   "lon": 10.54,
+   "kinds": [
+    "natur",
+    "freizeit",
+    "tiere",
+    "therme",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Buchenurwald-Welterbe mit Baumkronenpfad, Wildkatzen und einer Gartenstadt mit Therme.",
+   "angle": "Früh auf den Baumkronenpfad, solange es ruhig ist, und den Tag in der Therme in Bad Langensalza beenden.",
+   "spots": [
+    {
+     "id": "hainich-baumkronenpfad",
+     "name": "Baumkronenpfad Hainich",
+     "kind": "freizeit",
+     "lat": 51.079,
+     "lon": 10.461,
+     "hours": 2,
+     "family": true,
+     "slot": "morgen",
+     "summary": "Pfad durch die Kronen des Buchenwaldes mit Aussichtsturm."
+    },
+    {
+     "id": "hainich-wildkatzendorf",
+     "name": "Wildkatzendorf Hütscheroda",
+     "kind": "tiere",
+     "lat": 51.036,
+     "lon": 10.416,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Schaugehege und Ausstellung rund um die scheue Wildkatze."
+    },
+    {
+     "id": "hainich-gaerten",
+     "name": "Rosengarten & Japanischer Garten Bad Langensalza",
+     "kind": "natur",
+     "lat": 51.107,
+     "lon": 10.646,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Themengärten in der Kurstadt, im Sommer mit Rosenblüte."
+    },
+    {
+     "id": "hainich-therme",
+     "name": "Friederiken Therme",
+     "kind": "therme",
+     "lat": 51.111,
+     "lon": 10.651,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Schwefel-Sole-Therme in Bad Langensalza."
+    },
+    {
+     "id": "hainich-muehlhausen",
+     "name": "Altstadt Mühlhausen",
+     "kind": "kultur",
+     "lat": 51.209,
+     "lon": 10.455,
+     "hours": 2,
+     "summary": "Reichsstadt mit Stadtmauer und Kirchen, Wirkungsort Thomas Müntzers."
+    }
+   ]
+  },
+  {
+   "id": "oberhof-rennsteig",
+   "name": "Oberhof, Ilmenau & Rennsteig",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.69,
+   "lon": 10.8,
+   "kinds": [
+    "berge",
+    "natur",
+    "winter",
+    "aktiv",
+    "therme"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Wintersportort am Rennsteig, Goethes Kickelhahn und Bergwiesen auf dem Kamm des Thüringer Waldes.",
+   "angle": "Sommers ein Stück Rennsteig mit Abstecher in den Rennsteiggarten, winters Loipe; bei Regen ins Erlebnisbad.",
+   "spots": [
+    {
+     "id": "oberhof-rennsteig-rennsteig",
+     "name": "Rennsteig-Wanderung ab Oberhof",
+     "kind": "aktiv",
+     "lat": 50.705,
+     "lon": 10.735,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Höhenweg auf dem Kamm des Thüringer Waldes."
+    },
+    {
+     "id": "oberhof-rennsteig-rennsteiggarten",
+     "name": "Rennsteiggarten Oberhof",
+     "kind": "natur",
+     "lat": 50.712,
+     "lon": 10.735,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Botanischer Garten mit Gebirgspflanzen aus aller Welt."
+    },
+    {
+     "id": "oberhof-rennsteig-h2oberhof",
+     "name": "H2Oberhof",
+     "kind": "therme",
+     "lat": 50.705,
+     "lon": 10.729,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Erlebnisbad mit Sauna als Schlechtwetterplan."
+    },
+    {
+     "id": "oberhof-rennsteig-schneekopf",
+     "name": "Schneekopf",
+     "kind": "berge",
+     "lat": 50.683,
+     "lon": 10.709,
+     "hours": 2,
+     "summary": "Zweithöchster Gipfel des Thüringer Waldes mit Aussichtsturm."
+    },
+    {
+     "id": "oberhof-rennsteig-kickelhahn",
+     "name": "Kickelhahn & Goethehäuschen",
+     "kind": "natur",
+     "lat": 50.662,
+     "lon": 10.896,
+     "hours": 2.5,
+     "slot": "nachm",
+     "summary": "Aussichtsturm über Ilmenau und Goethes Hütte, wo er Wandrers Nachtlied schrieb."
+    }
+   ]
+  },
+  {
+   "id": "saalfeld-schwarzatal",
+   "name": "Saalfeld, Rudolstadt & Schwarzatal",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.648,
+   "lon": 11.355,
+   "kinds": [
+    "unterwelt",
+    "burg",
+    "technik",
+    "wasser",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Farbige Grotten, Residenzschloss über der Saale, Bergbahn und Stauseen im Thüringer Schiefergebirge.",
+   "angle": "Regenvormittag in den Feengrotten, nachmittags mit der Oberweißbacher Bergbahn hinauf ins Schwarzatal.",
+   "spots": [
+    {
+     "id": "saalfeld-schwarzatal-feengrotten",
+     "name": "Saalfelder Feengrotten",
+     "kind": "unterwelt",
+     "lat": 50.646,
+     "lon": 11.348,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Farbenreiches Schaubergwerk mit Tropfsteinen."
+    },
+    {
+     "id": "saalfeld-schwarzatal-heidecksburg",
+     "name": "Schloss Heidecksburg",
+     "kind": "burg",
+     "lat": 50.717,
+     "lon": 11.334,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Barockschloss hoch über Rudolstadt mit Festsälen und Sammlungen."
+    },
+    {
+     "id": "saalfeld-schwarzatal-bergbahn",
+     "name": "Oberweißbacher Bergbahn",
+     "kind": "technik",
+     "lat": 50.606,
+     "lon": 11.155,
+     "hours": 2,
+     "family": true,
+     "summary": "Standseilbahn, die auch Güterwagen auf die Höhe transportiert."
+    },
+    {
+     "id": "saalfeld-schwarzatal-schwarzburg",
+     "name": "Schwarzburg & Schwarzatal",
+     "kind": "natur",
+     "lat": 50.64,
+     "lon": 11.198,
+     "hours": 2.5,
+     "summary": "Felsiges Waldtal mit Wanderwegen unterhalb des Schlosses Schwarzburg."
+    },
+    {
+     "id": "saalfeld-schwarzatal-hohenwarte",
+     "name": "Hohenwarte-Stausee",
+     "kind": "wasser",
+     "lat": 50.585,
+     "lon": 11.49,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Verwinkelter Stausee der Saale zwischen bewaldeten Hängen."
+    }
+   ]
+  },
+  {
+   "id": "jena",
+   "name": "Jena & Saaletal",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.927,
+   "lon": 11.586,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Universitäts- und Optikstadt mit Planetarium, Hochhaus-Aussicht und Burgen im Saaletal.",
+   "angle": "Bei Wolken ins Planetarium, bei Sonne zu den Dornburger Schlössern und abends auf den JenTower.",
+   "spots": [
+    {
+     "id": "jena-planetarium",
+     "name": "Zeiss-Planetarium Jena",
+     "kind": "kultur",
+     "lat": 50.93,
+     "lon": 11.584,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Eines der ältesten Planetarien der Welt mit Kuppelshows."
+    },
+    {
+     "id": "jena-jentower",
+     "name": "JenTower",
+     "kind": "kultur",
+     "lat": 50.929,
+     "lon": 11.585,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Hochhaus mit Aussichtsplattform über der Stadt."
+    },
+    {
+     "id": "jena-botanischer-garten",
+     "name": "Botanischer Garten Jena",
+     "kind": "natur",
+     "lat": 50.931,
+     "lon": 11.587,
+     "hours": 1,
+     "summary": "Historischer Universitätsgarten mit Gewächshäusern."
+    },
+    {
+     "id": "jena-fuchsturm",
+     "name": "Fuchsturm",
+     "kind": "natur",
+     "lat": 50.937,
+     "lon": 11.619,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Burgturmrest auf dem Hausberg mit Blick über Jena."
+    },
+    {
+     "id": "jena-dornburg",
+     "name": "Dornburger Schlösser",
+     "kind": "burg",
+     "lat": 51.006,
+     "lon": 11.648,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Drei Schlösser mit Terrassengärten hoch über dem Saaletal."
+    },
+    {
+     "id": "jena-leuchtenburg",
+     "name": "Leuchtenburg",
+     "kind": "burg",
+     "lat": 50.851,
+     "lon": 11.61,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Burg mit Porzellanwelten und Steg über dem Saaletal."
+    }
+   ]
+  },
+  {
+   "id": "zwickau",
+   "name": "Zwickau",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.718,
+   "lon": 12.496,
+   "kinds": [
+    "technik",
+    "kultur",
+    "stadt",
+    "baden"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Autostadt mit Horch- und Audi-Geschichte, Schumann-Geburtshaus und Jugendstil-Hallenbad.",
+   "angle": "Autogeschichte im Horch Museum, danach Altstadt und zum Ausklang ins historische Johannisbad.",
+   "spots": [
+    {
+     "id": "zwickau-horch",
+     "name": "August Horch Museum",
+     "kind": "technik",
+     "lat": 50.733,
+     "lon": 12.485,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Automobilmuseum am historischen Audi-Werk mit Horch, Audi, DKW und Trabant."
+    },
+    {
+     "id": "zwickau-priesterhaeuser",
+     "name": "Priesterhäuser Zwickau",
+     "kind": "kultur",
+     "lat": 50.718,
+     "lon": 12.496,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Mittelalterliche Wohnhäuser am Dom als Museum."
+    },
+    {
+     "id": "zwickau-schumann",
+     "name": "Robert-Schumann-Haus",
+     "kind": "kultur",
+     "lat": 50.718,
+     "lon": 12.497,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geburtshaus des Komponisten mit Museum."
+    },
+    {
+     "id": "zwickau-johannisbad",
+     "name": "Johannisbad Zwickau",
+     "kind": "baden",
+     "lat": 50.721,
+     "lon": 12.503,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Jugendstil-Hallenbad mit historischer Schwimmhalle."
+    }
+   ]
+  },
+  {
+   "id": "chemnitz",
+   "name": "Chemnitz",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.833,
+   "lon": 12.92,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kulturhauptstadt 2025 mit Karl-Marx-Kopf, Archäologiemuseum im Kaufhaus Schocken und Industriegeschichte.",
+   "angle": "Ein Regentag mit drei Museen: smac, Gunzenhauser und Industriemuseum, dazwischen ein Foto am Nischel.",
+   "spots": [
+    {
+     "id": "chemnitz-marx",
+     "name": "Karl-Marx-Monument",
+     "kind": "kultur",
+     "lat": 50.838,
+     "lon": 12.921,
+     "hours": 0.5,
+     "summary": "Riesiger Bronzekopf, das Wahrzeichen der Stadt."
+    },
+    {
+     "id": "chemnitz-smac",
+     "name": "smac – Staatliches Museum für Archäologie",
+     "kind": "kultur",
+     "lat": 50.833,
+     "lon": 12.923,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Archäologiemuseum im Mendelsohn-Bau des früheren Kaufhauses Schocken."
+    },
+    {
+     "id": "chemnitz-gunzenhauser",
+     "name": "Museum Gunzenhauser",
+     "kind": "kultur",
+     "lat": 50.829,
+     "lon": 12.922,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Kunst der Moderne mit großer Otto-Dix-Sammlung."
+    },
+    {
+     "id": "chemnitz-industriemuseum",
+     "name": "Industriemuseum Chemnitz",
+     "kind": "technik",
+     "lat": 50.824,
+     "lon": 12.901,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Sächsische Industriegeschichte in einer alten Gießereihalle."
+    },
+    {
+     "id": "chemnitz-eisenbahnmuseum",
+     "name": "Sächsisches Eisenbahnmuseum Chemnitz-Hilbersdorf",
+     "kind": "technik",
+     "lat": 50.862,
+     "lon": 12.95,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Dampflokomotiven, Drehscheibe und Ringlokschuppen."
+    }
+   ]
+  },
+  {
+   "id": "augustusburg",
+   "name": "Augustusburg & Zschopautal",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.812,
+   "lon": 13.1,
+   "kinds": [
+    "burg",
+    "technik",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Jagdschloss auf dem Schellenberg mit Motorradmuseum, Drahtseilbahn und Burgen im Zschopautal.",
+   "angle": "Mit der Drahtseilbahn hinauf zum Schloss, nachmittags Burg Scharfenstein oder der Barockgarten in Lichtenwalde.",
+   "spots": [
+    {
+     "id": "augustusburg-schloss",
+     "name": "Schloss Augustusburg",
+     "kind": "burg",
+     "lat": 50.812,
+     "lon": 13.101,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Renaissanceschloss mit Motorradmuseum, Kutschenmuseum und Greifvogelschau."
+    },
+    {
+     "id": "augustusburg-drahtseilbahn",
+     "name": "Drahtseilbahn Erdmannsdorf–Augustusburg",
+     "kind": "technik",
+     "lat": 50.818,
+     "lon": 13.08,
+     "hours": 1,
+     "family": true,
+     "summary": "Historische Standseilbahn hinauf zur Stadt am Schloss."
+    },
+    {
+     "id": "augustusburg-lichtenwalde",
+     "name": "Schloss & Park Lichtenwalde",
+     "kind": "kultur",
+     "lat": 50.884,
+     "lon": 13.004,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Barockgarten mit Wasserspielen über dem Zschopautal."
+    },
+    {
+     "id": "augustusburg-scharfenstein",
+     "name": "Burg Scharfenstein",
+     "kind": "burg",
+     "lat": 50.705,
+     "lon": 13.064,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Burg im Zschopautal mit Spielzeug- und Weihnachtsausstellungen."
+    }
+   ]
+  },
+  {
+   "id": "meissen-moritzburg",
+   "name": "Meißen, Moritzburg & Radebeul",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.14,
+   "lon": 13.58,
+   "kinds": [
+    "kultur",
+    "burg",
+    "tiere",
+    "technik",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Porzellanstadt mit Albrechtsburg, Wasserschloss Moritzburg, Schmalspurbahn und Karl-May-Museum.",
+   "angle": "Mit der Lößnitzgrundbahn nach Moritzburg, Wildgehege und Schloss, am nächsten Tag Meißen mit Burgberg.",
+   "spots": [
+    {
+     "id": "meissen-moritzburg-albrechtsburg",
+     "name": "Albrechtsburg & Dom Meißen",
+     "kind": "burg",
+     "lat": 51.166,
+     "lon": 13.471,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Spätgotischer Schlossbau auf dem Burgberg über der Elbe."
+    },
+    {
+     "id": "meissen-moritzburg-porzellan",
+     "name": "Erlebniswelt Haus Meissen",
+     "kind": "kultur",
+     "lat": 51.157,
+     "lon": 13.461,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Schauwerkstatt und Museum der Porzellan-Manufaktur Meissen."
+    },
+    {
+     "id": "meissen-moritzburg-moritzburg",
+     "name": "Schloss Moritzburg",
+     "kind": "burg",
+     "lat": 51.168,
+     "lon": 13.68,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Barockes Jagdschloss im Teich, bekannt aus „Drei Haselnüsse für Aschenbrödel“."
+    },
+    {
+     "id": "meissen-moritzburg-wildgehege",
+     "name": "Wildgehege Moritzburg",
+     "kind": "tiere",
+     "lat": 51.175,
+     "lon": 13.665,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Heimische Wildtiere wie Wisente, Elche und Wölfe im Wald."
+    },
+    {
+     "id": "meissen-moritzburg-loessnitzgrundbahn",
+     "name": "Lößnitzgrundbahn",
+     "kind": "technik",
+     "lat": 51.107,
+     "lon": 13.667,
+     "hours": 2,
+     "family": true,
+     "summary": "Dampfbetriebene Schmalspurbahn von Radebeul nach Moritzburg."
+    },
+    {
+     "id": "meissen-moritzburg-karl-may",
+     "name": "Karl-May-Museum Radebeul",
+     "kind": "kultur",
+     "lat": 51.108,
+     "lon": 13.66,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Villa Shatterhand mit Indianer-Sammlung."
+    }
+   ]
+  },
+  {
+   "id": "weisseritztal",
+   "name": "Weißeritztal & Osterzgebirge",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.88,
+   "lon": 13.69,
+   "kinds": [
+    "technik",
+    "baden",
+    "natur",
+    "burg",
+    "berge"
+   ],
+   "months": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Schmalspurbahn durch den Rabenauer Grund, Badestellen an der Talsperre Malter und Aussicht vom Geisingberg.",
+   "angle": "Mit der Weißeritztalbahn hinauf, durch den Rabenauer Grund wandern und an heißen Tagen an der Talsperre Malter baden.",
+   "spots": [
+    {
+     "id": "weisseritztal-bahn",
+     "name": "Weißeritztalbahn",
+     "kind": "technik",
+     "lat": 50.893,
+     "lon": 13.674,
+     "hours": 3,
+     "family": true,
+     "summary": "Älteste dampfbetriebene Schmalspurbahn Deutschlands im öffentlichen Verkehr."
+    },
+    {
+     "id": "weisseritztal-malter",
+     "name": "Talsperre Malter",
+     "kind": "baden",
+     "lat": 50.921,
+     "lon": 13.657,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stausee mit Badestellen und Uferwegen."
+    },
+    {
+     "id": "weisseritztal-rabenauer-grund",
+     "name": "Rabenauer Grund",
+     "kind": "natur",
+     "lat": 50.955,
+     "lon": 13.64,
+     "hours": 2.5,
+     "summary": "Felsiges Tal der Roten Weißeritz, parallel zur Schmalspurbahn."
+    },
+    {
+     "id": "weisseritztal-geisingberg",
+     "name": "Geisingberg",
+     "kind": "berge",
+     "lat": 50.776,
+     "lon": 13.788,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Basaltkuppe mit Aussichtsturm und Bergwiesen."
+    },
+    {
+     "id": "weisseritztal-weesenstein",
+     "name": "Schloss Weesenstein",
+     "kind": "burg",
+     "lat": 50.932,
+     "lon": 13.862,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Felsschloss, das von oben nach unten gebaut wurde."
+    }
+   ]
+  },
+  {
+   "id": "bautzen",
+   "name": "Bautzen & Oberlausitz",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.181,
+   "lon": 14.424,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "freizeit",
+    "baden"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Türmestadt über der Spree mit sorbischer Kultur, Saurierpark und Talsperre zum Baden.",
+   "angle": "Mit Kindern vormittags in den Saurierpark, nachmittags Türme und Alte Wasserkunst in der Altstadt.",
+   "spots": [
+    {
+     "id": "bautzen-altstadt",
+     "name": "Altstadt Bautzen & Alte Wasserkunst",
+     "kind": "kultur",
+     "lat": 51.182,
+     "lon": 14.419,
+     "hours": 1.5,
+     "summary": "Mittelalterliche Türme und Wasserturm hoch über dem Spreetal."
+    },
+    {
+     "id": "bautzen-sorbisches-museum",
+     "name": "Sorbisches Museum",
+     "kind": "kultur",
+     "lat": 51.183,
+     "lon": 14.418,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Kultur und Geschichte der Sorben auf der Ortenburg."
+    },
+    {
+     "id": "bautzen-dom",
+     "name": "Dom St. Petri",
+     "kind": "kultur",
+     "lat": 51.183,
+     "lon": 14.424,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Simultankirche, die Katholiken und Protestanten gemeinsam nutzen."
+    },
+    {
+     "id": "bautzen-saurierpark",
+     "name": "Saurierpark Kleinwelka",
+     "kind": "freizeit",
+     "lat": 51.213,
+     "lon": 14.391,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Lebensgroße Dinosaurier-Nachbildungen in einem Waldpark mit Spielbereichen."
+    },
+    {
+     "id": "bautzen-talsperre",
+     "name": "Talsperre Bautzen",
+     "kind": "baden",
+     "lat": 51.225,
+     "lon": 14.465,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Großer Stausee nördlich der Stadt mit Badestellen."
+    }
+   ]
+  },
+  {
+   "id": "kriebstein",
+   "name": "Burg Kriebstein & Mittelsachsen",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.04,
+   "lon": 13.01,
+   "kinds": [
+    "burg",
+    "wasser",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Ritterburg auf einem Felsen über der Zschopau, Stausee und Porphyrberg bei Rochlitz.",
+   "angle": "Burg Kriebstein am Vormittag, danach an der Talsperre entlang; den Rochlitzer Berg für den Abendblick aufheben.",
+   "spots": [
+    {
+     "id": "kriebstein-burg",
+     "name": "Burg Kriebstein",
+     "kind": "burg",
+     "lat": 51.046,
+     "lon": 13.014,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Malerische Felsenburg über dem Zschopautal mit Museum."
+    },
+    {
+     "id": "kriebstein-talsperre",
+     "name": "Talsperre Kriebstein",
+     "kind": "wasser",
+     "lat": 51.015,
+     "lon": 13.03,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Stausee der Zschopau zwischen Waldhängen mit Fahrgastschifffahrt und Badestellen."
+    },
+    {
+     "id": "kriebstein-rochlitz",
+     "name": "Schloss Rochlitz",
+     "kind": "burg",
+     "lat": 51.047,
+     "lon": 12.797,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss mit markanten Doppeltürmen über der Zwickauer Mulde."
+    },
+    {
+     "id": "kriebstein-rochlitzer-berg",
+     "name": "Rochlitzer Berg",
+     "kind": "natur",
+     "lat": 51.033,
+     "lon": 12.775,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Porphyrberg mit alten Steinbrüchen und Aussichtsturm."
+    },
+    {
+     "id": "kriebstein-altzella",
+     "name": "Klosterpark Altzella",
+     "kind": "kultur",
+     "lat": 51.056,
+     "lon": 13.297,
+     "hours": 1.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ruinen eines Zisterzienserklosters in einem Landschaftspark bei Nossen."
+    }
+   ]
+  },
+  {
+   "id": "gera",
+   "name": "Gera & Elstertal",
+   "region": "Thüringen",
+   "country": "DE",
+   "lat": 50.88,
+   "lon": 12.082,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "unterwelt",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Otto-Dix-Stadt mit unterirdischen Bierkellern und der Osterburg im Elstertal.",
+   "angle": "Regenfester Tag: Höhler unter der Altstadt, Otto-Dix-Haus und Orangerie; bei Sonne weiter zur Osterburg nach Weida.",
+   "spots": [
+    {
+     "id": "gera-hoehler",
+     "name": "Geraer Höhler",
+     "kind": "unterwelt",
+     "lat": 50.879,
+     "lon": 12.081,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Labyrinth historischer Bierkeller unter der Altstadt."
+    },
+    {
+     "id": "gera-dix-haus",
+     "name": "Otto-Dix-Haus",
+     "kind": "kultur",
+     "lat": 50.886,
+     "lon": 12.069,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geburtshaus des Malers mit Werken und Biografie."
+    },
+    {
+     "id": "gera-orangerie",
+     "name": "Orangerie & Küchengarten Gera",
+     "kind": "kultur",
+     "lat": 50.884,
+     "lon": 12.071,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barocke Orangerie mit Kunstsammlung am Küchengarten."
+    },
+    {
+     "id": "gera-osterburg",
+     "name": "Osterburg Weida",
+     "kind": "burg",
+     "lat": 50.773,
+     "lon": 12.059,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burg mit hohem Bergfried über der Stadt Weida."
+    }
+   ]
+  },
+  {
+   "id": "neuzelle-schlaubetal",
+   "name": "Kloster Neuzelle & Schlaubetal",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.11,
+   "lon": 14.6,
+   "kinds": [
+    "kultur",
+    "natur",
+    "aktiv",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Barockkloster an der Oder, stilles Bachtal mit Mühlen und DDR-Alltagsgeschichte in Eisenhüttenstadt.",
+   "angle": "Vormittags das Kloster, nachmittags durch das Schlaubetal wandern oder ein Stück Oder-Neiße-Radweg fahren.",
+   "spots": [
+    {
+     "id": "neuzelle-schlaubetal-kloster",
+     "name": "Kloster Neuzelle",
+     "kind": "kultur",
+     "lat": 52.091,
+     "lon": 14.651,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Barocke Klosteranlage mit Stiftskirche und Klostergarten."
+    },
+    {
+     "id": "neuzelle-schlaubetal-schlaubetal",
+     "name": "Schlaubetal bei der Bremsdorfer Mühle",
+     "kind": "natur",
+     "lat": 52.155,
+     "lon": 14.505,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Naturschutztal mit Bach, Seen und Mühlen."
+    },
+    {
+     "id": "neuzelle-schlaubetal-ddr-alltag",
+     "name": "Dokumentationszentrum Alltagskultur der DDR",
+     "kind": "kultur",
+     "lat": 52.147,
+     "lon": 14.637,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum zum Alltag in der DDR in der Planstadt Eisenhüttenstadt."
+    },
+    {
+     "id": "neuzelle-schlaubetal-oder-neisse-radweg",
+     "name": "Oder-Neiße-Radweg",
+     "kind": "aktiv",
+     "lat": 52.1,
+     "lon": 14.7,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Radfernweg entlang der Oder an der Grenze zu Polen."
+    }
+   ]
+  },
+  {
+   "id": "hoyerswerda",
+   "name": "Hoyerswerda & Lausitzer Heide",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.437,
+   "lon": 14.24,
+   "kinds": [
+    "tiere",
+    "kultur",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Zoo am Schloss, Krabat-Sage in Schwarzkollm und das Dubringer Moor in der Heide- und Teichlandschaft.",
+   "angle": "Familientag: Zoo und Schloss am Vormittag, nachmittags zur Krabat-Mühle; Moorpfad bei trockenem Wetter.",
+   "spots": [
+    {
+     "id": "hoyerswerda-zoo",
+     "name": "Zoo Hoyerswerda",
+     "kind": "tiere",
+     "lat": 51.436,
+     "lon": 14.243,
+     "hours": 2,
+     "family": true,
+     "summary": "Überschaubarer Zoo im Schlosspark."
+    },
+    {
+     "id": "hoyerswerda-schloss",
+     "name": "Schloss Hoyerswerda",
+     "kind": "kultur",
+     "lat": 51.437,
+     "lon": 14.247,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Schloss mit Stadtmuseum am Rand der Altstadt."
+    },
+    {
+     "id": "hoyerswerda-krabat",
+     "name": "Krabat-Mühle Schwarzkollm",
+     "kind": "kultur",
+     "lat": 51.478,
+     "lon": 14.168,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Nachgebaute Mühle zur sorbischen Krabat-Sage."
+    },
+    {
+     "id": "hoyerswerda-dubringer-moor",
+     "name": "Dubringer Moor",
+     "kind": "natur",
+     "lat": 51.375,
+     "lon": 14.2,
+     "hours": 2,
+     "summary": "Moor- und Heidelandschaft mit Wanderwegen."
+    }
+   ]
+  },
+  {
+   "id": "lausitzer-seenland",
+   "name": "Lausitzer Seenland (Senftenberg)",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 51.53,
+   "lon": 13.96,
+   "kinds": [
+    "baden",
+    "aktiv",
+    "technik",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    3
+   ],
+   "summary": "Neue Seenlandschaft aus Tagebauen mit Stränden, Radrundwegen und der liegenden Förderbrücke F60.",
+   "angle": "Vormittags auf die F60, nachmittags Strand am Senftenberger See und zum Sonnenuntergang auf den Rostigen Nagel.",
+   "spots": [
+    {
+     "id": "lausitzer-seenland-senftenberger-see",
+     "name": "Senftenberger See",
+     "kind": "baden",
+     "lat": 51.5,
+     "lon": 14,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Ältester Tagebausee der Region mit langen Sandstränden."
+    },
+    {
+     "id": "lausitzer-seenland-iba-terrassen",
+     "name": "IBA-Terrassen Großräschen",
+     "kind": "natur",
+     "lat": 51.583,
+     "lon": 14.008,
+     "hours": 1,
+     "summary": "Aussichtsterrassen über dem Großräschener See."
+    },
+    {
+     "id": "lausitzer-seenland-f60",
+     "name": "Besucherbergwerk F60",
+     "kind": "technik",
+     "lat": 51.632,
+     "lon": 13.706,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Liegender Eiffelturm: begehbare Abraumförderbrücke im Tagebau."
+    },
+    {
+     "id": "lausitzer-seenland-rostiger-nagel",
+     "name": "Aussichtsturm Rostiger Nagel",
+     "kind": "natur",
+     "lat": 51.512,
+     "lon": 14.073,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Rostroter Aussichtsturm zwischen Sornoer und Geierswalder See."
+    },
+    {
+     "id": "lausitzer-seenland-schloss",
+     "name": "Schloss & Festung Senftenberg",
+     "kind": "kultur",
+     "lat": 51.522,
+     "lon": 13.998,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Festungsanlage mit Museum zur Regionalgeschichte."
+    },
+    {
+     "id": "lausitzer-seenland-radrundweg",
+     "name": "Seenland-Route",
+     "kind": "aktiv",
+     "lat": 51.5,
+     "lon": 14.05,
+     "hours": 4,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Radrundweg zwischen den Tagebauseen, weitgehend flach."
+    }
+   ]
+  },
+  {
+   "id": "cottbus",
+   "name": "Cottbus & Branitzer Park",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 51.757,
+   "lon": 14.329,
+   "kinds": [
+    "kultur",
+    "natur",
+    "tiere",
+    "stadt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Lausitzmetropole mit Fürst-Pückler-Park, Erdpyramiden, Tierpark und Jugendstil-Theater.",
+   "angle": "Morgens durch den Branitzer Park zu den Pyramiden, nachmittags Tierpark und abends ins Staatstheater.",
+   "spots": [
+    {
+     "id": "cottbus-branitz",
+     "name": "Branitzer Park & Schloss",
+     "kind": "kultur",
+     "lat": 51.74,
+     "lon": 14.362,
+     "hours": 2.5,
+     "slot": "morgen",
+     "summary": "Landschaftspark des Fürsten Pückler mit Land- und Seepyramide."
+    },
+    {
+     "id": "cottbus-tierpark",
+     "name": "Tierpark Cottbus",
+     "kind": "tiere",
+     "lat": 51.745,
+     "lon": 14.357,
+     "hours": 2,
+     "family": true,
+     "summary": "Tierpark in der Spreeaue mit Schwerpunkt auf Wasservögeln."
+    },
+    {
+     "id": "cottbus-staatstheater",
+     "name": "Staatstheater Cottbus",
+     "kind": "kultur",
+     "lat": 51.76,
+     "lon": 14.328,
+     "hours": 2,
+     "indoor": true,
+     "slot": "abend",
+     "summary": "Jugendstil-Theaterbau als Bühne für Oper, Schauspiel und Ballett."
+    },
+    {
+     "id": "cottbus-parkeisenbahn",
+     "name": "Parkeisenbahn Cottbus",
+     "kind": "technik",
+     "lat": 51.75,
+     "lon": 14.345,
+     "hours": 1,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schmalspurige Parkbahn durch das Spreeauengelände."
+    },
+    {
+     "id": "cottbus-peitz",
+     "name": "Festungsturm & Teichlandschaft Peitz",
+     "kind": "natur",
+     "lat": 51.858,
+     "lon": 14.411,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Karpfenteiche und Festungsturm nördlich von Cottbus."
+    }
+   ]
+  },
+  {
+   "id": "bad-muskau",
+   "name": "Bad Muskau & Rakotzbrücke",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 51.548,
+   "lon": 14.723,
+   "kinds": [
+    "kultur",
+    "natur",
+    "technik",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Grenzüberschreitender Welterbe-Park des Fürsten Pückler, Rhododendronpark Kromlau und Waldeisenbahn.",
+   "angle": "Früh zur Rakotzbrücke, solange das Wasser still liegt, danach durch den Muskauer Park bis ans polnische Ufer.",
+   "spots": [
+    {
+     "id": "bad-muskau-park",
+     "name": "Fürst-Pückler-Park Bad Muskau",
+     "kind": "natur",
+     "lat": 51.546,
+     "lon": 14.727,
+     "hours": 3,
+     "family": true,
+     "summary": "Landschaftspark beiderseits der Neiße, UNESCO-Welterbe."
+    },
+    {
+     "id": "bad-muskau-neues-schloss",
+     "name": "Neues Schloss Bad Muskau",
+     "kind": "kultur",
+     "lat": 51.549,
+     "lon": 14.722,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Schloss mit Ausstellung zu Pückler und seinem Park."
+    },
+    {
+     "id": "bad-muskau-rakotzbruecke",
+     "name": "Rakotzbrücke Kromlau",
+     "kind": "natur",
+     "lat": 51.535,
+     "lon": 14.64,
+     "hours": 1.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "slot": "morgen",
+     "summary": "Basaltbogenbrücke, die sich im Wasser zum Kreis spiegelt.",
+     "tip": "Die Brücke darf nicht betreten werden."
+    },
+    {
+     "id": "bad-muskau-waldeisenbahn",
+     "name": "Waldeisenbahn Muskau",
+     "kind": "technik",
+     "lat": 51.506,
+     "lon": 14.64,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schmalspurbahn durch Wald und Heide bei Weißwasser."
+    },
+    {
+     "id": "bad-muskau-findlingspark",
+     "name": "Findlingspark Nochten",
+     "kind": "natur",
+     "lat": 51.437,
+     "lon": 14.597,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Steingarten aus tausenden Findlingen auf ehemaligem Tagebaugelände."
+    }
+   ]
+  },
+  {
+   "id": "vogtland",
+   "name": "Plauen & Vogtland",
+   "region": "Sachsen",
+   "country": "DE",
+   "lat": 50.54,
+   "lon": 12.17,
+   "kinds": [
+    "technik",
+    "baden",
+    "unterwelt",
+    "freizeit",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    3
+   ],
+   "summary": "Größte Ziegelsteinbrücke der Welt, Talsperre Pöhl, Tropfsteinhöhle und Plauener Spitze.",
+   "angle": "Brückentag: Göltzschtal- und Elstertalbrücke zu Fuß von unten, danach an der Talsperre Pöhl baden.",
+   "spots": [
+    {
+     "id": "vogtland-goeltzschtalbruecke",
+     "name": "Göltzschtalbrücke",
+     "kind": "technik",
+     "lat": 50.623,
+     "lon": 12.244,
+     "hours": 1,
+     "family": true,
+     "summary": "Größte Ziegelsteinbrücke der Welt mit Aussichtsplattformen."
+    },
+    {
+     "id": "vogtland-elstertalbruecke",
+     "name": "Elstertalbrücke",
+     "kind": "technik",
+     "lat": 50.585,
+     "lon": 12.212,
+     "hours": 1,
+     "summary": "Zweitgrößte Ziegelsteinbrücke über dem Tal der Weißen Elster."
+    },
+    {
+     "id": "vogtland-poehl",
+     "name": "Talsperre Pöhl",
+     "kind": "baden",
+     "lat": 50.56,
+     "lon": 12.19,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stausee mit Badestränden, Wassersport und Uferwegen."
+    },
+    {
+     "id": "vogtland-drachenhoehle",
+     "name": "Drachenhöhle Syrau",
+     "kind": "unterwelt",
+     "lat": 50.541,
+     "lon": 12.077,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Tropfsteinhöhle mit unterirdischen Seen."
+    },
+    {
+     "id": "vogtland-spitzenmuseum",
+     "name": "Plauener Spitzenmuseum",
+     "kind": "kultur",
+     "lat": 50.495,
+     "lon": 12.137,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geschichte der Plauener Spitze im Alten Rathaus."
+    },
+    {
+     "id": "vogtland-plohn",
+     "name": "Freizeitpark Plohn",
+     "kind": "freizeit",
+     "lat": 50.597,
+     "lon": 12.403,
+     "hours": 6,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Familien-Freizeitpark mit Achterbahnen im Vogtland."
+    }
+   ]
+  },
+  {
+   "id": "boehmische-schweiz",
+   "name": "Böhmische Schweiz (Hřensko & Děčín)",
+   "region": "Nordböhmen",
+   "country": "CZ",
+   "lat": 50.85,
+   "lon": 14.24,
+   "kinds": [
+    "natur",
+    "berge",
+    "wasser",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Größtes natürliches Sandsteintor des Kontinents, Kahnfahrten in der Edmundsklamm und Felswände bei Tisá.",
+   "angle": "Rundtour Prebischtor und Edmundsklamm an einem Tag, am nächsten die Tissaer Wände als ruhigere Ergänzung.",
+   "spots": [
+    {
+     "id": "boehmische-schweiz-prebischtor",
+     "name": "Prebischtor (Pravčická brána)",
+     "kind": "natur",
+     "lat": 50.884,
+     "lon": 14.282,
+     "hours": 3,
+     "summary": "Größte natürliche Sandsteinbrücke des Kontinents.",
+     "tip": "Früh starten, mittags ist der Weg stark begangen."
+    },
+    {
+     "id": "boehmische-schweiz-edmundsklamm",
+     "name": "Edmundsklamm (Soutěsky Kamenice)",
+     "kind": "wasser",
+     "lat": 50.873,
+     "lon": 14.27,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schlucht der Kamenice mit Kahnfahrten durch die Klamm."
+    },
+    {
+     "id": "boehmische-schweiz-decin-schloss",
+     "name": "Schloss Děčín",
+     "kind": "burg",
+     "lat": 50.777,
+     "lon": 14.207,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Großes Schloss auf einem Felsen über der Elbe."
+    },
+    {
+     "id": "boehmische-schweiz-snieznik",
+     "name": "Hoher Schneeberg (Děčínský Sněžník)",
+     "kind": "berge",
+     "lat": 50.792,
+     "lon": 14.107,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Tafelberg mit Aussichtsturm über dem Elbsandsteingebirge."
+    },
+    {
+     "id": "boehmische-schweiz-tisa",
+     "name": "Tissaer Wände (Tiské stěny)",
+     "kind": "natur",
+     "lat": 50.785,
+     "lon": 14.031,
+     "hours": 2,
+     "family": true,
+     "summary": "Felsenlabyrinth mit Aussichtspunkten."
+    }
+   ]
+  },
+  {
+   "id": "liberec",
+   "name": "Liberec & Ještěd",
+   "region": "Nordböhmen",
+   "country": "CZ",
+   "lat": 50.767,
+   "lon": 15.056,
+   "kinds": [
+    "stadt",
+    "berge",
+    "tiere",
+    "freizeit"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Stadt unter dem Ještěd mit markantem Gipfelturm, Zoo und großem Wissenszentrum.",
+   "angle": "Bei Regen ins iQLANDIA, bei klarem Himmel zum Sonnenuntergang auf den Ještěd.",
+   "spots": [
+    {
+     "id": "liberec-jested",
+     "name": "Ještěd (Jeschken)",
+     "kind": "berge",
+     "lat": 50.733,
+     "lon": 14.985,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Hausberg mit preisgekröntem Turmbau als Sender und Hotel."
+    },
+    {
+     "id": "liberec-iqlandia",
+     "name": "iQLANDIA",
+     "kind": "freizeit",
+     "lat": 50.774,
+     "lon": 15.057,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Science-Center mit Experimenten zum Anfassen und Planetarium."
+    },
+    {
+     "id": "liberec-zoo",
+     "name": "Zoo Liberec",
+     "kind": "tiere",
+     "lat": 50.776,
+     "lon": 15.071,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Ältester Zoo Tschechiens, bekannt für weiße Tiger."
+    },
+    {
+     "id": "liberec-botanischer-garten",
+     "name": "Botanischer Garten Liberec",
+     "kind": "natur",
+     "lat": 50.775,
+     "lon": 15.075,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Gewächshäuser mit tropischen Pflanzen nahe dem Zoo."
+    },
+    {
+     "id": "liberec-rathaus",
+     "name": "Rathaus Liberec",
+     "kind": "kultur",
+     "lat": 50.77,
+     "lon": 15.058,
+     "hours": 0.5,
+     "summary": "Neorenaissance-Rathaus am Hauptplatz."
+    }
+   ]
+  }
+ ]
+}

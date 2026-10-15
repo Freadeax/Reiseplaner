@@ -1,0 +1,3161 @@
+{
+ "group": "nord-2",
+ "places": [
+  {
+   "id": "schleswig",
+   "name": "Schleswig & Schloss Gottorf",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.516,
+   "lon": 9.565,
+   "kinds": [
+    "kultur",
+    "stadt",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Alte Residenzstadt an der inneren Schlei mit Landesmuseum, Dom und der Fischersiedlung Holm.",
+   "angle": "Vormittag ins Schloss, mittags durch den Holm schlendern und den Tag mit einem Schlei-Spaziergang am Wasser beenden.",
+   "spots": [
+    {
+     "id": "schleswig-gottorf",
+     "name": "Schloss Gottorf (Landesmuseen)",
+     "kind": "kultur",
+     "lat": 54.512,
+     "lon": 9.543,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Barockschloss auf einer Insel mit Kunst-, Kultur- und Archäologiesammlungen."
+    },
+    {
+     "id": "schleswig-globushaus",
+     "name": "Barockgarten & Globushaus",
+     "kind": "kultur",
+     "lat": 54.517,
+     "lon": 9.537,
+     "hours": 1,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Terrassengarten mit dem begehbaren Nachbau des Gottorfer Riesenglobus."
+    },
+    {
+     "id": "schleswig-holm",
+     "name": "Fischersiedlung Holm",
+     "kind": "stadt",
+     "lat": 54.511,
+     "lon": 9.574,
+     "hours": 1,
+     "family": true,
+     "summary": "Kleine Fischerhäuser rund um Kapelle und Friedhof, direkt an der Schlei."
+    },
+    {
+     "id": "schleswig-dom",
+     "name": "St.-Petri-Dom",
+     "kind": "kultur",
+     "lat": 54.513,
+     "lon": 9.569,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Backsteindom mit dem geschnitzten Bordesholmer Altar."
+    },
+    {
+     "id": "schleswig-danewerk",
+     "name": "Danevirke Museum",
+     "kind": "kultur",
+     "lat": 54.474,
+     "lon": 9.493,
+     "hours": 1.5,
+     "summary": "Museum am Wikinger-Grenzwall Danewerk, dessen Wälle sich zu Fuß erkunden lassen.",
+     "tip": "Gut mit dem Wikinger Museum Haithabu kombinierbar."
+    }
+   ]
+  },
+  {
+   "id": "kappeln-schlei",
+   "name": "Kappeln & Schleimünde",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.661,
+   "lon": 9.931,
+   "kinds": [
+    "wasser",
+    "baden",
+    "natur",
+    "technik"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Hafenstädtchen an der Schleimündung mit Heringszaun, Dampfzug und der Lotseninsel am Übergang zur Ostsee.",
+   "angle": "Mit dem Boot zur Lotseninsel, nachmittags an den Strand von Damp und abends zurück an den Kappelner Hafen.",
+   "spots": [
+    {
+     "id": "kappeln-schlei-hafen",
+     "name": "Hafen & Heringszaun",
+     "kind": "wasser",
+     "lat": 54.66,
+     "lon": 9.937,
+     "hours": 1,
+     "family": true,
+     "summary": "Historischer Heringszaun aus Holzpfählen im Hafen, dazu Windmühle Amanda am Ufer."
+    },
+    {
+     "id": "kappeln-schlei-schleimuende",
+     "name": "Lotseninsel Schleimünde",
+     "kind": "natur",
+     "lat": 54.672,
+     "lon": 10.034,
+     "hours": 2.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Schmale Nehrung zwischen Schlei und Ostsee mit Leuchtturm und Vogelschutzgebiet.",
+     "tip": "Nur per Boot erreichbar, Ausflugsschiffe fahren ab Kappeln und Maasholm."
+    },
+    {
+     "id": "kappeln-schlei-maasholm",
+     "name": "Fischerdorf Maasholm",
+     "kind": "wasser",
+     "lat": 54.684,
+     "lon": 9.993,
+     "hours": 1,
+     "summary": "Fischerdorf an der Schleimündung mit Kuttern und Blick auf die Oehe."
+    },
+    {
+     "id": "kappeln-schlei-dampfzug",
+     "name": "Angelner Dampfeisenbahn",
+     "kind": "technik",
+     "lat": 54.656,
+     "lon": 9.927,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Museumszug unter Dampf zwischen Kappeln und Süderbrarup durch das Angeliter Land.",
+     "tip": "Fährt nur an ausgewählten Fahrtagen, vorher Fahrplan prüfen."
+    },
+    {
+     "id": "kappeln-schlei-damp",
+     "name": "Ostseestrand Damp",
+     "kind": "baden",
+     "lat": 54.587,
+     "lon": 10.018,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Langer Sandstrand an der offenen Ostsee südlich der Schleimündung."
+    }
+   ]
+  },
+  {
+   "id": "geltinger-birk",
+   "name": "Geltinger Birk & Holnis",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.775,
+   "lon": 9.86,
+   "kinds": [
+    "natur",
+    "baden",
+    "tiere",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Wilde Halbinseln an der Flensburger Außenförde mit frei laufenden Pferden, Leuchtturm und Steilküste.",
+   "angle": "Morgens Wildpferde und Wasservögel auf der Birk, nachmittags baden an der Holnis-Spitze und zum Sonnenuntergang zum Leuchtturm Falshöft.",
+   "spots": [
+    {
+     "id": "geltinger-birk-naturschutzgebiet",
+     "name": "Naturschutzgebiet Geltinger Birk",
+     "kind": "tiere",
+     "lat": 54.768,
+     "lon": 9.9,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Rundweg durch Salzwiesen und Strandseen, in denen Konik-Pferde und Galloways weiden.",
+     "tip": "Fernglas mitnehmen, die Birk ist ein Rastplatz für Wasservögel."
+    },
+    {
+     "id": "geltinger-birk-muehle-charlotte",
+     "name": "Mühle Charlotte",
+     "kind": "kultur",
+     "lat": 54.774,
+     "lon": 9.884,
+     "hours": 0.5,
+     "summary": "Holländerwindmühle am Rand der Birk, Ausgangspunkt für den Rundweg."
+    },
+    {
+     "id": "geltinger-birk-falshoeft",
+     "name": "Leuchtturm Falshöft",
+     "kind": "natur",
+     "lat": 54.787,
+     "lon": 9.955,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Weißer Leuchtturm hinter dem Deich mit weitem Blick über die Ostsee."
+    },
+    {
+     "id": "geltinger-birk-holnis",
+     "name": "Halbinsel Holnis",
+     "kind": "baden",
+     "lat": 54.86,
+     "lon": 9.588,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Naturstrand und Steilküste an der Spitze der Halbinsel mit Blick nach Dänemark."
+    }
+   ]
+  },
+  {
+   "id": "soenderborg",
+   "name": "Sønderborg & Als",
+   "region": "Syddanmark",
+   "country": "DK",
+   "lat": 54.909,
+   "lon": 9.792,
+   "kinds": [
+    "kultur",
+    "stadt",
+    "baden",
+    "freizeit"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Grenznahe dänische Hafenstadt am Alssund mit Schloss, Schlachtfeld von Dybbøl und Wissenschaftspark.",
+   "angle": "Geschichte am Vormittag (Dybbøl, Schloss), nachmittags Experimente im Universe und abends an der Hafenpromenade.",
+   "spots": [
+    {
+     "id": "soenderborg-slot",
+     "name": "Sønderborg Slot",
+     "kind": "kultur",
+     "lat": 54.911,
+     "lon": 9.783,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss am Hafen mit Museum zur Geschichte der deutsch-dänischen Grenzregion."
+    },
+    {
+     "id": "soenderborg-dybboel",
+     "name": "Dybbøl Banke & Historiecenter",
+     "kind": "kultur",
+     "lat": 54.909,
+     "lon": 9.745,
+     "hours": 2,
+     "family": true,
+     "summary": "Schanzen und Mühle des Kriegs von 1864 mit Erlebniszentrum."
+    },
+    {
+     "id": "soenderborg-promenade",
+     "name": "Hafen & Strandpromenade",
+     "kind": "stadt",
+     "lat": 54.906,
+     "lon": 9.792,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Promenade am Alssund mit Blick auf Hafen und Brücken."
+    },
+    {
+     "id": "soenderborg-universe",
+     "name": "Universe Science Park",
+     "kind": "freizeit",
+     "lat": 55.04,
+     "lon": 9.737,
+     "hours": 5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Wissenschafts-Erlebnispark auf der Insel Als mit vielen Mitmach-Stationen."
+    },
+    {
+     "id": "soenderborg-graasten",
+     "name": "Schlossgarten Gråsten",
+     "kind": "natur",
+     "lat": 54.92,
+     "lon": 9.596,
+     "hours": 1,
+     "summary": "Garten des Sommersitzes der dänischen Königsfamilie am Nybøl Nor.",
+     "tip": "Der Garten ist zeitweise geschlossen, wenn die Königsfamilie anwesend ist."
+    }
+   ]
+  },
+  {
+   "id": "toender",
+   "name": "Tønder & Møgeltønder",
+   "region": "Syddanmark",
+   "country": "DK",
+   "lat": 54.933,
+   "lon": 8.864,
+   "kinds": [
+    "kultur",
+    "stadt",
+    "tiere",
+    "natur"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kleine Marschstadt mit Giebelhäusern, Königsschlösschen in Møgeltønder und den Starenschwärmen der Marsch.",
+   "angle": "Im Frühjahr oder Herbst den Tag in Møgeltønder beginnen und zur Dämmerung in die Marsch zum Sort Sol fahren.",
+   "spots": [
+    {
+     "id": "toender-altstadt",
+     "name": "Altstadt Tønder",
+     "kind": "stadt",
+     "lat": 54.933,
+     "lon": 8.865,
+     "hours": 1.5,
+     "summary": "Fußgängerzone mit verzierten Giebelhäusern und Erkern."
+    },
+    {
+     "id": "toender-museum",
+     "name": "Tønder Museum & Wegner-Turm",
+     "kind": "kultur",
+     "lat": 54.937,
+     "lon": 8.861,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Kunstmuseum mit Stühlen von Hans J. Wegner im alten Wasserturm."
+    },
+    {
+     "id": "toender-moegeltoender",
+     "name": "Slotsgade Møgeltønder & Schackenborg",
+     "kind": "burg",
+     "lat": 54.937,
+     "lon": 8.802,
+     "hours": 1,
+     "summary": "Lindenallee mit Reetdachhäusern, die am Schloss Schackenborg endet."
+    },
+    {
+     "id": "toender-sort-sol",
+     "name": "Sort Sol in der Tøndermarsch",
+     "kind": "tiere",
+     "lat": 54.95,
+     "lon": 8.74,
+     "hours": 1.5,
+     "months": [
+      3,
+      4,
+      9,
+      10
+     ],
+     "slot": "abend",
+     "summary": "Hunderttausende Stare formen in der Dämmerung riesige Schwärme über der Marsch.",
+     "tip": "Die Schwärme wechseln den Schlafplatz, geführte Touren kennen den aktuellen Ort."
+    },
+    {
+     "id": "toender-hoejer",
+     "name": "Vidå-Schleuse bei Højer",
+     "kind": "natur",
+     "lat": 54.963,
+     "lon": 8.664,
+     "hours": 1,
+     "summary": "Deichschleuse am Wattenmeer mit Blick über Vorland und Watt."
+    }
+   ]
+  },
+  {
+   "id": "foehr",
+   "name": "Föhr (Wyk & Nieblum)",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.692,
+   "lon": 8.567,
+   "kinds": [
+    "baden",
+    "natur",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Grüne Friesische Insel mit Südstrand, Friesendörfern und Kunstmuseum, ideal mit dem Rad.",
+   "angle": "Morgens Wyk und Sandwall, mittags per Rad nach Nieblum und zum Sonnenuntergang an den Weststrand von Utersum.",
+   "spots": [
+    {
+     "id": "foehr-sandwall",
+     "name": "Sandwall & Südstrand Wyk",
+     "kind": "baden",
+     "lat": 54.689,
+     "lon": 8.57,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Promenade und Sandstrand mit Blick auf Amrum und die Halligen."
+    },
+    {
+     "id": "foehr-friesenmuseum",
+     "name": "Friesenmuseum Wyk",
+     "kind": "kultur",
+     "lat": 54.695,
+     "lon": 8.561,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Inselgeschichte, Walfang und Friesenhäuser im Museumsgarten."
+    },
+    {
+     "id": "foehr-nieblum",
+     "name": "Nieblum & Friesendom St. Johannis",
+     "kind": "kultur",
+     "lat": 54.689,
+     "lon": 8.493,
+     "hours": 1.5,
+     "summary": "Reetdachdorf mit großer Inselkirche und Kapitänsgrabsteinen."
+    },
+    {
+     "id": "foehr-kunstmuseum",
+     "name": "Museum Kunst der Westküste",
+     "kind": "kultur",
+     "lat": 54.715,
+     "lon": 8.517,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Kunst über Meer und Küste in Alkersum."
+    },
+    {
+     "id": "foehr-utersum",
+     "name": "Strand Utersum",
+     "kind": "baden",
+     "lat": 54.713,
+     "lon": 8.402,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "slot": "abend",
+     "summary": "Weststrand mit Blick auf Sylt und Amrum, abends Sonnenuntergang über dem Meer."
+    },
+    {
+     "id": "foehr-radtour",
+     "name": "Inselrunde mit dem Rad",
+     "kind": "aktiv",
+     "lat": 54.72,
+     "lon": 8.5,
+     "hours": 4,
+     "summary": "Flache Runde durch Marsch, Geest und Dörfer."
+    }
+   ]
+  },
+  {
+   "id": "friedrichstadt",
+   "name": "Friedrichstadt & Eider",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.375,
+   "lon": 9.087,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "aktiv",
+    "tiere"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Holländerstädtchen mit Grachten zwischen Eider und Treene, nahe Tönning und Eidersperrwerk.",
+   "angle": "Vormittags Grachtenfahrt, nachmittags Wattenmeer-Ausstellung in Tönning und zum Abend auf das Eidersperrwerk.",
+   "spots": [
+    {
+     "id": "friedrichstadt-grachten",
+     "name": "Grachtenfahrt",
+     "kind": "wasser",
+     "lat": 54.375,
+     "lon": 9.087,
+     "hours": 1,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Bootsfahrt durch die Grachten der Holländerstadt."
+    },
+    {
+     "id": "friedrichstadt-marktplatz",
+     "name": "Marktplatz & Treppengiebel",
+     "kind": "stadt",
+     "lat": 54.374,
+     "lon": 9.086,
+     "hours": 1,
+     "summary": "Platz mit niederländischen Giebelhäusern aus dem 17. Jahrhundert."
+    },
+    {
+     "id": "friedrichstadt-treene",
+     "name": "Kanutour auf der Treene",
+     "kind": "aktiv",
+     "lat": 54.39,
+     "lon": 9.12,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Ruhiger Fluss durch Marsch und Wiesen, auch für Einsteiger."
+    },
+    {
+     "id": "friedrichstadt-multimar",
+     "name": "Multimar Wattforum Tönning",
+     "kind": "tiere",
+     "lat": 54.317,
+     "lon": 8.952,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Nationalpark-Zentrum mit Aquarien und Pottwalskelett."
+    },
+    {
+     "id": "friedrichstadt-eidersperrwerk",
+     "name": "Eidersperrwerk",
+     "kind": "technik",
+     "lat": 54.266,
+     "lon": 8.843,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Großes Sturmflutsperrwerk an der Eidermündung."
+    }
+   ]
+  },
+  {
+   "id": "eckernfoerde",
+   "name": "Eckernförde & Hüttener Berge",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.469,
+   "lon": 9.837,
+   "kinds": [
+    "baden",
+    "stadt",
+    "natur",
+    "tiere"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Ostseebad mit Stadtstrand direkt an der Altstadt und Hügelland im Hinterland.",
+   "angle": "Nach dem Strandtag zum Aschberg fahren und den Sonnenuntergang über den Hüttener Bergen sehen.",
+   "spots": [
+    {
+     "id": "eckernfoerde-strand",
+     "name": "Stadtstrand Eckernförde",
+     "kind": "baden",
+     "lat": 54.471,
+     "lon": 9.84,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Feiner Sandstrand in Laufweite von Hafen und Altstadt."
+    },
+    {
+     "id": "eckernfoerde-hafen",
+     "name": "Hafen & Altstadt",
+     "kind": "stadt",
+     "lat": 54.468,
+     "lon": 9.835,
+     "hours": 1.5,
+     "summary": "Hafenspitze, Holzbrücke und Gassen mit alten Fischerhäusern."
+    },
+    {
+     "id": "eckernfoerde-ostsee-info",
+     "name": "Ostsee Info-Center",
+     "kind": "tiere",
+     "lat": 54.474,
+     "lon": 9.84,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Aquarien mit Ostseebewohnern und Tastbecken."
+    },
+    {
+     "id": "eckernfoerde-aschberg",
+     "name": "Aschberg",
+     "kind": "natur",
+     "lat": 54.434,
+     "lon": 9.716,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Aussichtshügel der Hüttener Berge mit Bismarck-Denkmal."
+    }
+   ]
+  },
+  {
+   "id": "kiel",
+   "name": "Kiel & Kieler Förde",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.335,
+   "lon": 10.14,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "technik",
+    "baden"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Landeshauptstadt an der Förde mit großen Pötten, Kanal-Schleusen, Freilichtmuseum und Strand.",
+   "angle": "Schiffe gucken an der Kiellinie und den Holtenauer Schleusen, dann mit der Fördefähre nach Laboe übersetzen.",
+   "spots": [
+    {
+     "id": "kiel-kiellinie",
+     "name": "Kiellinie",
+     "kind": "stadt",
+     "lat": 54.335,
+     "lon": 10.152,
+     "hours": 1.5,
+     "summary": "Uferpromenade mit Blick auf Segelboote, Fähren und Kreuzfahrtschiffe."
+    },
+    {
+     "id": "kiel-aquarium",
+     "name": "Aquarium GEOMAR",
+     "kind": "tiere",
+     "lat": 54.33,
+     "lon": 10.15,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Meeresaquarium an der Kiellinie mit Seehundbecken."
+    },
+    {
+     "id": "kiel-holtenau",
+     "name": "Schleusen Kiel-Holtenau",
+     "kind": "technik",
+     "lat": 54.366,
+     "lon": 10.147,
+     "hours": 1,
+     "family": true,
+     "summary": "Ostseeseitige Schleusen des Nord-Ostsee-Kanals."
+    },
+    {
+     "id": "kiel-laboe",
+     "name": "Marine-Ehrenmal & U 995 Laboe",
+     "kind": "kultur",
+     "lat": 54.41,
+     "lon": 10.224,
+     "hours": 2.5,
+     "summary": "Turm mit Aussicht über die Förde und begehbares U-Boot am Strand.",
+     "tip": "Mit der Fördefähre ab Kiel anreisen."
+    },
+    {
+     "id": "kiel-molfsee",
+     "name": "Freilichtmuseum Molfsee",
+     "kind": "kultur",
+     "lat": 54.271,
+     "lon": 10.07,
+     "hours": 3,
+     "family": true,
+     "summary": "Bauernhäuser, Mühlen und Handwerk aus ganz Schleswig-Holstein."
+    },
+    {
+     "id": "kiel-falckenstein",
+     "name": "Falckensteiner Strand",
+     "kind": "baden",
+     "lat": 54.4,
+     "lon": 10.192,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sandstrand an der Fördemündung mit Blick auf Laboe."
+    }
+   ]
+  },
+  {
+   "id": "rendsburg",
+   "name": "Rendsburg & Nord-Ostsee-Kanal",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.304,
+   "lon": 9.664,
+   "kinds": [
+    "technik",
+    "wasser",
+    "aktiv",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kanalstadt, in der Ozeanschiffe unter der Eisenbahnhochbrücke durch das Land ziehen.",
+   "angle": "Am Kanalufer warten, bis ein großer Frachter unter der Hochbrücke durchfährt, dann mit dem Rad am Kanal entlang.",
+   "spots": [
+    {
+     "id": "rendsburg-hochbruecke",
+     "name": "Eisenbahnhochbrücke & Schwebefähre",
+     "kind": "technik",
+     "lat": 54.297,
+     "lon": 9.684,
+     "hours": 1,
+     "family": true,
+     "summary": "Stählerne Hochbrücke über den Kanal mit darunter hängender Schwebefähre."
+    },
+    {
+     "id": "rendsburg-altstadt",
+     "name": "Altstadt & Paradeplatz",
+     "kind": "stadt",
+     "lat": 54.306,
+     "lon": 9.663,
+     "hours": 1,
+     "summary": "Festungsstadt mit Paradeplatz und Fachwerk."
+    },
+    {
+     "id": "rendsburg-juedisches-museum",
+     "name": "Jüdisches Museum Rendsburg",
+     "kind": "kultur",
+     "lat": 54.305,
+     "lon": 9.667,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ehemalige Synagoge mit Ausstellung zu jüdischem Leben."
+    },
+    {
+     "id": "rendsburg-kanalradweg",
+     "name": "Radweg am Nord-Ostsee-Kanal",
+     "kind": "aktiv",
+     "lat": 54.3,
+     "lon": 9.7,
+     "hours": 3,
+     "summary": "Flacher Uferweg mit vorbeiziehenden Schiffen und kleinen Kanalfähren."
+    }
+   ]
+  },
+  {
+   "id": "hohwachter-bucht",
+   "name": "Hohwachter Bucht & Probstei",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.318,
+   "lon": 10.672,
+   "kinds": [
+    "baden",
+    "natur",
+    "burg",
+    "familie"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    3
+   ],
+   "summary": "Ruhige Ostseeküste mit Naturstränden, Strandseen und dem Hügelland um Lütjenburg.",
+   "angle": "Strand am Vormittag, nachmittags Mittelalter in der Turmhügelburg und zum Abschluss der Rundblick vom Hessenstein.",
+   "spots": [
+    {
+     "id": "hohwachter-bucht-strand",
+     "name": "Strand Hohwacht",
+     "kind": "baden",
+     "lat": 54.32,
+     "lon": 10.677,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sandstrand mit Steilufer und Dünen."
+    },
+    {
+     "id": "hohwachter-bucht-binnensee",
+     "name": "Großer Binnensee",
+     "kind": "natur",
+     "lat": 54.325,
+     "lon": 10.63,
+     "hours": 1.5,
+     "summary": "Strandsee hinter dem Ostseedeich mit vielen Wasservögeln."
+    },
+    {
+     "id": "hohwachter-bucht-hessenstein",
+     "name": "Aussichtsturm Hessenstein",
+     "kind": "natur",
+     "lat": 54.281,
+     "lon": 10.591,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Turm auf dem Pilsberg mit Blick bis zur Ostsee."
+    },
+    {
+     "id": "hohwachter-bucht-turmhuegelburg",
+     "name": "Turmhügelburg Lütjenburg",
+     "kind": "burg",
+     "lat": 54.295,
+     "lon": 10.579,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Rekonstruierte mittelalterliche Holzburg auf einem Erdhügel."
+    },
+    {
+     "id": "hohwachter-bucht-schoenberger-strand",
+     "name": "Schönberger Strand",
+     "kind": "baden",
+     "lat": 54.424,
+     "lon": 10.38,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Langer flacher Strand der Probstei, gut für Kinder."
+    }
+   ]
+  },
+  {
+   "id": "ploen-eutin",
+   "name": "Plön, Eutin & Holsteinische Schweiz",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.155,
+   "lon": 10.52,
+   "kinds": [
+    "wasser",
+    "baden",
+    "burg",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Seenlandschaft mit zwei Schlössern, Ausflugsschiffen, Badestellen und Kanurevieren.",
+   "angle": "Mit der Fünf-Seen-Fahrt von See zu See und den Nachmittag zum Baden an der Fegetasche nutzen.",
+   "spots": [
+    {
+     "id": "ploen-eutin-schloss-ploen",
+     "name": "Schloss Plön",
+     "kind": "burg",
+     "lat": 54.162,
+     "lon": 10.422,
+     "hours": 1,
+     "summary": "Schloss über dem Großen Plöner See mit Aussichtsterrasse."
+    },
+    {
+     "id": "ploen-eutin-fuenf-seen-fahrt",
+     "name": "Fünf-Seen-Fahrt",
+     "kind": "wasser",
+     "lat": 54.17,
+     "lon": 10.554,
+     "hours": 2,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Schiffstour über mehrere Seen zwischen Malente und Plön."
+    },
+    {
+     "id": "ploen-eutin-fegetasche",
+     "name": "Badestelle Fegetasche",
+     "kind": "baden",
+     "lat": 54.153,
+     "lon": 10.436,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badestelle an der Engstelle zwischen Großem und Kleinem Plöner See."
+    },
+    {
+     "id": "ploen-eutin-schloss-eutin",
+     "name": "Schloss Eutin & Schlossgarten",
+     "kind": "burg",
+     "lat": 54.139,
+     "lon": 10.616,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Wasserschloss am Großen Eutiner See mit Landschaftsgarten."
+    },
+    {
+     "id": "ploen-eutin-schwentine",
+     "name": "Kanutour auf der Schwentine",
+     "kind": "aktiv",
+     "lat": 54.17,
+     "lon": 10.48,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Paddelstrecke durch Seen und Flussabschnitte."
+    },
+    {
+     "id": "ploen-eutin-bungsberg",
+     "name": "Bungsberg",
+     "kind": "natur",
+     "lat": 54.212,
+     "lon": 10.725,
+     "hours": 1,
+     "summary": "Höchster Punkt Schleswig-Holsteins mit Turm und weitem Blick."
+    }
+   ]
+  },
+  {
+   "id": "fehmarn",
+   "name": "Fehmarn",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.437,
+   "lon": 11.193,
+   "kinds": [
+    "baden",
+    "natur",
+    "tiere",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Sonnige Ostseeinsel mit Südstrand, Vogelreservat und Leuchttürmen, über die Sundbrücke erreichbar.",
+   "angle": "Fehmarn ist flach: einen Tag mit dem Rad rund um die Insel einplanen und abends am Leuchtturm Flügge enden.",
+   "spots": [
+    {
+     "id": "fehmarn-suedstrand",
+     "name": "Südstrand Burgtiefe",
+     "kind": "baden",
+     "lat": 54.414,
+     "lon": 11.197,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Langer Sandstrand mit Promenade."
+    },
+    {
+     "id": "fehmarn-sundbruecke",
+     "name": "Fehmarnsundbrücke",
+     "kind": "technik",
+     "lat": 54.401,
+     "lon": 11.108,
+     "hours": 0.5,
+     "summary": "Markante Bogenbrücke zwischen Festland und Insel."
+    },
+    {
+     "id": "fehmarn-wallnau",
+     "name": "Wasservogelreservat Wallnau",
+     "kind": "tiere",
+     "lat": 54.485,
+     "lon": 11.023,
+     "hours": 2,
+     "family": true,
+     "summary": "NABU-Reservat mit Beobachtungshütten an Teichen."
+    },
+    {
+     "id": "fehmarn-fluegge",
+     "name": "Leuchtturm Flügge",
+     "kind": "natur",
+     "lat": 54.446,
+     "lon": 11.018,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Leuchtturm an der Westküste in der Feldmark."
+    },
+    {
+     "id": "fehmarn-burg",
+     "name": "Burg auf Fehmarn",
+     "kind": "stadt",
+     "lat": 54.437,
+     "lon": 11.193,
+     "hours": 1,
+     "summary": "Inselhauptort mit Marktplatz und St.-Nikolai-Kirche."
+    },
+    {
+     "id": "fehmarn-radrunde",
+     "name": "Inselrunde mit dem Rad",
+     "kind": "aktiv",
+     "lat": 54.46,
+     "lon": 11.15,
+     "hours": 5,
+     "summary": "Flache Runde entlang der Küste und durch Dörfer."
+    }
+   ]
+  },
+  {
+   "id": "luebecker-bucht",
+   "name": "Lübecker Bucht (Timmendorfer Strand & Scharbeutz)",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 54.02,
+   "lon": 10.77,
+   "kinds": [
+    "baden",
+    "freizeit",
+    "tiere",
+    "therme"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    3
+   ],
+   "summary": "Ostseebäder mit Sandstränden, Seebrücken, Freizeitpark und Regenwetter-Angeboten.",
+   "angle": "Ein Tag Hansa-Park, ein Tag Strand und bei Regen Sea Life oder Ostsee-Therme.",
+   "spots": [
+    {
+     "id": "luebecker-bucht-hansa-park",
+     "name": "Hansa-Park Sierksdorf",
+     "kind": "freizeit",
+     "lat": 54.076,
+     "lon": 10.781,
+     "hours": 6,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freizeitpark mit Achterbahnen direkt an der Ostsee."
+    },
+    {
+     "id": "luebecker-bucht-scharbeutz",
+     "name": "Strand & Seebrücke Scharbeutz",
+     "kind": "baden",
+     "lat": 54.027,
+     "lon": 10.752,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Breiter Sandstrand mit Dünenpromenade."
+    },
+    {
+     "id": "luebecker-bucht-sea-life",
+     "name": "Sea Life Timmendorfer Strand",
+     "kind": "tiere",
+     "lat": 53.993,
+     "lon": 10.785,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Aquarium mit Ostsee- und Tropenbecken."
+    },
+    {
+     "id": "luebecker-bucht-vogelpark-niendorf",
+     "name": "Vogelpark Niendorf",
+     "kind": "tiere",
+     "lat": 53.997,
+     "lon": 10.809,
+     "hours": 2,
+     "family": true,
+     "summary": "Vogelpark mit vielen Arten am Rand des Ostseebads."
+    },
+    {
+     "id": "luebecker-bucht-ostsee-therme",
+     "name": "Ostsee-Therme Scharbeutz",
+     "kind": "therme",
+     "lat": 54.028,
+     "lon": 10.75,
+     "hours": 2.5,
+     "indoor": true,
+     "summary": "Bade- und Saunalandschaft mit Meerblick."
+    }
+   ]
+  },
+  {
+   "id": "ratzeburg-moelln",
+   "name": "Ratzeburg & Mölln",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 53.699,
+   "lon": 10.757,
+   "kinds": [
+    "wasser",
+    "kultur",
+    "aktiv",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Inselstadt im Ratzeburger See mit Dom und Barlach-Museum, dazu Mölln und die Wakenitz.",
+   "angle": "Morgens Kanu auf der Wakenitz, nachmittags Dom und Barlach, zum Abend mit dem Schiff über den See.",
+   "spots": [
+    {
+     "id": "ratzeburg-moelln-dom",
+     "name": "Ratzeburger Dom",
+     "kind": "kultur",
+     "lat": 53.704,
+     "lon": 10.77,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Romanischer Backsteindom auf der Inselspitze."
+    },
+    {
+     "id": "ratzeburg-moelln-barlach",
+     "name": "Ernst-Barlach-Museum Altes Vaterhaus",
+     "kind": "kultur",
+     "lat": 53.699,
+     "lon": 10.757,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Skulpturen und Grafiken im Elternhaus Barlachs."
+    },
+    {
+     "id": "ratzeburg-moelln-see",
+     "name": "Schifffahrt Ratzeburger See",
+     "kind": "wasser",
+     "lat": 53.7,
+     "lon": 10.75,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Rundfahrt um die Inselstadt."
+    },
+    {
+     "id": "ratzeburg-moelln-wakenitz",
+     "name": "Kanutour auf der Wakenitz",
+     "kind": "aktiv",
+     "lat": 53.785,
+     "lon": 10.745,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Schmaler Fluss durch Bruchwald, oft Amazonas des Nordens genannt."
+    },
+    {
+     "id": "ratzeburg-moelln-moelln",
+     "name": "Altstadt Mölln & Eulenspiegel",
+     "kind": "stadt",
+     "lat": 53.628,
+     "lon": 10.688,
+     "hours": 1,
+     "family": true,
+     "summary": "Marktplatz mit Eulenspiegel-Brunnen und Museum."
+    }
+   ]
+  },
+  {
+   "id": "bad-segeberg",
+   "name": "Bad Segeberg & Wildpark Eekholt",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 53.936,
+   "lon": 10.31,
+   "kinds": [
+    "tiere",
+    "unterwelt",
+    "kultur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kalkberg mit Höhle und Karl-May-Bühne, Fledermaus-Ausstellung und ein großer Wildpark in der Nähe.",
+   "angle": "Im Sommer Höhle und Karl-May-Spiele am selben Tag, sonst Fledermäuse am Vormittag und Wildpark am Nachmittag.",
+   "spots": [
+    {
+     "id": "bad-segeberg-kalkberghoehle",
+     "name": "Kalkberghöhle",
+     "kind": "unterwelt",
+     "lat": 53.937,
+     "lon": 10.312,
+     "hours": 1,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Größte natürliche Höhle Schleswig-Holsteins mit Fledermaus-Winterquartier."
+    },
+    {
+     "id": "bad-segeberg-karl-may",
+     "name": "Kalkberg & Freilichtbühne",
+     "kind": "kultur",
+     "lat": 53.936,
+     "lon": 10.314,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "slot": "nachm",
+     "summary": "Felsbühne, auf der im Sommer die Karl-May-Spiele laufen."
+    },
+    {
+     "id": "bad-segeberg-noctalis",
+     "name": "Noctalis – Welt der Fledermäuse",
+     "kind": "tiere",
+     "lat": 53.938,
+     "lon": 10.31,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Ausstellung mit lebenden Fledermäusen am Fuß des Kalkbergs."
+    },
+    {
+     "id": "bad-segeberg-eekholt",
+     "name": "Wildpark Eekholt",
+     "kind": "tiere",
+     "lat": 53.974,
+     "lon": 9.968,
+     "hours": 3,
+     "family": true,
+     "summary": "Wildpark mit heimischen Tieren und Flugvorführungen."
+    }
+   ]
+  },
+  {
+   "id": "harburger-berge",
+   "name": "Harburger Berge & Kiekeberg",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.425,
+   "lon": 9.88,
+   "kinds": [
+    "tiere",
+    "kultur",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    0
+   ],
+   "summary": "Bewaldete Hügel am Südrand Hamburgs mit Wildpark, Freilichtmuseum und Heideflächen.",
+   "angle": "Wildpark am Vormittag, Freilichtmuseum am Nachmittag – beide liegen nur wenige Kilometer auseinander.",
+   "spots": [
+    {
+     "id": "harburger-berge-wildpark",
+     "name": "Wildpark Schwarze Berge",
+     "kind": "tiere",
+     "lat": 53.419,
+     "lon": 9.861,
+     "hours": 3,
+     "family": true,
+     "summary": "Wildpark mit Wölfen, Bären und Greifvogel-Vorführungen."
+    },
+    {
+     "id": "harburger-berge-kiekeberg",
+     "name": "Freilichtmuseum am Kiekeberg",
+     "kind": "kultur",
+     "lat": 53.426,
+     "lon": 9.893,
+     "hours": 3,
+     "family": true,
+     "summary": "Höfe, Tiere und Alltagsleben aus der Region in Ehestorf."
+    },
+    {
+     "id": "harburger-berge-fischbeker-heide",
+     "name": "Fischbeker Heide",
+     "kind": "natur",
+     "lat": 53.46,
+     "lon": 9.84,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Heidelandschaft mit Hügelgräbern am Rand der Harburger Berge."
+    },
+    {
+     "id": "harburger-berge-archaeologisches-museum",
+     "name": "Archäologisches Museum Hamburg",
+     "kind": "kultur",
+     "lat": 53.461,
+     "lon": 9.981,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Funde von der Steinzeit bis zum Mittelalter in Harburg."
+    }
+   ]
+  },
+  {
+   "id": "stade-altes-land",
+   "name": "Stade & Altes Land",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.57,
+   "lon": 9.55,
+   "kinds": [
+    "stadt",
+    "natur",
+    "aktiv",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Hansestadt mit Fachwerkhafen und das weite Obstanbaugebiet der Elbmarsch.",
+   "angle": "Zur Obstblüte im April oder Mai mit dem Rad durch das Alte Land und zum Abschluss die Schiffe am Willkomm-Höft begrüßen.",
+   "spots": [
+    {
+     "id": "stade-altes-land-hansehafen",
+     "name": "Hansehafen & Altstadt Stade",
+     "kind": "stadt",
+     "lat": 53.601,
+     "lon": 9.474,
+     "hours": 2,
+     "summary": "Fachwerkhäuser und alter Holzkran rund um den Hafen."
+    },
+    {
+     "id": "stade-altes-land-schwedenspeicher",
+     "name": "Museum Schwedenspeicher",
+     "kind": "kultur",
+     "lat": 53.602,
+     "lon": 9.473,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Stadtgeschichte im ehemaligen Proviantmagazin."
+    },
+    {
+     "id": "stade-altes-land-obstbluete",
+     "name": "Obstblüte im Alten Land",
+     "kind": "natur",
+     "lat": 53.531,
+     "lon": 9.684,
+     "hours": 3,
+     "months": [
+      4,
+      5
+     ],
+     "summary": "Blühende Kirsch- und Apfelplantagen zwischen Deichen und Fachwerkhöfen."
+    },
+    {
+     "id": "stade-altes-land-obstmarschenweg",
+     "name": "Radweg Obstmarschenweg",
+     "kind": "aktiv",
+     "lat": 53.55,
+     "lon": 9.6,
+     "hours": 3,
+     "summary": "Ausgeschilderte Route durch die Obstmarsch nahe der Elbe."
+    },
+    {
+     "id": "stade-altes-land-luehe-faehre",
+     "name": "Fähre Lühe–Schulau",
+     "kind": "wasser",
+     "lat": 53.574,
+     "lon": 9.644,
+     "hours": 1,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Elbfähre zwischen Altem Land und Wedel."
+    },
+    {
+     "id": "stade-altes-land-willkomm-hoeft",
+     "name": "Willkomm-Höft Wedel",
+     "kind": "wasser",
+     "lat": 53.568,
+     "lon": 9.703,
+     "hours": 1,
+     "family": true,
+     "summary": "Schiffsbegrüßungsanlage, die große Schiffe mit Hymne begrüßt."
+    }
+   ]
+  },
+  {
+   "id": "lauenburg-elbe",
+   "name": "Lauenburg & Elbtalaue",
+   "region": "Schleswig-Holstein",
+   "country": "DE",
+   "lat": 53.373,
+   "lon": 10.56,
+   "kinds": [
+    "wasser",
+    "technik",
+    "aktiv",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Schifferstadt am Elbhang, Schiffshebewerk und Biosphärenreservat mit Elbradweg.",
+   "angle": "Unterstadt und Schifffahrtsmuseum am Vormittag, dann per Rad die Elbe hinauf und das Schiffshebewerk in Aktion sehen.",
+   "spots": [
+    {
+     "id": "lauenburg-elbe-unterstadt",
+     "name": "Unterstadt Lauenburg",
+     "kind": "stadt",
+     "lat": 53.372,
+     "lon": 10.555,
+     "hours": 1.5,
+     "summary": "Schiffer- und Fachwerkhäuser direkt am Elbufer."
+    },
+    {
+     "id": "lauenburg-elbe-schifffahrtsmuseum",
+     "name": "Elbschifffahrtsmuseum",
+     "kind": "technik",
+     "lat": 53.372,
+     "lon": 10.558,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Geschichte der Elbschifffahrt mit Modellen und Maschinen."
+    },
+    {
+     "id": "lauenburg-elbe-hebewerk",
+     "name": "Schiffshebewerk Scharnebeck",
+     "kind": "technik",
+     "lat": 53.293,
+     "lon": 10.506,
+     "hours": 1,
+     "family": true,
+     "summary": "Großes Hebewerk am Elbe-Seitenkanal, das Schiffe in Trögen hebt."
+    },
+    {
+     "id": "lauenburg-elbe-elberadweg",
+     "name": "Elberadweg Richtung Bleckede",
+     "kind": "aktiv",
+     "lat": 53.33,
+     "lon": 10.65,
+     "hours": 3,
+     "summary": "Deichweg durch die Elbtalaue mit Störchen und Auen."
+    },
+    {
+     "id": "lauenburg-elbe-biosphaerium",
+     "name": "Biosphaerium Elbtalaue Bleckede",
+     "kind": "tiere",
+     "lat": 53.29,
+     "lon": 10.732,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Ausstellung zur Flusslandschaft mit Biberanlage im Schloss Bleckede."
+    }
+   ]
+  },
+  {
+   "id": "cuxhaven",
+   "name": "Cuxhaven & Neuwerk",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.87,
+   "lon": 8.7,
+   "kinds": [
+    "baden",
+    "natur",
+    "wasser",
+    "familie"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Nordseebad an der Elbmündung mit Kugelbake, Schiffsverkehr, Sandstrand und Wattfahrten nach Neuwerk.",
+   "angle": "Bei Niedrigwasser mit dem Wattwagen nach Neuwerk, an einem anderen Tag Schiffe an der Alten Liebe gucken.",
+   "spots": [
+    {
+     "id": "cuxhaven-kugelbake",
+     "name": "Kugelbake",
+     "kind": "wasser",
+     "lat": 53.893,
+     "lon": 8.704,
+     "hours": 0.5,
+     "slot": "abend",
+     "summary": "Wahrzeichen an der Stelle, wo die Elbe in die Nordsee übergeht."
+    },
+    {
+     "id": "cuxhaven-alte-liebe",
+     "name": "Alte Liebe",
+     "kind": "wasser",
+     "lat": 53.873,
+     "lon": 8.705,
+     "hours": 1,
+     "family": true,
+     "summary": "Aussichtsplattform am Hafen mit Blick auf vorbeifahrende Schiffe."
+    },
+    {
+     "id": "cuxhaven-duhnen",
+     "name": "Strand Duhnen",
+     "kind": "baden",
+     "lat": 53.884,
+     "lon": 8.64,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sandstrand mit Strandkörben und Wattflächen."
+    },
+    {
+     "id": "cuxhaven-neuwerk",
+     "name": "Wattwagenfahrt nach Neuwerk",
+     "kind": "natur",
+     "lat": 53.916,
+     "lon": 8.498,
+     "hours": 5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Mit Pferdewagen bei Ebbe durchs Watt zur Insel mit Leuchtturm.",
+     "tip": "Fahrten richten sich nach den Gezeiten."
+    },
+    {
+     "id": "cuxhaven-windstaerke-10",
+     "name": "Windstärke 10 – Wrack- und Fischereimuseum",
+     "kind": "kultur",
+     "lat": 53.866,
+     "lon": 8.708,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Schiffswracks, Seenot und Fischerei."
+    }
+   ]
+  },
+  {
+   "id": "worpswede",
+   "name": "Worpswede & Teufelsmoor",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.217,
+   "lon": 8.927,
+   "kinds": [
+    "kultur",
+    "natur",
+    "aktiv",
+    "wasser"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Künstlerdorf am Weyerberg mit Museen und weiten Moorwiesen.",
+   "angle": "Vormittags Museen, nachmittags Torfkahn oder Rad und zum Sonnenuntergang auf den Weyerberg.",
+   "spots": [
+    {
+     "id": "worpswede-barkenhoff",
+     "name": "Barkenhoff (Heinrich-Vogeler-Museum)",
+     "kind": "kultur",
+     "lat": 53.218,
+     "lon": 8.933,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Jugendstilhaus Vogelers mit Gemälden der Künstlerkolonie."
+    },
+    {
+     "id": "worpswede-grosse-kunstschau",
+     "name": "Große Kunstschau",
+     "kind": "kultur",
+     "lat": 53.219,
+     "lon": 8.925,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Museum mit Werken der Worpsweder Maler."
+    },
+    {
+     "id": "worpswede-weyerberg",
+     "name": "Weyerberg & Niedersachsenstein",
+     "kind": "natur",
+     "lat": 53.222,
+     "lon": 8.928,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Sandhügel mit Blick über das Teufelsmoor."
+    },
+    {
+     "id": "worpswede-torfkahn",
+     "name": "Torfkahnfahrt auf der Hamme",
+     "kind": "wasser",
+     "lat": 53.225,
+     "lon": 8.875,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Fahrt mit nachgebautem Torfkahn durch die Moorlandschaft."
+    },
+    {
+     "id": "worpswede-radtour",
+     "name": "Radtour durchs Teufelsmoor",
+     "kind": "aktiv",
+     "lat": 53.25,
+     "lon": 8.93,
+     "hours": 3,
+     "summary": "Flache Wege über Moordämme und entlang der Hamme."
+    }
+   ]
+  },
+  {
+   "id": "wildeshausen",
+   "name": "Wildeshausen & Hunte",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.898,
+   "lon": 8.433,
+   "kinds": [
+    "natur",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Geeststadt an der Hunte mit Großsteingräbern, Heide und Kanurevier.",
+   "angle": "Im August blüht die Heide am Pestruper Gräberfeld, danach mit dem Kanu die Hunte hinab.",
+   "spots": [
+    {
+     "id": "wildeshausen-pestrup",
+     "name": "Pestruper Gräberfeld",
+     "kind": "kultur",
+     "lat": 52.883,
+     "lon": 8.455,
+     "hours": 1.5,
+     "summary": "Hunderte Grabhügel in einer Heidelandschaft, im Spätsommer lila."
+    },
+    {
+     "id": "wildeshausen-alexanderkirche",
+     "name": "Alexanderkirche",
+     "kind": "kultur",
+     "lat": 52.897,
+     "lon": 8.433,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Romanische Basilika über der Altstadt."
+    },
+    {
+     "id": "wildeshausen-hunte-kanu",
+     "name": "Kanutour auf der Hunte",
+     "kind": "aktiv",
+     "lat": 52.9,
+     "lon": 8.43,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Ruhiger Flusslauf durch Wald und Wiesen."
+    },
+    {
+     "id": "wildeshausen-visbeker-braut",
+     "name": "Visbeker Braut & Bräutigam",
+     "kind": "kultur",
+     "lat": 52.84,
+     "lon": 8.33,
+     "hours": 1.5,
+     "summary": "Große Steinzeitgräber an der Straße der Megalithkultur."
+    },
+    {
+     "id": "wildeshausen-ahlhorner-fischteiche",
+     "name": "Ahlhorner Fischteiche",
+     "kind": "natur",
+     "lat": 52.905,
+     "lon": 8.215,
+     "hours": 2,
+     "summary": "Teichlandschaft mit Rundwegen und vielen Wasservögeln."
+    }
+   ]
+  },
+  {
+   "id": "oldenburg",
+   "name": "Oldenburg",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.143,
+   "lon": 8.214,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Ehemalige Residenzstadt mit Schloss, Museen, Schlossgarten und lebendiger Fußgängerzone.",
+   "angle": "Bei Regen die drei Museen rund ums Schloss, bei Sonne Schlossgarten und Altstadt.",
+   "spots": [
+    {
+     "id": "oldenburg-schloss",
+     "name": "Schloss Oldenburg (Landesmuseum)",
+     "kind": "kultur",
+     "lat": 53.139,
+     "lon": 8.214,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Gelbes Residenzschloss mit Kunst- und Kulturgeschichte."
+    },
+    {
+     "id": "oldenburg-schlossgarten",
+     "name": "Schlossgarten",
+     "kind": "natur",
+     "lat": 53.135,
+     "lon": 8.212,
+     "hours": 1,
+     "family": true,
+     "summary": "Englischer Landschaftspark mitten in der Stadt."
+    },
+    {
+     "id": "oldenburg-naturmuseum",
+     "name": "Landesmuseum Natur und Mensch",
+     "kind": "kultur",
+     "lat": 53.137,
+     "lon": 8.22,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Natur- und Kulturgeschichte mit Aquarien."
+    },
+    {
+     "id": "oldenburg-horst-janssen",
+     "name": "Horst-Janssen-Museum",
+     "kind": "kultur",
+     "lat": 53.136,
+     "lon": 8.218,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Zeichnungen und Grafik des Oldenburger Künstlers."
+    },
+    {
+     "id": "oldenburg-altstadt",
+     "name": "Altstadt & Lappan",
+     "kind": "stadt",
+     "lat": 53.142,
+     "lon": 8.211,
+     "hours": 1.5,
+     "summary": "Fußgängerzone mit Glockenturm Lappan."
+    }
+   ]
+  },
+  {
+   "id": "bad-zwischenahn",
+   "name": "Bad Zwischenahn & Ammerland",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.183,
+   "lon": 8.008,
+   "kinds": [
+    "wasser",
+    "natur",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kurort am Zwischenahner Meer mit Gärten, Rhododendren und Ammerländer Bauernhäusern.",
+   "angle": "Im Mai zur Rhododendronblüte in den Park der Gärten und danach mit dem Schiff über das Meer.",
+   "spots": [
+    {
+     "id": "bad-zwischenahn-park-der-gaerten",
+     "name": "Park der Gärten",
+     "kind": "natur",
+     "lat": 53.198,
+     "lon": 7.992,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Großer Gartenpark mit vielen Mustergärten und Rhododendren."
+    },
+    {
+     "id": "bad-zwischenahn-freilichtmuseum",
+     "name": "Freilichtmuseum Ammerländer Bauernhaus",
+     "kind": "kultur",
+     "lat": 53.185,
+     "lon": 8.003,
+     "hours": 1,
+     "summary": "Alte Bauernhäuser und Mühle am Seeufer."
+    },
+    {
+     "id": "bad-zwischenahn-schifffahrt",
+     "name": "Schifffahrt auf dem Zwischenahner Meer",
+     "kind": "wasser",
+     "lat": 53.183,
+     "lon": 8.007,
+     "hours": 1,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundfahrt über den drittgrößten See Niedersachsens."
+    },
+    {
+     "id": "bad-zwischenahn-rundweg",
+     "name": "Rundweg ums Zwischenahner Meer",
+     "kind": "aktiv",
+     "lat": 53.19,
+     "lon": 8.02,
+     "hours": 2.5,
+     "summary": "Rad- und Wanderweg rund um den See mit Badestellen."
+    }
+   ]
+  },
+  {
+   "id": "wilhelmshaven",
+   "name": "Wilhelmshaven & Jever",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.54,
+   "lon": 8.03,
+   "kinds": [
+    "baden",
+    "technik",
+    "tiere",
+    "kultur",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Marinestadt am Jadebusen mit Südstrand und Museen, dazu Schloss Jever und Strand Hooksiel.",
+   "angle": "Bei Wind und Regen Marinemuseum und Wattenmeerzentrum, bei Sonne Hooksiel und abends Schloss Jever.",
+   "spots": [
+    {
+     "id": "wilhelmshaven-suedstrand",
+     "name": "Südstrand Wilhelmshaven",
+     "kind": "baden",
+     "lat": 53.513,
+     "lon": 8.135,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stadtstrand am Jadebusen mit Promenade."
+    },
+    {
+     "id": "wilhelmshaven-marinemuseum",
+     "name": "Deutsches Marinemuseum",
+     "kind": "technik",
+     "lat": 53.512,
+     "lon": 8.142,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Marinegeschichte mit begehbaren Schiffen."
+    },
+    {
+     "id": "wilhelmshaven-wattenmeerzentrum",
+     "name": "Wattenmeer-Besucherzentrum",
+     "kind": "tiere",
+     "lat": 53.514,
+     "lon": 8.137,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Ausstellung über Watt, Wale und Zugvögel."
+    },
+    {
+     "id": "wilhelmshaven-kaiser-wilhelm-bruecke",
+     "name": "Kaiser-Wilhelm-Brücke",
+     "kind": "technik",
+     "lat": 53.514,
+     "lon": 8.125,
+     "hours": 0.5,
+     "summary": "Historische Drehbrücke über den Großen Hafen."
+    },
+    {
+     "id": "wilhelmshaven-schloss-jever",
+     "name": "Schloss Jever",
+     "kind": "burg",
+     "lat": 53.574,
+     "lon": 7.9,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss mit Museum und Schlosspark."
+    },
+    {
+     "id": "wilhelmshaven-hooksiel",
+     "name": "Strand Hooksiel",
+     "kind": "baden",
+     "lat": 53.637,
+     "lon": 8.035,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Nordseestrand und Binnensee Hooksmeer."
+    }
+   ]
+  },
+  {
+   "id": "dangast-jadebusen",
+   "name": "Dangast & Jadebusen",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.448,
+   "lon": 8.115,
+   "kinds": [
+    "baden",
+    "natur",
+    "tiere",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kleines Nordseebad am Jadebusen mit Watt, Künstlerhaus und Tierpark im Hinterland.",
+   "angle": "Strand und Watt bei Ebbe, danach Jaderpark mit Kindern oder ein Spaziergang im Neuenburger Urwald.",
+   "spots": [
+    {
+     "id": "dangast-jadebusen-strand",
+     "name": "Strand Dangast",
+     "kind": "baden",
+     "lat": 53.448,
+     "lon": 8.115,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Einziger Sandstrand direkt am Jadebusen, Baden je nach Gezeiten."
+    },
+    {
+     "id": "dangast-jadebusen-radziwill",
+     "name": "Franz-Radziwill-Haus",
+     "kind": "kultur",
+     "lat": 53.447,
+     "lon": 8.124,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Wohnhaus und Atelier des Malers Franz Radziwill."
+    },
+    {
+     "id": "dangast-jadebusen-watt",
+     "name": "Wattwanderung am Jadebusen",
+     "kind": "natur",
+     "lat": 53.452,
+     "lon": 8.12,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Geführte Tour ins Watt des Nationalparks."
+    },
+    {
+     "id": "dangast-jadebusen-jaderpark",
+     "name": "Jaderpark",
+     "kind": "tiere",
+     "lat": 53.326,
+     "lon": 8.185,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Tier- und Freizeitpark in Jaderberg mit Fahrgeschäften."
+    },
+    {
+     "id": "dangast-jadebusen-neuenburger-urwald",
+     "name": "Neuenburger Urwald",
+     "kind": "natur",
+     "lat": 53.398,
+     "lon": 7.975,
+     "hours": 2,
+     "summary": "Alter Hutewald mit knorrigen Eichen und Buchen."
+    }
+   ]
+  },
+  {
+   "id": "leer-papenburg",
+   "name": "Leer & Papenburg",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.17,
+   "lon": 7.42,
+   "kinds": [
+    "stadt",
+    "technik",
+    "kultur",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Ostfriesische Hafenstadt mit Tee-Tradition und die Werftstadt, in der Kreuzfahrtschiffe entstehen.",
+   "angle": "Werftführung in Papenburg vorab buchen, danach Teekultur und Altstadt in Leer.",
+   "spots": [
+    {
+     "id": "leer-papenburg-altstadt-leer",
+     "name": "Altstadt & Hafen Leer",
+     "kind": "stadt",
+     "lat": 53.229,
+     "lon": 7.452,
+     "hours": 1.5,
+     "summary": "Altstadtgassen, historische Waage und Museumshafen an der Leda."
+    },
+    {
+     "id": "leer-papenburg-teemuseum",
+     "name": "Bünting Teemuseum",
+     "kind": "kultur",
+     "lat": 53.23,
+     "lon": 7.45,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ausstellung zur ostfriesischen Teekultur mit Teezeremonie."
+    },
+    {
+     "id": "leer-papenburg-evenburg",
+     "name": "Schloss Evenburg",
+     "kind": "burg",
+     "lat": 53.226,
+     "lon": 7.42,
+     "hours": 1,
+     "summary": "Wasserschloss mit Landschaftspark im Stadtteil Loga."
+    },
+    {
+     "id": "leer-papenburg-meyer-werft",
+     "name": "Besucherzentrum Meyer Werft",
+     "kind": "technik",
+     "lat": 53.095,
+     "lon": 7.375,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Blick in die Bauhallen der Kreuzfahrtschiffe.",
+     "tip": "Besuch nur mit vorab gebuchter Führung."
+    },
+    {
+     "id": "leer-papenburg-stadtkanal",
+     "name": "Stadtkanal Papenburg",
+     "kind": "wasser",
+     "lat": 53.078,
+     "lon": 7.402,
+     "hours": 1,
+     "family": true,
+     "summary": "Längster Stadtkanal Deutschlands mit Museumsschiffen und Klappbrücken."
+    }
+   ]
+  },
+  {
+   "id": "langeoog",
+   "name": "Langeoog",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 53.747,
+   "lon": 7.48,
+   "kinds": [
+    "baden",
+    "natur",
+    "aktiv",
+    "familie"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Autofreie Ostfriesische Insel mit langem Sandstrand, Dünen und Vogelkolonien.",
+   "angle": "Mit dem Rad bis zum Ostende und zurück am Strand – vorher Gezeiten prüfen.",
+   "spots": [
+    {
+     "id": "langeoog-strand",
+     "name": "Hauptstrand",
+     "kind": "baden",
+     "lat": 53.753,
+     "lon": 7.48,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Breiter Sandstrand direkt nördlich des Inseldorfs."
+    },
+    {
+     "id": "langeoog-wasserturm",
+     "name": "Wasserturm",
+     "kind": "kultur",
+     "lat": 53.747,
+     "lon": 7.479,
+     "hours": 0.5,
+     "summary": "Wahrzeichen der Insel auf einer Düne am Dorfrand."
+    },
+    {
+     "id": "langeoog-melkhoern",
+     "name": "Melkhörndüne",
+     "kind": "natur",
+     "lat": 53.749,
+     "lon": 7.535,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Aussichtsdüne mit Blick über Salzwiesen, Watt und Strand."
+    },
+    {
+     "id": "langeoog-inselbahn",
+     "name": "Inselbahn",
+     "kind": "technik",
+     "lat": 53.729,
+     "lon": 7.495,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Kleine Inselbahn vom Fähranleger ins Dorf."
+    },
+    {
+     "id": "langeoog-ostende",
+     "name": "Ostende Langeoog",
+     "kind": "natur",
+     "lat": 53.77,
+     "lon": 7.62,
+     "hours": 3,
+     "summary": "Wilder Inselosten mit Salzwiesen, Dünen und Vogelkolonien.",
+     "tip": "Zur Brutzeit auf den Wegen bleiben."
+    }
+   ]
+  },
+  {
+   "id": "rostock-warnemuende",
+   "name": "Rostock & Warnemünde",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 54.13,
+   "lon": 12.1,
+   "kinds": [
+    "stadt",
+    "baden",
+    "kultur",
+    "tiere"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Hansestadt mit Backsteingotik und Zoo, dazu Warnemündes breiter Strand und der Alte Strom.",
+   "angle": "Vormittags Rostocker Altstadt, nachmittags Strand und zum Sonnenuntergang auf die Westmole.",
+   "spots": [
+    {
+     "id": "rostock-warnemuende-strand",
+     "name": "Strand & Leuchtturm Warnemünde",
+     "kind": "baden",
+     "lat": 54.181,
+     "lon": 12.085,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sehr breiter Sandstrand neben Leuchtturm und Teepott."
+    },
+    {
+     "id": "rostock-warnemuende-alter-strom",
+     "name": "Alter Strom & Westmole",
+     "kind": "wasser",
+     "lat": 54.178,
+     "lon": 12.088,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Kanal mit Fischkuttern, an der Westmole ziehen Fähren und Kreuzfahrtschiffe vorbei."
+    },
+    {
+     "id": "rostock-warnemuende-marienkirche",
+     "name": "Marienkirche Rostock",
+     "kind": "kultur",
+     "lat": 54.089,
+     "lon": 12.139,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotische Backsteinkirche mit mittelalterlichem astronomischem Kalenderwerk."
+    },
+    {
+     "id": "rostock-warnemuende-altstadt",
+     "name": "Neuer Markt & Kröpeliner Straße",
+     "kind": "stadt",
+     "lat": 54.088,
+     "lon": 12.14,
+     "hours": 1.5,
+     "summary": "Giebelhäuser am Markt und die Haupteinkaufsstraße der Altstadt."
+    },
+    {
+     "id": "rostock-warnemuende-zoo",
+     "name": "Zoo Rostock & Darwineum",
+     "kind": "tiere",
+     "lat": 54.076,
+     "lon": 12.093,
+     "hours": 4,
+     "family": true,
+     "summary": "Großer Zoo mit dem Evolutions- und Menschenaffenhaus Darwineum."
+    }
+   ]
+  },
+  {
+   "id": "bad-doberan-kuehlungsborn",
+   "name": "Bad Doberan, Heiligendamm & Kühlungsborn",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 54.13,
+   "lon": 11.83,
+   "kinds": [
+    "baden",
+    "kultur",
+    "technik",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Münster, Dampfbahn Molli, weiße Bäderarchitektur und Strand an der Mecklenburger Ostseeküste.",
+   "angle": "Mit dem Molli von Bad Doberan nach Kühlungsborn und zurück, Zwischenhalt in Heiligendamm.",
+   "spots": [
+    {
+     "id": "bad-doberan-kuehlungsborn-muenster",
+     "name": "Doberaner Münster",
+     "kind": "kultur",
+     "lat": 54.107,
+     "lon": 11.909,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Backsteingotik mit Ausstattung des Zisterzienserklosters."
+    },
+    {
+     "id": "bad-doberan-kuehlungsborn-molli",
+     "name": "Bäderbahn Molli",
+     "kind": "technik",
+     "lat": 54.105,
+     "lon": 11.906,
+     "hours": 2,
+     "family": true,
+     "summary": "Schmalspur-Dampfbahn, mitten durch Bad Doberan."
+    },
+    {
+     "id": "bad-doberan-kuehlungsborn-heiligendamm",
+     "name": "Heiligendamm",
+     "kind": "stadt",
+     "lat": 54.145,
+     "lon": 11.843,
+     "hours": 1,
+     "summary": "Ältestes Seebad Deutschlands mit weißer Bäderarchitektur."
+    },
+    {
+     "id": "bad-doberan-kuehlungsborn-kuehlungsborn",
+     "name": "Strand & Seebrücke Kühlungsborn",
+     "kind": "baden",
+     "lat": 54.152,
+     "lon": 11.76,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Langer Sandstrand mit Promenade."
+    },
+    {
+     "id": "bad-doberan-kuehlungsborn-leuchtturm-buk",
+     "name": "Leuchtturm Buk",
+     "kind": "natur",
+     "lat": 54.131,
+     "lon": 11.697,
+     "hours": 1,
+     "summary": "Leuchtturm auf einer Anhöhe mit Blick über die Kühlung."
+    }
+   ]
+  },
+  {
+   "id": "darss",
+   "name": "Fischland-Darß-Zingst",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 54.42,
+   "lon": 12.56,
+   "kinds": [
+    "natur",
+    "baden",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    2,
+    5
+   ],
+   "summary": "Halbinsel zwischen Ostsee und Bodden mit Urwaldstrand, Künstlerdorf und Nationalpark.",
+   "angle": "Mit dem Rad durch den Darßwald zum Weststrand, dort bis zum Sonnenuntergang bleiben.",
+   "spots": [
+    {
+     "id": "darss-weststrand",
+     "name": "Weststrand",
+     "kind": "natur",
+     "lat": 54.45,
+     "lon": 12.49,
+     "hours": 3,
+     "slot": "abend",
+     "summary": "Naturstrand mit vom Wind geformten Bäumen am Rand des Darßwalds."
+    },
+    {
+     "id": "darss-darsser-ort",
+     "name": "Leuchtturm Darßer Ort & Natureum",
+     "kind": "natur",
+     "lat": 54.473,
+     "lon": 12.503,
+     "hours": 2,
+     "family": true,
+     "summary": "Leuchtturm und Meeresausstellung mitten im Nationalpark.",
+     "tip": "Nur zu Fuß, per Rad oder Kutsche erreichbar."
+    },
+    {
+     "id": "darss-ahrenshoop",
+     "name": "Künstlerkolonie Ahrenshoop",
+     "kind": "kultur",
+     "lat": 54.383,
+     "lon": 12.425,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Künstlerdorf zwischen Steilküste und Bodden mit Kunstmuseum."
+    },
+    {
+     "id": "darss-zingst",
+     "name": "Seebrücke & Strand Zingst",
+     "kind": "baden",
+     "lat": 54.443,
+     "lon": 12.69,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Seebrücke und breiter Sandstrand im Ostseeheilbad."
+    },
+    {
+     "id": "darss-darsswald",
+     "name": "Radtour durch den Darßwald",
+     "kind": "aktiv",
+     "lat": 54.43,
+     "lon": 12.53,
+     "hours": 3,
+     "summary": "Waldwege zwischen Prerow, Born und Weststrand."
+    }
+   ]
+  },
+  {
+   "id": "wismar-poel",
+   "name": "Wismar & Insel Poel",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.93,
+   "lon": 11.45,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "baden",
+    "technik"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Hansestadt mit Welterbe-Altstadt und Hafen, dazu Strände auf der Insel Poel.",
+   "angle": "Altstadt und Hafen am Vormittag, Badenachmittag am Schwarzen Busch.",
+   "spots": [
+    {
+     "id": "wismar-poel-markt",
+     "name": "Marktplatz & Wasserkunst",
+     "kind": "stadt",
+     "lat": 53.892,
+     "lon": 11.465,
+     "hours": 1.5,
+     "summary": "Einer der größten Marktplätze Norddeutschlands mit Brunnenpavillon Wasserkunst."
+    },
+    {
+     "id": "wismar-poel-st-georgen",
+     "name": "St.-Georgen-Kirche",
+     "kind": "kultur",
+     "lat": 53.89,
+     "lon": 11.461,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotische Backsteinkirche, nach dem Wiederaufbau mit Aussichtsplattform."
+    },
+    {
+     "id": "wismar-poel-hafen",
+     "name": "Alter Hafen & Wassertor",
+     "kind": "wasser",
+     "lat": 53.896,
+     "lon": 11.459,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Hafen mit Fischkuttern und dem letzten erhaltenen Hafentor der Stadt."
+    },
+    {
+     "id": "wismar-poel-schwarzer-busch",
+     "name": "Strand Schwarzer Busch",
+     "kind": "baden",
+     "lat": 54.005,
+     "lon": 11.41,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sandstrand auf der Insel Poel, über einen Damm erreichbar."
+    },
+    {
+     "id": "wismar-poel-phantechnikum",
+     "name": "phanTECHNIKUM",
+     "kind": "technik",
+     "lat": 53.902,
+     "lon": 11.473,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Technisches Landesmuseum mit Fahrzeugen, Flugzeugen und Mitmachstationen."
+    }
+   ]
+  },
+  {
+   "id": "boltenhagen",
+   "name": "Boltenhagen & Klützer Winkel",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.985,
+   "lon": 11.2,
+   "kinds": [
+    "baden",
+    "burg",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Familienfreundliches Ostseebad mit Seebrücke und Steilküste, im Hinterland das Barockschloss Bothmer.",
+   "angle": "Steilküste am Morgen, Strand am Mittag und Schlossrundgang am Nachmittag.",
+   "spots": [
+    {
+     "id": "boltenhagen-strand",
+     "name": "Strand & Seebrücke Boltenhagen",
+     "kind": "baden",
+     "lat": 53.987,
+     "lon": 11.203,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Langer, flach abfallender Sandstrand mit Seebrücke."
+    },
+    {
+     "id": "boltenhagen-bothmer",
+     "name": "Schloss Bothmer",
+     "kind": "burg",
+     "lat": 53.97,
+     "lon": 11.168,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockschloss mit Festonallee aus Linden und Ausstellung."
+    },
+    {
+     "id": "boltenhagen-steilkueste",
+     "name": "Steilküste Großklützhöved",
+     "kind": "natur",
+     "lat": 54.01,
+     "lon": 11.1,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Steilküste westlich von Boltenhagen mit Blick über die Wismarbucht."
+    },
+    {
+     "id": "boltenhagen-weisse-wiek",
+     "name": "Weiße Wiek Tarnewitz",
+     "kind": "wasser",
+     "lat": 53.985,
+     "lon": 11.245,
+     "hours": 1,
+     "summary": "Marina mit Promenade am Ostende der Bucht."
+    }
+   ]
+  },
+  {
+   "id": "guestrow",
+   "name": "Güstrow & Barlach",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.794,
+   "lon": 12.177,
+   "kinds": [
+    "kultur",
+    "burg",
+    "tiere",
+    "stadt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kleinstadt mit Renaissanceschloss, Werken Ernst Barlachs und einem Wildtierpark am Inselsee.",
+   "angle": "Barlach-Tag: Dom und Atelierhaus am Vormittag, nachmittags Wölfe und Unterwasserblicke im Natur- und Umweltpark.",
+   "spots": [
+    {
+     "id": "guestrow-schloss",
+     "name": "Schloss Güstrow",
+     "kind": "burg",
+     "lat": 53.794,
+     "lon": 12.18,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Eines der bedeutendsten Renaissanceschlösser Norddeutschlands mit Museum."
+    },
+    {
+     "id": "guestrow-dom",
+     "name": "Güstrower Dom",
+     "kind": "kultur",
+     "lat": 53.792,
+     "lon": 12.172,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Backsteindom mit Barlachs Bronzeplastik Der Schwebende."
+    },
+    {
+     "id": "guestrow-atelierhaus",
+     "name": "Ernst Barlach Atelierhaus",
+     "kind": "kultur",
+     "lat": 53.775,
+     "lon": 12.226,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barlachs Atelierhaus mit Skulpturen am Heidberg nahe dem Inselsee."
+    },
+    {
+     "id": "guestrow-nup",
+     "name": "Natur- und Umweltpark Güstrow",
+     "kind": "tiere",
+     "lat": 53.777,
+     "lon": 12.207,
+     "hours": 3,
+     "family": true,
+     "summary": "Heimische Wildtiere wie Wölfe und Fischotter in großen Gehegen."
+    }
+   ]
+  },
+  {
+   "id": "ludwigslust",
+   "name": "Ludwigslust & Lewitz",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 53.329,
+   "lon": 11.497,
+   "kinds": [
+    "burg",
+    "natur",
+    "aktiv",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Barocke Residenz mit großem Landschaftspark, dazu Burg Neustadt-Glewe und die Teichlandschaft der Lewitz.",
+   "angle": "Vormittags Schloss und Park, nachmittags mit dem Rad in die Lewitz und auf dem Rückweg zur Burg Neustadt-Glewe.",
+   "spots": [
+    {
+     "id": "ludwigslust-schloss",
+     "name": "Schloss Ludwigslust",
+     "kind": "burg",
+     "lat": 53.327,
+     "lon": 11.497,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Spätbarockes Residenzschloss der Mecklenburger Herzöge mit Prunksälen."
+    },
+    {
+     "id": "ludwigslust-park",
+     "name": "Schlosspark Ludwigslust",
+     "kind": "natur",
+     "lat": 53.322,
+     "lon": 11.49,
+     "hours": 2,
+     "family": true,
+     "summary": "Weitläufiger Landschaftspark mit Kanälen, Kaskaden und Grotte."
+    },
+    {
+     "id": "ludwigslust-neustadt-glewe",
+     "name": "Burg Neustadt-Glewe",
+     "kind": "burg",
+     "lat": 53.38,
+     "lon": 11.593,
+     "hours": 1,
+     "family": true,
+     "summary": "Gut erhaltene mittelalterliche Burg an der Elde."
+    },
+    {
+     "id": "ludwigslust-lewitz",
+     "name": "Radtour durch die Lewitz",
+     "kind": "aktiv",
+     "lat": 53.45,
+     "lon": 11.62,
+     "hours": 3,
+     "summary": "Flache Wege durch Teichwirtschaft, Wiesen und Vogelschutzgebiet."
+    }
+   ]
+  },
+  {
+   "id": "graal-mueritz",
+   "name": "Graal-Müritz & Ribnitz",
+   "region": "Mecklenburg-Vorpommern",
+   "country": "DE",
+   "lat": 54.23,
+   "lon": 12.33,
+   "kinds": [
+    "baden",
+    "natur",
+    "tiere",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Ruhiges Ostseebad am Rand der Rostocker Heide mit Bernsteinmuseum und großem Vogelpark im Hinterland.",
+   "angle": "Strand am Morgen, bei Regen ins Bernsteinmuseum Ribnitz, mit Kindern den Nachmittag im Vogelpark Marlow.",
+   "spots": [
+    {
+     "id": "graal-mueritz-strand",
+     "name": "Strand & Seebrücke Graal-Müritz",
+     "kind": "baden",
+     "lat": 54.256,
+     "lon": 12.247,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Feinsandiger Ostseestrand mit Seebrücke vor dem Küstenwald."
+    },
+    {
+     "id": "graal-mueritz-rhododendronpark",
+     "name": "Rhododendronpark Graal-Müritz",
+     "kind": "natur",
+     "lat": 54.248,
+     "lon": 12.24,
+     "hours": 1,
+     "months": [
+      5,
+      6
+     ],
+     "summary": "Waldpark mit großen Rhododendron-Beständen."
+    },
+    {
+     "id": "graal-mueritz-rostocker-heide",
+     "name": "Rostocker Heide",
+     "kind": "aktiv",
+     "lat": 54.22,
+     "lon": 12.2,
+     "hours": 2.5,
+     "summary": "Großes Küstenwaldgebiet mit Rad- und Wanderwegen."
+    },
+    {
+     "id": "graal-mueritz-bernsteinmuseum",
+     "name": "Deutsches Bernsteinmuseum Ribnitz",
+     "kind": "kultur",
+     "lat": 54.243,
+     "lon": 12.429,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Bernstein-Ausstellung im ehemaligen Klarissenkloster."
+    },
+    {
+     "id": "graal-mueritz-vogelpark-marlow",
+     "name": "Vogelpark Marlow",
+     "kind": "tiere",
+     "lat": 54.15,
+     "lon": 12.56,
+     "hours": 4,
+     "family": true,
+     "summary": "Großer Vogelpark mit Flugshows und Spielbereichen."
+    }
+   ]
+  }
+ ]
+}

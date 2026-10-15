@@ -9,7 +9,9 @@
   var KINDS = {
     natur: 'Natur & Wandern', wasser: 'See, Fluss & Meer', berge: 'Berge & Aussicht', stadt: 'Stadt & Bummeln',
     kultur: 'Kultur & Geschichte', burg: 'Burgen & Schlösser', therme: 'Therme & Wellness', familie: 'Mit Kindern',
-    genuss: 'Wein, Bier & Essen', technik: 'Technik & Industrie', winter: 'Winter & Schnee', unterwelt: 'Höhlen & Unterwelt'
+    genuss: 'Wein, Bier & Essen', technik: 'Technik & Industrie', winter: 'Winter & Schnee', unterwelt: 'Höhlen & Unterwelt',
+    /* Katalog v4 (Claude, #8) */
+    baden: 'Baden & Strand', tiere: 'Tiere & Wildparks', freizeit: 'Freizeit & Erlebnis', aktiv: 'Rad, Kanu & Klettern'
   };
   /* Kategorie im Reiseplan (CAT in index.html) */
   var KIND_CAT = { therme: 'wellness', winter: 'schnee', genuss: 'genuss' };
@@ -34,6 +36,13 @@
     ['Nürnberg', 49.454, 11.077], ['Osnabrück', 52.279, 8.047], ['Passau', 48.574, 13.462], ['Regensburg', 49.013, 12.101],
     ['Rostock', 54.092, 12.099], ['Saarbrücken', 49.240, 6.997], ['Salzburg', 47.800, 13.044], ['Stuttgart', 48.776, 9.183],
     ['Trier', 49.750, 6.637], ['Ulm', 48.398, 9.992], ['Wien', 48.208, 16.373], ['Würzburg', 49.792, 9.953],
+    /* weitere Referenzpunkte (Katalog v4) für bisher dünn abgedeckte Gegenden; Stadtmitte, ungefähr */
+    ['Bamberg', 49.892, 10.887], ['Bayreuth', 49.945, 11.578], ['Bern', 46.948, 7.447], ['Bozen', 46.498, 11.354],
+    ['Cottbus', 51.757, 14.329], ['Darmstadt', 49.873, 8.651], ['Flensburg', 54.784, 9.437], ['Göttingen', 51.541, 9.916],
+    ['Halle (Saale)', 51.482, 11.970], ['Ingolstadt', 48.766, 11.425], ['Jena', 50.927, 11.586], ['Kempten', 47.726, 10.314],
+    ['Klagenfurt', 46.624, 14.308], ['Luzern', 47.050, 8.309], ['Oldenburg', 53.143, 8.214], ['Potsdam', 52.396, 13.058],
+    ['Ravensburg', 47.781, 9.612], ['Rosenheim', 47.857, 12.128], ['Schwerin', 53.629, 11.414], ['Siegen', 50.875, 8.024],
+    ['St. Gallen', 47.424, 9.377], ['Straßburg', 48.573, 7.752], ['Tübingen', 48.521, 9.057], ['Wolfsburg', 52.423, 10.787],
     ['Zürich', 47.377, 8.540]
   ].map(function (o) { return { label: o[0], lat: o[1], lon: o[2] }; });
 
@@ -136,7 +145,7 @@
        wishes, met, summary, spots, indoor, family, roadKm, minutes, minutesEstimated:true } ; sortiert mustOk, score, Luftlinie, id. */
   var LEVELS = { must: 1, like: 1, avoid: 1 }, PACES = { ruhig: 1, gemischt: 1, aktiv: 1 }, PARTIES = { paar: 1, familie: 1, freunde: 1, allein: 1 },
     TRAVELS = { auto: 1, bahn: 1, flug: 1 };
-  var CALM = ['therme', 'genuss', 'wasser', 'natur'], ACTIVE = ['berge', 'natur', 'winter', 'unterwelt'];
+  var CALM = ['therme', 'genuss', 'wasser', 'natur', 'baden'], ACTIVE = ['berge', 'natur', 'winter', 'unterwelt', 'aktiv'];
   var own = function (o, k) { return typeof k === 'string' && Object.prototype.hasOwnProperty.call(o, k); };
   /* einfaches Objekt auch aus anderem Realm (iframe/vm): Prototyp ist null oder ein Objekt-Prototyp ohne weiteren Prototyp */
   var plain = function (o) { if (!o || typeof o !== 'object' || Array.isArray(o)) return false; var p = Object.getPrototypeOf(o); return p === null || Object.getPrototypeOf(p) === null; };

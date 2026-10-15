@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MIG = path.join(root, 'supabase', 'migrations');
 const SCHEMA = '20261014160000_catalog.sql';
-const KINDS = ['natur', 'wasser', 'berge', 'stadt', 'kultur', 'burg', 'therme', 'familie', 'genuss', 'technik', 'winter', 'unterwelt'];
+const KINDS = ['natur', 'wasser', 'berge', 'stadt', 'kultur', 'burg', 'therme', 'familie', 'genuss', 'technik', 'winter', 'unterwelt', 'baden', 'tiere', 'freizeit', 'aktiv'];
 const SLOTS = ['', 'morgen', 'mittag', 'nachm', 'abend'];
 /* Preise und Öffnungszeiten gehören nicht in den Katalog (AGENTS.md: nichts erfinden) */
 const FORBIDDEN = [[/€|\bEUR\b|\bEuro\b|kostenlos|gratis|umsonst|eintritt frei/i, 'Preisangabe'], [/\b\d{1,2}[:.]\d{2}\s*Uhr|\bab \d{1,2} Uhr|\bbis \d{1,2} Uhr/i, 'Uhrzeit/Öffnungszeit']];

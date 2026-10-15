@@ -217,8 +217,19 @@ const doc = (id, title, extra) => Object.assign({ id, title, type: 'stadt', stat
       const p1 = await pub.rpc('catalog_search_v2', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null, p_limit: 2, p_offset: 0 });
       const p2 = await pub.rpc('catalog_search_v2', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null, p_limit: 2, p_offset: 2 });
       assert.deepEqual(p1.data.places.map(p => p.id).concat(p2.data.places.map(p => p.id)), loc.slice(0, 4), 'Seiten ohne Lücke und Doppelung');
-      assert.equal(p2.data.total, loc.length);
+      assert.equal(p2.data.total, all.data.total);
     }
+  }
+  /* Katalog v4: mehr als 200 Treffer – seitenweise wie die App (catDbAll) lückenlos bis zur Gesamtzahl */
+  {
+    const q = { lat: 48.703, lon: 9.652, maxKm: 2000, minKm: 0 }, want = CatJs.searchLocal(DATA, q, { limit: 5000 }).places.map(p => p.id);
+    assert(want.length > 200, 'Seitentest braucht mehr als 200 Treffer');
+    let got = [], total = null;
+    for (let off = 0; total === null || got.length < total; off += 200) {
+      const pg = await pub.rpc('catalog_search_v2', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: 0, p_kinds: null, p_limit: 200, p_offset: off });
+      assert.ifError(pg.error); total = pg.data.total; got = got.concat(pg.data.places.map(p => p.id)); if (!pg.data.places.length) break;
+    }
+    assert.equal(total, want.length); assert.deepEqual(got, want, 'alle Seiten = lokale Regel');
   }
   r = await pub.rpc('catalog_search_v2', { p_lat: 48.7, p_lon: 9.6, p_max_km: 100, p_limit: 500 }); assert(r.error && /limit/.test(r.error.message));
   r = await pub.rpc('catalog_search_v2', { p_lat: 48.7, p_lon: 9.6, p_max_km: 100, p_offset: -1 }); assert(r.error);
@@ -226,7 +237,7 @@ const doc = (id, title, extra) => Object.assign({ id, title, type: 'stadt', stat
   assert.equal(r.data.place.id, DATA.places[0].id); assert.equal(r.data.place.spots.length, DATA.places[0].spots.length); assert.equal(r.data.version, DATA.version);
   r = await pub.rpc('catalog_place', { p_id: 'gibt-es-nicht' }); assert.ifError(r.error); assert.equal(r.data, null);
   r = await pub.rpc('catalog_place', { p_id: "x'; drop table" }); assert.ifError(r.error); assert.equal(r.data, null);
-  const probe = DATA.places[0], word = probe.name.split(/[\s&]+/)[0].toLowerCase();
+  const probe = DATA.places[0], word = probe.name.split('&')[0].trim().toLowerCase(); /* ab v4 gibt es viele „Bad …“: ganzer Ortsname */
   r = await pub.rpc('catalog_find', { p_q: word }); assert.ifError(r.error);
   assert(r.data.places.some(p => p.id === probe.id) && !('spots' in r.data.places[0]), 'Namenssuche ohne Attraktionen');
   assert(r.data.places.length <= 12);

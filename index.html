@@ -3231,12 +3231,26 @@ async function catalogQuery(q){
   CATX.checkQuery(q);
   const c=window.RPCloud;let dbErr='';
   if(c&&c.enabled()&&c.catalogSearch&&!(typeof navigator!=='undefined'&&navigator.onLine===false)){
-    try{const r=await catTimeout(c.catalogSearch(q),8000);if(r&&r.version>0)return {source:'db',version:r.version,places:(r.places||[]).map(CATX.normPlace)};dbErr='Datenbank-Katalog noch leer'}
+    try{const r=await catTimeout(catDbAll(c,q),8000);if(r&&r.version>0)return {source:'db',version:r.version,total:r.total,places:(r.places||[]).map(CATX.normPlace)};dbErr='Datenbank-Katalog noch leer'}
     catch(e){dbErr=e.message||'Datenbank nicht erreichbar'}
   }
   let data;try{data=await catLoadForQuery(q)}catch(e){data=await catLoadLocal()}
-  const r=CATX.searchLocal(data,q);
-  return {source:'lokal',version:r.version,places:r.places,dbErr};
+  const r=CATX.searchLocal(data,q,{limit:CAT_RANK_MAX});
+  return {source:'lokal',version:r.version,total:r.total,places:r.places,dbErr};
+}
+/* Die Wunsch-Bewertung braucht alle Treffer, nicht nur die 80 nächsten (sonst fehlen bei „Richtig weg“
+   ferne Ziele). Datenbank in 200er-Seiten bis zur Gesamtzahl, höchstens CAT_RANK_MAX; alte catalog_search
+   ohne Gesamtzahl liefert nur eine Seite. */
+const CAT_RANK_MAX=1000;
+async function catDbAll(c,q){
+  let places=[],version=0,total=null;
+  for(let off=0;off<CAT_RANK_MAX;off+=200){
+    const r=await c.catalogSearch(q,{limit:200,offset:off});if(!r||!(r.version>0))return r;
+    version=r.version;const ps=Array.isArray(r.places)?r.places:[];places=places.concat(ps);
+    total=r.total==null||!Number.isFinite(+r.total)?null:+r.total;
+    if(total==null||places.length>=total||ps.length<200)break;
+  }
+  return {version,total:total==null?places.length:total,places};
 }
 function catNextMonth(m){const now=new Date(),y=now.getFullYear()+(+m<now.getMonth()+1?1:0);return y+'-'+String(m).padStart(2,'0')}
 function catMoodCard(k,deck){const m=CAT_MOODS[k],v=catProfile().kinds[k]||'';
@@ -3782,6 +3796,7 @@ Object.assign(window.__app,{catMoodKeys});
 Object.assign(window.__app,{v3CanEdit,v3Actions,v3TransportBlock,v3Controller,v3EditorOpen,v3Sheet});
 Object.assign(window.__app,{ledgerBalanceText});
 Object.assign(window.__app,{TEMPLATE_GROUPS,templateGroups,tplButtons,templatePreview,templatePreviewHtml,sheetTemplate,commitTemplatePreview});
+Object.assign(window.__app,{catDbAll,catalogQuery,CAT_RANK_MAX});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

@@ -1,0 +1,2993 @@
+{
+  "group": "bayern-2",
+  "places": [
+    {
+      "id": "aschaffenburg",
+      "name": "Aschaffenburg & Spessart",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.974,
+      "lon": 9.149,
+      "kinds": [
+        "stadt",
+        "burg",
+        "kultur",
+        "natur"
+      ],
+      "months": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Renaissance-Schloss am Main, ein römisches Haus im Weinberg und das Wasserschloss Mespelbrunn im Spessart.",
+      "angle": "Vormittags Schloss und Pompejanum, nachmittags Spaziergang im Park Schönbusch, an einem zweiten Tag hinaus nach Mespelbrunn.",
+      "spots": [
+        {
+          "id": "aschaffenburg-johannisburg",
+          "name": "Schloss Johannisburg",
+          "kind": "burg",
+          "lat": 49.976,
+          "lon": 9.142,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Roter Sandsteinbau am Main mit Gemäldegalerie und Sammlung von Korkmodellen antiker Bauten."
+        },
+        {
+          "id": "aschaffenburg-pompejanum",
+          "name": "Pompejanum",
+          "kind": "kultur",
+          "lat": 49.977,
+          "lon": 9.138,
+          "hours": 1,
+          "indoor": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Nachbau eines römischen Wohnhauses aus Pompeji hoch über dem Mainufer."
+        },
+        {
+          "id": "aschaffenburg-schoenbusch",
+          "name": "Park Schönbusch",
+          "kind": "natur",
+          "lat": 49.958,
+          "lon": 9.121,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Englischer Landschaftsgarten mit Seen, Brücken und kleinem Schlösschen."
+        },
+        {
+          "id": "aschaffenburg-mespelbrunn",
+          "name": "Schloss Mespelbrunn",
+          "kind": "burg",
+          "lat": 49.915,
+          "lon": 9.288,
+          "hours": 1.5,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Wasserschloss in einem Waldtal des Spessarts, eines der meistfotografierten Schlösser Frankens."
+        },
+        {
+          "id": "aschaffenburg-seligenstadt",
+          "name": "Main-Radweg nach Seligenstadt",
+          "kind": "aktiv",
+          "lat": 50.044,
+          "lon": 8.976,
+          "hours": 3,
+          "summary": "Flache Radetappe am Main bis zur Einhardsbasilika in Seligenstadt.",
+          "tip": "Rückweg mit der Bahn möglich."
+        }
+      ]
+    },
+    {
+      "id": "iphofen-steigerwald",
+      "name": "Iphofen, Schwanberg & Steigerwald",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.703,
+      "lon": 10.261,
+      "kinds": [
+        "genuss",
+        "kultur",
+        "natur",
+        "freizeit"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Weinstädtchen mit Stadtmauer am Fuß des Schwanbergs, dahinter Klosterkirche und Baumwipfelpfad im Steigerwald.",
+      "angle": "Morgens auf den Baumwipfelpfad, mittags Kloster Ebrach, am Abend durch die Weinberge auf den Schwanberg.",
+      "spots": [
+        {
+          "id": "iphofen-steigerwald-altstadt",
+          "name": "Iphofener Altstadt & Rödelseer Tor",
+          "kind": "stadt",
+          "lat": 49.704,
+          "lon": 10.262,
+          "hours": 1,
+          "summary": "Kompakte Weinstadt mit fast geschlossener Stadtmauer und malerischem Tor."
+        },
+        {
+          "id": "iphofen-steigerwald-knauf-museum",
+          "name": "Knauf-Museum",
+          "kind": "kultur",
+          "lat": 49.703,
+          "lon": 10.259,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Abgüsse berühmter Reliefs aus alten Kulturen im barocken Amtshaus."
+        },
+        {
+          "id": "iphofen-steigerwald-schwanberg",
+          "name": "Schwanberg",
+          "kind": "natur",
+          "lat": 49.722,
+          "lon": 10.275,
+          "hours": 2,
+          "slot": "abend",
+          "summary": "Weinbergsberg über dem Maintal mit Schlosspark und weitem Blick nach Westen."
+        },
+        {
+          "id": "iphofen-steigerwald-baumwipfelpfad",
+          "name": "Baumwipfelpfad Steigerwald",
+          "kind": "freizeit",
+          "lat": 49.834,
+          "lon": 10.47,
+          "hours": 2,
+          "family": true,
+          "summary": "Holzsteg durch die Buchenkronen mit Aussichtsturm über dem Steigerwald."
+        },
+        {
+          "id": "iphofen-steigerwald-kloster-ebrach",
+          "name": "Kloster Ebrach",
+          "kind": "kultur",
+          "lat": 49.851,
+          "lon": 10.496,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Ehemalige Zisterzienserabtei mit großer frühgotischer Klosterkirche."
+        }
+      ]
+    },
+    {
+      "id": "bad-kissingen",
+      "name": "Bad Kissingen & Fränkische Saale",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 50.2,
+      "lon": 10.078,
+      "kinds": [
+        "therme",
+        "kultur",
+        "natur"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        2
+      ],
+      "summary": "Weltbad an der Fränkischen Saale mit Kurgarten, Gradierwerk, Therme und Burgruine über der Stadt.",
+      "angle": "Auf die Bodenlaube steigen, durch den Kurgarten zurück und den Tag in der Therme ausklingen lassen.",
+      "spots": [
+        {
+          "id": "bad-kissingen-regentenbau",
+          "name": "Kurgarten & Regentenbau",
+          "kind": "kultur",
+          "lat": 50.199,
+          "lon": 10.076,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Prachtvolle Kurbauten, Wandelhalle und Rosengarten an der Saale."
+        },
+        {
+          "id": "bad-kissingen-kisssalis",
+          "name": "KissSalis Therme",
+          "kind": "therme",
+          "lat": 50.195,
+          "lon": 10.063,
+          "hours": 3,
+          "indoor": true,
+          "summary": "Therme mit Sole- und Saunabereich am Rand der Kurstadt."
+        },
+        {
+          "id": "bad-kissingen-gradierbau",
+          "name": "Gradierbau an der Saline",
+          "kind": "kultur",
+          "lat": 50.218,
+          "lon": 10.066,
+          "hours": 1,
+          "summary": "Gradierwerk, an dem Sole über Reisig rieselt; salzhaltige Luft beim Spaziergang."
+        },
+        {
+          "id": "bad-kissingen-bodenlaube",
+          "name": "Burgruine Bodenlaube",
+          "kind": "burg",
+          "lat": 50.207,
+          "lon": 10.09,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Ruine auf dem Hügel über der Stadt, kurzer Aufstieg mit Blick über das Saaletal."
+        }
+      ]
+    },
+    {
+      "id": "maindreieck",
+      "name": "Ochsenfurt & Sommerhausen am Maindreieck",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.664,
+      "lon": 10.071,
+      "kinds": [
+        "stadt",
+        "genuss",
+        "aktiv",
+        "wasser"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Kleine Fachwerk-Weinorte am Main zwischen Würzburg und Marktbreit, ideal per Rad zu verbinden.",
+      "angle": "Mit dem Rad am Main entlang Ort für Ort abfahren und erst in Sommerhausen am Abend in den Weinbergen pausieren.",
+      "spots": [
+        {
+          "id": "maindreieck-ochsenfurt",
+          "name": "Ochsenfurter Altstadt & Neues Rathaus",
+          "kind": "stadt",
+          "lat": 49.664,
+          "lon": 10.071,
+          "hours": 1,
+          "summary": "Mauerumgürtete Altstadt mit Türmen und Rathaus mit Figurenspiel am Giebel."
+        },
+        {
+          "id": "maindreieck-sommerhausen",
+          "name": "Sommerhausen",
+          "kind": "stadt",
+          "lat": 49.704,
+          "lon": 10.026,
+          "hours": 1,
+          "summary": "Winziger Weinort mit Stadtmauer, Toren und Künstlerflair."
+        },
+        {
+          "id": "maindreieck-frickenhausen",
+          "name": "Frickenhausen am Main",
+          "kind": "stadt",
+          "lat": 49.67,
+          "lon": 10.078,
+          "hours": 1,
+          "summary": "Weinort mit Toren und Fachwerk direkt gegenüber von Ochsenfurt."
+        },
+        {
+          "id": "maindreieck-marktbreit",
+          "name": "Marktbreit mit Maintor",
+          "kind": "stadt",
+          "lat": 49.665,
+          "lon": 10.148,
+          "hours": 1,
+          "summary": "Handelsstädtchen mit Renaissance-Rathaus und Maintor am Breitbach."
+        },
+        {
+          "id": "maindreieck-radweg",
+          "name": "Main-Radweg Ochsenfurt–Marktbreit",
+          "kind": "aktiv",
+          "lat": 49.668,
+          "lon": 10.11,
+          "hours": 2,
+          "family": true,
+          "summary": "Flacher Abschnitt des Main-Radwegs durch Weinberge und Auen."
+        }
+      ]
+    },
+    {
+      "id": "coburg",
+      "name": "Coburg & Coburger Land",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 50.258,
+      "lon": 10.964,
+      "kinds": [
+        "stadt",
+        "burg",
+        "kultur"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        2
+      ],
+      "summary": "Residenzstadt mit einer der größten Burganlagen Deutschlands, Stadtschloss und romantischem Schloss Rosenau.",
+      "angle": "Zu Fuß durch den Hofgarten hinauf zur Veste und am späten Nachmittag zurück auf den Marktplatz.",
+      "spots": [
+        {
+          "id": "coburg-veste",
+          "name": "Veste Coburg",
+          "kind": "burg",
+          "lat": 50.264,
+          "lon": 10.982,
+          "hours": 2,
+          "indoor": true,
+          "family": true,
+          "summary": "Riesige Burganlage über der Stadt mit Kunstsammlungen und Rüstkammer."
+        },
+        {
+          "id": "coburg-ehrenburg",
+          "name": "Schloss Ehrenburg",
+          "kind": "burg",
+          "lat": 50.258,
+          "lon": 10.966,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Stadtschloss der Herzöge mit prunkvollen Sälen."
+        },
+        {
+          "id": "coburg-marktplatz",
+          "name": "Marktplatz & Rathaus",
+          "kind": "stadt",
+          "lat": 50.258,
+          "lon": 10.964,
+          "hours": 1,
+          "summary": "Weiter Platz mit Renaissance-Rathaus und Stadthaus."
+        },
+        {
+          "id": "coburg-hofgarten",
+          "name": "Hofgarten",
+          "kind": "natur",
+          "lat": 50.262,
+          "lon": 10.973,
+          "hours": 1,
+          "summary": "Parkanlage zwischen Schloss und Veste, angenehmer Aufstieg zur Burg."
+        },
+        {
+          "id": "coburg-rosenau",
+          "name": "Schloss Rosenau",
+          "kind": "burg",
+          "lat": 50.287,
+          "lon": 11.024,
+          "hours": 1.5,
+          "summary": "Neugotisches Schlösschen mit Landschaftspark in Rödental."
+        }
+      ]
+    },
+    {
+      "id": "staffelstein",
+      "name": "Bad Staffelstein & Gottesgarten am Obermain",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 50.102,
+      "lon": 10.996,
+      "kinds": [
+        "kultur",
+        "therme",
+        "natur",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Basilika Vierzehnheiligen und Kloster Banz gegenüber, dazwischen der Staffelberg und eine Sole-Therme.",
+      "angle": "Von der Basilika zum Staffelberg wandern, auf dem Plateau den Sonnenuntergang erleben, bei Regen in die Therme.",
+      "spots": [
+        {
+          "id": "staffelstein-vierzehnheiligen",
+          "name": "Basilika Vierzehnheiligen",
+          "kind": "kultur",
+          "lat": 50.116,
+          "lon": 11.054,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Lichtdurchfluteter Barockbau von Balthasar Neumann über dem Maintal."
+        },
+        {
+          "id": "staffelstein-banz",
+          "name": "Kloster Banz",
+          "kind": "kultur",
+          "lat": 50.135,
+          "lon": 10.998,
+          "hours": 1,
+          "summary": "Barocke Klosteranlage auf der Höhe gegenüber Vierzehnheiligen."
+        },
+        {
+          "id": "staffelstein-staffelberg",
+          "name": "Staffelberg",
+          "kind": "natur",
+          "lat": 50.092,
+          "lon": 11.002,
+          "hours": 2,
+          "slot": "abend",
+          "summary": "Tafelberg mit Kapelle und weitem Blick über den Gottesgarten.",
+          "tip": "Kurzer, steiler Aufstieg ab Bad Staffelstein."
+        },
+        {
+          "id": "staffelstein-therme",
+          "name": "Obermain Therme",
+          "kind": "therme",
+          "lat": 50.105,
+          "lon": 10.983,
+          "hours": 3,
+          "indoor": true,
+          "summary": "Thermalsole-Bad mit Innen- und Außenbecken."
+        },
+        {
+          "id": "staffelstein-radweg",
+          "name": "Main-Radweg im Gottesgarten",
+          "kind": "aktiv",
+          "lat": 50.115,
+          "lon": 11.01,
+          "hours": 2,
+          "family": true,
+          "summary": "Ebener Radabschnitt mit Blick auf Banz und Vierzehnheiligen."
+        }
+      ]
+    },
+    {
+      "id": "kulmbach",
+      "name": "Kulmbach & Kronach",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 50.101,
+      "lon": 11.452,
+      "kinds": [
+        "burg",
+        "genuss",
+        "kultur",
+        "stadt"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Bierstadt mit mächtiger Plassenburg, dazu die Festung Rosenberg über Kronach.",
+      "angle": "Plassenburg am Vormittag, Brauereimuseum bei Regen am Nachmittag und abends nach Kronach.",
+      "spots": [
+        {
+          "id": "kulmbach-plassenburg",
+          "name": "Plassenburg",
+          "kind": "burg",
+          "lat": 50.103,
+          "lon": 11.463,
+          "hours": 2,
+          "indoor": true,
+          "family": true,
+          "summary": "Renaissance-Burg über der Stadt mit Deutschem Zinnfigurenmuseum."
+        },
+        {
+          "id": "kulmbach-moenchshof",
+          "name": "Kulmbacher Mönchshof mit Bayerischem Brauereimuseum",
+          "kind": "kultur",
+          "lat": 50.109,
+          "lon": 11.444,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Museen zu Bier und Backen in einer alten Klosterbrauerei."
+        },
+        {
+          "id": "kulmbach-thurnau",
+          "name": "Thurnau: Schloss & Töpfermuseum",
+          "kind": "kultur",
+          "lat": 50.026,
+          "lon": 11.392,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Marktort mit Schlossanlage und Museum zur fränkischen Töpfertradition."
+        },
+        {
+          "id": "kulmbach-rosenberg",
+          "name": "Festung Rosenberg Kronach",
+          "kind": "burg",
+          "lat": 50.244,
+          "lon": 11.33,
+          "hours": 2,
+          "family": true,
+          "summary": "Große Festungsanlage über der Lucas-Cranach-Stadt."
+        }
+      ]
+    },
+    {
+      "id": "bayreuth",
+      "name": "Bayreuth",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.945,
+      "lon": 11.578,
+      "kinds": [
+        "kultur",
+        "stadt",
+        "natur"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        2
+      ],
+      "summary": "Markgrafenstadt mit Welterbe-Opernhaus, Wagner-Erbe und Felsengarten im Umland.",
+      "angle": "Erst Opernhaus und Haus Wahnfried, dann am Nachmittag durch die Eremitage, an einem zweiten Tag Sanspareil.",
+      "spots": [
+        {
+          "id": "bayreuth-opernhaus",
+          "name": "Markgräfliches Opernhaus",
+          "kind": "kultur",
+          "lat": 49.944,
+          "lon": 11.577,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Barockes Logentheater, UNESCO-Welterbe."
+        },
+        {
+          "id": "bayreuth-wahnfried",
+          "name": "Richard Wagner Museum Haus Wahnfried",
+          "kind": "kultur",
+          "lat": 49.941,
+          "lon": 11.583,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Wagners Wohnhaus mit Museum und Grab im Garten."
+        },
+        {
+          "id": "bayreuth-neues-schloss",
+          "name": "Neues Schloss & Hofgarten",
+          "kind": "burg",
+          "lat": 49.94,
+          "lon": 11.579,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Markgrafenschloss mit Rokoko-Räumen, dahinter ein weiter Park."
+        },
+        {
+          "id": "bayreuth-eremitage",
+          "name": "Eremitage",
+          "kind": "natur",
+          "lat": 49.941,
+          "lon": 11.629,
+          "hours": 2,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Schlosspark mit Grotten, Wasserspielen und Sonnentempel."
+        },
+        {
+          "id": "bayreuth-festspielhuegel",
+          "name": "Festspielhügel",
+          "kind": "kultur",
+          "lat": 49.96,
+          "lon": 11.579,
+          "hours": 1,
+          "summary": "Richard-Wagner-Festspielhaus mit Park am Grünen Hügel."
+        },
+        {
+          "id": "bayreuth-sanspareil",
+          "name": "Felsengarten Sanspareil",
+          "kind": "natur",
+          "lat": 49.979,
+          "lon": 11.316,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Buchenwald mit Felsformationen und kleinen Bauten aus der Markgrafenzeit."
+        }
+      ]
+    },
+    {
+      "id": "wiesenttal",
+      "name": "Wiesenttal & Pottenstein (Fränkische Schweiz)",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.802,
+      "lon": 11.258,
+      "kinds": [
+        "aktiv",
+        "unterwelt",
+        "burg",
+        "natur",
+        "freizeit"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        1,
+        2
+      ],
+      "summary": "Felsen, Burgen und Tropfsteinhöhlen im Wiesenttal, Kanutouren auf der Wiesent und Sommerrodelbahn bei Pottenstein.",
+      "angle": "Vormittags paddeln, mittags in die kühle Höhle, am Abend auf eine Burg mit Blick ins Tal.",
+      "spots": [
+        {
+          "id": "wiesenttal-kanu",
+          "name": "Kanu auf der Wiesent",
+          "kind": "aktiv",
+          "lat": 49.802,
+          "lon": 11.258,
+          "hours": 3,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "summary": "Paddelstrecke durch das Felsental mit Verleihern in den Orten.",
+          "tip": "Befahrungsregeln und Wasserstand vorab beim Verleih prüfen."
+        },
+        {
+          "id": "wiesenttal-binghoehle",
+          "name": "Binghöhle Streitberg",
+          "kind": "unterwelt",
+          "lat": 49.811,
+          "lon": 11.226,
+          "hours": 1,
+          "indoor": true,
+          "family": true,
+          "summary": "Tropfsteinhöhle als langer Gang, gut mit Kindern zu besichtigen."
+        },
+        {
+          "id": "wiesenttal-rabenstein",
+          "name": "Burg Rabenstein & Sophienhöhle",
+          "kind": "burg",
+          "lat": 49.838,
+          "lon": 11.313,
+          "hours": 2,
+          "family": true,
+          "summary": "Burg auf einem Felsen über dem Ailsbachtal und Tropfsteinhöhle darunter."
+        },
+        {
+          "id": "wiesenttal-goessweinstein",
+          "name": "Burg & Basilika Gößweinstein",
+          "kind": "kultur",
+          "lat": 49.77,
+          "lon": 11.337,
+          "hours": 1.5,
+          "summary": "Wallfahrtsbasilika und Burg mit Blick ins Wiesenttal."
+        },
+        {
+          "id": "wiesenttal-rodelbahn",
+          "name": "Sommerrodelbahn Pottenstein",
+          "kind": "freizeit",
+          "lat": 49.765,
+          "lon": 11.393,
+          "hours": 1.5,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Rodelbahnen an der Erlebnismeile oberhalb von Pottenstein."
+        }
+      ]
+    },
+    {
+      "id": "amberg",
+      "name": "Amberg & Sulzbach-Rosenberg",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.445,
+      "lon": 11.858,
+      "kinds": [
+        "stadt",
+        "kultur",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Oberpfälzer Altstadt mit der Stadtbrille über der Vils und Wallfahrtsberg mit Weitblick.",
+      "angle": "Altstadtrunde an der Vils, abends auf den Mariahilfberg und am nächsten Tag mit dem Rad durchs Vilstal.",
+      "spots": [
+        {
+          "id": "amberg-stadtbrille",
+          "name": "Stadtbrille",
+          "kind": "stadt",
+          "lat": 49.444,
+          "lon": 11.855,
+          "hours": 0.5,
+          "summary": "Wehrbrücke über die Vils, deren Bögen sich im Wasser zu einer Brille spiegeln."
+        },
+        {
+          "id": "amberg-altstadt",
+          "name": "Marktplatz, Rathaus & St. Martin",
+          "kind": "kultur",
+          "lat": 49.447,
+          "lon": 11.858,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Gotisches Rathaus und große Hallenkirche im Zentrum."
+        },
+        {
+          "id": "amberg-mariahilf",
+          "name": "Mariahilfberg",
+          "kind": "natur",
+          "lat": 49.451,
+          "lon": 11.878,
+          "hours": 1.5,
+          "slot": "abend",
+          "summary": "Wallfahrtsberg mit Kirche und Blick über die Stadt."
+        },
+        {
+          "id": "amberg-sulzbach",
+          "name": "Sulzbach-Rosenberg: Schloss & Altstadt",
+          "kind": "stadt",
+          "lat": 49.502,
+          "lon": 11.746,
+          "hours": 1.5,
+          "summary": "Kleine Herzogsstadt mit Schloss auf dem Burgberg."
+        },
+        {
+          "id": "amberg-radweg",
+          "name": "Fünf-Flüsse-Radweg an der Vils",
+          "kind": "aktiv",
+          "lat": 49.43,
+          "lon": 11.87,
+          "hours": 3,
+          "summary": "Rundkurs durch die Oberpfalz, ab Amberg flach entlang der Vils."
+        }
+      ]
+    },
+    {
+      "id": "straubing",
+      "name": "Straubing & Gäuboden",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.882,
+      "lon": 12.574,
+      "kinds": [
+        "stadt",
+        "tiere",
+        "kultur",
+        "natur"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Herzogsstadt an der Donau mit langem Stadtplatz, Römerschatz und Tiergarten mit Donauaquarium.",
+      "angle": "Tiergarten am Vormittag, Altstadt und Museum am Nachmittag, zum Sonnenuntergang auf den Bogenberg.",
+      "spots": [
+        {
+          "id": "straubing-stadtplatz",
+          "name": "Stadtplatz & Stadtturm",
+          "kind": "stadt",
+          "lat": 48.882,
+          "lon": 12.574,
+          "hours": 1,
+          "summary": "Langgestreckter Platz mit gotischem Stadtturm in der Mitte."
+        },
+        {
+          "id": "straubing-tiergarten",
+          "name": "Tiergarten Straubing",
+          "kind": "tiere",
+          "lat": 48.874,
+          "lon": 12.551,
+          "hours": 3,
+          "family": true,
+          "summary": "Zoo mit heimischen und exotischen Tieren sowie Donauaquarium."
+        },
+        {
+          "id": "straubing-gaeubodenmuseum",
+          "name": "Gäubodenmuseum",
+          "kind": "kultur",
+          "lat": 48.883,
+          "lon": 12.576,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Museum mit dem Straubinger Römerschatz aus Paraderüstungen."
+        },
+        {
+          "id": "straubing-st-jakob",
+          "name": "Basilika St. Jakob",
+          "kind": "kultur",
+          "lat": 48.884,
+          "lon": 12.571,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Spätgotische Hallenkirche aus Backstein."
+        },
+        {
+          "id": "straubing-bogenberg",
+          "name": "Bogenberg",
+          "kind": "natur",
+          "lat": 48.913,
+          "lon": 12.694,
+          "hours": 1.5,
+          "slot": "abend",
+          "summary": "Wallfahrtsberg mit Blick über Donau und Gäuboden."
+        }
+      ]
+    },
+    {
+      "id": "landshut",
+      "name": "Landshut",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.537,
+      "lon": 12.152,
+      "kinds": [
+        "stadt",
+        "burg",
+        "kultur"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Gotische Altstadt mit breiten Straßenzügen, Burg Trausnitz und dem hohen Backsteinturm von St. Martin.",
+      "angle": "Erst durch die Altstadt, dann durch den Hofgarten zur Burg hinauf und von oben auf die Dächer schauen.",
+      "spots": [
+        {
+          "id": "landshut-trausnitz",
+          "name": "Burg Trausnitz",
+          "kind": "burg",
+          "lat": 48.532,
+          "lon": 12.161,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Wittelsbacher Burg über der Stadt mit Kunstkammer."
+        },
+        {
+          "id": "landshut-st-martin",
+          "name": "St. Martin",
+          "kind": "kultur",
+          "lat": 48.534,
+          "lon": 12.15,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Gotische Kirche mit sehr hohem Backsteinturm."
+        },
+        {
+          "id": "landshut-altstadt",
+          "name": "Altstadt & Stadtresidenz",
+          "kind": "stadt",
+          "lat": 48.537,
+          "lon": 12.152,
+          "hours": 1.5,
+          "summary": "Breite Straße mit Giebelhäusern und Renaissance-Residenz."
+        },
+        {
+          "id": "landshut-hofgarten",
+          "name": "Hofgarten",
+          "kind": "natur",
+          "lat": 48.531,
+          "lon": 12.157,
+          "hours": 1,
+          "summary": "Hangpark zwischen Altstadt und Burg."
+        },
+        {
+          "id": "landshut-isarradweg",
+          "name": "Isar-Radweg",
+          "kind": "aktiv",
+          "lat": 48.54,
+          "lon": 12.15,
+          "hours": 2,
+          "summary": "Flache Radstrecke entlang der Isar in beide Richtungen."
+        }
+      ]
+    },
+    {
+      "id": "ingolstadt",
+      "name": "Ingolstadt",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.766,
+      "lon": 11.425,
+      "kinds": [
+        "stadt",
+        "technik",
+        "kultur",
+        "baden"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Donaustadt mit Audi-Museum, Armeemuseum im Herzogsschloss und medizinhistorischer Sammlung.",
+      "angle": "Museen bei Regen, an heißen Tagen zum Baggersee und abends durch die Altstadt zum Kreuztor.",
+      "spots": [
+        {
+          "id": "ingolstadt-audi",
+          "name": "Audi museum mobile",
+          "kind": "technik",
+          "lat": 48.783,
+          "lon": 11.413,
+          "hours": 2,
+          "indoor": true,
+          "summary": "Autogeschichte im runden Museumsbau am Werk."
+        },
+        {
+          "id": "ingolstadt-armeemuseum",
+          "name": "Neues Schloss – Bayerisches Armeemuseum",
+          "kind": "kultur",
+          "lat": 48.764,
+          "lon": 11.431,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Spätgotisches Herzogsschloss mit militärgeschichtlicher Sammlung."
+        },
+        {
+          "id": "ingolstadt-medizin",
+          "name": "Deutsches Medizinhistorisches Museum",
+          "kind": "kultur",
+          "lat": 48.766,
+          "lon": 11.418,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Alte Anatomie mit Arzneipflanzengarten."
+        },
+        {
+          "id": "ingolstadt-kreuztor",
+          "name": "Kreuztor & Altstadt",
+          "kind": "stadt",
+          "lat": 48.767,
+          "lon": 11.418,
+          "hours": 1,
+          "summary": "Gotisches Stadttor als Wahrzeichen am Rand der Altstadt."
+        },
+        {
+          "id": "ingolstadt-baggersee",
+          "name": "Baggersee Ingolstadt",
+          "kind": "baden",
+          "lat": 48.752,
+          "lon": 11.395,
+          "hours": 2,
+          "family": true,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Badesee mit Liegewiesen südlich der Donau."
+        }
+      ]
+    },
+    {
+      "id": "kelheim",
+      "name": "Kelheim & unteres Altmühltal",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.917,
+      "lon": 11.887,
+      "kinds": [
+        "kultur",
+        "burg",
+        "unterwelt",
+        "aktiv"
+      ],
+      "months": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Befreiungshalle über der Donau, Burgen und Höhlen im unteren Altmühltal und eine lange Holzbrücke in Essing.",
+      "angle": "Mit dem Rad die Altmühl hinauf bis Burg Prunn, unterwegs Holzbrücke und Höhle mitnehmen.",
+      "spots": [
+        {
+          "id": "kelheim-befreiungshalle",
+          "name": "Befreiungshalle",
+          "kind": "kultur",
+          "lat": 48.913,
+          "lon": 11.868,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Runder Gedenkbau auf dem Michelsberg mit Blick auf Donau und Altmühl."
+        },
+        {
+          "id": "kelheim-museum",
+          "name": "Archäologisches Museum Kelheim",
+          "kind": "kultur",
+          "lat": 48.917,
+          "lon": 11.885,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Funde von der Steinzeit bis zu den Kelten in der Altstadt."
+        },
+        {
+          "id": "kelheim-schulerloch",
+          "name": "Tropfsteinhöhle Schulerloch",
+          "kind": "unterwelt",
+          "lat": 48.936,
+          "lon": 11.826,
+          "hours": 1,
+          "indoor": true,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Höhle mit Tropfsteinen am Altmühlufer."
+        },
+        {
+          "id": "kelheim-tatzlwurm",
+          "name": "Holzbrücke Tatzlwurm in Essing",
+          "kind": "kultur",
+          "lat": 48.933,
+          "lon": 11.792,
+          "hours": 0.5,
+          "summary": "Geschwungene Holzbrücke über den Main-Donau-Kanal unter Felswänden."
+        },
+        {
+          "id": "kelheim-prunn",
+          "name": "Burg Prunn",
+          "kind": "burg",
+          "lat": 48.955,
+          "lon": 11.733,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Burg auf steilem Felsen über dem Altmühltal."
+        },
+        {
+          "id": "kelheim-radweg",
+          "name": "Altmühltal-Radweg Kelheim–Riedenburg",
+          "kind": "aktiv",
+          "lat": 48.94,
+          "lon": 11.78,
+          "hours": 3,
+          "family": true,
+          "summary": "Flacher Radweg durchs Felsental, gut mit Schiff oder Bus kombinierbar."
+        }
+      ]
+    },
+    {
+      "id": "ammersee",
+      "name": "Ammersee & Kloster Andechs",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.999,
+      "lon": 11.172,
+      "kinds": [
+        "wasser",
+        "baden",
+        "kultur",
+        "genuss"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Badesee im Fünfseenland mit Dampferfahrt, Marienmünster in Dießen und Klosterbrauerei Andechs auf dem Heiligen Berg.",
+      "angle": "Durchs Kiental hinauf nach Andechs wandern, zurück an den See und mit dem Schiff zum Abend nach Dießen.",
+      "spots": [
+        {
+          "id": "ammersee-andechs",
+          "name": "Kloster Andechs",
+          "kind": "kultur",
+          "lat": 47.975,
+          "lon": 11.183,
+          "hours": 2,
+          "summary": "Wallfahrtskirche und Klosterbrauerei auf dem Heiligen Berg."
+        },
+        {
+          "id": "ammersee-kiental",
+          "name": "Kiental-Weg nach Andechs",
+          "kind": "natur",
+          "lat": 47.99,
+          "lon": 11.18,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Schattiger Schluchtweg von Herrsching zum Kloster."
+        },
+        {
+          "id": "ammersee-herrsching",
+          "name": "Badestellen an der Seepromenade Herrsching",
+          "kind": "baden",
+          "lat": 47.998,
+          "lon": 11.168,
+          "hours": 2,
+          "family": true,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Wiesen und Einstiege am Ostufer des Ammersees."
+        },
+        {
+          "id": "ammersee-schifffahrt",
+          "name": "Schifffahrt auf dem Ammersee",
+          "kind": "wasser",
+          "lat": 47.999,
+          "lon": 11.17,
+          "hours": 2,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "summary": "Rundfahrten zwischen Herrsching, Dießen und Stegen."
+        },
+        {
+          "id": "ammersee-diessen",
+          "name": "Marienmünster Dießen",
+          "kind": "kultur",
+          "lat": 47.954,
+          "lon": 11.102,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Prächtige Rokoko-Kirche über dem Südwestufer."
+        }
+      ]
+    },
+    {
+      "id": "starnberger-see",
+      "name": "Starnberger See",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.998,
+      "lon": 11.341,
+      "kinds": [
+        "wasser",
+        "kultur",
+        "natur",
+        "baden"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Großer See vor München mit Roseninsel, Ludwig-II.-Gedenkstätte und Buchheim-Museum am Westufer.",
+      "angle": "Mit dem Schiff von Starnberg nach Bernried ins Museum, zum Abend auf die Ilkahöhe über Tutzing.",
+      "spots": [
+        {
+          "id": "starnberger-see-schifffahrt",
+          "name": "Schifffahrt auf dem Starnberger See",
+          "kind": "wasser",
+          "lat": 47.996,
+          "lon": 11.343,
+          "hours": 2,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Rundfahrten ab Starnberg zu den Orten am Ufer."
+        },
+        {
+          "id": "starnberger-see-buchheim",
+          "name": "Buchheim Museum der Phantasie",
+          "kind": "kultur",
+          "lat": 47.871,
+          "lon": 11.296,
+          "hours": 2,
+          "indoor": true,
+          "summary": "Expressionismus und Sammlerstücke im Museumsbau direkt am See."
+        },
+        {
+          "id": "starnberger-see-roseninsel",
+          "name": "Roseninsel",
+          "kind": "natur",
+          "lat": 47.931,
+          "lon": 11.302,
+          "hours": 1.5,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "summary": "Kleine Insel mit Rosengarten und Casino Ludwigs II. vor Feldafing."
+        },
+        {
+          "id": "starnberger-see-votivkapelle",
+          "name": "Votivkapelle Berg",
+          "kind": "kultur",
+          "lat": 47.969,
+          "lon": 11.361,
+          "hours": 1,
+          "summary": "Gedenkkapelle und Kreuz im See an der Stelle von Ludwigs II. Tod."
+        },
+        {
+          "id": "starnberger-see-ilkahoehe",
+          "name": "Ilkahöhe",
+          "kind": "natur",
+          "lat": 47.896,
+          "lon": 11.258,
+          "hours": 1.5,
+          "slot": "abend",
+          "summary": "Hügel über Tutzing mit Seeblick und Alpenpanorama."
+        }
+      ]
+    },
+    {
+      "id": "freising",
+      "name": "Freising & Weihenstephan",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.402,
+      "lon": 11.748,
+      "kinds": [
+        "kultur",
+        "genuss",
+        "technik",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Bischofsstadt mit Domberg, Diözesanmuseum und Weihenstephaner Berg, dazu Flugzeuge schauen am Flughafen.",
+      "angle": "Domberg und Museum am Vormittag, später Weihenstephan und zum Abschluss Starts beobachten im Besucherpark.",
+      "spots": [
+        {
+          "id": "freising-domberg",
+          "name": "Domberg & Mariendom",
+          "kind": "kultur",
+          "lat": 48.399,
+          "lon": 11.745,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Dom mit Krypta und Bestiensäule auf dem Hügel über der Altstadt."
+        },
+        {
+          "id": "freising-dimu",
+          "name": "Diözesanmuseum Freising",
+          "kind": "kultur",
+          "lat": 48.398,
+          "lon": 11.741,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Große Sammlung kirchlicher Kunst auf dem Domberg."
+        },
+        {
+          "id": "freising-weihenstephan",
+          "name": "Weihenstephaner Berg & Hofgarten",
+          "kind": "genuss",
+          "lat": 48.395,
+          "lon": 11.728,
+          "hours": 1.5,
+          "summary": "Hochschulberg mit traditionsreicher Staatsbrauerei und Gärten."
+        },
+        {
+          "id": "freising-besucherpark",
+          "name": "Besucherpark am Flughafen München",
+          "kind": "technik",
+          "lat": 48.35,
+          "lon": 11.768,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Aussichtshügel mit historischen Flugzeugen und Blick auf das Vorfeld."
+        },
+        {
+          "id": "freising-isarradweg",
+          "name": "Isar-Radweg nach Moosburg",
+          "kind": "aktiv",
+          "lat": 48.405,
+          "lon": 11.76,
+          "hours": 3,
+          "summary": "Flache Radstrecke durch die Isarauen."
+        }
+      ]
+    },
+    {
+      "id": "augsburg",
+      "name": "Augsburg",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.371,
+      "lon": 10.898,
+      "kinds": [
+        "stadt",
+        "kultur",
+        "tiere",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        2
+      ],
+      "summary": "Römerstadt mit Fuggerei, Goldenem Saal, Puppenkiste, Olympia-Eiskanal und Zoo.",
+      "angle": "Altstadt und Fuggerei am Vormittag, nachmittags mit Kindern in den Zoo oder zum Eiskanal ins Grüne.",
+      "spots": [
+        {
+          "id": "augsburg-fuggerei",
+          "name": "Fuggerei",
+          "kind": "kultur",
+          "lat": 48.369,
+          "lon": 10.906,
+          "hours": 1,
+          "family": true,
+          "summary": "Älteste noch bewohnte Sozialsiedlung der Welt mit Museumswohnung."
+        },
+        {
+          "id": "augsburg-rathaus",
+          "name": "Rathaus & Goldener Saal",
+          "kind": "kultur",
+          "lat": 48.369,
+          "lon": 10.898,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Renaissance-Rathaus mit vergoldetem Prunksaal."
+        },
+        {
+          "id": "augsburg-puppenkiste",
+          "name": "Augsburger Puppenkiste & Museum Die Kiste",
+          "kind": "kultur",
+          "lat": 48.361,
+          "lon": 10.903,
+          "hours": 1,
+          "indoor": true,
+          "family": true,
+          "summary": "Marionettentheater und Museum mit bekannten Figuren."
+        },
+        {
+          "id": "augsburg-tim",
+          "name": "Staatliches Textil- und Industriemuseum (tim)",
+          "kind": "technik",
+          "lat": 48.374,
+          "lon": 10.914,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Industriegeschichte mit laufenden Webmaschinen in einer alten Fabrik."
+        },
+        {
+          "id": "augsburg-zoo",
+          "name": "Zoo Augsburg",
+          "kind": "tiere",
+          "lat": 48.348,
+          "lon": 10.919,
+          "hours": 3,
+          "family": true,
+          "summary": "Zoo am Siebentischwald mit Tieren aus aller Welt."
+        },
+        {
+          "id": "augsburg-eiskanal",
+          "name": "Eiskanal",
+          "kind": "aktiv",
+          "lat": 48.352,
+          "lon": 10.929,
+          "hours": 1,
+          "summary": "Olympische Wildwasserstrecke von 1972 am Hochablass."
+        }
+      ]
+    },
+    {
+      "id": "landsberg",
+      "name": "Landsberg am Lech",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.048,
+      "lon": 10.874,
+      "kinds": [
+        "stadt",
+        "wasser",
+        "aktiv",
+        "kultur"
+      ],
+      "months": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Altstadt mit Lechwehr, Stadttoren und Uferwegen am Lech.",
+      "angle": "Erst an der Lechwehr Kaffee, dann den Hang hinauf zum Bayertor und mit dem Rad lechaufwärts.",
+      "spots": [
+        {
+          "id": "landsberg-lechwehr",
+          "name": "Lechwehr & Hauptplatz",
+          "kind": "stadt",
+          "lat": 48.048,
+          "lon": 10.872,
+          "hours": 1,
+          "summary": "Rauschendes Wehr vor der Altstadtkulisse mit Rathaus und Brunnen."
+        },
+        {
+          "id": "landsberg-bayertor",
+          "name": "Bayertor",
+          "kind": "kultur",
+          "lat": 48.047,
+          "lon": 10.881,
+          "hours": 0.5,
+          "summary": "Spätgotisches Stadttor am oberen Rand der Altstadt."
+        },
+        {
+          "id": "landsberg-mutterturm",
+          "name": "Mutterturm",
+          "kind": "kultur",
+          "lat": 48.046,
+          "lon": 10.87,
+          "hours": 0.5,
+          "summary": "Turm am Lechufer, einst Atelier des Malers Hubert von Herkomer."
+        },
+        {
+          "id": "landsberg-lechradweg",
+          "name": "Lech-Radweg",
+          "kind": "aktiv",
+          "lat": 48.05,
+          "lon": 10.87,
+          "hours": 3,
+          "summary": "Radstrecke entlang des Lechs mit Staustufen und Auwäldern."
+        }
+      ]
+    },
+    {
+      "id": "noerdlingen",
+      "name": "Nördlingen & Nördlinger Ries",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.851,
+      "lon": 10.488,
+      "kinds": [
+        "stadt",
+        "kultur",
+        "burg",
+        "technik"
+      ],
+      "months": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Kreisrunde Altstadt in einem Meteoritenkrater mit begehbarer Stadtmauer und Burg Harburg in der Nähe.",
+      "angle": "Vormittags Kratermuseum, dann auf den Daniel, nachmittags die Stadtmauer und auf dem Heimweg die Harburg.",
+      "spots": [
+        {
+          "id": "noerdlingen-daniel",
+          "name": "Daniel (Turm von St. Georg)",
+          "kind": "stadt",
+          "lat": 48.851,
+          "lon": 10.488,
+          "hours": 1,
+          "family": true,
+          "summary": "Kirchturm mit Rundblick über den Kraterrand des Ries."
+        },
+        {
+          "id": "noerdlingen-stadtmauer",
+          "name": "Überdachte Stadtmauer",
+          "kind": "stadt",
+          "lat": 48.851,
+          "lon": 10.49,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Wehrgang einmal ringsum die Altstadt."
+        },
+        {
+          "id": "noerdlingen-rieskrater",
+          "name": "RiesKraterMuseum",
+          "kind": "kultur",
+          "lat": 48.854,
+          "lon": 10.487,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Ausstellung zum Meteoriteneinschlag mit Mondgestein."
+        },
+        {
+          "id": "noerdlingen-eisenbahnmuseum",
+          "name": "Bayerisches Eisenbahnmuseum",
+          "kind": "technik",
+          "lat": 48.846,
+          "lon": 10.497,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Lokomotiven im alten Bahnbetriebswerk."
+        },
+        {
+          "id": "noerdlingen-harburg",
+          "name": "Burg Harburg",
+          "kind": "burg",
+          "lat": 48.786,
+          "lon": 10.691,
+          "hours": 1.5,
+          "summary": "Gut erhaltene Burganlage hoch über der Wörnitz."
+        }
+      ]
+    },
+    {
+      "id": "guenzburg",
+      "name": "Günzburg & Legoland Deutschland",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.454,
+      "lon": 10.277,
+      "kinds": [
+        "freizeit",
+        "stadt",
+        "kultur",
+        "aktiv"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Freizeitpark für Familien vor der Barockstadt Günzburg, mit Ulm und Donau-Radweg in Reichweite.",
+      "angle": "Einen vollen Tag Legoland, den zweiten ruhiger mit dem Rad an der Donau nach Ulm zum Münster.",
+      "spots": [
+        {
+          "id": "guenzburg-legoland",
+          "name": "Legoland Deutschland",
+          "kind": "freizeit",
+          "lat": 48.424,
+          "lon": 10.298,
+          "hours": 7,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Freizeitpark mit Fahrgeschäften und Miniaturwelt aus Bausteinen."
+        },
+        {
+          "id": "guenzburg-frauenkirche",
+          "name": "Frauenkirche Günzburg",
+          "kind": "kultur",
+          "lat": 48.454,
+          "lon": 10.277,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Rokoko-Kirche von Dominikus Zimmermann."
+        },
+        {
+          "id": "guenzburg-altstadt",
+          "name": "Marktplatz & Unteres Tor",
+          "kind": "stadt",
+          "lat": 48.454,
+          "lon": 10.278,
+          "hours": 1,
+          "summary": "Langer Marktplatz mit Torturm und Stadtschloss."
+        },
+        {
+          "id": "guenzburg-donauradweg",
+          "name": "Donau-Radweg Günzburg–Ulm",
+          "kind": "aktiv",
+          "lat": 48.43,
+          "lon": 10.15,
+          "hours": 3,
+          "family": true,
+          "summary": "Flache Etappe durch Donauauen bis Ulm."
+        }
+      ]
+    },
+    {
+      "id": "kempten",
+      "name": "Kempten (Allgäu)",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.726,
+      "lon": 10.314,
+      "kinds": [
+        "stadt",
+        "kultur",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Römerstadt an der Iller mit barocker Fürststift-Residenz, Basilika und archäologischem Park.",
+      "angle": "Kurze Stadtrunde zwischen Residenz und Römerpark, nachmittags mit dem Rad an der Iller entlang.",
+      "spots": [
+        {
+          "id": "kempten-residenz",
+          "name": "Residenz Kempten",
+          "kind": "kultur",
+          "lat": 47.727,
+          "lon": 10.316,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Prunkräume der Fürstäbte in einem frühen Barockbau."
+        },
+        {
+          "id": "kempten-st-lorenz",
+          "name": "Basilika St. Lorenz",
+          "kind": "kultur",
+          "lat": 47.728,
+          "lon": 10.317,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Barocke Stiftskirche neben der Residenz."
+        },
+        {
+          "id": "kempten-cambodunum",
+          "name": "Archäologischer Park Cambodunum",
+          "kind": "kultur",
+          "lat": 47.731,
+          "lon": 10.324,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Nachbauten römischer Tempel und Thermen auf dem Lindenberg."
+        },
+        {
+          "id": "kempten-rathausplatz",
+          "name": "Rathausplatz & Altstadt",
+          "kind": "stadt",
+          "lat": 47.726,
+          "lon": 10.314,
+          "hours": 1,
+          "summary": "Kleiner Altstadtkern mit Rathaus und Brunnen."
+        },
+        {
+          "id": "kempten-iller",
+          "name": "Iller-Radweg",
+          "kind": "aktiv",
+          "lat": 47.72,
+          "lon": 10.31,
+          "hours": 3,
+          "summary": "Radweg entlang der Iller Richtung Norden ins Unterallgäu."
+        }
+      ]
+    },
+    {
+      "id": "immenstadt",
+      "name": "Immenstadt & Großer Alpsee",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.56,
+      "lon": 10.218,
+      "kinds": [
+        "baden",
+        "freizeit",
+        "berge",
+        "unterwelt"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Badesee mit Bergkulisse, Ganzjahres-Rodelbahn am Alpsee und Bergbahn auf die Nagelfluhkette.",
+      "angle": "Morgens mit der Bergbahn auf den Mittag, nachmittags in den Alpsee springen, bei Regen in die Sturmannshöhle.",
+      "spots": [
+        {
+          "id": "immenstadt-alpsee",
+          "name": "Großer Alpsee bei Bühl",
+          "kind": "baden",
+          "lat": 47.565,
+          "lon": 10.181,
+          "hours": 3,
+          "family": true,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Größter Natursee im Allgäu mit Badeplätzen am Ostufer."
+        },
+        {
+          "id": "immenstadt-bergwelt",
+          "name": "Alpsee Bergwelt",
+          "kind": "freizeit",
+          "lat": 47.556,
+          "lon": 10.145,
+          "hours": 2.5,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Bergbahn mit langer Rodelbahn, Kletterwald und Bergspielplatz."
+        },
+        {
+          "id": "immenstadt-mittag",
+          "name": "Mittag-Bergbahn & Nagelfluhkette",
+          "kind": "berge",
+          "lat": 47.553,
+          "lon": 10.221,
+          "hours": 3,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Sessellift auf den Mittag, Startpunkt für Gratwanderungen."
+        },
+        {
+          "id": "immenstadt-sturmannshoehle",
+          "name": "Sturmannshöhle Obermaiselstein",
+          "kind": "unterwelt",
+          "lat": 47.453,
+          "lon": 10.247,
+          "hours": 1,
+          "indoor": true,
+          "family": true,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Schauhöhle mit Steigen tief in den Fels."
+        }
+      ]
+    },
+    {
+      "id": "lindau",
+      "name": "Lindau (Bodensee)",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.546,
+      "lon": 9.684,
+      "kinds": [
+        "stadt",
+        "wasser",
+        "baden",
+        "kultur"
+      ],
+      "months": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Inselaltstadt im Bodensee mit Hafeneinfahrt, Löwe und Leuchtturm, Schiffen nach Bregenz und Badeplätzen.",
+      "angle": "Abends an die Hafenmole, wenn die Sonne hinter dem See versinkt und die Ausflügler weg sind.",
+      "spots": [
+        {
+          "id": "lindau-hafen",
+          "name": "Hafeneinfahrt mit Löwe & Leuchtturm",
+          "kind": "stadt",
+          "lat": 47.544,
+          "lon": 9.685,
+          "hours": 1,
+          "family": true,
+          "slot": "abend",
+          "summary": "Bayerischer Löwe und Leuchtturm an der Hafenmole."
+        },
+        {
+          "id": "lindau-altstadt",
+          "name": "Inselaltstadt & Altes Rathaus",
+          "kind": "stadt",
+          "lat": 47.546,
+          "lon": 9.683,
+          "hours": 1.5,
+          "summary": "Gassen mit bemaltem Rathaus und Patrizierhäusern."
+        },
+        {
+          "id": "lindau-cavazzen",
+          "name": "Kunstmuseum Lindau im Cavazzen",
+          "kind": "kultur",
+          "lat": 47.546,
+          "lon": 9.684,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Wechselausstellungen in einem barocken Bürgerhaus."
+        },
+        {
+          "id": "lindau-schifffahrt",
+          "name": "Bodensee-Schifffahrt",
+          "kind": "wasser",
+          "lat": 47.544,
+          "lon": 9.684,
+          "hours": 3,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Schiffsfahrten nach Bregenz, Wasserburg oder Meersburg."
+        },
+        {
+          "id": "lindau-roemerbad",
+          "name": "Strandbad Römerbad",
+          "kind": "baden",
+          "lat": 47.545,
+          "lon": 9.681,
+          "hours": 2,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Kleines Bad direkt an der Inselspitze."
+        }
+      ]
+    },
+    {
+      "id": "rosenheim",
+      "name": "Rosenheim & Simssee",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.857,
+      "lon": 12.128,
+      "kinds": [
+        "stadt",
+        "kultur",
+        "baden",
+        "therme"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Innstadt mit großen Ausstellungen im Lokschuppen, Badesee Simssee und Therme im nahen Bad Aibling.",
+      "angle": "Ausstellung bei Regen, bei Sonne an den Simssee und zum Abschluss auf den Max-Josefs-Platz.",
+      "spots": [
+        {
+          "id": "rosenheim-lokschuppen",
+          "name": "Ausstellungszentrum Lokschuppen",
+          "kind": "kultur",
+          "lat": 47.858,
+          "lon": 12.122,
+          "hours": 2,
+          "indoor": true,
+          "family": true,
+          "summary": "Wechselnde große Ausstellungen in einem alten Lokschuppen."
+        },
+        {
+          "id": "rosenheim-altstadt",
+          "name": "Max-Josefs-Platz & Mittertor",
+          "kind": "stadt",
+          "lat": 47.856,
+          "lon": 12.128,
+          "hours": 1,
+          "summary": "Platz mit Laubengängen und Inn-Salzach-Fassaden."
+        },
+        {
+          "id": "rosenheim-simssee",
+          "name": "Simssee",
+          "kind": "baden",
+          "lat": 47.875,
+          "lon": 12.235,
+          "hours": 3,
+          "family": true,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Badesee östlich der Stadt mit flachen Ufern."
+        },
+        {
+          "id": "rosenheim-therme",
+          "name": "Therme Bad Aibling",
+          "kind": "therme",
+          "lat": 47.86,
+          "lon": 12.01,
+          "hours": 3,
+          "indoor": true,
+          "summary": "Moderne Therme mit Kuppeln und Saunawelt."
+        },
+        {
+          "id": "rosenheim-innradweg",
+          "name": "Inn-Radweg",
+          "kind": "aktiv",
+          "lat": 47.86,
+          "lon": 12.14,
+          "hours": 3,
+          "summary": "Radstrecke entlang des Inns Richtung Wasserburg oder Kufstein."
+        }
+      ]
+    },
+    {
+      "id": "wendelstein",
+      "name": "Wendelstein & Bayrischzell",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 47.674,
+      "lon": 12.013,
+      "kinds": [
+        "berge",
+        "unterwelt",
+        "technik",
+        "winter",
+        "natur"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        2
+      ],
+      "summary": "Gipfel mit Zahnradbahn, Höhle und Observatorium über dem Inntal, dazu Wasserfälle und Skigebiet Sudelfeld.",
+      "angle": "Mit der Zahnradbahn hinauf, mit der Seilbahn nach Bayrischzell hinunter und mit dem Bus zurück.",
+      "spots": [
+        {
+          "id": "wendelstein-zahnradbahn",
+          "name": "Wendelstein-Zahnradbahn ab Brannenburg",
+          "kind": "technik",
+          "lat": 47.738,
+          "lon": 12.103,
+          "hours": 2,
+          "family": true,
+          "summary": "Historische Zahnradbahn hinauf zum Gipfelbahnhof."
+        },
+        {
+          "id": "wendelstein-gipfel",
+          "name": "Wendelsteingipfel & Observatorium",
+          "kind": "berge",
+          "lat": 47.704,
+          "lon": 12.012,
+          "hours": 2,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Gipfelweg mit Kapelle, Sternwarte und Rundblick."
+        },
+        {
+          "id": "wendelstein-hoehle",
+          "name": "Wendelsteinhöhle",
+          "kind": "unterwelt",
+          "lat": 47.704,
+          "lon": 12.013,
+          "hours": 0.5,
+          "indoor": true,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Kurze Höhle unter dem Gipfel."
+        },
+        {
+          "id": "wendelstein-seilbahn",
+          "name": "Wendelstein-Seilbahn ab Osterhofen",
+          "kind": "berge",
+          "lat": 47.684,
+          "lon": 11.998,
+          "hours": 1,
+          "summary": "Seilbahn von der Bayrischzeller Seite zum Gipfel."
+        },
+        {
+          "id": "wendelstein-tatzelwurm",
+          "name": "Tatzelwurm-Wasserfälle",
+          "kind": "natur",
+          "lat": 47.668,
+          "lon": 12.083,
+          "hours": 1,
+          "family": true,
+          "summary": "Zweistufiger Wasserfall in einer Schlucht an der Passstraße."
+        },
+        {
+          "id": "wendelstein-sudelfeld",
+          "name": "Skigebiet Sudelfeld",
+          "kind": "winter",
+          "lat": 47.675,
+          "lon": 12.05,
+          "hours": 5,
+          "months": [
+            12,
+            1,
+            2,
+            3
+          ],
+          "summary": "Großes Skigebiet zwischen Bayrischzell und Tatzelwurm."
+        }
+      ]
+    },
+    {
+      "id": "passau",
+      "name": "Passau",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.574,
+      "lon": 13.462,
+      "kinds": [
+        "stadt",
+        "kultur",
+        "wasser",
+        "burg"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        2
+      ],
+      "summary": "Dreiflüssestadt mit barockem Dom, Veste Oberhaus und Glasmuseum auf der Altstadtinsel.",
+      "angle": "Mittags Domorgel, nachmittags zur Veste hinauf und zum Sonnenuntergang ans Dreiflüsseeck.",
+      "spots": [
+        {
+          "id": "passau-dom",
+          "name": "Dom St. Stephan",
+          "kind": "kultur",
+          "lat": 48.574,
+          "lon": 13.465,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Barocker Dom mit einer der größten Kirchenorgeln der Welt."
+        },
+        {
+          "id": "passau-oberhaus",
+          "name": "Veste Oberhaus",
+          "kind": "burg",
+          "lat": 48.578,
+          "lon": 13.47,
+          "hours": 2,
+          "family": true,
+          "summary": "Festung über der Donau mit Museum und Blick auf die Altstadt."
+        },
+        {
+          "id": "passau-dreifluesseeck",
+          "name": "Dreiflüsseeck",
+          "kind": "wasser",
+          "lat": 48.574,
+          "lon": 13.478,
+          "hours": 0.5,
+          "slot": "abend",
+          "summary": "Spitze der Altstadt, wo Inn, Donau und Ilz zusammenfließen."
+        },
+        {
+          "id": "passau-glasmuseum",
+          "name": "Glasmuseum Passau",
+          "kind": "kultur",
+          "lat": 48.575,
+          "lon": 13.467,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Große Sammlung böhmischen Glases am Rathausplatz."
+        },
+        {
+          "id": "passau-rundfahrt",
+          "name": "Dreiflüsse-Rundfahrt",
+          "kind": "wasser",
+          "lat": 48.576,
+          "lon": 13.464,
+          "hours": 1,
+          "family": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Kurze Schiffsrundfahrt um die Altstadtspitze."
+        },
+        {
+          "id": "passau-obernzell",
+          "name": "Schloss Obernzell",
+          "kind": "burg",
+          "lat": 48.555,
+          "lon": 13.637,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Schloss an der Donau mit Keramikmuseum."
+        }
+      ]
+    },
+    {
+      "id": "bad-fuessing",
+      "name": "Bad Füssing & Rottaler Bäderdreieck",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.351,
+      "lon": 13.311,
+      "kinds": [
+        "therme",
+        "natur",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        3
+      ],
+      "summary": "Thermalbäder im Rottal, dazu der Inn mit seinen Vogelschutzgebieten und flachen Radwegen.",
+      "angle": "Morgens Vögel am Inn beobachten, nachmittags in die Therme und abends nochmals an den Damm.",
+      "spots": [
+        {
+          "id": "bad-fuessing-therme-eins",
+          "name": "Therme Eins",
+          "kind": "therme",
+          "lat": 48.344,
+          "lon": 13.313,
+          "hours": 3,
+          "indoor": true,
+          "summary": "Großes Thermalbad mit Innen- und Außenbecken."
+        },
+        {
+          "id": "bad-fuessing-johannesbad",
+          "name": "Johannesbad Thermalbad",
+          "kind": "therme",
+          "lat": 48.349,
+          "lon": 13.316,
+          "hours": 3,
+          "indoor": true,
+          "summary": "Thermalbad im Kurzentrum von Bad Füssing."
+        },
+        {
+          "id": "bad-fuessing-birnbach",
+          "name": "Rottal Terme Bad Birnbach",
+          "kind": "therme",
+          "lat": 48.445,
+          "lon": 13.091,
+          "hours": 3,
+          "indoor": true,
+          "summary": "Thermalbad im ländlichen Rottal."
+        },
+        {
+          "id": "bad-fuessing-inn",
+          "name": "Innstausee Egglfing-Obernberg",
+          "kind": "natur",
+          "lat": 48.316,
+          "lon": 13.329,
+          "hours": 2,
+          "slot": "morgen",
+          "summary": "Stausee im Vogelschutzgebiet am unteren Inn mit vielen Wasservögeln.",
+          "tip": "Fernglas mitnehmen."
+        },
+        {
+          "id": "bad-fuessing-innradweg",
+          "name": "Inn-Radweg",
+          "kind": "aktiv",
+          "lat": 48.33,
+          "lon": 13.33,
+          "hours": 3,
+          "summary": "Flacher Radweg auf dem Inndamm."
+        }
+      ]
+    },
+    {
+      "id": "arber",
+      "name": "Großer Arber & Bodenmais",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.067,
+      "lon": 13.101,
+      "kinds": [
+        "berge",
+        "natur",
+        "unterwelt",
+        "winter",
+        "wasser"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        1,
+        3
+      ],
+      "summary": "Höchster Gipfel des Bayerischen Waldes mit Karseen, Wasserfällen, Besucherbergwerk und Glasstadt Zwiesel.",
+      "angle": "Früh mit der Bergbahn auf den Arber, abwärts zum Arbersee wandern und bei Regen ins Silberbergwerk.",
+      "spots": [
+        {
+          "id": "arber-gipfel",
+          "name": "Großer Arber mit Arber-Bergbahn",
+          "kind": "berge",
+          "lat": 49.112,
+          "lon": 13.136,
+          "hours": 3,
+          "summary": "Gondelbahn und Gipfelweg mit Blick bis Böhmen."
+        },
+        {
+          "id": "arber-arbersee",
+          "name": "Großer Arbersee",
+          "kind": "wasser",
+          "lat": 49.097,
+          "lon": 13.153,
+          "hours": 1.5,
+          "family": true,
+          "summary": "Karsee am Fuß des Arbers mit Rundweg."
+        },
+        {
+          "id": "arber-kleiner-arbersee",
+          "name": "Kleiner Arbersee",
+          "kind": "natur",
+          "lat": 49.128,
+          "lon": 13.118,
+          "hours": 1.5,
+          "summary": "Karsee mit schwimmenden Inseln in einem Naturschutzgebiet."
+        },
+        {
+          "id": "arber-rissloch",
+          "name": "Rißlochfälle",
+          "kind": "natur",
+          "lat": 49.088,
+          "lon": 13.13,
+          "hours": 2,
+          "summary": "Wasserfälle im Bergwald oberhalb von Bodenmais."
+        },
+        {
+          "id": "arber-silberberg",
+          "name": "Besucherbergwerk Silberberg",
+          "kind": "unterwelt",
+          "lat": 49.074,
+          "lon": 13.083,
+          "hours": 1.5,
+          "indoor": true,
+          "family": true,
+          "summary": "Führung durch alte Stollen im Erzberg von Bodenmais."
+        },
+        {
+          "id": "arber-zwiesel",
+          "name": "Glasstadt Zwiesel",
+          "kind": "kultur",
+          "lat": 49.017,
+          "lon": 13.236,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Stadt der Glasmacher mit Museen und Schauwerkstätten."
+        }
+      ]
+    },
+    {
+      "id": "brombachsee",
+      "name": "Fränkisches Seenland (Brombachsee & Altmühlsee)",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.12,
+      "lon": 10.94,
+      "kinds": [
+        "baden",
+        "wasser",
+        "aktiv",
+        "kultur"
+      ],
+      "months": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "nights": [
+        0,
+        3
+      ],
+      "summary": "Badeseen mit Sandstränden, Rundfahrtschiff und Radrunden, dazu Römerthermen und Residenz im nahen Altmühlfranken.",
+      "angle": "Morgens um den Altmühlsee radeln, mittags an den Brombachsee-Strand, bei Regen zu den Römern nach Weißenburg.",
+      "spots": [
+        {
+          "id": "brombachsee-strand",
+          "name": "Strände am Großen Brombachsee",
+          "kind": "baden",
+          "lat": 49.12,
+          "lon": 10.94,
+          "hours": 3,
+          "family": true,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Sandstrände und Liegewiesen am größten See im Seenland."
+        },
+        {
+          "id": "brombachsee-trimaran",
+          "name": "Trimaran-Rundfahrt",
+          "kind": "wasser",
+          "lat": 49.115,
+          "lon": 10.96,
+          "hours": 1.5,
+          "family": true,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "summary": "Rundfahrt mit dem Fahrgastschiff über den Großen Brombachsee."
+        },
+        {
+          "id": "brombachsee-altmuehlsee",
+          "name": "Altmühlsee mit Vogelinsel",
+          "kind": "natur",
+          "lat": 49.14,
+          "lon": 10.72,
+          "hours": 2,
+          "summary": "Flacher See mit Vogelschutzgebiet und Beobachtungspunkten."
+        },
+        {
+          "id": "brombachsee-radrunde",
+          "name": "Radrunde um den Altmühlsee",
+          "kind": "aktiv",
+          "lat": 49.14,
+          "lon": 10.725,
+          "hours": 2.5,
+          "family": true,
+          "summary": "Ebener Rundweg um den See, gut für Familien."
+        },
+        {
+          "id": "brombachsee-roemerthermen",
+          "name": "Römische Thermen Weißenburg",
+          "kind": "kultur",
+          "lat": 49.031,
+          "lon": 10.966,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Ausgegrabene Badeanlage eines Römerkastells unter Schutzbau."
+        },
+        {
+          "id": "brombachsee-ellingen",
+          "name": "Residenz Ellingen",
+          "kind": "burg",
+          "lat": 49.061,
+          "lon": 10.966,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Barockschloss des Deutschen Ordens."
+        }
+      ]
+    },
+    {
+      "id": "hersbruck",
+      "name": "Hersbrucker Schweiz & Pegnitztal",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 49.508,
+      "lon": 11.433,
+      "kinds": [
+        "natur",
+        "aktiv",
+        "unterwelt",
+        "kultur"
+      ],
+      "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Felsen, Burgen und Höhlen im Pegnitztal östlich von Nürnberg, mit Kanu und Bahn gut zu erkunden.",
+      "angle": "Mit der S-Bahn anreisen, auf der Pegnitz paddeln und zum Abkühlen in die Maximiliansgrotte.",
+      "spots": [
+        {
+          "id": "hersbruck-hirtenmuseum",
+          "name": "Deutsches Hirtenmuseum",
+          "kind": "kultur",
+          "lat": 49.509,
+          "lon": 11.43,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Museum zur Hirtenkultur in einem Fachwerkhaus der Altstadt."
+        },
+        {
+          "id": "hersbruck-kanu",
+          "name": "Kanu auf der Pegnitz",
+          "kind": "aktiv",
+          "lat": 49.56,
+          "lon": 11.47,
+          "hours": 3,
+          "months": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "summary": "Gemütliche Flussstrecke zwischen Felsen und Wiesen.",
+          "tip": "Befahrungsregeln und Wasserstand vorab prüfen."
+        },
+        {
+          "id": "hersbruck-maximiliansgrotte",
+          "name": "Maximiliansgrotte",
+          "kind": "unterwelt",
+          "lat": 49.615,
+          "lon": 11.535,
+          "hours": 1,
+          "indoor": true,
+          "months": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "summary": "Tropfsteinhöhle bei Krottensee mit großen Hallen."
+        },
+        {
+          "id": "hersbruck-hohenstein",
+          "name": "Burg Hohenstein",
+          "kind": "burg",
+          "lat": 49.585,
+          "lon": 11.408,
+          "hours": 1.5,
+          "summary": "Höchstgelegene Burg Mittelfrankens auf einem Felsen."
+        }
+      ]
+    },
+    {
+      "id": "burghausen",
+      "name": "Burghausen & Altötting",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.169,
+      "lon": 12.832,
+      "kinds": [
+        "burg",
+        "baden",
+        "kultur",
+        "stadt"
+      ],
+      "months": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Sehr lange Burganlage über der Salzach, darunter ein Badesee und die bunte Altstadt, nahebei der Wallfahrtsort Altötting.",
+      "angle": "Die Burg von Hof zu Hof entlanglaufen, an heißen Tagen unten im Wöhrsee schwimmen.",
+      "spots": [
+        {
+          "id": "burghausen-burg",
+          "name": "Burg zu Burghausen",
+          "kind": "burg",
+          "lat": 48.158,
+          "lon": 12.832,
+          "hours": 2.5,
+          "family": true,
+          "summary": "Burganlage mit sechs Höfen auf einem Bergrücken über der Salzach."
+        },
+        {
+          "id": "burghausen-woehrsee",
+          "name": "Wöhrsee",
+          "kind": "baden",
+          "lat": 48.161,
+          "lon": 12.829,
+          "hours": 2,
+          "family": true,
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "summary": "Kleiner Badesee direkt unter der Burg."
+        },
+        {
+          "id": "burghausen-altstadt",
+          "name": "Altstadt am Salzachufer",
+          "kind": "stadt",
+          "lat": 48.163,
+          "lon": 12.835,
+          "hours": 1,
+          "summary": "Farbige Inn-Salzach-Häuser am Stadtplatz."
+        },
+        {
+          "id": "burghausen-altoetting",
+          "name": "Gnadenkapelle Altötting",
+          "kind": "kultur",
+          "lat": 48.226,
+          "lon": 12.677,
+          "hours": 1.5,
+          "indoor": true,
+          "summary": "Wallfahrtsort mit achteckiger Kapelle am Kapellplatz."
+        }
+      ]
+    },
+    {
+      "id": "deggendorf",
+      "name": "Deggendorf & Donauklöster",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.836,
+      "lon": 12.962,
+      "kinds": [
+        "kultur",
+        "stadt",
+        "aktiv"
+      ],
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Donaustadt am Rand des Bayerischen Waldes mit zwei großen Benediktinerklöstern in Radweite.",
+      "angle": "Mit dem Rad auf dem Donau-Radweg von Kloster zu Kloster und mittags auf den Stadtplatz.",
+      "spots": [
+        {
+          "id": "deggendorf-stadtplatz",
+          "name": "Stadtplatz & Altes Rathaus",
+          "kind": "stadt",
+          "lat": 48.836,
+          "lon": 12.962,
+          "hours": 1,
+          "summary": "Langer Platz mit Rathaus und Stadtturm."
+        },
+        {
+          "id": "deggendorf-metten",
+          "name": "Abtei Metten mit Bibliothek",
+          "kind": "kultur",
+          "lat": 48.856,
+          "lon": 12.917,
+          "hours": 1,
+          "indoor": true,
+          "summary": "Benediktinerkloster mit barocker Bibliothek."
+        },
+        {
+          "id": "deggendorf-niederalteich",
+          "name": "Basilika Niederalteich",
+          "kind": "kultur",
+          "lat": 48.765,
+          "lon": 13.027,
+          "hours": 0.5,
+          "indoor": true,
+          "summary": "Große barocke Klosterkirche nahe der Donau."
+        },
+        {
+          "id": "deggendorf-donauradweg",
+          "name": "Donau-Radweg",
+          "kind": "aktiv",
+          "lat": 48.83,
+          "lon": 12.97,
+          "hours": 3,
+          "family": true,
+          "summary": "Flache Radstrecke an der Donau zwischen den Klöstern."
+        }
+      ]
+    },
+    {
+      "id": "dreisessel",
+      "name": "Dreisessel & Steinernes Meer",
+      "region": "Bayern",
+      "country": "DE",
+      "lat": 48.782,
+      "lon": 13.796,
+      "kinds": [
+        "berge",
+        "natur"
+      ],
+      "months": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "nights": [
+        0,
+        1
+      ],
+      "summary": "Granitgipfel im südlichsten Bayerischen Wald an der Grenze zu Böhmen und Österreich mit Blockfeldern und Fernblick.",
+      "angle": "Am späten Nachmittag hinauf und vom Hochstein zum Sonnenuntergang über den Wald schauen.",
+      "spots": [
+        {
+          "id": "dreisessel-felsen",
+          "name": "Dreisesselfelsen",
+          "kind": "berge",
+          "lat": 48.782,
+          "lon": 13.796,
+          "hours": 1,
+          "family": true,
+          "summary": "Granitfelsen mit Aussicht weit über den Bayerischen Wald."
+        },
+        {
+          "id": "dreisessel-hochstein",
+          "name": "Hochstein mit Kapelle",
+          "kind": "berge",
+          "lat": 48.785,
+          "lon": 13.785,
+          "hours": 1,
+          "slot": "abend",
+          "summary": "Felsgipfel mit kleiner Kapelle und Rundblick."
+        },
+        {
+          "id": "dreisessel-steinernes-meer",
+          "name": "Steinernes Meer",
+          "kind": "natur",
+          "lat": 48.775,
+          "lon": 13.81,
+          "hours": 1.5,
+          "summary": "Blockfeld aus großen Granitbrocken am Grenzkamm."
+        },
+        {
+          "id": "dreisessel-ploeckenstein",
+          "name": "Bayerischer Plöckenstein",
+          "kind": "natur",
+          "lat": 48.776,
+          "lon": 13.82,
+          "hours": 2.5,
+          "summary": "Kammwanderung vom Dreisessel zum Grenzgipfel."
+        }
+      ]
+    }
+  ]
+}

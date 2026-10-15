@@ -1,0 +1,3289 @@
+{
+ "group": "mitte",
+ "places": [
+  {
+   "id": "hannover",
+   "name": "Hannover: Herrenhausen & Maschsee",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.374,
+   "lon": 9.738,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "tiere",
+    "baden"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Barocke Gärten, Rathauskuppel, Zoo und der Maschsee mitten in der Stadt.",
+   "angle": "Vormittags Herrenhausen, nachmittags Maschsee-Runde und bei Regen ins Sprengel Museum direkt am Ufer.",
+   "spots": [
+    {
+     "id": "hannover-herrenhausen",
+     "name": "Herrenhäuser Gärten",
+     "kind": "kultur",
+     "lat": 52.391,
+     "lon": 9.698,
+     "hours": 2.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "slot": "morgen",
+     "summary": "Großer Garten im Barockstil mit Fontänen, Grotte und Berggarten.",
+     "tip": "Im Sommer abends Illuminationen im Großen Garten möglich, Termine vorher prüfen."
+    },
+    {
+     "id": "hannover-rathaus",
+     "name": "Neues Rathaus mit Kuppelaufzug",
+     "kind": "stadt",
+     "lat": 52.368,
+     "lon": 9.739,
+     "hours": 1,
+     "summary": "Prunkbau mit schräg fahrendem Bogenaufzug zur Aussichtskuppel."
+    },
+    {
+     "id": "hannover-maschsee",
+     "name": "Maschsee & Strandbad",
+     "kind": "baden",
+     "lat": 52.355,
+     "lon": 9.746,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "family": true,
+     "summary": "Stadtsee mit Uferweg, Bootsverleih und Strandbad am Ostufer."
+    },
+    {
+     "id": "hannover-zoo",
+     "name": "Erlebnis-Zoo Hannover",
+     "kind": "tiere",
+     "lat": 52.384,
+     "lon": 9.771,
+     "hours": 4,
+     "family": true,
+     "summary": "Themenwelten wie Sambesi und Yukon Bay mit Bootsfahrt."
+    },
+    {
+     "id": "hannover-sprengel",
+     "name": "Sprengel Museum",
+     "kind": "kultur",
+     "lat": 52.363,
+     "lon": 9.743,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Kunst des 20. und 21. Jahrhunderts am Maschsee."
+    }
+   ]
+  },
+  {
+   "id": "steinhuder-meer",
+   "name": "Steinhuder Meer & Wilhelmstein",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.452,
+   "lon": 9.346,
+   "kinds": [
+    "wasser",
+    "baden",
+    "natur",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Größter See Nordwestdeutschlands mit Inselfestung, Badeinsel und Moor am Ostufer.",
+   "angle": "Mit dem Auswandererboot zum Wilhelmstein übersetzen und den Tag mit Rad am Nordufer in Mardorf ausklingen lassen.",
+   "spots": [
+    {
+     "id": "steinhuder-meer-wilhelmstein",
+     "name": "Festung Wilhelmstein",
+     "kind": "kultur",
+     "lat": 52.469,
+     "lon": 9.306,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Künstliche Inselfestung aus dem 18. Jahrhundert, nur per Boot erreichbar.",
+     "tip": "Boote fahren ab Steinhude und Mardorf."
+    },
+    {
+     "id": "steinhuder-meer-badeinsel",
+     "name": "Badeinsel Steinhude",
+     "kind": "baden",
+     "lat": 52.447,
+     "lon": 9.358,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Flache Sandstrände am Südufer, gut für Kinder."
+    },
+    {
+     "id": "steinhuder-meer-weisse-duene",
+     "name": "Weiße Düne Mardorf",
+     "kind": "baden",
+     "lat": 52.494,
+     "lon": 9.322,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "slot": "abend",
+     "summary": "Sandstrand am Nordufer mit Blick über den ganzen See."
+    },
+    {
+     "id": "steinhuder-meer-totes-moor",
+     "name": "Totes Moor",
+     "kind": "natur",
+     "lat": 52.48,
+     "lon": 9.39,
+     "hours": 1.5,
+     "summary": "Hochmoor östlich des Sees mit Moorpfad und Aussichtspunkt."
+    },
+    {
+     "id": "steinhuder-meer-museum",
+     "name": "Fischer- und Webermuseum Steinhude",
+     "kind": "kultur",
+     "lat": 52.453,
+     "lon": 9.349,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ortsgeschichte zu Fischerei und Leinenweberei."
+    },
+    {
+     "id": "steinhuder-meer-radrunde",
+     "name": "Radrunde um das Steinhuder Meer",
+     "kind": "aktiv",
+     "lat": 52.452,
+     "lon": 9.346,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rund 30 km flacher Rundweg mit Moor, Wiesen und Seeblick."
+    }
+   ]
+  },
+  {
+   "id": "hildesheim",
+   "name": "Hildesheim & Weltkulturerbe",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.152,
+   "lon": 9.951,
+   "kinds": [
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Zwei UNESCO-Kirchen, rekonstruierter Marktplatz und ein großes Ägypten-Museum.",
+   "angle": "Der Rosenroute auf dem Pflaster folgen und den Dom mit dem Rosenstock als ruhigen Endpunkt wählen.",
+   "spots": [
+    {
+     "id": "hildesheim-dom",
+     "name": "Mariendom & Tausendjähriger Rosenstock",
+     "kind": "kultur",
+     "lat": 52.148,
+     "lon": 9.947,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Welterbe-Dom mit Bronzetür und dem berühmten Rosenstock an der Apsis."
+    },
+    {
+     "id": "hildesheim-michaelis",
+     "name": "St. Michaelis",
+     "kind": "kultur",
+     "lat": 52.154,
+     "lon": 9.944,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ottonische Kirche mit bemalter Holzdecke, Welterbe."
+    },
+    {
+     "id": "hildesheim-markt",
+     "name": "Historischer Marktplatz & Knochenhaueramtshaus",
+     "kind": "stadt",
+     "lat": 52.151,
+     "lon": 9.951,
+     "hours": 1,
+     "summary": "Wiederaufgebauter Platz mit einem der prächtigsten Fachwerkhäuser."
+    },
+    {
+     "id": "hildesheim-rpm",
+     "name": "Roemer- und Pelizaeus-Museum",
+     "kind": "kultur",
+     "lat": 52.15,
+     "lon": 9.954,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Bekannte Sammlung altägyptischer Kunst und Wechselausstellungen."
+    },
+    {
+     "id": "hildesheim-rosenroute",
+     "name": "Rosenroute durch die Altstadt",
+     "kind": "stadt",
+     "lat": 52.152,
+     "lon": 9.95,
+     "hours": 2,
+     "summary": "Mit Rosen auf dem Boden markierter Rundgang zu den Sehenswürdigkeiten."
+    }
+   ]
+  },
+  {
+   "id": "celle",
+   "name": "Celle & Kloster Wienhausen",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.625,
+   "lon": 10.081,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Geschlossene Fachwerkaltstadt mit Residenzschloss am Rand der Südheide.",
+   "angle": "Morgens Altstadt, mittags Schloss und am Nachmittag mit dem Rad an der Aller zum Kloster Wienhausen.",
+   "spots": [
+    {
+     "id": "celle-schloss",
+     "name": "Residenzschloss Celle",
+     "kind": "burg",
+     "lat": 52.624,
+     "lon": 10.075,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Welfenschloss mit Barocktheater und Museum."
+    },
+    {
+     "id": "celle-altstadt",
+     "name": "Fachwerk-Altstadt",
+     "kind": "stadt",
+     "lat": 52.625,
+     "lon": 10.082,
+     "hours": 1.5,
+     "summary": "Hunderte Fachwerkhäuser, kompakt zu Fuß zu erkunden."
+    },
+    {
+     "id": "celle-bomann",
+     "name": "Bomann-Museum",
+     "kind": "kultur",
+     "lat": 52.623,
+     "lon": 10.078,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Regional- und Stadtgeschichte gegenüber dem Schloss."
+    },
+    {
+     "id": "celle-franz-garten",
+     "name": "Französischer Garten",
+     "kind": "natur",
+     "lat": 52.618,
+     "lon": 10.08,
+     "hours": 1,
+     "summary": "Historischer Park südlich der Altstadt."
+    },
+    {
+     "id": "celle-wienhausen",
+     "name": "Kloster Wienhausen",
+     "kind": "kultur",
+     "lat": 52.58,
+     "lon": 10.186,
+     "hours": 1.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Lüneburger Heidekloster mit mittelalterlicher Ausmalung.",
+     "tip": "Besichtigung meist nur mit Führung."
+    }
+   ]
+  },
+  {
+   "id": "walsrode-hodenhagen",
+   "name": "Serengeti-Park & Weltvogelpark",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.81,
+   "lon": 9.59,
+   "kinds": [
+    "tiere",
+    "freizeit",
+    "familie",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Safaripark und großer Vogelpark nah beieinander zwischen Aller und Heide.",
+   "angle": "Zwei Parks an einem Tag sind zu viel: lieber je einen Tag und abends an der Aller radeln.",
+   "spots": [
+    {
+     "id": "walsrode-hodenhagen-serengeti",
+     "name": "Serengeti-Park Hodenhagen",
+     "kind": "tiere",
+     "lat": 52.763,
+     "lon": 9.596,
+     "hours": 6,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Safari durch Tiergehege, dazu Fahrgeschäfte."
+    },
+    {
+     "id": "walsrode-hodenhagen-vogelpark",
+     "name": "Weltvogelpark Walsrode",
+     "kind": "tiere",
+     "lat": 52.861,
+     "lon": 9.594,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Einer der größten Vogelparks der Welt mit Freiflugschauen."
+    },
+    {
+     "id": "walsrode-hodenhagen-kloster",
+     "name": "Kloster Walsrode",
+     "kind": "kultur",
+     "lat": 52.862,
+     "lon": 9.59,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Eines der Lüneburger Heideklöster mitten in Walsrode."
+    },
+    {
+     "id": "walsrode-hodenhagen-allerradweg",
+     "name": "Aller-Radweg bei Hodenhagen",
+     "kind": "aktiv",
+     "lat": 52.76,
+     "lon": 9.58,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flache Etappe durch Flussauen und Dörfer."
+    }
+   ]
+  },
+  {
+   "id": "braunschweig",
+   "name": "Braunschweig",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.264,
+   "lon": 10.523,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "aktiv",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Löwenstadt mit Burgplatz, großem Kunstmuseum und Floßtouren auf der Oker.",
+   "angle": "Bei Sonne mit Kanu oder Floß um die Innenstadt auf der Okerumflut, bei Regen ins Herzog Anton Ulrich-Museum.",
+   "spots": [
+    {
+     "id": "braunschweig-burgplatz",
+     "name": "Burgplatz, Dom & Burg Dankwarderode",
+     "kind": "kultur",
+     "lat": 52.264,
+     "lon": 10.524,
+     "hours": 1.5,
+     "summary": "Löwendenkmal, Dom St. Blasii und die Burg Heinrichs des Löwen."
+    },
+    {
+     "id": "braunschweig-haum",
+     "name": "Herzog Anton Ulrich-Museum",
+     "kind": "kultur",
+     "lat": 52.267,
+     "lon": 10.534,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Altmeister wie Rembrandt und Vermeer in einem der ältesten Museen."
+    },
+    {
+     "id": "braunschweig-schlossmuseum",
+     "name": "Schlossmuseum im Residenzschloss",
+     "kind": "kultur",
+     "lat": 52.263,
+     "lon": 10.528,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Rekonstruierte Prunkräume der Welfen."
+    },
+    {
+     "id": "braunschweig-oker",
+     "name": "Kanu- und Floßtour auf der Oker",
+     "kind": "aktiv",
+     "lat": 52.266,
+     "lon": 10.517,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "family": true,
+     "summary": "Paddeln auf dem Wassergraben rund um die Innenstadt."
+    },
+    {
+     "id": "braunschweig-riddagshausen",
+     "name": "Riddagshausen & Teiche",
+     "kind": "natur",
+     "lat": 52.272,
+     "lon": 10.574,
+     "hours": 2,
+     "summary": "Klosterkirche und Naturschutzgebiet mit Teichen am Stadtrand."
+    },
+    {
+     "id": "braunschweig-rizzi",
+     "name": "Happy Rizzi House",
+     "kind": "stadt",
+     "lat": 52.264,
+     "lon": 10.527,
+     "hours": 0.5,
+     "summary": "Buntes Pop-Art-Gebäude neben der Burg."
+    }
+   ]
+  },
+  {
+   "id": "wolfsburg",
+   "name": "Wolfsburg: Autostadt & phaeno",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.43,
+   "lon": 10.787,
+   "kinds": [
+    "technik",
+    "familie",
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Autostadt, Science Center phaeno und Kunstmuseum liegen fußläufig am Mittellandkanal.",
+   "angle": "Perfekter Regentag: phaeno und Autostadt sind überdacht und nur eine Brücke voneinander entfernt.",
+   "spots": [
+    {
+     "id": "wolfsburg-autostadt",
+     "name": "Autostadt",
+     "kind": "technik",
+     "lat": 52.432,
+     "lon": 10.795,
+     "hours": 4,
+     "indoor": true,
+     "family": true,
+     "summary": "Erlebnispark rund ums Auto mit Pavillons und Autotürmen."
+    },
+    {
+     "id": "wolfsburg-phaeno",
+     "name": "phaeno",
+     "kind": "technik",
+     "lat": 52.429,
+     "lon": 10.788,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Science Center mit Hunderten Experimentierstationen."
+    },
+    {
+     "id": "wolfsburg-kunstmuseum",
+     "name": "Kunstmuseum Wolfsburg",
+     "kind": "kultur",
+     "lat": 52.423,
+     "lon": 10.786,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Moderne und zeitgenössische Kunst an der Porschestraße."
+    },
+    {
+     "id": "wolfsburg-schloss",
+     "name": "Schloss Wolfsburg",
+     "kind": "burg",
+     "lat": 52.433,
+     "lon": 10.771,
+     "hours": 1,
+     "summary": "Renaissanceschloss mit Park, Namensgeber der Stadt."
+    },
+    {
+     "id": "wolfsburg-allerpark",
+     "name": "Allerpark & Allersee",
+     "kind": "freizeit",
+     "lat": 52.414,
+     "lon": 10.808,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "family": true,
+     "summary": "Freizeitgelände mit Seerundweg, Spielplätzen und Sportanlagen."
+    }
+   ]
+  },
+  {
+   "id": "wolfenbuettel",
+   "name": "Wolfenbüttel",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.162,
+   "lon": 10.535,
+   "kinds": [
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Residenzstadt mit Schloss, berühmter Bibliothek und Fachwerk-Gassen an der Oker.",
+   "angle": "Gut als halber Tag mit Braunschweig kombinierbar, mit dem Rad entlang der Oker.",
+   "spots": [
+    {
+     "id": "wolfenbuettel-schloss",
+     "name": "Schloss Wolfenbüttel",
+     "kind": "burg",
+     "lat": 52.164,
+     "lon": 10.53,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Welfenschloss mit Museum in den Wohnräumen."
+    },
+    {
+     "id": "wolfenbuettel-hab",
+     "name": "Herzog August Bibliothek",
+     "kind": "kultur",
+     "lat": 52.163,
+     "lon": 10.528,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Historische Bibliothek mit Ausstellungen alter Handschriften."
+    },
+    {
+     "id": "wolfenbuettel-lessinghaus",
+     "name": "Lessinghaus",
+     "kind": "kultur",
+     "lat": 52.163,
+     "lon": 10.529,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Wohnhaus des Dichters, der hier Bibliothekar war."
+    },
+    {
+     "id": "wolfenbuettel-klein-venedig",
+     "name": "Klein Venedig",
+     "kind": "stadt",
+     "lat": 52.166,
+     "lon": 10.538,
+     "hours": 0.5,
+     "summary": "Gracht mit Fachwerkhäusern in der Altstadt."
+    }
+   ]
+  },
+  {
+   "id": "helmstedt",
+   "name": "Helmstedt & Grenzdenkmäler",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.228,
+   "lon": 11.01,
+   "kinds": [
+    "kultur",
+    "stadt",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Universitätsstadt mit Juleum und nahe Gedenkorte der innerdeutschen Grenze.",
+   "angle": "Erst die Grenzübergangsstelle Marienborn, dann das erhaltene Grenzstück in Hötensleben, beides ernst und eindrücklich.",
+   "spots": [
+    {
+     "id": "helmstedt-marienborn",
+     "name": "Gedenkstätte Deutsche Teilung Marienborn",
+     "kind": "kultur",
+     "lat": 52.193,
+     "lon": 11.117,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Ehemalige Grenzübergangsstelle an der A2 mit Ausstellung."
+    },
+    {
+     "id": "helmstedt-hoetensleben",
+     "name": "Grenzdenkmal Hötensleben",
+     "kind": "kultur",
+     "lat": 52.121,
+     "lon": 11.024,
+     "hours": 1,
+     "summary": "Erhaltener Abschnitt der Grenzanlagen am Ortsrand."
+    },
+    {
+     "id": "helmstedt-juleum",
+     "name": "Juleum",
+     "kind": "kultur",
+     "lat": 52.229,
+     "lon": 11.012,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Renaissancebau der früheren Universität."
+    },
+    {
+     "id": "helmstedt-ludgeri",
+     "name": "Kloster St. Ludgeri",
+     "kind": "kultur",
+     "lat": 52.226,
+     "lon": 11,
+     "hours": 1,
+     "summary": "Ehemaliges Benediktinerkloster am Stadtrand."
+    }
+   ]
+  },
+  {
+   "id": "goslar",
+   "name": "Goslar & Rammelsberg",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.906,
+   "lon": 10.429,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "unterwelt",
+    "berge"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Kaiserstadt und Erzbergwerk, beides UNESCO-Welterbe, am Nordrand des Harzes.",
+   "angle": "Regenfester Plan: vormittags unter Tage im Rammelsberg, nachmittags Kaiserpfalz und Altstadt.",
+   "spots": [
+    {
+     "id": "goslar-kaiserpfalz",
+     "name": "Kaiserpfalz",
+     "kind": "kultur",
+     "lat": 51.903,
+     "lon": 10.427,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Größter erhaltener Profanbau des 11. Jahrhunderts mit Kaisersaal."
+    },
+    {
+     "id": "goslar-rammelsberg",
+     "name": "Erzbergwerk Rammelsberg",
+     "kind": "unterwelt",
+     "lat": 51.89,
+     "lon": 10.42,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Bergwerksmuseum mit Führungen unter Tage."
+    },
+    {
+     "id": "goslar-altstadt",
+     "name": "Marktplatz & Altstadt",
+     "kind": "stadt",
+     "lat": 51.906,
+     "lon": 10.429,
+     "hours": 1.5,
+     "summary": "Fachwerk und Schieferhäuser, Glockenspiel am Marktplatz."
+    },
+    {
+     "id": "goslar-okertal",
+     "name": "Okertal & Okertalsperre",
+     "kind": "natur",
+     "lat": 51.854,
+     "lon": 10.464,
+     "hours": 3,
+     "summary": "Felsiges Flusstal mit Wanderweg und Stausee."
+    },
+    {
+     "id": "goslar-stabkirche",
+     "name": "Gustav-Adolf-Stabkirche Hahnenklee",
+     "kind": "kultur",
+     "lat": 51.857,
+     "lon": 10.338,
+     "hours": 0.5,
+     "summary": "Holzkirche im norwegischen Stil."
+    }
+   ]
+  },
+  {
+   "id": "bad-harzburg",
+   "name": "Bad Harzburg",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.88,
+   "lon": 10.561,
+   "kinds": [
+    "freizeit",
+    "natur",
+    "therme",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Baumwipfelpfad, Seilbahn zum Burgberg, Luchsgehege und Sole-Therme am Harzrand.",
+   "angle": "Mit der Seilbahn hoch, durch den Wald zur Rabenklippe und über den Baumwipfelpfad zurück ins Tal.",
+   "spots": [
+    {
+     "id": "bad-harzburg-baumwipfelpfad",
+     "name": "Baumwipfelpfad Bad Harzburg",
+     "kind": "freizeit",
+     "lat": 51.875,
+     "lon": 10.556,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Steg durch die Baumkronen am Kalten Tal."
+    },
+    {
+     "id": "bad-harzburg-burgberg",
+     "name": "Burgberg-Seilbahn & Burgberg",
+     "kind": "berge",
+     "lat": 51.87,
+     "lon": 10.56,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kurze Seilbahn auf den Burgberg mit Aussicht."
+    },
+    {
+     "id": "bad-harzburg-luchs",
+     "name": "Luchsgehege an der Rabenklippe",
+     "kind": "tiere",
+     "lat": 51.858,
+     "lon": 10.598,
+     "hours": 1,
+     "family": true,
+     "summary": "Schaugehege mit Luchsen am Wanderweg."
+    },
+    {
+     "id": "bad-harzburg-therme",
+     "name": "Sole-Therme Bad Harzburg",
+     "kind": "therme",
+     "lat": 51.877,
+     "lon": 10.557,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Solebad mit Saunabereich im Kurgebiet."
+    },
+    {
+     "id": "bad-harzburg-radau",
+     "name": "Radau-Wasserfall",
+     "kind": "natur",
+     "lat": 51.856,
+     "lon": 10.565,
+     "hours": 0.5,
+     "summary": "Künstlicher Wasserfall am Stadtrand, Startpunkt für Wanderungen."
+    }
+   ]
+  },
+  {
+   "id": "oberharz",
+   "name": "Clausthal-Zellerfeld & Oberharz",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.81,
+   "lon": 10.336,
+   "kinds": [
+    "kultur",
+    "unterwelt",
+    "natur",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Bergbaustädte und das Oberharzer Wasserregal, UNESCO-Welterbe auf der Hochfläche.",
+   "angle": "Vormittags Grube Samson, nachmittags am Oderteich wandern, an Regentagen ins Bergwerksmuseum.",
+   "spots": [
+    {
+     "id": "oberharz-bergwerksmuseum",
+     "name": "Oberharzer Bergwerksmuseum",
+     "kind": "kultur",
+     "lat": 51.817,
+     "lon": 10.336,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Bergbaugeschichte mit Schaustollen in Zellerfeld."
+    },
+    {
+     "id": "oberharz-marktkirche",
+     "name": "Marktkirche zum Heiligen Geist",
+     "kind": "kultur",
+     "lat": 51.808,
+     "lon": 10.337,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Eine der größten Holzkirchen Deutschlands."
+    },
+    {
+     "id": "oberharz-samson",
+     "name": "Grube Samson St. Andreasberg",
+     "kind": "unterwelt",
+     "lat": 51.712,
+     "lon": 10.518,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Silberbergwerk mit Fahrkunst, UNESCO-Welterbe."
+    },
+    {
+     "id": "oberharz-oderteich",
+     "name": "Oderteich",
+     "kind": "natur",
+     "lat": 51.778,
+     "lon": 10.553,
+     "hours": 2,
+     "summary": "Historischer Stausee des Wasserregals mit Rundweg."
+    }
+   ]
+  },
+  {
+   "id": "suedharz",
+   "name": "Bad Lauterberg, Herzberg & Südharz",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.633,
+   "lon": 10.471,
+   "kinds": [
+    "natur",
+    "unterwelt",
+    "baden",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Höhlen, Burgruinen, eine Talsperre zum Baden und Karstquellen am Südrand des Harzes.",
+   "angle": "Bei Hitze früh zur Einhornhöhle, mittags baden an der Odertalsperre und abends zur Burgruine Scharzfels.",
+   "spots": [
+    {
+     "id": "suedharz-einhornhoehle",
+     "name": "Einhornhöhle",
+     "kind": "unterwelt",
+     "lat": 51.627,
+     "lon": 10.388,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Begehbare Karsthöhle mit Funden eiszeitlicher Tiere."
+    },
+    {
+     "id": "suedharz-odertalsperre",
+     "name": "Odertalsperre",
+     "kind": "baden",
+     "lat": 51.66,
+     "lon": 10.53,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stausee im Wald mit Badestellen."
+    },
+    {
+     "id": "suedharz-welfenschloss",
+     "name": "Welfenschloss Herzberg",
+     "kind": "burg",
+     "lat": 51.652,
+     "lon": 10.341,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Fachwerkschloss mit Museum über der Stadt."
+    },
+    {
+     "id": "suedharz-scharzfels",
+     "name": "Burgruine Scharzfels",
+     "kind": "burg",
+     "lat": 51.623,
+     "lon": 10.398,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Ruine auf Dolomitfelsen mit weitem Blick."
+    },
+    {
+     "id": "suedharz-rhumequelle",
+     "name": "Rhumequelle",
+     "kind": "natur",
+     "lat": 51.585,
+     "lon": 10.3,
+     "hours": 0.5,
+     "summary": "Sehr große Karstquelle mit blauem Quelltopf."
+    }
+   ]
+  },
+  {
+   "id": "goettingen",
+   "name": "Göttingen",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.534,
+   "lon": 9.935,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Lebendige Universitätsstadt mit Gänseliesel, Stadtwall und Wissensmuseum.",
+   "angle": "Den Stadtwall als Rundweg nutzen und zum Sonnenuntergang auf den Hainberg zum Bismarckturm.",
+   "spots": [
+    {
+     "id": "goettingen-rathaus",
+     "name": "Altes Rathaus & Gänseliesel",
+     "kind": "stadt",
+     "lat": 51.533,
+     "lon": 9.935,
+     "hours": 1,
+     "summary": "Marktplatz mit dem meistgeküssten Mädchen der Welt."
+    },
+    {
+     "id": "goettingen-stadtwall",
+     "name": "Stadtwall-Rundgang",
+     "kind": "stadt",
+     "lat": 51.535,
+     "lon": 9.93,
+     "hours": 1.5,
+     "summary": "Erhöhter Rundweg auf dem alten Wall um die Innenstadt."
+    },
+    {
+     "id": "goettingen-forum-wissen",
+     "name": "Forum Wissen",
+     "kind": "kultur",
+     "lat": 51.537,
+     "lon": 9.929,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Wissensmuseum der Universität mit Sammlungsobjekten."
+    },
+    {
+     "id": "goettingen-bismarckturm",
+     "name": "Bismarckturm & Göttinger Wald",
+     "kind": "natur",
+     "lat": 51.532,
+     "lon": 9.96,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Aussichtsturm auf dem Hainberg über der Stadt."
+    },
+    {
+     "id": "goettingen-botanischer-garten",
+     "name": "Alter Botanischer Garten",
+     "kind": "natur",
+     "lat": 51.537,
+     "lon": 9.938,
+     "hours": 1,
+     "summary": "Historischer Garten mit Gewächshäusern am Wall."
+    }
+   ]
+  },
+  {
+   "id": "hann-muenden",
+   "name": "Hann. Münden & Weserstein",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.416,
+   "lon": 9.652,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "aktiv",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Fachwerkstadt am Zusammenfluss von Werra und Fulda zur Weser, Startpunkt für Kanu und Rad.",
+   "angle": "Vormittags auf Fulda oder Werra paddeln, nachmittags Altstadt und abends zur Tillyschanze.",
+   "spots": [
+    {
+     "id": "hann-muenden-altstadt",
+     "name": "Fachwerkaltstadt",
+     "kind": "stadt",
+     "lat": 51.416,
+     "lon": 9.652,
+     "hours": 1.5,
+     "summary": "Über 700 Fachwerkhäuser zwischen den Flüssen."
+    },
+    {
+     "id": "hann-muenden-welfenschloss",
+     "name": "Welfenschloss Münden",
+     "kind": "kultur",
+     "lat": 51.418,
+     "lon": 9.651,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Renaissanceschloss mit städtischem Museum."
+    },
+    {
+     "id": "hann-muenden-weserstein",
+     "name": "Weserstein am Tanzwerder",
+     "kind": "wasser",
+     "lat": 51.419,
+     "lon": 9.647,
+     "hours": 0.5,
+     "summary": "Stein an der Stelle, wo sich Werra und Fulda zur Weser vereinen."
+    },
+    {
+     "id": "hann-muenden-kanu",
+     "name": "Kanutour auf Werra oder Fulda",
+     "kind": "aktiv",
+     "lat": 51.415,
+     "lon": 9.65,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Ruhige Flussabschnitte, Verleiher vor Ort."
+    },
+    {
+     "id": "hann-muenden-tillyschanze",
+     "name": "Tillyschanze",
+     "kind": "natur",
+     "lat": 51.413,
+     "lon": 9.664,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Aussichtsturm über der Stadt und den drei Flüssen."
+    },
+    {
+     "id": "hann-muenden-weserradweg",
+     "name": "Weser-Radweg ab Hann. Münden",
+     "kind": "aktiv",
+     "lat": 51.42,
+     "lon": 9.65,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Startpunkt des Weser-Radwegs flussabwärts."
+    }
+   ]
+  },
+  {
+   "id": "duderstadt",
+   "name": "Duderstadt & Eichsfeld",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 51.513,
+   "lon": 10.26,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "baden"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Fachwerkstadt mit gedrehtem Westerturm, Grenzlandmuseum und Badesee in der Nähe.",
+   "angle": "Im Sommer Altstadt am Vormittag und danach zum Baden an den Seeburger See.",
+   "spots": [
+    {
+     "id": "duderstadt-altstadt",
+     "name": "Altstadt & Rathaus",
+     "kind": "stadt",
+     "lat": 51.513,
+     "lon": 10.259,
+     "hours": 1.5,
+     "summary": "Bunte Fachwerkhäuser und eines der ältesten Rathäuser Deutschlands."
+    },
+    {
+     "id": "duderstadt-westerturm",
+     "name": "Westerturm",
+     "kind": "stadt",
+     "lat": 51.512,
+     "lon": 10.254,
+     "hours": 0.5,
+     "summary": "Stadttor mit gedrehter Turmspitze."
+    },
+    {
+     "id": "duderstadt-grenzlandmuseum",
+     "name": "Grenzlandmuseum Eichsfeld",
+     "kind": "kultur",
+     "lat": 51.47,
+     "lon": 10.274,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Museum am ehemaligen Grenzübergang mit Grenzlandweg."
+    },
+    {
+     "id": "duderstadt-seeburger-see",
+     "name": "Seeburger See",
+     "kind": "baden",
+     "lat": 51.565,
+     "lon": 10.16,
+     "hours": 2.5,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "family": true,
+     "summary": "Größter natürlicher See im südlichen Niedersachsen."
+    }
+   ]
+  },
+  {
+   "id": "magdeburg",
+   "name": "Magdeburg & Wasserstraßenkreuz",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 52.128,
+   "lon": 11.637,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Dom und Hundertwasserhaus, Elbauenpark und eine riesige Kanalbrücke über die Elbe.",
+   "angle": "Mit dem Rad an der Elbe nach Norden zur Trogbrücke und auf dem Rückweg in den Elbauenpark.",
+   "spots": [
+    {
+     "id": "magdeburg-dom",
+     "name": "Magdeburger Dom",
+     "kind": "kultur",
+     "lat": 52.124,
+     "lon": 11.634,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Erster gotischer Dom Deutschlands mit Grab Ottos des Großen."
+    },
+    {
+     "id": "magdeburg-zitadelle",
+     "name": "Grüne Zitadelle",
+     "kind": "stadt",
+     "lat": 52.127,
+     "lon": 11.635,
+     "hours": 0.5,
+     "summary": "Letzter Bau von Friedensreich Hundertwasser."
+    },
+    {
+     "id": "magdeburg-trogbruecke",
+     "name": "Wasserstraßenkreuz & Trogbrücke",
+     "kind": "technik",
+     "lat": 52.231,
+     "lon": 11.706,
+     "hours": 1.5,
+     "summary": "Mittellandkanal überquert die Elbe in einer Kanalbrücke."
+    },
+    {
+     "id": "magdeburg-elbauenpark",
+     "name": "Elbauenpark & Jahrtausendturm",
+     "kind": "freizeit",
+     "lat": 52.14,
+     "lon": 11.676,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Park mit Holzturm voller Wissenschaftsgeschichte."
+    },
+    {
+     "id": "magdeburg-zoo",
+     "name": "Zoo Magdeburg",
+     "kind": "tiere",
+     "lat": 52.167,
+     "lon": 11.613,
+     "hours": 3,
+     "family": true,
+     "summary": "Zoo im Vogelgesang-Park."
+    },
+    {
+     "id": "magdeburg-barleber-see",
+     "name": "Barleber See",
+     "kind": "baden",
+     "lat": 52.198,
+     "lon": 11.664,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badesee mit Strand im Norden der Stadt."
+    }
+   ]
+  },
+  {
+   "id": "hundisburg",
+   "name": "Hundisburg & Haldensleben",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 52.244,
+   "lon": 11.405,
+   "kinds": [
+    "burg",
+    "kultur",
+    "technik",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Barockschloss mit Garten, Ziegelei-Denkmal und Großsteingräber im Haldensleber Forst.",
+   "angle": "Schloss und Garten am Vormittag, danach mit dem Rad zu den Großsteingräbern.",
+   "spots": [
+    {
+     "id": "hundisburg-schloss",
+     "name": "Schloss & Barockgarten Hundisburg",
+     "kind": "burg",
+     "lat": 52.243,
+     "lon": 11.404,
+     "hours": 2,
+     "summary": "Wiederhergestellter Barockgarten vor dem Schloss."
+    },
+    {
+     "id": "hundisburg-ziegelei",
+     "name": "Technisches Denkmal Ziegelei Hundisburg",
+     "kind": "technik",
+     "lat": 52.248,
+     "lon": 11.413,
+     "hours": 1.5,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ziegelei mit Ringofen als Museum."
+    },
+    {
+     "id": "hundisburg-haldensleben",
+     "name": "Altstadt Haldensleben & Roland",
+     "kind": "stadt",
+     "lat": 52.29,
+     "lon": 11.41,
+     "hours": 1,
+     "summary": "Kleine Altstadt mit Reiterroland."
+    },
+    {
+     "id": "hundisburg-grosssteingraeber",
+     "name": "Großsteingräber im Haldensleber Forst",
+     "kind": "natur",
+     "lat": 52.28,
+     "lon": 11.37,
+     "hours": 2,
+     "summary": "Zahlreiche jungsteinzeitliche Gräber im Wald."
+    }
+   ]
+  },
+  {
+   "id": "halberstadt",
+   "name": "Halberstadt",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.896,
+   "lon": 11.05,
+   "kinds": [
+    "stadt",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Domstadt mit einem der reichsten Kirchenschätze und dem langsamsten Orgelstück der Welt.",
+   "angle": "Ideal als Regentag vor dem Harz: Domschatz, Gleimhaus und Cage-Orgel liegen dicht beieinander.",
+   "spots": [
+    {
+     "id": "halberstadt-dom",
+     "name": "Dom St. Stephanus & Domschatz",
+     "kind": "kultur",
+     "lat": 51.896,
+     "lon": 11.052,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Gotischer Dom mit bedeutendem mittelalterlichem Kirchenschatz."
+    },
+    {
+     "id": "halberstadt-liebfrauen",
+     "name": "Liebfrauenkirche",
+     "kind": "kultur",
+     "lat": 51.896,
+     "lon": 11.048,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Romanische Kirche am Domplatz."
+    },
+    {
+     "id": "halberstadt-gleimhaus",
+     "name": "Gleimhaus",
+     "kind": "kultur",
+     "lat": 51.897,
+     "lon": 11.049,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Literaturmuseum der Aufklärungszeit."
+    },
+    {
+     "id": "halberstadt-cage-orgel",
+     "name": "John-Cage-Orgelprojekt in der Burchardikirche",
+     "kind": "kultur",
+     "lat": 51.902,
+     "lon": 11.035,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Ein Orgelstück, das bis 2640 erklingen soll."
+    },
+    {
+     "id": "halberstadt-huysburg",
+     "name": "Kloster Huysburg",
+     "kind": "kultur",
+     "lat": 51.946,
+     "lon": 10.963,
+     "hours": 1,
+     "summary": "Benediktinerkloster auf dem Huy."
+    }
+   ]
+  },
+  {
+   "id": "selketal",
+   "name": "Ballenstedt, Gernrode & Selketal",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.715,
+   "lon": 11.2,
+   "kinds": [
+    "burg",
+    "natur",
+    "technik",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Burg Falkenstein, Dampfzug durchs Selketal und romanische Stiftskirche am Ostharz.",
+   "angle": "Mit der Selketalbahn ab Gernrode fahren und zu Fuß durchs Tal zur Burg Falkenstein wandern.",
+   "spots": [
+    {
+     "id": "selketal-falkenstein",
+     "name": "Burg Falkenstein",
+     "kind": "burg",
+     "lat": 51.685,
+     "lon": 11.264,
+     "hours": 2,
+     "family": true,
+     "summary": "Gut erhaltene Höhenburg über dem Selketal."
+    },
+    {
+     "id": "selketal-selketalbahn",
+     "name": "Selketalbahn ab Gernrode",
+     "kind": "technik",
+     "lat": 51.727,
+     "lon": 11.134,
+     "hours": 3,
+     "family": true,
+     "summary": "Schmalspur-Dampfbahn der Harzer Schmalspurbahnen."
+    },
+    {
+     "id": "selketal-cyriakus",
+     "name": "Stiftskirche St. Cyriakus",
+     "kind": "kultur",
+     "lat": 51.723,
+     "lon": 11.139,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ottonische Kirche aus dem 10. Jahrhundert."
+    },
+    {
+     "id": "selketal-ballenstedt",
+     "name": "Schloss Ballenstedt",
+     "kind": "burg",
+     "lat": 51.715,
+     "lon": 11.238,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss mit Museum und Park."
+    },
+    {
+     "id": "selketal-selketal-stieg",
+     "name": "Selketal-Stieg ab Meisdorf",
+     "kind": "aktiv",
+     "lat": 51.695,
+     "lon": 11.284,
+     "hours": 3,
+     "summary": "Wanderweg entlang der Selke."
+    }
+   ]
+  },
+  {
+   "id": "stolberg",
+   "name": "Stolberg (Harz) & Südharz-Karst",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 51.574,
+   "lon": 10.955,
+   "kinds": [
+    "stadt",
+    "natur",
+    "unterwelt",
+    "baden"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Fachwerkstadt im engen Tal, Josephskreuz, Gipskarsthöhle und Stausee zum Baden.",
+   "angle": "Morgens aufs Josephskreuz, mittags kühl in der Heimkehle und nachmittags baden am Stausee Kelbra.",
+   "spots": [
+    {
+     "id": "stolberg-altstadt",
+     "name": "Fachwerkstadt Stolberg",
+     "kind": "stadt",
+     "lat": 51.574,
+     "lon": 10.955,
+     "hours": 1.5,
+     "summary": "Geschlossenes Fachwerkensemble in drei Tälern."
+    },
+    {
+     "id": "stolberg-schloss",
+     "name": "Schloss Stolberg",
+     "kind": "burg",
+     "lat": 51.576,
+     "lon": 10.953,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Schloss über der Stadt mit Führungen."
+    },
+    {
+     "id": "stolberg-josephskreuz",
+     "name": "Josephskreuz auf dem Auerberg",
+     "kind": "natur",
+     "lat": 51.59,
+     "lon": 11,
+     "hours": 1.5,
+     "summary": "Aussichtsturm in Kreuzform aus Stahl."
+    },
+    {
+     "id": "stolberg-heimkehle",
+     "name": "Höhle Heimkehle",
+     "kind": "unterwelt",
+     "lat": 51.505,
+     "lon": 10.975,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Gipskarsthöhle bei Uftrungen mit Führungen."
+    },
+    {
+     "id": "stolberg-kelbra",
+     "name": "Stausee Kelbra",
+     "kind": "baden",
+     "lat": 51.43,
+     "lon": 11.01,
+     "hours": 2.5,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stausee mit Strandbad in der Goldenen Aue."
+    }
+   ]
+  },
+  {
+   "id": "tangermuende",
+   "name": "Tangermünde & Stendal",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 52.541,
+   "lon": 11.97,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Backsteingotik an der Elbe: Burg, Stadtmauer und Rathaus, dazu Stendals Tore.",
+   "angle": "Stadtmauer bei Abendsonne umrunden und am nächsten Morgen ein Stück Elbe-Radweg fahren.",
+   "spots": [
+    {
+     "id": "tangermuende-burg",
+     "name": "Burg Tangermünde",
+     "kind": "burg",
+     "lat": 52.546,
+     "lon": 11.973,
+     "hours": 1,
+     "summary": "Burganlage mit Blick über die Elbe."
+    },
+    {
+     "id": "tangermuende-altstadt",
+     "name": "Altstadt & Stadtmauer",
+     "kind": "stadt",
+     "lat": 52.541,
+     "lon": 11.968,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Backsteinrathaus und fast geschlossene Stadtmauer."
+    },
+    {
+     "id": "tangermuende-elberadweg",
+     "name": "Elbe-Radweg",
+     "kind": "aktiv",
+     "lat": 52.54,
+     "lon": 11.975,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flache Strecke auf dem Deich."
+    },
+    {
+     "id": "tangermuende-uenglinger-tor",
+     "name": "Uenglinger Tor Stendal",
+     "kind": "stadt",
+     "lat": 52.607,
+     "lon": 11.851,
+     "hours": 0.5,
+     "summary": "Eines der schönsten Backsteintore Norddeutschlands."
+    },
+    {
+     "id": "tangermuende-dom-stendal",
+     "name": "Dom St. Nikolaus Stendal",
+     "kind": "kultur",
+     "lat": 52.6,
+     "lon": 11.86,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Backsteindom mit mittelalterlichen Glasfenstern."
+    }
+   ]
+  },
+  {
+   "id": "arendsee",
+   "name": "Arendsee & Salzwedel",
+   "region": "Sachsen-Anhalt",
+   "country": "DE",
+   "lat": 52.884,
+   "lon": 11.484,
+   "kinds": [
+    "baden",
+    "wasser",
+    "natur",
+    "stadt"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Klarer Badesee mit Klosterruine im Norden der Altmark, dazu Salzwedels Altstadt.",
+   "angle": "Vormittags baden, nachmittags nach Salzwedel und dort Baumkuchen probieren.",
+   "spots": [
+    {
+     "id": "arendsee-strandbad",
+     "name": "Strandbad Arendsee",
+     "kind": "baden",
+     "lat": 52.885,
+     "lon": 11.482,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "family": true,
+     "summary": "Sandstrand am tiefen Arendsee."
+    },
+    {
+     "id": "arendsee-klosterruine",
+     "name": "Klosterruine Arendsee",
+     "kind": "kultur",
+     "lat": 52.888,
+     "lon": 11.478,
+     "hours": 0.5,
+     "summary": "Romanische Klosterkirche über dem See."
+    },
+    {
+     "id": "arendsee-seerundweg",
+     "name": "Seerundweg Arendsee",
+     "kind": "aktiv",
+     "lat": 52.88,
+     "lon": 11.48,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rund 12 km um den See, gut zu Fuß oder per Rad."
+    },
+    {
+     "id": "arendsee-salzwedel",
+     "name": "Altstadt Salzwedel",
+     "kind": "stadt",
+     "lat": 52.851,
+     "lon": 11.15,
+     "hours": 2,
+     "summary": "Hansestadt mit Fachwerk und Backsteinkirchen."
+    },
+    {
+     "id": "arendsee-danneil",
+     "name": "Danneil-Museum Salzwedel",
+     "kind": "kultur",
+     "lat": 52.852,
+     "lon": 11.152,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Regionalmuseum der Altmark."
+    }
+   ]
+  },
+  {
+   "id": "brandenburg-havel",
+   "name": "Brandenburg an der Havel",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.41,
+   "lon": 12.556,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "wasser",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Domstadt auf Inseln zwischen Havelseen mit Industriemuseum und Aussichtsturm.",
+   "angle": "Vormittags Dominsel, nachmittags aufs Wasser und zum Abend auf die Friedenswarte am Marienberg.",
+   "spots": [
+    {
+     "id": "brandenburg-havel-dom",
+     "name": "Dom St. Peter und Paul",
+     "kind": "kultur",
+     "lat": 52.416,
+     "lon": 12.564,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ältester Dom der Mark Brandenburg mit Dommuseum."
+    },
+    {
+     "id": "brandenburg-havel-katharinen",
+     "name": "St. Katharinenkirche",
+     "kind": "kultur",
+     "lat": 52.405,
+     "lon": 12.56,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Backsteingotik mit reichem Zierwerk."
+    },
+    {
+     "id": "brandenburg-havel-industriemuseum",
+     "name": "Industriemuseum Brandenburg",
+     "kind": "technik",
+     "lat": 52.405,
+     "lon": 12.522,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Stahlwerksmuseum mit erhaltenem Siemens-Martin-Ofen."
+    },
+    {
+     "id": "brandenburg-havel-marienberg",
+     "name": "Marienberg & Friedenswarte",
+     "kind": "natur",
+     "lat": 52.413,
+     "lon": 12.543,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Park mit Aussichtsturm über Stadt und Havel."
+    },
+    {
+     "id": "brandenburg-havel-havel",
+     "name": "Paddeln auf den Havelseen",
+     "kind": "aktiv",
+     "lat": 52.41,
+     "lon": 12.56,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Kanu oder Schiff auf Beetzsee und Havel."
+    }
+   ]
+  },
+  {
+   "id": "werder-caputh",
+   "name": "Werder (Havel), Caputh & Schwielowsee",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.378,
+   "lon": 12.935,
+   "kinds": [
+    "wasser",
+    "kultur",
+    "freizeit",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Inselstadt der Obstbauern, Einsteins Sommerhaus, Seilfähre und Baumkronenpfad südwestlich von Potsdam.",
+   "angle": "Mit dem Rad von Werder über die Fähre Caputh–Geltow rund um den Schwielowsee fahren.",
+   "spots": [
+    {
+     "id": "werder-caputh-insel",
+     "name": "Inselstadt Werder",
+     "kind": "stadt",
+     "lat": 52.378,
+     "lon": 12.939,
+     "hours": 1.5,
+     "summary": "Altstadt auf einer Havelinsel mit Bockwindmühle."
+    },
+    {
+     "id": "werder-caputh-bismarckhoehe",
+     "name": "Bismarckhöhe",
+     "kind": "natur",
+     "lat": 52.37,
+     "lon": 12.915,
+     "hours": 0.5,
+     "slot": "abend",
+     "summary": "Aussichtspunkt über Havel und Obsthänge."
+    },
+    {
+     "id": "werder-caputh-schloss-caputh",
+     "name": "Schloss Caputh",
+     "kind": "burg",
+     "lat": 52.348,
+     "lon": 13,
+     "hours": 1,
+     "indoor": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ältestes erhaltenes Lustschloss der Region mit Fliesensaal."
+    },
+    {
+     "id": "werder-caputh-einsteinhaus",
+     "name": "Einsteinhaus Caputh",
+     "kind": "kultur",
+     "lat": 52.34,
+     "lon": 12.996,
+     "hours": 1,
+     "indoor": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Sommerhaus Albert Einsteins aus Holz.",
+     "tip": "Nur an einzelnen Tagen geöffnet, vorher prüfen."
+    },
+    {
+     "id": "werder-caputh-faehre",
+     "name": "Seilfähre Caputh–Geltow",
+     "kind": "wasser",
+     "lat": 52.355,
+     "lon": 12.981,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Kurze Überfahrt über die Havel, auch mit Rad."
+    },
+    {
+     "id": "werder-caputh-baumkronenpfad",
+     "name": "Baumkronenpfad Beelitz-Heilstätten",
+     "kind": "freizeit",
+     "lat": 52.255,
+     "lon": 12.928,
+     "hours": 2,
+     "family": true,
+     "summary": "Pfad über Wald und Ruinen der Heilstätten."
+    }
+   ]
+  },
+  {
+   "id": "westhavelland",
+   "name": "Rathenow & Westhavelland",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.605,
+   "lon": 12.337,
+   "kinds": [
+    "natur",
+    "tiere",
+    "technik",
+    "aktiv"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Optikstadt an der Havel, Lilienthals Flugberg und weite Niederungen für Zugvögel.",
+   "angle": "Im Herbst morgens zu den Rastvögeln am Gülper See und mittags auf den Gollenberg.",
+   "spots": [
+    {
+     "id": "westhavelland-optikpark",
+     "name": "Optikpark Rathenow",
+     "kind": "freizeit",
+     "lat": 52.608,
+     "lon": 12.33,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Parklandschaft auf dem Weinberg mit Aussichtsturm."
+    },
+    {
+     "id": "westhavelland-optikmuseum",
+     "name": "Optik Industrie Museum",
+     "kind": "kultur",
+     "lat": 52.605,
+     "lon": 12.338,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geschichte der Rathenower Optikindustrie."
+    },
+    {
+     "id": "westhavelland-gollenberg",
+     "name": "Gollenberg & Lilienthal-Gedenkstätte Stölln",
+     "kind": "technik",
+     "lat": 52.69,
+     "lon": 12.42,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Flugberg Otto Lilienthals, daneben das Flugzeug Lady Agnes."
+    },
+    {
+     "id": "westhavelland-guelper-see",
+     "name": "Gülper See",
+     "kind": "tiere",
+     "lat": 52.74,
+     "lon": 12.265,
+     "hours": 2,
+     "months": [
+      3,
+      4,
+      9,
+      10,
+      11
+     ],
+     "slot": "morgen",
+     "summary": "Rastplatz für Gänse und Kraniche in der Havelniederung."
+    },
+    {
+     "id": "westhavelland-havel",
+     "name": "Havel-Radweg bei Rathenow",
+     "kind": "aktiv",
+     "lat": 52.6,
+     "lon": 12.34,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flache Strecke durch Flussauen."
+    }
+   ]
+  },
+  {
+   "id": "neuruppin",
+   "name": "Neuruppin & Ruppiner See",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.925,
+   "lon": 12.805,
+   "kinds": [
+    "stadt",
+    "wasser",
+    "therme",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Fontanestadt mit klassizistischer Altstadt, Seepromenade und Therme am Ufer.",
+   "angle": "Bei Regen in die Fontane-Therme mit Seeblick, bei Sonne die Seepromenade entlang zur Klosterkirche.",
+   "spots": [
+    {
+     "id": "neuruppin-seepromenade",
+     "name": "Seepromenade am Ruppiner See",
+     "kind": "wasser",
+     "lat": 52.923,
+     "lon": 12.814,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Uferweg mit Blick über den langgestreckten See."
+    },
+    {
+     "id": "neuruppin-therme",
+     "name": "Fontane-Therme",
+     "kind": "therme",
+     "lat": 52.919,
+     "lon": 12.815,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Therme mit Becken im See."
+    },
+    {
+     "id": "neuruppin-museum",
+     "name": "Museum Neuruppin",
+     "kind": "kultur",
+     "lat": 52.925,
+     "lon": 12.802,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Stadtmuseum zu Fontane, Schinkel und Bilderbögen."
+    },
+    {
+     "id": "neuruppin-klosterkirche",
+     "name": "Klosterkirche St. Trinitatis",
+     "kind": "kultur",
+     "lat": 52.926,
+     "lon": 12.814,
+     "hours": 0.5,
+     "summary": "Backsteinkirche am Seeufer."
+    },
+    {
+     "id": "neuruppin-lindow",
+     "name": "Kloster Lindow",
+     "kind": "kultur",
+     "lat": 52.967,
+     "lon": 12.982,
+     "hours": 1,
+     "summary": "Klosterruine zwischen drei Seen."
+    }
+   ]
+  },
+  {
+   "id": "rheinsberg",
+   "name": "Rheinsberg & Stechlinsee",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 53.098,
+   "lon": 12.895,
+   "kinds": [
+    "burg",
+    "wasser",
+    "baden",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Schloss am Grienericksee, Kanureviere und der klare Stechlinsee.",
+   "angle": "Früh mit dem Kanu los, mittags baden am Stechlin und abends durch den Schlosspark.",
+   "spots": [
+    {
+     "id": "rheinsberg-schloss",
+     "name": "Schloss Rheinsberg",
+     "kind": "burg",
+     "lat": 53.099,
+     "lon": 12.892,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss des jungen Friedrich II. am See."
+    },
+    {
+     "id": "rheinsberg-park",
+     "name": "Schlosspark & Grienericksee",
+     "kind": "natur",
+     "lat": 53.093,
+     "lon": 12.889,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Park mit Obelisk und Seeblick."
+    },
+    {
+     "id": "rheinsberg-tucholsky",
+     "name": "Kurt Tucholsky Literaturmuseum",
+     "kind": "kultur",
+     "lat": 53.099,
+     "lon": 12.893,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Literaturmuseum im Schloss."
+    },
+    {
+     "id": "rheinsberg-kanu",
+     "name": "Kanutour Rheinsberger Seenkette",
+     "kind": "aktiv",
+     "lat": 53.1,
+     "lon": 12.9,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Seen und Kanäle mit vielen Verleihern."
+    },
+    {
+     "id": "rheinsberg-stechlin",
+     "name": "Großer Stechlinsee",
+     "kind": "baden",
+     "lat": 53.15,
+     "lon": 13.03,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sehr klarer See mit Badestellen."
+    }
+   ]
+  },
+  {
+   "id": "chorin-niederfinow",
+   "name": "Kloster Chorin & Schiffshebewerk Niederfinow",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.88,
+   "lon": 13.88,
+   "kinds": [
+    "kultur",
+    "technik",
+    "baden",
+    "natur",
+    "tiere"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Backsteinkloster, zwei Schiffshebewerke, UNESCO-Buchenwald und Badeseen im Barnim.",
+   "angle": "Erst Klosterruine Chorin, dann ein Schiff im Hebewerk anheben sehen und zum Abkühlen an den Parsteiner See.",
+   "spots": [
+    {
+     "id": "chorin-niederfinow-kloster",
+     "name": "Kloster Chorin",
+     "kind": "kultur",
+     "lat": 52.888,
+     "lon": 13.876,
+     "hours": 1.5,
+     "summary": "Gotische Backstein-Klosterruine im Wald."
+    },
+    {
+     "id": "chorin-niederfinow-hebewerk",
+     "name": "Schiffshebewerk Niederfinow",
+     "kind": "technik",
+     "lat": 52.849,
+     "lon": 13.943,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Altes und neues Hebewerk am Oder-Havel-Kanal."
+    },
+    {
+     "id": "chorin-niederfinow-parsteiner-see",
+     "name": "Parsteiner See",
+     "kind": "baden",
+     "lat": 52.93,
+     "lon": 13.99,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Großer klarer See mit Badestellen."
+    },
+    {
+     "id": "chorin-niederfinow-grumsin",
+     "name": "Grumsiner Forst",
+     "kind": "natur",
+     "lat": 52.99,
+     "lon": 13.88,
+     "hours": 2.5,
+     "summary": "Buchenwald, Teil des UNESCO-Welterbes."
+    },
+    {
+     "id": "chorin-niederfinow-schorfheide",
+     "name": "Wildpark Schorfheide",
+     "kind": "tiere",
+     "lat": 52.905,
+     "lon": 13.556,
+     "hours": 3,
+     "family": true,
+     "summary": "Heimische Wildtiere und alte Haustierrassen."
+    }
+   ]
+  },
+  {
+   "id": "templin",
+   "name": "Templin & Uckermärkische Seen",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 53.118,
+   "lon": 13.502,
+   "kinds": [
+    "stadt",
+    "therme",
+    "natur",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Stadt mit vollständiger Stadtmauer, Therme und Seen, dazu Schloss Boitzenburg.",
+   "angle": "Morgens paddeln, abends in die Therme; bei Regen Therme und Stadtmauer kombinieren.",
+   "spots": [
+    {
+     "id": "templin-stadtmauer",
+     "name": "Stadtmauer & Prenzlauer Tor",
+     "kind": "stadt",
+     "lat": 53.118,
+     "lon": 13.504,
+     "hours": 1,
+     "summary": "Fast vollständig erhaltene Stadtmauer mit Toren."
+    },
+    {
+     "id": "templin-therme",
+     "name": "NaturThermeTemplin",
+     "kind": "therme",
+     "lat": 53.108,
+     "lon": 13.52,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalsole-Bad am Stadtrand."
+    },
+    {
+     "id": "templin-boitzenburg",
+     "name": "Schloss Boitzenburg & Klostermühle",
+     "kind": "burg",
+     "lat": 53.265,
+     "lon": 13.6,
+     "hours": 2,
+     "summary": "Großes Schloss mit Park in der Uckermark."
+    },
+    {
+     "id": "templin-kanu",
+     "name": "Kanutour auf den Templiner Gewässern",
+     "kind": "aktiv",
+     "lat": 53.11,
+     "lon": 13.49,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Seenkette rund um Templin."
+    }
+   ]
+  },
+  {
+   "id": "maerkische-schweiz",
+   "name": "Buckow & Märkische Schweiz",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.571,
+   "lon": 14.076,
+   "kinds": [
+    "natur",
+    "baden",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Hügel, Schluchten und Seen östlich von Berlin, dazu Brechts Sommerhaus.",
+   "angle": "Poetensteig am Vormittag, dann am Schermützelsee baden und Brecht-Weigel-Haus als Abschluss.",
+   "spots": [
+    {
+     "id": "maerkische-schweiz-schermuetzelsee",
+     "name": "Schermützelsee",
+     "kind": "baden",
+     "lat": 52.574,
+     "lon": 14.07,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Klarer See mit Strandbad und Ausflugsschiff."
+    },
+    {
+     "id": "maerkische-schweiz-brecht",
+     "name": "Brecht-Weigel-Haus",
+     "kind": "kultur",
+     "lat": 52.573,
+     "lon": 14.063,
+     "hours": 1,
+     "indoor": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Sommerhaus von Bertolt Brecht und Helene Weigel."
+    },
+    {
+     "id": "maerkische-schweiz-poetensteig",
+     "name": "Poetensteig",
+     "kind": "aktiv",
+     "lat": 52.565,
+     "lon": 14.08,
+     "hours": 2,
+     "summary": "Wanderweg durch Schluchten und Hügel."
+    },
+    {
+     "id": "maerkische-schweiz-kleinbahn",
+     "name": "Buckower Kleinbahn",
+     "kind": "technik",
+     "lat": 52.567,
+     "lon": 14.08,
+     "hours": 1,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Museumsbahn nach Müncheberg."
+    }
+   ]
+  },
+  {
+   "id": "bad-saarow",
+   "name": "Bad Saarow & Scharmützelsee",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.286,
+   "lon": 14.063,
+   "kinds": [
+    "therme",
+    "baden",
+    "wasser",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Kurort am Scharmützelsee mit Therme, Badestellen und Findlingen in den Rauener Bergen.",
+   "angle": "Bei Sonne Seerundfahrt und Baden, bei Regen Therme und Burg Storkow.",
+   "spots": [
+    {
+     "id": "bad-saarow-therme",
+     "name": "SaarowTherme",
+     "kind": "therme",
+     "lat": 52.286,
+     "lon": 14.066,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Solebad am Scharmützelsee."
+    },
+    {
+     "id": "bad-saarow-badestellen",
+     "name": "Badestellen am Scharmützelsee",
+     "kind": "baden",
+     "lat": 52.283,
+     "lon": 14.06,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Strand und Steg am Märkischen Meer."
+    },
+    {
+     "id": "bad-saarow-rundfahrt",
+     "name": "Rundfahrt auf dem Scharmützelsee",
+     "kind": "wasser",
+     "lat": 52.287,
+     "lon": 14.063,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Schifffahrt über den See."
+    },
+    {
+     "id": "bad-saarow-storkow",
+     "name": "Burg Storkow",
+     "kind": "burg",
+     "lat": 52.256,
+     "lon": 13.934,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Burg mit Ausstellung zum Naturpark."
+    },
+    {
+     "id": "bad-saarow-markgrafensteine",
+     "name": "Markgrafensteine in den Rauener Bergen",
+     "kind": "natur",
+     "lat": 52.318,
+     "lon": 14.035,
+     "hours": 1.5,
+     "summary": "Große Findlinge im Wald."
+    }
+   ]
+  },
+  {
+   "id": "wandlitz",
+   "name": "Wandlitz, Liepnitzsee & Bernau",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.745,
+   "lon": 13.457,
+   "kinds": [
+    "baden",
+    "natur",
+    "kultur",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Badeseen nördlich von Berlin mit S-Bahn-Anschluss und Bernauer Stadtmauer.",
+   "angle": "Feierabend: mit der Heidekrautbahn nach Wandlitz, zum Liepnitzsee und abends ins Wasser.",
+   "spots": [
+    {
+     "id": "wandlitz-liepnitzsee",
+     "name": "Liepnitzsee",
+     "kind": "baden",
+     "lat": 52.742,
+     "lon": 13.515,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sehr klarer Waldsee mit Insel."
+    },
+    {
+     "id": "wandlitz-strandbad",
+     "name": "Strandbad Wandlitzsee",
+     "kind": "baden",
+     "lat": 52.748,
+     "lon": 13.46,
+     "hours": 2,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "family": true,
+     "summary": "Strandbad mit Sandstrand."
+    },
+    {
+     "id": "wandlitz-panorama",
+     "name": "Barnim Panorama",
+     "kind": "kultur",
+     "lat": 52.743,
+     "lon": 13.458,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum zu Natur und Landwirtschaft der Region."
+    },
+    {
+     "id": "wandlitz-bernau",
+     "name": "Bernau: Stadtmauer & Pulverturm",
+     "kind": "stadt",
+     "lat": 52.68,
+     "lon": 13.59,
+     "hours": 1,
+     "summary": "Mittelalterliche Mauer um die Altstadt."
+    }
+   ]
+  },
+  {
+   "id": "mueggelsee",
+   "name": "Köpenick & Müggelsee",
+   "region": "Berlin",
+   "country": "DE",
+   "lat": 52.44,
+   "lon": 13.62,
+   "kinds": [
+    "baden",
+    "wasser",
+    "natur",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Altstadt Köpenick, größter Berliner See und Müggelberge im Südosten der Stadt.",
+   "angle": "Mit dem Kanu nach Neu-Venedig, danach baden und zum Sonnenuntergang auf den Müggelturm.",
+   "spots": [
+    {
+     "id": "mueggelsee-koepenick",
+     "name": "Altstadt & Schloss Köpenick",
+     "kind": "kultur",
+     "lat": 52.442,
+     "lon": 13.574,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockschloss mit Kunstgewerbemuseum."
+    },
+    {
+     "id": "mueggelsee-strandbad",
+     "name": "Strandbad Müggelsee",
+     "kind": "baden",
+     "lat": 52.442,
+     "lon": 13.649,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "family": true,
+     "summary": "Strandbad am Nordufer."
+    },
+    {
+     "id": "mueggelsee-mueggelturm",
+     "name": "Müggelturm & Müggelberge",
+     "kind": "natur",
+     "lat": 52.415,
+     "lon": 13.64,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Aussichtsturm über Wald und Seen."
+    },
+    {
+     "id": "mueggelsee-neu-venedig",
+     "name": "Kanutour Neu-Venedig",
+     "kind": "aktiv",
+     "lat": 52.437,
+     "lon": 13.681,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Kanäle mit Wochenendhäusern in Rahnsdorf."
+    },
+    {
+     "id": "mueggelsee-spreetunnel",
+     "name": "Spreetunnel Friedrichshagen",
+     "kind": "technik",
+     "lat": 52.448,
+     "lon": 13.629,
+     "hours": 0.5,
+     "summary": "Fußgängertunnel unter der Spree."
+    }
+   ]
+  },
+  {
+   "id": "wannsee",
+   "name": "Wannsee & Pfaueninsel",
+   "region": "Berlin",
+   "country": "DE",
+   "lat": 52.432,
+   "lon": 13.17,
+   "kinds": [
+    "baden",
+    "wasser",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Strandbad, Pfaueninsel und Villen am Westrand Berlins, nahe Potsdam.",
+   "angle": "Mit der Fähre über den Wannsee nach Kladow und zurück, dazu Pfaueninsel am Nachmittag.",
+   "spots": [
+    {
+     "id": "wannsee-pfaueninsel",
+     "name": "Pfaueninsel",
+     "kind": "natur",
+     "lat": 52.433,
+     "lon": 13.125,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Parkinsel mit Schlösschen und Pfauen.",
+     "tip": "Nur per Fähre erreichbar."
+    },
+    {
+     "id": "wannsee-strandbad",
+     "name": "Strandbad Wannsee",
+     "kind": "baden",
+     "lat": 52.438,
+     "lon": 13.178,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "family": true,
+     "summary": "Großes Strandbad mit Strandkörben."
+    },
+    {
+     "id": "wannsee-liebermann",
+     "name": "Liebermann-Villa",
+     "kind": "kultur",
+     "lat": 52.428,
+     "lon": 13.163,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Villa mit Garten des Malers Max Liebermann."
+    },
+    {
+     "id": "wannsee-wannseekonferenz",
+     "name": "Haus der Wannsee-Konferenz",
+     "kind": "kultur",
+     "lat": 52.433,
+     "lon": 13.165,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Gedenkstätte am Ort der Konferenz von 1942."
+    },
+    {
+     "id": "wannsee-grunewaldturm",
+     "name": "Grunewaldturm",
+     "kind": "natur",
+     "lat": 52.469,
+     "lon": 13.177,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Aussichtsturm über der Havel."
+    },
+    {
+     "id": "wannsee-faehre",
+     "name": "Fähre Wannsee–Kladow",
+     "kind": "wasser",
+     "lat": 52.421,
+     "lon": 13.179,
+     "hours": 1,
+     "summary": "Fähre im Nahverkehr über den Wannsee."
+    }
+   ]
+  },
+  {
+   "id": "bad-belzig",
+   "name": "Bad Belzig & Hoher Fläming",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 52.142,
+   "lon": 12.592,
+   "kinds": [
+    "burg",
+    "therme",
+    "natur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Burgen, Therme und Kunstwanderweg im Hohen Fläming.",
+   "angle": "Kunstwanderweg nach Wiesenburg und mit der Bahn zurück, danach in die Therme.",
+   "spots": [
+    {
+     "id": "bad-belzig-eisenhardt",
+     "name": "Burg Eisenhardt",
+     "kind": "burg",
+     "lat": 52.141,
+     "lon": 12.586,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Burg mit Museum über der Stadt."
+    },
+    {
+     "id": "bad-belzig-therme",
+     "name": "SteinTherme",
+     "kind": "therme",
+     "lat": 52.146,
+     "lon": 12.597,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalsole-Bad."
+    },
+    {
+     "id": "bad-belzig-wiesenburg",
+     "name": "Schloss & Park Wiesenburg",
+     "kind": "kultur",
+     "lat": 52.117,
+     "lon": 12.455,
+     "hours": 1.5,
+     "summary": "Schlosspark im englischen Stil."
+    },
+    {
+     "id": "bad-belzig-rabenstein",
+     "name": "Burg Rabenstein",
+     "kind": "burg",
+     "lat": 52.055,
+     "lon": 12.6,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Höhenburg mit Falknerei."
+    },
+    {
+     "id": "bad-belzig-kunstwanderweg",
+     "name": "Kunstwanderweg Hoher Fläming",
+     "kind": "aktiv",
+     "lat": 52.12,
+     "lon": 12.52,
+     "hours": 3,
+     "summary": "Wanderweg mit Kunstobjekten zwischen Belzig und Wiesenburg."
+    }
+   ]
+  },
+  {
+   "id": "jueterbog",
+   "name": "Jüterbog, Kloster Zinna & Fläming-Skate",
+   "region": "Brandenburg",
+   "country": "DE",
+   "lat": 51.993,
+   "lon": 13.075,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Mittelalterliche Stadttore, Zisterzienserkloster und ein großes Skate- und Radwegenetz.",
+   "angle": "Vormittags auf der Fläming-Skate, nachmittags Altstadt und Kloster Zinna.",
+   "spots": [
+    {
+     "id": "jueterbog-altstadt",
+     "name": "Altstadt mit Stadttoren",
+     "kind": "stadt",
+     "lat": 51.995,
+     "lon": 13.073,
+     "hours": 1.5,
+     "summary": "Drei erhaltene Stadttore und Mauerreste."
+    },
+    {
+     "id": "jueterbog-nikolai",
+     "name": "Nikolaikirche",
+     "kind": "kultur",
+     "lat": 51.994,
+     "lon": 13.077,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Gotische Hallenkirche."
+    },
+    {
+     "id": "jueterbog-zinna",
+     "name": "Kloster Zinna",
+     "kind": "kultur",
+     "lat": 52.03,
+     "lon": 13.098,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Zisterzienserkloster mit Museum."
+    },
+    {
+     "id": "jueterbog-flaeming-skate",
+     "name": "Flaeming-Skate",
+     "kind": "aktiv",
+     "lat": 51.99,
+     "lon": 13.15,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundkurse für Inliner und Rad."
+    }
+   ]
+  }
+ ]
+}

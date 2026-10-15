@@ -1,0 +1,4192 @@
+{
+ "group": "alpen-ost",
+ "places": [
+  {
+   "id": "baden-wienerwald",
+   "name": "Baden bei Wien & Wienerwald",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 48.006,
+   "lon": 16.234,
+   "kinds": [
+    "therme",
+    "kultur",
+    "natur",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kurstadt am Rand des Wienerwalds mit Thermalbad, Biedermeier-Zentrum und einem unterirdischen See ganz in der Nähe.",
+   "angle": "Vormittags Seegrotte und Stift Heiligenkreuz, nachmittags durchs Helenental nach Baden wandern und in der Therme ausklingen lassen.",
+   "spots": [
+    {
+     "id": "baden-wienerwald-roemertherme",
+     "name": "Römertherme Baden",
+     "kind": "therme",
+     "lat": 48.009,
+     "lon": 16.233,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Thermalbad mitten in Baden unter einer großen Glaskuppel."
+    },
+    {
+     "id": "baden-wienerwald-kurpark",
+     "name": "Kurpark Baden & Beethovenhaus",
+     "kind": "kultur",
+     "lat": 48.01,
+     "lon": 16.232,
+     "hours": 1.5,
+     "summary": "Hanglage-Park mit Beethoven-Tempel; im Beethovenhaus wohnte der Komponist während der Arbeit an der Neunten.",
+     "tip": "Das Beethovenhaus liegt wenige Gehminuten vom Kurpark in der Rathausgasse."
+    },
+    {
+     "id": "baden-wienerwald-seegrotte",
+     "name": "Seegrotte Hinterbrühl",
+     "kind": "unterwelt",
+     "lat": 48.084,
+     "lon": 16.25,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Ehemaliges Gipsbergwerk mit großem unterirdischem See, den man im Boot befährt.",
+     "tip": "Auch im Sommer kühl – eine Jacke mitnehmen."
+    },
+    {
+     "id": "baden-wienerwald-heiligenkreuz",
+     "name": "Stift Heiligenkreuz",
+     "kind": "kultur",
+     "lat": 48.055,
+     "lon": 16.131,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Zisterzienserkloster mit romanisch-gotischem Kreuzgang mitten im Wienerwald."
+    },
+    {
+     "id": "baden-wienerwald-helenental",
+     "name": "Helenental & Ruinen Rauheneck und Rauhenstein",
+     "kind": "natur",
+     "lat": 48.003,
+     "lon": 16.214,
+     "hours": 2,
+     "family": true,
+     "summary": "Waldtal der Schwechat mit zwei Burgruinen, direkt vom Badener Zentrum zu Fuß erreichbar."
+    }
+   ]
+  },
+  {
+   "id": "carnuntum",
+   "name": "Carnuntum & Donau-Auen",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 48.113,
+   "lon": 16.862,
+   "kinds": [
+    "kultur",
+    "natur",
+    "burg",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Römische Großstadt am Donaulimes, Barockschloss Prinz Eugens und Auwald des Nationalparks Donau-Auen auf engem Raum.",
+   "angle": "Morgens im Nationalpark-Zentrum Orth starten, mittags durch die Römerstadt, zum Sonnenuntergang auf den Braunsberg über Hainburg.",
+   "spots": [
+    {
+     "id": "carnuntum-roemerstadt",
+     "name": "Römerstadt Carnuntum (Petronell)",
+     "kind": "kultur",
+     "lat": 48.112,
+     "lon": 16.866,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Freilichtmuseum mit originalgetreu wiederaufgebauten römischen Häusern und Therme."
+    },
+    {
+     "id": "carnuntum-heidentor",
+     "name": "Heidentor",
+     "kind": "kultur",
+     "lat": 48.1,
+     "lon": 16.872,
+     "hours": 0.5,
+     "slot": "abend",
+     "summary": "Freistehender Rest eines römischen Triumphalmonuments mitten in den Feldern südlich von Petronell."
+    },
+    {
+     "id": "carnuntum-schloss-hof",
+     "name": "Schloss Hof",
+     "kind": "burg",
+     "lat": 48.216,
+     "lon": 16.938,
+     "hours": 3,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Barocke Schlossanlage Prinz Eugens mit Terrassengärten und Gutshof mit Tieren."
+    },
+    {
+     "id": "carnuntum-braunsberg",
+     "name": "Braunsberg & Stadtmauer Hainburg",
+     "kind": "natur",
+     "lat": 48.155,
+     "lon": 16.951,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Aussichtsberg über der Donau mit Blick nach Bratislava; unten die mittelalterliche Stadtmauer Hainburgs."
+    },
+    {
+     "id": "carnuntum-museum-carnuntinum",
+     "name": "Museum Carnuntinum (Bad Deutsch-Altenburg)",
+     "kind": "kultur",
+     "lat": 48.136,
+     "lon": 16.905,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum mit Fundstücken aus der Römerstadt Carnuntum in einem Villenbau von 1904."
+    },
+    {
+     "id": "carnuntum-schlossorth",
+     "name": "schlossORTH Nationalpark-Zentrum",
+     "kind": "natur",
+     "lat": 48.146,
+     "lon": 16.701,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Besucherzentrum des Nationalparks Donau-Auen mit Unterwasserbeobachtung und Wegen in die Au.",
+     "tip": "Gelsenschutz für Auwaldwege im Sommer einpacken."
+    }
+   ]
+  },
+  {
+   "id": "eisenstadt-sopron",
+   "name": "Eisenstadt & Sopron",
+   "region": "Burgenland",
+   "country": "AT",
+   "lat": 47.846,
+   "lon": 16.527,
+   "kinds": [
+    "kultur",
+    "burg",
+    "stadt",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Haydn-Stadt der Esterházy mit Barockschloss, dazu die Burg Forchtenstein und die Altstadt von Sopron jenseits der Grenze.",
+   "angle": "Vormittags Schloss und Haydnkirche, nachmittags nach Sopron hinüber – beide Städte lassen sich gut an einem Tag verbinden.",
+   "spots": [
+    {
+     "id": "eisenstadt-sopron-schloss",
+     "name": "Schloss Esterházy",
+     "kind": "burg",
+     "lat": 47.847,
+     "lon": 16.522,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockes Fürstenschloss mit dem Haydnsaal, in dem Joseph Haydn wirkte."
+    },
+    {
+     "id": "eisenstadt-sopron-haydnkirche",
+     "name": "Haydnkirche (Bergkirche) & Haydn-Mausoleum",
+     "kind": "kultur",
+     "lat": 47.849,
+     "lon": 16.514,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Wallfahrtskirche mit Kalvarienberg-Gängen und der Grabstätte Joseph Haydns."
+    },
+    {
+     "id": "eisenstadt-sopron-forchtenstein",
+     "name": "Burg Forchtenstein",
+     "kind": "burg",
+     "lat": 47.711,
+     "lon": 16.333,
+     "hours": 2,
+     "family": true,
+     "summary": "Hoch gelegene Esterházy-Burg mit Schatzkammer und Rüstkammern."
+    },
+    {
+     "id": "eisenstadt-sopron-sopron",
+     "name": "Altstadt Sopron & Feuerturm",
+     "kind": "stadt",
+     "lat": 47.686,
+     "lon": 16.59,
+     "hours": 2,
+     "summary": "Geschlossene Altstadt mit dem Feuerturm als Wahrzeichen und weitem Blick vom Turm.",
+     "tip": "Ungarn verwendet Forint – Kartenzahlung ist verbreitet."
+    }
+   ]
+  },
+  {
+   "id": "neusiedler-see",
+   "name": "Neusiedler See & Seewinkel",
+   "region": "Burgenland",
+   "country": "AT",
+   "lat": 47.856,
+   "lon": 16.835,
+   "kinds": [
+    "baden",
+    "natur",
+    "aktiv",
+    "genuss",
+    "wasser"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Steppensee mit Schilfgürtel, flachen Badestellen, Storchennestern und Radwegen durch Weingärten und Salzlacken.",
+   "angle": "Früh morgens Vögel an den Lacken beobachten, mittags baden in Podersdorf, abends mit dem Rad durch die Weingärten nach Hause.",
+   "spots": [
+    {
+     "id": "neusiedler-see-podersdorf",
+     "name": "Strand Podersdorf am See",
+     "kind": "baden",
+     "lat": 47.853,
+     "lon": 16.83,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "slot": "nachm",
+     "summary": "Seltener schilffreier Uferabschnitt mit Leuchtturm und sehr flachem Wasser.",
+     "tip": "Bei starkem Wind ideal zum Kiten zuschauen, für Kleinkinder dann eher wellig."
+    },
+    {
+     "id": "neusiedler-see-radweg",
+     "name": "Neusiedler-See-Radweg (Podersdorf–Illmitz)",
+     "kind": "aktiv",
+     "lat": 47.81,
+     "lon": 16.82,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flache Radstrecke durch Lacken, Hutweiden und Weingärten; Räder lassen sich in vielen Orten leihen.",
+     "tip": "Rückweg mit einer der Radfähren über den See abkürzen – Fahrplan vorher prüfen."
+    },
+    {
+     "id": "neusiedler-see-illmitz",
+     "name": "Nationalpark-Informationszentrum Illmitz & Lange Lacke",
+     "kind": "natur",
+     "lat": 47.768,
+     "lon": 16.81,
+     "hours": 2,
+     "family": true,
+     "slot": "morgen",
+     "summary": "Ausgangspunkt für Beobachtungstürme an den Salzlacken des Nationalparks Neusiedler See–Seewinkel.",
+     "tip": "Fernglas einpacken; Frühjahr und Herbst bringen die meisten Zugvögel."
+    },
+    {
+     "id": "neusiedler-see-rust",
+     "name": "Rust – Storchennester & Altstadt",
+     "kind": "kultur",
+     "lat": 47.801,
+     "lon": 16.672,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Kleine Freistadt mit Bürgerhäusern, auf deren Schornsteinen im Sommer Störche brüten."
+    },
+    {
+     "id": "neusiedler-see-steinbruch",
+     "name": "Römersteinbruch St. Margarethen",
+     "kind": "kultur",
+     "lat": 47.807,
+     "lon": 16.615,
+     "hours": 1,
+     "summary": "Gewaltiger Kalksandstein-Bruch, aus dem Bausteine für Wiener Bauwerke kamen; heute Opernbühne."
+    },
+    {
+     "id": "neusiedler-see-halbturn",
+     "name": "Schloss Halbturn",
+     "kind": "burg",
+     "lat": 47.872,
+     "lon": 16.975,
+     "hours": 1.5,
+     "indoor": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Barockschloss mit Park und wechselnden Ausstellungen im Nordosten des Seewinkels."
+    }
+   ]
+  },
+  {
+   "id": "semmering-rax",
+   "name": "Semmering & Rax",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 47.634,
+   "lon": 15.83,
+   "kinds": [
+    "berge",
+    "technik",
+    "natur",
+    "winter",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Welterbe-Gebirgsbahn, Sommerfrische-Villen und das Hochplateau der Rax – klassische Bergziele vor den Toren Wiens.",
+   "angle": "Mit dem Zug anreisen, den Bahnwanderweg gehen und vom 20-Schilling-Blick den nächsten Zug über das Viadukt fahren sehen.",
+   "spots": [
+    {
+     "id": "semmering-rax-bahnwanderweg",
+     "name": "Bahnwanderweg Semmeringbahn & 20-Schilling-Blick",
+     "kind": "technik",
+     "lat": 47.648,
+     "lon": 15.848,
+     "hours": 3,
+     "summary": "Wanderweg entlang der Welterbe-Bahn mit Blick auf das Viadukt Kalte Rinne.",
+     "tip": "Start in Semmering, Rückfahrt mit dem Zug ab Breitenstein oder Payerbach."
+    },
+    {
+     "id": "semmering-rax-hirschenkogel",
+     "name": "Zauberberg Hirschenkogel",
+     "kind": "berge",
+     "lat": 47.63,
+     "lon": 15.817,
+     "hours": 2,
+     "family": true,
+     "summary": "Kabinenbahn auf den Hausberg des Semmering, im Winter Skigebiet, im Sommer Wanderberg."
+    },
+    {
+     "id": "semmering-rax-raxseilbahn",
+     "name": "Raxseilbahn & Raxplateau",
+     "kind": "berge",
+     "lat": 47.698,
+     "lon": 15.786,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Die 1926 eröffnete erste Personenseilbahn Österreichs bringt auf das weite Hochplateau der Rax."
+    },
+    {
+     "id": "semmering-rax-weichtalklamm",
+     "name": "Weichtalklamm im Höllental",
+     "kind": "aktiv",
+     "lat": 47.735,
+     "lon": 15.761,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Steile Klamm mit Leitern und Drahtseilen im Höllental der Schwarza.",
+     "tip": "Nur bei trockenem Wetter und mit Trittsicherheit."
+    },
+    {
+     "id": "semmering-rax-suedbahnmuseum",
+     "name": "Südbahnmuseum Mürzzuschlag",
+     "kind": "technik",
+     "lat": 47.606,
+     "lon": 15.674,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Eisenbahnmuseum zur Geschichte der Südbahn in historischen Hallen am Bahnhof."
+    }
+   ]
+  },
+  {
+   "id": "puchberg-hohe-wand",
+   "name": "Schneeberg & Hohe Wand",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 47.787,
+   "lon": 15.913,
+   "kinds": [
+    "berge",
+    "technik",
+    "tiere",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Mit der Zahnradbahn auf den höchsten Berg Niederösterreichs, dazu Skywalk, Wildgehege und Wasserfälle im Naturpark Hohe Wand.",
+   "angle": "Bei klarer Sicht zuerst auf den Schneeberg, bei Wolken in den Bergen lieber die tiefer gelegenen Myrafälle und die Hohe Wand.",
+   "spots": [
+    {
+     "id": "puchberg-hohe-wand-schneebergbahn",
+     "name": "Salamander-Schneebergbahn",
+     "kind": "technik",
+     "lat": 47.787,
+     "lon": 15.914,
+     "hours": 5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Zahnradbahn von Puchberg auf den Hochschneeberg mit Wanderwegen zum Gipfel.",
+     "tip": "Plätze für Wochenenden vorab reservieren."
+    },
+    {
+     "id": "puchberg-hohe-wand-skywalk",
+     "name": "Skywalk Hohe Wand",
+     "kind": "natur",
+     "lat": 47.832,
+     "lon": 16.04,
+     "hours": 1,
+     "family": true,
+     "slot": "abend",
+     "summary": "Stahlsteg über der Felskante mit weitem Blick über das Wiener Becken."
+    },
+    {
+     "id": "puchberg-hohe-wand-naturpark",
+     "name": "Naturpark Hohe Wand mit Wildgehege",
+     "kind": "tiere",
+     "lat": 47.83,
+     "lon": 16.035,
+     "hours": 2,
+     "family": true,
+     "summary": "Hochplateau mit Wildgehege, Spielplätzen und Aussichtspunkten."
+    },
+    {
+     "id": "puchberg-hohe-wand-myrafaelle",
+     "name": "Myrafälle",
+     "kind": "natur",
+     "lat": 47.909,
+     "lon": 15.936,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Holzstege und Stufen führen entlang tosender Kaskaden durch eine enge Schlucht."
+    }
+   ]
+  },
+  {
+   "id": "mariazell",
+   "name": "Mariazell & Erlaufsee",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.773,
+   "lon": 15.319,
+   "kinds": [
+    "kultur",
+    "berge",
+    "baden",
+    "technik",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Wichtigster Wallfahrtsort Österreichs mit Basilika, Hausberg, Badesee und der Mariazellerbahn durch die Ötschergräben.",
+   "angle": "Mit der Mariazellerbahn anreisen, unterwegs in Wienerbruck für die Ötschergräben aussteigen und am nächsten Tag Basilika und Erlaufsee anhängen.",
+   "spots": [
+    {
+     "id": "mariazell-basilika",
+     "name": "Basilika Mariazell",
+     "kind": "kultur",
+     "lat": 47.773,
+     "lon": 15.319,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Mächtige Wallfahrtskirche mit Gnadenkapelle und Schatzkammer."
+    },
+    {
+     "id": "mariazell-buergeralpe",
+     "name": "Bürgeralpe",
+     "kind": "berge",
+     "lat": 47.779,
+     "lon": 15.305,
+     "hours": 2,
+     "family": true,
+     "summary": "Seilbahn-Hausberg direkt über dem Ort mit Aussichtsturm und Spielbereichen."
+    },
+    {
+     "id": "mariazell-erlaufsee",
+     "name": "Erlaufsee",
+     "kind": "baden",
+     "lat": 47.793,
+     "lon": 15.267,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Klarer Bergsee mit Badeplätzen und Bootsverleih an der Grenze zu Niederösterreich."
+    },
+    {
+     "id": "mariazell-mariazellerbahn",
+     "name": "Mariazellerbahn (Himmelstreppe)",
+     "kind": "technik",
+     "lat": 47.765,
+     "lon": 15.302,
+     "hours": 3,
+     "family": true,
+     "summary": "Schmalspurbahn über Viadukte und durch Tunnels zwischen St. Pölten und Mariazell."
+    },
+    {
+     "id": "mariazell-oetschergraeben",
+     "name": "Ötschergräben",
+     "kind": "natur",
+     "lat": 47.857,
+     "lon": 15.287,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Wilde Schlucht mit Wasserfällen und Steigen, erreichbar ab der Station Wienerbruck.",
+     "tip": "Rückweg mit der Mariazellerbahn ab Erlaufklause oder Wienerbruck planen."
+    }
+   ]
+  },
+  {
+   "id": "lunz-ybbstal",
+   "name": "Lunzer See & Ybbstal",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 47.862,
+   "lon": 15.03,
+   "kinds": [
+    "baden",
+    "natur",
+    "aktiv",
+    "berge",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kühler Bergsee im Mostviertel, ein Radweg auf alter Bahntrasse und die Türmestadt Waidhofen an der Ybbs.",
+   "angle": "Morgens auf dem Ybbstalradweg talwärts rollen, nachmittags im Lunzer See abkühlen.",
+   "spots": [
+    {
+     "id": "lunz-ybbstal-see",
+     "name": "Lunzer See",
+     "kind": "baden",
+     "lat": 47.857,
+     "lon": 15.05,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Klarer Bergsee mit Seebad und Bootsverleih am Fuß des Dürrensteins."
+    },
+    {
+     "id": "lunz-ybbstal-haus-der-wildnis",
+     "name": "Haus der Wildnis",
+     "kind": "natur",
+     "lat": 47.861,
+     "lon": 15.029,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Erlebnisausstellung zum Wildnisgebiet Dürrenstein mit Urwald-Inszenierung."
+    },
+    {
+     "id": "lunz-ybbstal-radweg",
+     "name": "Ybbstalradweg",
+     "kind": "aktiv",
+     "lat": 47.9,
+     "lon": 14.95,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Radweg auf der früheren Ybbstalbahn mit sanftem Gefälle zwischen Lunz und Waidhofen."
+    },
+    {
+     "id": "lunz-ybbstal-waidhofen",
+     "name": "Altstadt Waidhofen an der Ybbs",
+     "kind": "kultur",
+     "lat": 47.96,
+     "lon": 14.773,
+     "hours": 1.5,
+     "summary": "Kleine Türmestadt mit Schloss und Stadtturm über der Ybbs."
+    },
+    {
+     "id": "lunz-ybbstal-oetscher",
+     "name": "Ötscher (Lackenhof)",
+     "kind": "berge",
+     "lat": 47.873,
+     "lon": 15.15,
+     "hours": 4,
+     "summary": "Markanter Einzelberg mit Wanderwegen ab Lackenhof; im Winter kleines Familienskigebiet."
+    }
+   ]
+  },
+  {
+   "id": "kamptal",
+   "name": "Kamptal (Gars & Rosenburg)",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 48.59,
+   "lon": 15.656,
+   "kinds": [
+    "kultur",
+    "burg",
+    "tiere",
+    "genuss",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Burgen und Stifte über dem gewundenen Kamp, Greifvogelflüge auf der Rosenburg und Weinkeller in Langenlois.",
+   "angle": "Vormittags Falkner auf der Rosenburg, nachmittags Stift Altenburg, abends talwärts nach Langenlois in die Kellergassen.",
+   "spots": [
+    {
+     "id": "kamptal-rosenburg",
+     "name": "Renaissanceschloss Rosenburg mit Falknerei",
+     "kind": "tiere",
+     "lat": 48.627,
+     "lon": 15.636,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schloss über dem Kamptal mit Turnierhof und Greifvogel-Vorführungen."
+    },
+    {
+     "id": "kamptal-altenburg",
+     "name": "Stift Altenburg",
+     "kind": "kultur",
+     "lat": 48.646,
+     "lon": 15.594,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockstift mit prächtiger Bibliothek und mittelalterlicher Klosteranlage darunter."
+    },
+    {
+     "id": "kamptal-gars",
+     "name": "Burgruine Gars",
+     "kind": "burg",
+     "lat": 48.592,
+     "lon": 15.66,
+     "hours": 1,
+     "family": true,
+     "summary": "Babenberger-Burgruine auf einem Felssporn über Gars am Kamp."
+    },
+    {
+     "id": "kamptal-langenlois",
+     "name": "Langenlois & Loisium-Kellerwelt",
+     "kind": "genuss",
+     "lat": 48.473,
+     "lon": 15.682,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Weinstadt mit verzweigten Kellerröhren unter den Weingärten."
+    }
+   ]
+  },
+  {
+   "id": "zwettl-kamp",
+   "name": "Waldviertel (Zwettl & Kamp-Stauseen)",
+   "region": "Niederösterreich",
+   "country": "AT",
+   "lat": 48.607,
+   "lon": 15.169,
+   "kinds": [
+    "natur",
+    "baden",
+    "kultur",
+    "burg"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Rauer Granit-Hochlandwald mit Zisterzienserstift, Badestauseen am Kamp, Wackelsteinen und trutziger Burg.",
+   "angle": "An heißen Tagen vormittags Stift Zwettl, dann zum Baden an den Stausee Ottenstein; bei Regen die Burgen im Inneren besichtigen.",
+   "spots": [
+    {
+     "id": "zwettl-kamp-stift",
+     "name": "Stift Zwettl",
+     "kind": "kultur",
+     "lat": 48.618,
+     "lon": 15.199,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Zisterzienserstift mit einem der ältesten Kreuzgänge Österreichs."
+    },
+    {
+     "id": "zwettl-kamp-ottenstein",
+     "name": "Stausee Ottenstein",
+     "kind": "baden",
+     "lat": 48.598,
+     "lon": 15.33,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Verzweigter Stausee mit Badebuchten und Bootsverleih."
+    },
+    {
+     "id": "zwettl-kamp-rappottenstein",
+     "name": "Burg Rappottenstein",
+     "kind": "burg",
+     "lat": 48.515,
+     "lon": 15.078,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Nie eroberte Burg mit mehreren Höfen und gut erhaltenen Wohnräumen."
+    },
+    {
+     "id": "zwettl-kamp-rosenau",
+     "name": "Schloss Rosenau (Freimaurermuseum)",
+     "kind": "kultur",
+     "lat": 48.586,
+     "lon": 15.084,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Barockschloss mit dem österreichischen Freimaurermuseum."
+    },
+    {
+     "id": "zwettl-kamp-blockheide",
+     "name": "Naturpark Blockheide Gmünd",
+     "kind": "natur",
+     "lat": 48.783,
+     "lon": 15.016,
+     "hours": 2,
+     "family": true,
+     "summary": "Heidelandschaft mit riesigen Granit-Wackelsteinen und Aussichtsturm."
+    }
+   ]
+  },
+  {
+   "id": "retz-znaim",
+   "name": "Retz & Znaim (Thayatal)",
+   "region": "Weinviertel/Südmähren",
+   "country": "AT",
+   "lat": 48.757,
+   "lon": 15.95,
+   "kinds": [
+    "genuss",
+    "unterwelt",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Weinstadt mit kilometerlangen Kellern, Windmühle, Nationalpark Thayatal und das mährische Znaim mit eigener Unterwelt.",
+   "angle": "Bei Regen beide Unterwelten verbinden, bei Sonne vom Hardegger Grenzsteg ins Thayatal wandern und abends zur Windmühle.",
+   "spots": [
+    {
+     "id": "retz-znaim-erlebniskeller",
+     "name": "Retzer Erlebniskeller",
+     "kind": "unterwelt",
+     "lat": 48.757,
+     "lon": 15.95,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Weitverzweigte Weinkeller unter dem Retzer Hauptplatz."
+    },
+    {
+     "id": "retz-znaim-windmuehle",
+     "name": "Windmühle Retz",
+     "kind": "technik",
+     "lat": 48.762,
+     "lon": 15.942,
+     "hours": 0.5,
+     "slot": "abend",
+     "summary": "Funktionsfähige Windmühle auf dem Weinberg über der Stadt."
+    },
+    {
+     "id": "retz-znaim-hardegg",
+     "name": "Hardegg & Nationalpark Thayatal",
+     "kind": "natur",
+     "lat": 48.855,
+     "lon": 15.861,
+     "hours": 3,
+     "family": true,
+     "summary": "Kleinste Stadt Österreichs mit Burg und Brücke über die Thaya; Wege führen in den Nationalpark."
+    },
+    {
+     "id": "retz-znaim-znojmo",
+     "name": "Altstadt Znaim (Znojmo) & Rotunde",
+     "kind": "stadt",
+     "lat": 48.856,
+     "lon": 16.048,
+     "hours": 2,
+     "summary": "Altstadt auf dem Felsen über der Thaya mit romanischer Rotunde."
+    },
+    {
+     "id": "retz-znaim-podzemi",
+     "name": "Znaimer Unterwelt (Znojemské podzemí)",
+     "kind": "unterwelt",
+     "lat": 48.855,
+     "lon": 16.048,
+     "hours": 1,
+     "indoor": true,
+     "family": true,
+     "summary": "Verzweigtes Gangsystem unter der Znaimer Altstadt."
+    }
+   ]
+  },
+  {
+   "id": "lednice-valtice",
+   "name": "Lednice-Valtice (Eisgrub & Feldsberg)",
+   "region": "Südmähren",
+   "country": "CZ",
+   "lat": 48.8,
+   "lon": 16.803,
+   "kinds": [
+    "kultur",
+    "burg",
+    "genuss",
+    "aktiv",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Weitläufige Liechtenstein-Kulturlandschaft mit Schlössern, Minarett und Lusthäusern, verbunden durch flache Radwege.",
+   "angle": "Rad leihen und die Bauten im Park verbinden, mittags Lednice, nachmittags Valtice mit Weinprobe im Schlosskeller.",
+   "spots": [
+    {
+     "id": "lednice-valtice-zamek",
+     "name": "Schloss Lednice & Schlosspark",
+     "kind": "burg",
+     "lat": 48.802,
+     "lon": 16.805,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Neogotisches Schloss mit Palmenhaus und großem Landschaftspark."
+    },
+    {
+     "id": "lednice-valtice-minarett",
+     "name": "Minarett Lednice",
+     "kind": "kultur",
+     "lat": 48.811,
+     "lon": 16.807,
+     "hours": 1,
+     "summary": "Aussichtsturm im Stil eines Minaretts im Schlosspark."
+    },
+    {
+     "id": "lednice-valtice-valtice",
+     "name": "Schloss Valtice & Salon der Weine",
+     "kind": "genuss",
+     "lat": 48.741,
+     "lon": 16.756,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockschloss mit der tschechischen Weinschau in den Kellern."
+    },
+    {
+     "id": "lednice-valtice-mikulov",
+     "name": "Mikulov – Schloss & Heiliger Berg",
+     "kind": "kultur",
+     "lat": 48.806,
+     "lon": 16.637,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Weinstadt unter dem Schlossfelsen mit Kreuzweg auf den Heiligen Berg."
+    },
+    {
+     "id": "lednice-valtice-radwege",
+     "name": "Radwege durch das Lednice-Valtice-Areal",
+     "kind": "aktiv",
+     "lat": 48.775,
+     "lon": 16.78,
+     "hours": 3,
+     "family": true,
+     "summary": "Flache Wege durch Alleen und Teichlandschaft zu Lusthäusern und Kolonnaden."
+    }
+   ]
+  },
+  {
+   "id": "koeszeg",
+   "name": "Kőszeg & Günser Gebirge",
+   "region": "Westungarn",
+   "country": "HU",
+   "lat": 47.389,
+   "lon": 16.541,
+   "kinds": [
+    "stadt",
+    "burg",
+    "natur",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Ungarisches Altstadt-Juwel mit Burg, gleich hinter der burgenländischen Grenze am Fuß des Geschriebensteins.",
+   "angle": "Vormittags auf den Geschriebenstein wandern, nachmittags durch die Kőszeger Altstadt und auf der Rückfahrt Burg Lockenhaus mitnehmen.",
+   "spots": [
+    {
+     "id": "koeszeg-burg",
+     "name": "Burg Jurisics",
+     "kind": "burg",
+     "lat": 47.39,
+     "lon": 16.538,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Burg der berühmten Türkenbelagerung von 1532 mit Museum."
+    },
+    {
+     "id": "koeszeg-altstadt",
+     "name": "Altstadt & Heldentor",
+     "kind": "stadt",
+     "lat": 47.389,
+     "lon": 16.541,
+     "hours": 1,
+     "summary": "Barocke Altstadt rund um den Jurisics-Platz mit dem Heldentor."
+    },
+    {
+     "id": "koeszeg-geschriebenstein",
+     "name": "Geschriebenstein (Írott-kő)",
+     "kind": "natur",
+     "lat": 47.352,
+     "lon": 16.434,
+     "hours": 3,
+     "summary": "Höchster Punkt des Burgenlands mit Aussichtsturm direkt auf der Grenze."
+    },
+    {
+     "id": "koeszeg-lockenhaus",
+     "name": "Burg Lockenhaus",
+     "kind": "burg",
+     "lat": 47.405,
+     "lon": 16.417,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Mittelalterliche Burg im Mittelburgenland mit Rittersaal und Kultraum."
+    }
+   ]
+  },
+  {
+   "id": "riegersburg",
+   "name": "Riegersburg & Thermenland",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.003,
+   "lon": 15.932,
+   "kinds": [
+    "burg",
+    "therme",
+    "genuss",
+    "familie"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Burg auf einem Vulkanfelsen, Schokoladenmanufaktur und große Thermen im steirischen Vulkanland.",
+   "angle": "Den Burgbesuch auf einen klaren Tag legen und die Thermen für Regen oder den Abend aufheben.",
+   "spots": [
+    {
+     "id": "riegersburg-burg",
+     "name": "Riegersburg",
+     "kind": "burg",
+     "lat": 47.003,
+     "lon": 15.932,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Mächtige Burg auf einem Basaltfelsen mit Museen; auch per Schrägaufzug erreichbar."
+    },
+    {
+     "id": "riegersburg-zotter",
+     "name": "Zotter Schokoladen-Manufaktur",
+     "kind": "genuss",
+     "lat": 46.977,
+     "lon": 15.948,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Schokoladen-Theater mit Verkostungsweg und essbarem Tiergarten."
+    },
+    {
+     "id": "riegersburg-loipersdorf",
+     "name": "Therme Loipersdorf",
+     "kind": "therme",
+     "lat": 46.958,
+     "lon": 16.105,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Große Thermenlandschaft mit Rutschen und Ruhebereichen."
+    },
+    {
+     "id": "riegersburg-blumau",
+     "name": "Rogner Bad Blumau",
+     "kind": "therme",
+     "lat": 47.108,
+     "lon": 16.04,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Therme im bunten Hundertwasser-Stil mit Vulkania-Heilquelle."
+    }
+   ]
+  },
+  {
+   "id": "herberstein",
+   "name": "Herberstein & Stubenbergsee",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.207,
+   "lon": 15.794,
+   "kinds": [
+    "tiere",
+    "baden",
+    "natur",
+    "burg"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Tierwelt in der Feistritzklamm, ein Schloss darüber und ein Badesee im Apfelland – ideal für Familien.",
+   "angle": "Morgens in die Tierwelt, nachmittags zum Baden an den Stubenbergsee, bei Regen Basilika Pöllau.",
+   "spots": [
+    {
+     "id": "herberstein-tierwelt",
+     "name": "Tierwelt Herberstein",
+     "kind": "tiere",
+     "lat": 47.207,
+     "lon": 15.794,
+     "hours": 3,
+     "family": true,
+     "summary": "Weitläufiger Tierpark an den Hängen der Feistritzklamm."
+    },
+    {
+     "id": "herberstein-schloss",
+     "name": "Schloss Herberstein",
+     "kind": "burg",
+     "lat": 47.211,
+     "lon": 15.795,
+     "hours": 1,
+     "summary": "Felsenschloss mit Gärten oberhalb der Klamm."
+    },
+    {
+     "id": "herberstein-stubenbergsee",
+     "name": "Stubenbergsee",
+     "kind": "baden",
+     "lat": 47.247,
+     "lon": 15.798,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badesee mit Strandbad, Liegewiesen und Wasserspielgeräten."
+    },
+    {
+     "id": "herberstein-feistritzklamm",
+     "name": "Feistritzklamm",
+     "kind": "natur",
+     "lat": 47.218,
+     "lon": 15.785,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Wanderweg durch die Schlucht der Feistritz unterhalb von Herberstein."
+    },
+    {
+     "id": "herberstein-poellau",
+     "name": "Basilika Pöllau",
+     "kind": "kultur",
+     "lat": 47.299,
+     "lon": 15.833,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Barocke Stiftskirche im Naturpark Pöllauer Tal."
+    }
+   ]
+  },
+  {
+   "id": "suedsteiermark",
+   "name": "Südsteirische Weinstraße",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 46.722,
+   "lon": 15.553,
+   "kinds": [
+    "genuss",
+    "natur",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Steile Rebhänge an der slowenischen Grenze, Klapotetz-Windräder und Römerspuren im Leibnitzer Feld.",
+   "angle": "Im Herbst zur Lesezeit fahren und die Weinstraße am späten Nachmittag erleben, wenn die Hügel im Abendlicht leuchten.",
+   "spots": [
+    {
+     "id": "suedsteiermark-weinstrasse",
+     "name": "Südsteirische Weinstraße (Ehrenhausen–Leutschach)",
+     "kind": "genuss",
+     "lat": 46.69,
+     "lon": 15.575,
+     "hours": 3,
+     "slot": "nachm",
+     "summary": "Kurvige Panoramastraße an und über der Grenze mit Buschenschänken und Aussichtspunkten."
+    },
+    {
+     "id": "suedsteiermark-ehrenhausen",
+     "name": "Mausoleum Ehrenhausen",
+     "kind": "kultur",
+     "lat": 46.722,
+     "lon": 15.588,
+     "hours": 0.5,
+     "summary": "Manieristisches Mausoleum über dem Ort mit Blick ins Murtal."
+    },
+    {
+     "id": "suedsteiermark-flavia-solva",
+     "name": "Römermuseum Flavia Solva",
+     "kind": "kultur",
+     "lat": 46.766,
+     "lon": 15.567,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Reste der einzigen Römerstadt der Steiermark mit Museum."
+    },
+    {
+     "id": "suedsteiermark-kitzeck",
+     "name": "Kitzeck im Sausal",
+     "kind": "genuss",
+     "lat": 46.786,
+     "lon": 15.448,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Eines der höchstgelegenen Weindörfer mit kleinem Weinmuseum und weitem Blick."
+    },
+    {
+     "id": "suedsteiermark-demmerkogel",
+     "name": "Demmerkogel-Aussichtswarte",
+     "kind": "natur",
+     "lat": 46.794,
+     "lon": 15.46,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Aussichtsturm auf dem höchsten Weinberg des Sausals."
+    }
+   ]
+  },
+  {
+   "id": "grazer-bergland",
+   "name": "Lurgrotte & Grazer Bergland",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.205,
+   "lon": 15.342,
+   "kinds": [
+    "unterwelt",
+    "natur",
+    "kultur",
+    "aktiv",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Größte Tropfsteinhöhle Österreichs, Freilichtmuseum, Klamm und Hausberg – alles keine halbe Stunde nördlich von Graz.",
+   "angle": "Bei Regen die Lurgrotte und das Freilichtmuseum, bei Sonne die Bärenschützklamm – beides gut als Feierabendausflug.",
+   "spots": [
+    {
+     "id": "grazer-bergland-lurgrotte",
+     "name": "Lurgrotte Peggau",
+     "kind": "unterwelt",
+     "lat": 47.206,
+     "lon": 15.343,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Tropfsteinhöhle mit dem großen Prinz, geführt ab Peggau.",
+     "tip": "Drinnen ist es kühl – Jacke mitnehmen."
+    },
+    {
+     "id": "grazer-bergland-stuebing",
+     "name": "Österreichisches Freilichtmuseum Stübing",
+     "kind": "kultur",
+     "lat": 47.165,
+     "lon": 15.305,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Historische Bauernhäuser aus ganz Österreich in einem Waldtal."
+    },
+    {
+     "id": "grazer-bergland-baerenschuetzklamm",
+     "name": "Bärenschützklamm",
+     "kind": "aktiv",
+     "lat": 47.33,
+     "lon": 15.37,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Klamm mit zahlreichen Leitern und Stegen neben Wasserfällen bei Mixnitz.",
+     "tip": "Trittsicherheit nötig; nach Starkregen kann der Steig gesperrt sein."
+    },
+    {
+     "id": "grazer-bergland-schoeckl",
+     "name": "Schöckl",
+     "kind": "berge",
+     "lat": 47.199,
+     "lon": 15.468,
+     "hours": 3,
+     "family": true,
+     "summary": "Hausberg von Graz mit Seilbahn, Rundwegen und Blick über das Grazer Becken."
+    },
+    {
+     "id": "grazer-bergland-murradweg",
+     "name": "Murradweg Graz–Peggau",
+     "kind": "aktiv",
+     "lat": 47.14,
+     "lon": 15.39,
+     "hours": 3,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ebener Abschnitt des Murradwegs entlang des Flusses mit Bahnanschluss."
+    }
+   ]
+  },
+  {
+   "id": "maribor-ptuj",
+   "name": "Maribor & Ptuj",
+   "region": "Untersteiermark (Štajerska)",
+   "country": "SI",
+   "lat": 46.554,
+   "lon": 15.646,
+   "kinds": [
+    "stadt",
+    "genuss",
+    "kultur",
+    "berge"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Slowenische Weinstadt an der Drau mit der ältesten Rebe der Welt, Hausberg Pohorje und die römisch-mittelalterliche Altstadt von Ptuj.",
+   "angle": "Einen Tag Maribor mit Pohorje-Seilbahn, am nächsten Morgen nach Ptuj und nachmittags in die dortige Therme.",
+   "spots": [
+    {
+     "id": "maribor-ptuj-lent",
+     "name": "Lent & Alte Rebe (Stara trta)",
+     "kind": "genuss",
+     "lat": 46.556,
+     "lon": 15.643,
+     "hours": 1,
+     "summary": "Altstadtufer an der Drau mit der als älteste tragende Weinrebe der Welt geltenden Rebe."
+    },
+    {
+     "id": "maribor-ptuj-pohorje",
+     "name": "Seilbahn auf das Mariborsko Pohorje",
+     "kind": "berge",
+     "lat": 46.534,
+     "lon": 15.603,
+     "hours": 3,
+     "family": true,
+     "summary": "Kabinenbahn von der Stadt auf das bewaldete Pohorje mit Wander- und Radwegen."
+    },
+    {
+     "id": "maribor-ptuj-ptuj",
+     "name": "Burg & Altstadt Ptuj",
+     "kind": "burg",
+     "lat": 46.422,
+     "lon": 15.868,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Älteste Stadt Sloweniens mit Burgmuseum über der Drau."
+    },
+    {
+     "id": "maribor-ptuj-terme-ptuj",
+     "name": "Therme Ptuj",
+     "kind": "therme",
+     "lat": 46.42,
+     "lon": 15.855,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Thermalbad am Drauufer mit Innen- und Außenbecken."
+    }
+   ]
+  },
+  {
+   "id": "gesaeuse",
+   "name": "Gesäuse & Stift Admont",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.575,
+   "lon": 14.461,
+   "kinds": [
+    "natur",
+    "berge",
+    "aktiv",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Wildes Durchbruchstal der Enns zwischen Felswänden, Nationalpark und die größte Klosterbibliothek der Welt.",
+   "angle": "Vormittags Rafting oder Wanderung im Gesäuse, nachmittags die Stiftsbibliothek Admont als Regenplan oder Abschluss.",
+   "spots": [
+    {
+     "id": "gesaeuse-admont",
+     "name": "Stiftsbibliothek Admont",
+     "kind": "kultur",
+     "lat": 47.575,
+     "lon": 14.461,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Barocker Bibliothekssaal, der als größte Klosterbibliothek der Welt gilt."
+    },
+    {
+     "id": "gesaeuse-gstatterboden",
+     "name": "Nationalpark-Pavillon Gstatterboden",
+     "kind": "natur",
+     "lat": 47.592,
+     "lon": 14.632,
+     "hours": 2,
+     "family": true,
+     "summary": "Infopunkt des Nationalparks Gesäuse mit Wegen an die Enns."
+    },
+    {
+     "id": "gesaeuse-rafting",
+     "name": "Rafting auf der Enns",
+     "kind": "aktiv",
+     "lat": 47.59,
+     "lon": 14.6,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Geführte Schlauchboottouren durch die Wildwasserstrecke im Gesäuse.",
+     "tip": "Nur mit geführtem Anbieter – Mindestalter vorher erfragen."
+    },
+    {
+     "id": "gesaeuse-weidendom",
+     "name": "Weidendom",
+     "kind": "natur",
+     "lat": 47.594,
+     "lon": 14.645,
+     "hours": 1,
+     "family": true,
+     "summary": "Aus lebenden Weiden geformter Naturlehrpfad am Ennsufer."
+    }
+   ]
+  },
+  {
+   "id": "erzberg",
+   "name": "Erzberg & Leopoldsteiner See",
+   "region": "Steiermark",
+   "country": "AT",
+   "lat": 47.54,
+   "lon": 14.886,
+   "kinds": [
+    "technik",
+    "unterwelt",
+    "baden",
+    "berge"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Terrassenförmiger Eisenerzberg mit Schaubergwerk und Riesen-Muldenkipper, dazu ein klarer Bergsee unter Felswänden.",
+   "angle": "Vormittags Hauly-Fahrt und Schaubergwerk, nachmittags zur Abkühlung an den Leopoldsteiner See.",
+   "spots": [
+    {
+     "id": "erzberg-hauly",
+     "name": "Hauly-Fahrt am Erzberg",
+     "kind": "technik",
+     "lat": 47.525,
+     "lon": 14.902,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Fahrt auf einem Riesen-Muldenkipper über die Abbauterrassen des Tagebaus."
+    },
+    {
+     "id": "erzberg-schaubergwerk",
+     "name": "Schaubergwerk Erzberg",
+     "kind": "unterwelt",
+     "lat": 47.527,
+     "lon": 14.9,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Grubenbahn-Einfahrt in die Stollen des Erzbergs."
+    },
+    {
+     "id": "erzberg-leopoldsteiner",
+     "name": "Leopoldsteiner See",
+     "kind": "baden",
+     "lat": 47.567,
+     "lon": 14.878,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Smaragdgrüner Bergsee mit Rundweg und Badestelle."
+    },
+    {
+     "id": "erzberg-praebichl",
+     "name": "Präbichl & Polster",
+     "kind": "berge",
+     "lat": 47.517,
+     "lon": 14.95,
+     "hours": 3,
+     "summary": "Passhöhe mit Sessellift auf den Polster und Blick auf den Erzberg."
+    },
+    {
+     "id": "erzberg-eisenerz",
+     "name": "Eisenerz Altstadt & Kirchenburg St. Oswald",
+     "kind": "kultur",
+     "lat": 47.541,
+     "lon": 14.886,
+     "hours": 1,
+     "summary": "Bergbaustadt mit befestigter gotischer Kirche."
+    }
+   ]
+  },
+  {
+   "id": "villach",
+   "name": "Villach, Faaker & Ossiacher See",
+   "region": "Kärnten",
+   "country": "AT",
+   "lat": 46.614,
+   "lon": 13.846,
+   "kinds": [
+    "baden",
+    "berge",
+    "therme",
+    "tiere",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Drei Badeseen, Affen und Adler auf Burg Landskron, eine Therme und der Aussichtsberg Dobratsch rund um Villach.",
+   "angle": "Morgens den Dobratsch hinauf, mittags zum Affenberg, nachmittags in den Faaker See; bei Regen in die Therme.",
+   "spots": [
+    {
+     "id": "villach-affenberg",
+     "name": "Affenberg Landskron",
+     "kind": "tiere",
+     "lat": 46.646,
+     "lon": 13.908,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freigehege mit Japanmakaken, geführt durch den Wald unter der Burg."
+    },
+    {
+     "id": "villach-adlerarena",
+     "name": "Adlerarena Burg Landskron",
+     "kind": "tiere",
+     "lat": 46.648,
+     "lon": 13.908,
+     "hours": 1,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Greifvogel-Flugvorführungen in der Burgruine mit Blick über den Ossiacher See."
+    },
+    {
+     "id": "villach-faaker-see",
+     "name": "Faaker See",
+     "kind": "baden",
+     "lat": 46.574,
+     "lon": 13.93,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Türkisfarbener, warmer Badesee vor dem Mittagskogel."
+    },
+    {
+     "id": "villach-dobratsch",
+     "name": "Villacher Alpenstraße & Dobratsch",
+     "kind": "berge",
+     "lat": 46.603,
+     "lon": 13.672,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Panoramastraße und Wanderweg auf den Aussichtsberg über dem Drautal."
+    },
+    {
+     "id": "villach-therme",
+     "name": "KärntenTherme Warmbad Villach",
+     "kind": "therme",
+     "lat": 46.592,
+     "lon": 13.852,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Thermalbad mit Rutschen und Quellbecken."
+    },
+    {
+     "id": "villach-ossiach",
+     "name": "Stift Ossiach & Ossiacher See",
+     "kind": "kultur",
+     "lat": 46.674,
+     "lon": 13.982,
+     "hours": 1.5,
+     "summary": "Ehemaliges Benediktinerstift direkt am Südufer des Sees."
+    }
+   ]
+  },
+  {
+   "id": "klopeiner-see",
+   "name": "Klopeiner See & Petzen",
+   "region": "Kärnten",
+   "country": "AT",
+   "lat": 46.605,
+   "lon": 14.583,
+   "kinds": [
+    "baden",
+    "wasser",
+    "berge",
+    "unterwelt",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Sehr warmer Badesee im Kärntner Unterland, ein Nachbarsee und das Bergwerk unter der Petzen, das man sogar im Kajak erkundet.",
+   "angle": "Vormittags im Bergwerk unter der Petzen, nachmittags baden – im Hochsommer heißen Tagen ausweichen.",
+   "spots": [
+    {
+     "id": "klopeiner-see-see",
+     "name": "Klopeiner See",
+     "kind": "baden",
+     "lat": 46.605,
+     "lon": 14.583,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Kleiner, sehr warmer See mit Strandbädern rundum."
+    },
+    {
+     "id": "klopeiner-see-turnersee",
+     "name": "Turnersee",
+     "kind": "baden",
+     "lat": 46.59,
+     "lon": 14.565,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Ruhigerer Nachbarsee mit Schilf und Liegewiesen."
+    },
+    {
+     "id": "klopeiner-see-petzen",
+     "name": "Petzen Bergbahnen",
+     "kind": "berge",
+     "lat": 46.546,
+     "lon": 14.765,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Seilbahn auf die Petzen mit Wanderwegen und Flowtrail für Mountainbiker."
+    },
+    {
+     "id": "klopeiner-see-podzemlje",
+     "name": "Podzemlje Pece (Bergwerk Mežica)",
+     "kind": "unterwelt",
+     "lat": 46.522,
+     "lon": 14.852,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Ehemaliges Blei- und Zinkbergwerk, befahren mit Grubenbahn, Rad oder Kajak."
+    }
+   ]
+  },
+  {
+   "id": "hochosterwitz",
+   "name": "Burg Hochosterwitz & Zollfeld",
+   "region": "Kärnten",
+   "country": "AT",
+   "lat": 46.755,
+   "lon": 14.452,
+   "kinds": [
+    "burg",
+    "kultur",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Märchenhafte Felsenburg mit vierzehn Toren, Römerstadt auf dem Magdalensberg und der Dom von Maria Saal.",
+   "angle": "Hochosterwitz am Vormittag, mittags Magdalensberg mit Aussicht, Rückweg über Maria Saal.",
+   "spots": [
+    {
+     "id": "hochosterwitz-burg",
+     "name": "Burg Hochosterwitz",
+     "kind": "burg",
+     "lat": 46.755,
+     "lon": 14.452,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Burg auf einem Kalkfelsen, deren Weg durch vierzehn Tore führt."
+    },
+    {
+     "id": "hochosterwitz-magdalensberg",
+     "name": "Archäologischer Park Magdalensberg",
+     "kind": "kultur",
+     "lat": 46.726,
+     "lon": 14.43,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Ausgrabungen einer römisch-keltischen Stadt auf dem Gipfelplateau."
+    },
+    {
+     "id": "hochosterwitz-maria-saal",
+     "name": "Dom Maria Saal",
+     "kind": "kultur",
+     "lat": 46.68,
+     "lon": 14.35,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotische Wallfahrtskirche mit Römersteinen in der Außenmauer."
+    },
+    {
+     "id": "hochosterwitz-freilichtmuseum",
+     "name": "Kärntner Freilichtmuseum Maria Saal",
+     "kind": "kultur",
+     "lat": 46.684,
+     "lon": 14.355,
+     "hours": 2,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Bauernhäuser aus ganz Kärnten auf einem Hügel."
+    },
+    {
+     "id": "hochosterwitz-st-veit",
+     "name": "St. Veit an der Glan",
+     "kind": "stadt",
+     "lat": 46.768,
+     "lon": 14.36,
+     "hours": 1,
+     "summary": "Ehemalige Herzogstadt mit Hauptplatz und Brunnen."
+    }
+   ]
+  },
+  {
+   "id": "millstaetter-see",
+   "name": "Millstätter See & Nockberge",
+   "region": "Kärnten",
+   "country": "AT",
+   "lat": 46.804,
+   "lon": 13.58,
+   "kinds": [
+    "baden",
+    "therme",
+    "berge",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Tiefer, klarer Badesee mit Stift Millstatt, Thermen in Bad Kleinkirchheim und die Almenlandschaft der Nockalmstraße.",
+   "angle": "Morgens auf der Nockalmstraße in die Nockberge, nachmittags im Millstätter See schwimmen, bei Regen in die Therme.",
+   "spots": [
+    {
+     "id": "millstaetter-see-stift",
+     "name": "Stift Millstatt",
+     "kind": "kultur",
+     "lat": 46.804,
+     "lon": 13.58,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Romanisches Kloster mit Kreuzgang am Seeufer."
+    },
+    {
+     "id": "millstaetter-see-baden",
+     "name": "Baden im Millstätter See",
+     "kind": "baden",
+     "lat": 46.8,
+     "lon": 13.6,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badestrände in Millstatt, Seeboden und Döbriach."
+    },
+    {
+     "id": "millstaetter-see-porcia",
+     "name": "Schloss Porcia Spittal",
+     "kind": "kultur",
+     "lat": 46.799,
+     "lon": 13.495,
+     "hours": 1,
+     "summary": "Renaissanceschloss mit Arkadenhof im Zentrum von Spittal."
+    },
+    {
+     "id": "millstaetter-see-therme",
+     "name": "Therme St. Kathrein Bad Kleinkirchheim",
+     "kind": "therme",
+     "lat": 46.813,
+     "lon": 13.799,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Therme mit Innen- und Außenbecken am Fuß der Nockberge."
+    },
+    {
+     "id": "millstaetter-see-nockalmstrasse",
+     "name": "Nockalmstraße",
+     "kind": "berge",
+     "lat": 46.89,
+     "lon": 13.76,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Mautpflichtige Panoramastraße durch die runden Almen des Biosphärenparks."
+    }
+   ]
+  },
+  {
+   "id": "weissensee",
+   "name": "Weissensee & Gailtal",
+   "region": "Kärnten",
+   "country": "AT",
+   "lat": 46.716,
+   "lon": 13.296,
+   "kinds": [
+    "baden",
+    "natur",
+    "aktiv",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Höchstgelegener großer Badesee Kärntens mit unverbautem Ostufer, im Winter riesige Natureisfläche.",
+   "angle": "Im Sommer mit dem Schiff ans Ostende und zu Fuß zurück, im Winter Schlittschuhe statt Badehose.",
+   "spots": [
+    {
+     "id": "weissensee-baden",
+     "name": "Baden im Weissensee",
+     "kind": "baden",
+     "lat": 46.716,
+     "lon": 13.296,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Klarer, türkiser See mit Trinkwasserqualität und Badestellen."
+    },
+    {
+     "id": "weissensee-natureis",
+     "name": "Natureisfläche Weissensee",
+     "kind": "winter",
+     "lat": 46.716,
+     "lon": 13.3,
+     "hours": 3,
+     "months": [
+      1,
+      2
+     ],
+     "summary": "Große zugefrorene Seefläche zum Eislaufen in schneesicheren Wintern.",
+     "tip": "Nur auf freigegebenen Flächen gehen."
+    },
+    {
+     "id": "weissensee-drauradweg",
+     "name": "Drauradweg bei Greifenburg",
+     "kind": "aktiv",
+     "lat": 46.75,
+     "lon": 13.18,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Flacher Abschnitt des Drauradwegs mit Bahnanschluss."
+    },
+    {
+     "id": "weissensee-garnitzenklamm",
+     "name": "Garnitzenklamm",
+     "kind": "natur",
+     "lat": 46.62,
+     "lon": 13.39,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Klamm mit Stegen bei Hermagor im Gailtal."
+    },
+    {
+     "id": "weissensee-pressegger-see",
+     "name": "Pressegger See",
+     "kind": "baden",
+     "lat": 46.625,
+     "lon": 13.428,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Warmer Badesee im Gailtal."
+    }
+   ]
+  },
+  {
+   "id": "kranjska-gora",
+   "name": "Kranjska Gora & Vršič-Pass",
+   "region": "Oberkrain",
+   "country": "SI",
+   "lat": 46.485,
+   "lon": 13.785,
+   "kinds": [
+    "berge",
+    "natur",
+    "wasser",
+    "aktiv",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Slowenischer Alpenort am Fuß der Julischen Alpen mit Skisprungtal Planica, Quellsee Zelenci und der Passstraße über den Vršič.",
+   "angle": "Am frühen Morgen nach Zelenci, dann die Vršič-Straße hinauf; am Nachmittag am Jasna-See entspannen.",
+   "spots": [
+    {
+     "id": "kranjska-gora-jasna",
+     "name": "Jasna-See",
+     "kind": "wasser",
+     "lat": 46.477,
+     "lon": 13.785,
+     "hours": 1,
+     "family": true,
+     "summary": "Bergsee am Ortsrand mit Steinbock-Statue und Blick auf die Julischen Alpen."
+    },
+    {
+     "id": "kranjska-gora-zelenci",
+     "name": "Naturreservat Zelenci",
+     "kind": "natur",
+     "lat": 46.493,
+     "lon": 13.734,
+     "hours": 1,
+     "family": true,
+     "slot": "morgen",
+     "summary": "Smaragdgrüne Quelltöpfe der Sava Dolinka, über Holzstege erreichbar."
+    },
+    {
+     "id": "kranjska-gora-planica",
+     "name": "Planica-Schanzen",
+     "kind": "technik",
+     "lat": 46.478,
+     "lon": 13.722,
+     "hours": 2,
+     "family": true,
+     "summary": "Tal der Skiflugschanzen mit nordischem Zentrum und Talwanderung."
+    },
+    {
+     "id": "kranjska-gora-vrsic",
+     "name": "Vršič-Pass & Russische Kapelle",
+     "kind": "berge",
+     "lat": 46.445,
+     "lon": 13.76,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Höchster Straßenpass Sloweniens mit Holzkapelle am Anstieg.",
+     "tip": "Viele nummerierte Kehren mit Kopfsteinpflaster – ruhig fahren."
+    }
+   ]
+  },
+  {
+   "id": "bovec-soca",
+   "name": "Bovec & Soča-Tal",
+   "region": "Küstenland (Primorska)",
+   "country": "SI",
+   "lat": 46.338,
+   "lon": 13.552,
+   "kinds": [
+    "aktiv",
+    "wasser",
+    "natur",
+    "berge",
+    "kultur"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Smaragdgrüner Gebirgsfluss mit Rafting, Wasserfällen und Schluchten, dazu die Geschichte der Isonzofront.",
+   "angle": "Vormittags Rafting oder Kajak, nachmittags zu Fuß zum Kozjak-Wasserfall; bei Regen ins Museum Kobarid.",
+   "spots": [
+    {
+     "id": "bovec-soca-rafting",
+     "name": "Rafting auf der Soča",
+     "kind": "aktiv",
+     "lat": 46.33,
+     "lon": 13.55,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Geführte Wildwassertouren auf dem klaren, kalten Fluss.",
+     "tip": "Neoprenanzug ist nötig – Anbieter stellen ihn."
+    },
+    {
+     "id": "bovec-soca-boka",
+     "name": "Wasserfall Boka",
+     "kind": "natur",
+     "lat": 46.326,
+     "lon": 13.493,
+     "hours": 1.5,
+     "summary": "Hoher Wasserfall aus einer Karstquelle über dem Soča-Tal."
+    },
+    {
+     "id": "bovec-soca-kozjak",
+     "name": "Wasserfall Kozjak",
+     "kind": "natur",
+     "lat": 46.26,
+     "lon": 13.594,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Wasserfall in einer Felskammer, erreichbar über eine Hängebrücke."
+    },
+    {
+     "id": "bovec-soca-kobarid",
+     "name": "Museum Kobarid",
+     "kind": "kultur",
+     "lat": 46.247,
+     "lon": 13.578,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum zu den Isonzoschlachten des Ersten Weltkriegs."
+    },
+    {
+     "id": "bovec-soca-velika-korita",
+     "name": "Große Soča-Tröge (Velika korita)",
+     "kind": "natur",
+     "lat": 46.367,
+     "lon": 13.64,
+     "hours": 1,
+     "summary": "Enge Schlucht, in der sich die Soča durch weißen Fels gefräst hat."
+    }
+   ]
+  },
+  {
+   "id": "linz",
+   "name": "Linz & Pöstlingberg",
+   "region": "Oberösterreich",
+   "country": "AT",
+   "lat": 48.306,
+   "lon": 14.286,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "familie",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Donaustadt mit Technik- und Kunstmuseen am Ufer, steiler Bergbahn auf den Pöstlingberg und Donauradweg ab der Stadt.",
+   "angle": "Bei Regen Ars Electronica und Lentos, bei Sonne Pöstlingberg und abends die Lichtfassaden an der Donaulände.",
+   "spots": [
+    {
+     "id": "linz-ars",
+     "name": "Ars Electronica Center",
+     "kind": "technik",
+     "lat": 48.31,
+     "lon": 14.284,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum der Zukunft mit interaktiven Laboren und großem Deep Space."
+    },
+    {
+     "id": "linz-poestlingberg",
+     "name": "Pöstlingbergbahn & Grottenbahn",
+     "kind": "familie",
+     "lat": 48.322,
+     "lon": 14.258,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Steile Bergbahn auf den Linzer Hausberg mit Märchen-Grottenbahn für Kinder."
+    },
+    {
+     "id": "linz-lentos",
+     "name": "Lentos Kunstmuseum & Donaulände",
+     "kind": "kultur",
+     "lat": 48.307,
+     "lon": 14.288,
+     "hours": 1.5,
+     "indoor": true,
+     "slot": "abend",
+     "summary": "Kunstmuseum am Donauufer, abends beleuchtet."
+    },
+    {
+     "id": "linz-mariendom",
+     "name": "Mariendom",
+     "kind": "kultur",
+     "lat": 48.301,
+     "lon": 14.287,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Größte Kirche Österreichs nach Fassungsvermögen, neugotisch mit Glasfenstern."
+    },
+    {
+     "id": "linz-donauradweg",
+     "name": "Donauradweg Linz–Ottensheim",
+     "kind": "aktiv",
+     "lat": 48.33,
+     "lon": 14.2,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Radweg flussaufwärts; zurück mit der Bahn oder per Rad."
+    }
+   ]
+  },
+  {
+   "id": "enns-mauthausen",
+   "name": "Enns, St. Florian & Mauthausen",
+   "region": "Oberösterreich",
+   "country": "AT",
+   "lat": 48.213,
+   "lon": 14.475,
+   "kinds": [
+    "kultur",
+    "stadt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Älteste Stadt Österreichs, barockes Augustinerstift und die KZ-Gedenkstätte Mauthausen – Geschichte auf engem Raum.",
+   "angle": "Für Mauthausen bewusst Zeit lassen und den Tag danach ruhig in Enns ausklingen lassen.",
+   "spots": [
+    {
+     "id": "enns-mauthausen-stadtturm",
+     "name": "Stadtturm & Hauptplatz Enns",
+     "kind": "stadt",
+     "lat": 48.213,
+     "lon": 14.475,
+     "hours": 1,
+     "summary": "Freistehender Stadtturm mitten auf dem Hauptplatz mit Rundblick."
+    },
+    {
+     "id": "enns-mauthausen-st-florian",
+     "name": "Stift St. Florian",
+     "kind": "kultur",
+     "lat": 48.207,
+     "lon": 14.379,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Barockstift mit Bibliothek und der Bruckner-Orgel."
+    },
+    {
+     "id": "enns-mauthausen-mauthausen",
+     "name": "KZ-Gedenkstätte Mauthausen",
+     "kind": "kultur",
+     "lat": 48.257,
+     "lon": 14.501,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Gedenkort und Museum am Ort des ehemaligen Konzentrationslagers."
+    },
+    {
+     "id": "enns-mauthausen-lorch",
+     "name": "Basilika St. Laurenz Lorch",
+     "kind": "kultur",
+     "lat": 48.22,
+     "lon": 14.488,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Kirche über römischen und frühchristlichen Fundamenten."
+    }
+   ]
+  },
+  {
+   "id": "steyr",
+   "name": "Steyr & Kremsmünster",
+   "region": "Oberösterreich",
+   "country": "AT",
+   "lat": 48.039,
+   "lon": 14.419,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Gotisch-barocke Altstadt am Zusammenfluss von Enns und Steyr, Museum der Industriegeschichte und Stift Kremsmünster.",
+   "angle": "Am Abend auf der Brücke über den Zusammenfluss stehen, wenn die Altstadt sich im Wasser spiegelt.",
+   "spots": [
+    {
+     "id": "steyr-stadtplatz",
+     "name": "Stadtplatz & Bummerlhaus",
+     "kind": "stadt",
+     "lat": 48.038,
+     "lon": 14.419,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Langgestreckter Stadtplatz mit dem gotischen Bummerlhaus."
+    },
+    {
+     "id": "steyr-arbeitswelt",
+     "name": "Museum Arbeitswelt",
+     "kind": "technik",
+     "lat": 48.032,
+     "lon": 14.413,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum zur Arbeits- und Industriegeschichte in einer alten Fabrik am Wehrgraben."
+    },
+    {
+     "id": "steyr-christkindl",
+     "name": "Wallfahrtskirche Christkindl",
+     "kind": "kultur",
+     "lat": 48.037,
+     "lon": 14.386,
+     "hours": 0.5,
+     "summary": "Barocke Wallfahrtskirche, bekannt durch ihr Weihnachtspostamt."
+    },
+    {
+     "id": "steyr-kremsmuenster",
+     "name": "Stift Kremsmünster",
+     "kind": "kultur",
+     "lat": 48.053,
+     "lon": 14.129,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Benediktinerstift mit Sternwarte und Fischkalter."
+    }
+   ]
+  },
+  {
+   "id": "traunsee",
+   "name": "Traunsee (Gmunden & Traunkirchen)",
+   "region": "Oberösterreich",
+   "country": "AT",
+   "lat": 47.918,
+   "lon": 13.799,
+   "kinds": [
+    "wasser",
+    "baden",
+    "berge",
+    "kultur",
+    "freizeit"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Tiefster See Österreichs mit Seeschloss Ort, Baumwipfelpfad am Grünberg und dem markanten Traunstein.",
+   "angle": "Zum Sonnenuntergang nach Traunkirchen auf den Johannesberg, tagsüber Seeschloss und Baumwipfelpfad.",
+   "spots": [
+    {
+     "id": "traunsee-seeschloss",
+     "name": "Seeschloss Ort",
+     "kind": "kultur",
+     "lat": 47.909,
+     "lon": 13.818,
+     "hours": 1,
+     "summary": "Schloss auf einer Insel im See, über einen Holzsteg erreichbar."
+    },
+    {
+     "id": "traunsee-baumwipfelpfad",
+     "name": "Baumwipfelpfad Salzkammergut (Grünberg)",
+     "kind": "freizeit",
+     "lat": 47.912,
+     "lon": 13.812,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Holzsteg durch die Baumkronen mit Aussichtsturm, erreichbar mit der Grünbergseilbahn."
+    },
+    {
+     "id": "traunsee-traunkirchen",
+     "name": "Traunkirchen & Johannesbergkapelle",
+     "kind": "kultur",
+     "lat": 47.844,
+     "lon": 13.789,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Halbinsel mit Fischerkanzel in der Kirche und Kapelle auf dem Felsen."
+    },
+    {
+     "id": "traunsee-traunstein",
+     "name": "Traunstein",
+     "kind": "berge",
+     "lat": 47.874,
+     "lon": 13.854,
+     "hours": 6,
+     "months": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Anspruchsvoller Felsberg mit Blick über das Alpenvorland.",
+     "tip": "Nur für Trittsichere; früh starten."
+    },
+    {
+     "id": "traunsee-keramik",
+     "name": "Gmundner Keramik Manufaktur",
+     "kind": "kultur",
+     "lat": 47.918,
+     "lon": 13.796,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Traditionsmanufaktur der grün geflammten Keramik."
+    }
+   ]
+  },
+  {
+   "id": "mondsee-attersee",
+   "name": "Mondsee & Attersee",
+   "region": "Oberösterreich",
+   "country": "AT",
+   "lat": 47.856,
+   "lon": 13.35,
+   "kinds": [
+    "baden",
+    "wasser",
+    "aktiv",
+    "kultur",
+    "berge"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Zwei warme Salzkammergut-Seen unter der Drachenwand, mit Hochzeitskirche aus dem Film und einer kleinen Klamm.",
+   "angle": "Früh den Klettersteig gehen, mittags baden, nachmittags durch die Burggrabenklamm.",
+   "spots": [
+    {
+     "id": "mondsee-attersee-basilika",
+     "name": "Basilika St. Michael Mondsee",
+     "kind": "kultur",
+     "lat": 47.856,
+     "lon": 13.35,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Barocke Klosterkirche, bekannt als Hochzeitskirche aus „The Sound of Music“."
+    },
+    {
+     "id": "mondsee-attersee-drachenwand",
+     "name": "Drachenwand-Klettersteig",
+     "kind": "aktiv",
+     "lat": 47.833,
+     "lon": 13.378,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Beliebter Klettersteig über dem Mondsee mit Ausblick auf beide Seen.",
+     "tip": "Helm und Klettersteigset sind Pflicht; an Wochenenden voll."
+    },
+    {
+     "id": "mondsee-attersee-alpenseebad",
+     "name": "Alpenseebad Mondsee",
+     "kind": "baden",
+     "lat": 47.853,
+     "lon": 13.355,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Strandbad am Nordufer mit Liegewiese und Steg."
+    },
+    {
+     "id": "mondsee-attersee-burggrabenklamm",
+     "name": "Burggrabenklamm",
+     "kind": "natur",
+     "lat": 47.795,
+     "lon": 13.474,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kurze Klamm mit Wasserfall am Südende des Attersees."
+    },
+    {
+     "id": "mondsee-attersee-attersee",
+     "name": "Baden am Attersee (Unterach)",
+     "kind": "baden",
+     "lat": 47.806,
+     "lon": 13.488,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badestellen am klaren Südende des Attersees."
+    }
+   ]
+  },
+  {
+   "id": "hallein-golling",
+   "name": "Hallein & Tennengau",
+   "region": "Salzburg",
+   "country": "AT",
+   "lat": 47.683,
+   "lon": 13.097,
+   "kinds": [
+    "unterwelt",
+    "kultur",
+    "natur",
+    "familie"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Salzbergwerk mit Rutschen, Keltenmuseum und tosende Wasserfälle und Schluchten südlich von Salzburg.",
+   "angle": "Bei Regen Salzwelten und Keltenmuseum, bei Sonne Gollinger Wasserfall und Salzachöfen.",
+   "spots": [
+    {
+     "id": "hallein-golling-salzwelten",
+     "name": "Salzwelten Hallein",
+     "kind": "unterwelt",
+     "lat": 47.666,
+     "lon": 13.083,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Salzbergwerk am Dürrnberg mit Grubenbahn, Rutschen und Salzsee."
+    },
+    {
+     "id": "hallein-golling-keltenmuseum",
+     "name": "Keltenmuseum Hallein",
+     "kind": "kultur",
+     "lat": 47.683,
+     "lon": 13.097,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum zur keltischen Salzkultur direkt an der Salzach."
+    },
+    {
+     "id": "hallein-golling-gollinger-wasserfall",
+     "name": "Gollinger Wasserfall",
+     "kind": "natur",
+     "lat": 47.597,
+     "lon": 13.168,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Zweistufiger Wasserfall mit Steg und Brücke in die Gischt."
+    },
+    {
+     "id": "hallein-golling-salzachoefen",
+     "name": "Salzachöfen",
+     "kind": "natur",
+     "lat": 47.555,
+     "lon": 13.18,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Enge Schlucht der Salzach am Pass Lueg."
+    },
+    {
+     "id": "hallein-golling-lammerklamm",
+     "name": "Lammerklamm",
+     "kind": "natur",
+     "lat": 47.58,
+     "lon": 13.24,
+     "hours": 1.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Felsenklamm der Lammer mit Steig."
+    }
+   ]
+  },
+  {
+   "id": "gastein",
+   "name": "Gasteinertal",
+   "region": "Salzburg",
+   "country": "AT",
+   "lat": 47.115,
+   "lon": 13.134,
+   "kinds": [
+    "therme",
+    "berge",
+    "natur",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Belle-Époque-Kurort mit Wasserfall mitten im Ort, Thermen und Hängebrücke auf dem Stubnerkogel.",
+   "angle": "Nach dem Wandern direkt in die Therme; bei schlechtem Wetter die Felsentherme.",
+   "spots": [
+    {
+     "id": "gastein-wasserfall",
+     "name": "Gasteiner Wasserfall",
+     "kind": "natur",
+     "lat": 47.115,
+     "lon": 13.135,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Wasserfall, der mitten durch das Zentrum von Bad Gastein stürzt."
+    },
+    {
+     "id": "gastein-felsentherme",
+     "name": "Felsentherme Bad Gastein",
+     "kind": "therme",
+     "lat": 47.112,
+     "lon": 13.131,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Therme mit Becken im Fels und Bergblick."
+    },
+    {
+     "id": "gastein-alpentherme",
+     "name": "Alpentherme Gastein",
+     "kind": "therme",
+     "lat": 47.172,
+     "lon": 13.103,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Große Therme in Bad Hofgastein mit Familienbereich."
+    },
+    {
+     "id": "gastein-stubnerkogel",
+     "name": "Stubnerkogel & Hängebrücke",
+     "kind": "berge",
+     "lat": 47.1,
+     "lon": 13.1,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahnberg mit Hängebrücke und Gipfelplattform."
+    }
+   ]
+  },
+  {
+   "id": "zell-kaprun",
+   "name": "Zell am See & Kaprun",
+   "region": "Salzburg",
+   "country": "AT",
+   "lat": 47.324,
+   "lon": 12.797,
+   "kinds": [
+    "baden",
+    "berge",
+    "technik",
+    "winter",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Badesee vor Gletscherkulisse, Hochgebirgsstauseen und Ganzjahresgletscher am Kitzsteinhorn.",
+   "angle": "Morgens zum Gletscher, nachmittags in den Zeller See; bei Regen ins Tauern Spa.",
+   "spots": [
+    {
+     "id": "zell-kaprun-schmittenhoehe",
+     "name": "Schmittenhöhe",
+     "kind": "berge",
+     "lat": 47.329,
+     "lon": 12.738,
+     "hours": 3,
+     "family": true,
+     "summary": "Hausberg mit Seilbahn und Blick auf die Hohen Tauern."
+    },
+    {
+     "id": "zell-kaprun-kitzsteinhorn",
+     "name": "Kitzsteinhorn & Gipfelwelt 3000",
+     "kind": "berge",
+     "lat": 47.193,
+     "lon": 12.687,
+     "hours": 4,
+     "summary": "Gletscherberg mit Aussichtsplattform und Nationalpark-Galerie."
+    },
+    {
+     "id": "zell-kaprun-stauseen",
+     "name": "Hochgebirgsstauseen Kaprun",
+     "kind": "technik",
+     "lat": 47.15,
+     "lon": 12.72,
+     "hours": 4,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Stauseen Mooserboden und Wasserfallboden mit Staumauern im Hochgebirge."
+    },
+    {
+     "id": "zell-kaprun-sigmund-thun",
+     "name": "Sigmund-Thun-Klamm",
+     "kind": "natur",
+     "lat": 47.264,
+     "lon": 12.745,
+     "hours": 1,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kurze Klamm mit Stegen am Ortsrand von Kaprun."
+    },
+    {
+     "id": "zell-kaprun-zeller-see",
+     "name": "Baden im Zeller See",
+     "kind": "baden",
+     "lat": 47.32,
+     "lon": 12.8,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Strandbäder am Zeller See."
+    },
+    {
+     "id": "zell-kaprun-tauern-spa",
+     "name": "Tauern Spa Zell am See–Kaprun",
+     "kind": "therme",
+     "lat": 47.272,
+     "lon": 12.763,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Therme mit Innen- und Außenbecken."
+    }
+   ]
+  },
+  {
+   "id": "kufstein",
+   "name": "Kufstein & Kaisertal",
+   "region": "Tirol",
+   "country": "AT",
+   "lat": 47.583,
+   "lon": 12.166,
+   "kinds": [
+    "burg",
+    "berge",
+    "baden",
+    "natur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Festungsstadt am Inn mit dem autofreien Kaisertal und Badeseen am Fuß des Wilden Kaisers.",
+   "angle": "Morgens über die Stufen ins Kaisertal, mittags zur Festung, nachmittags zum Abkühlen an den Hechtsee.",
+   "spots": [
+    {
+     "id": "kufstein-festung",
+     "name": "Festung Kufstein",
+     "kind": "burg",
+     "lat": 47.583,
+     "lon": 12.166,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Festung hoch über der Stadt mit Museum und der großen Heldenorgel."
+    },
+    {
+     "id": "kufstein-kaisertal",
+     "name": "Kaisertal",
+     "kind": "natur",
+     "lat": 47.598,
+     "lon": 12.19,
+     "hours": 4,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Autofreies Hochtal mit Almen, Kapelle und Blick auf den Wilden Kaiser.",
+     "tip": "Der Aufstieg beginnt mit einer langen Treppe – gutes Schuhwerk."
+    },
+    {
+     "id": "kufstein-hechtsee",
+     "name": "Hechtsee",
+     "kind": "baden",
+     "lat": 47.603,
+     "lon": 12.143,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Waldsee mit Badeanstalt kurz vor der bayerischen Grenze."
+    },
+    {
+     "id": "kufstein-hintersteiner-see",
+     "name": "Hintersteiner See",
+     "kind": "baden",
+     "lat": 47.553,
+     "lon": 12.247,
+     "hours": 2,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Klarer Bergsee am Fuß des Wilden Kaisers mit Rundweg."
+    }
+   ]
+  },
+  {
+   "id": "achensee",
+   "name": "Achensee & Rofan",
+   "region": "Tirol",
+   "country": "AT",
+   "lat": 47.433,
+   "lon": 11.698,
+   "kinds": [
+    "wasser",
+    "baden",
+    "berge",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Größter See Tirols zwischen Karwendel und Rofan mit Schiffen, Seilbahn und stillen Almtälern.",
+   "angle": "Mit dem Schiff ans andere Ufer fahren und auf dem Uferweg zurückwandern; bei klarer Sicht nachmittags ins Rofan.",
+   "spots": [
+    {
+     "id": "achensee-schifffahrt",
+     "name": "Achensee-Schifffahrt",
+     "kind": "wasser",
+     "lat": 47.432,
+     "lon": 11.703,
+     "hours": 2,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Linienschiffe verbinden die Orte rund um den See."
+    },
+    {
+     "id": "achensee-rofan",
+     "name": "Rofanseilbahn",
+     "kind": "berge",
+     "lat": 47.444,
+     "lon": 11.732,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Seilbahn von Maurach in das Rofangebirge mit Rundwegen und Seeblick."
+    },
+    {
+     "id": "achensee-baden",
+     "name": "Baden im Achensee",
+     "kind": "baden",
+     "lat": 47.43,
+     "lon": 11.705,
+     "hours": 2,
+     "months": [
+      7,
+      8
+     ],
+     "summary": "Glasklares, auch im Sommer kühles Wasser mit Badestellen in Pertisau und Maurach.",
+     "tip": "Eher kurze Abkühlung als langes Schwimmen."
+    },
+    {
+     "id": "achensee-falzthurntal",
+     "name": "Falzthurntal & Gramaialm",
+     "kind": "natur",
+     "lat": 47.46,
+     "lon": 11.63,
+     "hours": 3,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Almtal im Karwendel mit altem Ahornbestand."
+    }
+   ]
+  },
+  {
+   "id": "stubai",
+   "name": "Stubaital",
+   "region": "Tirol",
+   "country": "AT",
+   "lat": 47.11,
+   "lon": 11.31,
+   "kinds": [
+    "berge",
+    "natur",
+    "winter",
+    "aktiv"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Gletschertal direkt südlich von Innsbruck mit Ganzjahresgletscher, Wasserfällen und Straßenbahn bis Fulpmes.",
+   "angle": "Morgens zum Gletscher, wenn die Sicht am klarsten ist, nachmittags den Wasserfallweg am Grawa gehen.",
+   "spots": [
+    {
+     "id": "stubai-gletscher",
+     "name": "Stubaier Gletscher & Top of Tyrol",
+     "kind": "berge",
+     "lat": 46.99,
+     "lon": 11.12,
+     "hours": 4,
+     "summary": "Seilbahnen auf den Gletscher und eine Gipfelplattform über dem Eis."
+    },
+    {
+     "id": "stubai-grawa",
+     "name": "Grawa-Wasserfall",
+     "kind": "natur",
+     "lat": 47.033,
+     "lon": 11.208,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Breiter Wasserfall im hinteren Stubaital mit Aussichtsplattform."
+    },
+    {
+     "id": "stubai-wildewasserweg",
+     "name": "WildeWasserWeg",
+     "kind": "aktiv",
+     "lat": 47.01,
+     "lon": 11.18,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Wanderweg entlang mehrerer Wasserfälle der Ruetz."
+    },
+    {
+     "id": "stubai-schlick",
+     "name": "Schlick 2000 (Fulpmes)",
+     "kind": "berge",
+     "lat": 47.15,
+     "lon": 11.35,
+     "hours": 3,
+     "family": true,
+     "summary": "Bergbahnen bei Fulpmes mit Wanderwegen unter den Kalkkögeln."
+    },
+    {
+     "id": "stubai-stubaitalbahn",
+     "name": "Stubaitalbahn",
+     "kind": "technik",
+     "lat": 47.17,
+     "lon": 11.36,
+     "hours": 1,
+     "family": true,
+     "summary": "Überlandstraßenbahn von Innsbruck nach Fulpmes."
+    }
+   ]
+  },
+  {
+   "id": "oetztal",
+   "name": "Ötztal (Längenfeld & Umhausen)",
+   "region": "Tirol",
+   "country": "AT",
+   "lat": 47.074,
+   "lon": 10.968,
+   "kinds": [
+    "therme",
+    "aktiv",
+    "natur",
+    "berge",
+    "kultur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    4
+   ],
+   "summary": "Langes Hochgebirgstal mit Therme, dem höchsten Wasserfall Tirols, Steinzeitdorf und Wildwasser am Talausgang.",
+   "angle": "Vormittags Rafting in der AREA 47, nachmittags Stuibenfall und abends in die Therme.",
+   "spots": [
+    {
+     "id": "oetztal-aqua-dome",
+     "name": "Aqua Dome Längenfeld",
+     "kind": "therme",
+     "lat": 47.072,
+     "lon": 10.97,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Therme mit Schalenbecken im Freien vor Bergkulisse."
+    },
+    {
+     "id": "oetztal-stuibenfall",
+     "name": "Stuibenfall",
+     "kind": "natur",
+     "lat": 47.137,
+     "lon": 10.928,
+     "hours": 2,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Höchster Wasserfall Tirols mit Steigen, Hängebrücke und Klettersteig."
+    },
+    {
+     "id": "oetztal-oetzi-dorf",
+     "name": "Ötzi-Dorf Umhausen",
+     "kind": "kultur",
+     "lat": 47.139,
+     "lon": 10.928,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freilichtmuseum zur Lebenswelt der Jungsteinzeit."
+    },
+    {
+     "id": "oetztal-area47",
+     "name": "AREA 47",
+     "kind": "aktiv",
+     "lat": 47.233,
+     "lon": 10.838,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Outdoorpark mit Rafting, Canyoning und Wassersprüngen am Ausgang des Ötztals."
+    },
+    {
+     "id": "oetztal-gaislachkogl",
+     "name": "Gaislachkogl",
+     "kind": "berge",
+     "lat": 46.94,
+     "lon": 10.97,
+     "hours": 3,
+     "summary": "Seilbahn bei Sölden auf über 3.000 m."
+    }
+   ]
+  },
+  {
+   "id": "sterzing",
+   "name": "Sterzing & Wipptal",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.893,
+   "lon": 11.432,
+   "kinds": [
+    "stadt",
+    "natur",
+    "unterwelt",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Kleine Fuggerstadt kurz hinter dem Brenner mit Marmorklamm, Bergbaumuseum und Burgen im Wipptal.",
+   "angle": "Auf dem Weg nach Süden einen Halt einlegen: Gilfenklamm am Morgen, Bummel durch die Neustadt am Nachmittag.",
+   "spots": [
+    {
+     "id": "sterzing-zwoelferturm",
+     "name": "Zwölferturm & Neustadt",
+     "kind": "stadt",
+     "lat": 46.896,
+     "lon": 11.43,
+     "hours": 1,
+     "summary": "Wahrzeichen der Stadt über der Laubengasse mit Erkern und Wirtshausschildern."
+    },
+    {
+     "id": "sterzing-gilfenklamm",
+     "name": "Gilfenklamm",
+     "kind": "natur",
+     "lat": 46.877,
+     "lon": 11.469,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Schlucht aus weißem Marmor mit Stegen und Wasserfällen."
+    },
+    {
+     "id": "sterzing-bergbauwelt",
+     "name": "BergbauWelt Ridnaun-Schneeberg",
+     "kind": "unterwelt",
+     "lat": 46.903,
+     "lon": 11.272,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Bergbaumuseum mit Stollenfahrt im Ridnauntal."
+    },
+    {
+     "id": "sterzing-reifenstein",
+     "name": "Burg Reifenstein",
+     "kind": "burg",
+     "lat": 46.873,
+     "lon": 11.448,
+     "hours": 1,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Gut erhaltene mittelalterliche Burg auf einem Felsen im Talboden."
+    }
+   ]
+  },
+  {
+   "id": "bozen",
+   "name": "Bozen & Ritten",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.498,
+   "lon": 11.354,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "burg",
+    "berge",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Südtirols Hauptstadt mit Laubengassen, Bilderburg Runkelstein und Seilbahnen auf die Hochplateaus rundum.",
+   "angle": "Morgens mit der Seilbahn auf den Ritten zu den Erdpyramiden, nachmittags Lauben und Obstmarkt, bei Regen ins Naturmuseum.",
+   "spots": [
+    {
+     "id": "bozen-lauben",
+     "name": "Waltherplatz, Lauben & Obstmarkt",
+     "kind": "stadt",
+     "lat": 46.499,
+     "lon": 11.354,
+     "hours": 2,
+     "summary": "Mittelalterliche Laubengasse und Marktplatz mitten in der Altstadt."
+    },
+    {
+     "id": "bozen-runkelstein",
+     "name": "Schloss Runkelstein",
+     "kind": "burg",
+     "lat": 46.519,
+     "lon": 11.361,
+     "hours": 1.5,
+     "summary": "Burg mit dem größten erhaltenen weltlichen Freskenzyklus des Mittelalters."
+    },
+    {
+     "id": "bozen-ritten",
+     "name": "Rittner Seilbahn & Erdpyramiden",
+     "kind": "natur",
+     "lat": 46.556,
+     "lon": 11.426,
+     "hours": 3,
+     "family": true,
+     "summary": "Seilbahn auf den Ritten und Wanderung zu den Erdpyramiden bei Lengmoos."
+    },
+    {
+     "id": "bozen-firmian",
+     "name": "Messner Mountain Museum Firmian",
+     "kind": "kultur",
+     "lat": 46.484,
+     "lon": 11.298,
+     "hours": 2,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "summary": "Bergmuseum in der Burg Sigmundskron über dem Etschtal."
+    },
+    {
+     "id": "bozen-naturmuseum",
+     "name": "Naturmuseum Südtirol",
+     "kind": "kultur",
+     "lat": 46.498,
+     "lon": 11.356,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Museum zur Landschaft und Geologie Südtirols mit Aquarium."
+    }
+   ]
+  },
+  {
+   "id": "kalterer-see",
+   "name": "Kalterer See & Südtiroler Weinstraße",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.413,
+   "lon": 11.258,
+   "kinds": [
+    "baden",
+    "genuss",
+    "natur",
+    "technik"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Warmer Badesee zwischen Rebhängen, Waldseen bei Montiggl und Standseilbahn auf den Mendelpass.",
+   "angle": "Morgens auf den Mendel, mittags in die Rastenbachklamm, nachmittags zum Baden in den Kalterer See.",
+   "spots": [
+    {
+     "id": "kalterer-see-see",
+     "name": "Kalterer See",
+     "kind": "baden",
+     "lat": 46.412,
+     "lon": 11.258,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Einer der wärmsten Badeseen der Alpen mit Strandbädern."
+    },
+    {
+     "id": "kalterer-see-mendelbahn",
+     "name": "Mendelbahn",
+     "kind": "technik",
+     "lat": 46.443,
+     "lon": 11.237,
+     "hours": 2,
+     "family": true,
+     "summary": "Steile Standseilbahn von Kaltern auf den Mendelpass."
+    },
+    {
+     "id": "kalterer-see-montiggler-seen",
+     "name": "Montiggler Seen",
+     "kind": "baden",
+     "lat": 46.433,
+     "lon": 11.296,
+     "hours": 2.5,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Zwei Waldseen mit Badeanstalt und Rundweg."
+    },
+    {
+     "id": "kalterer-see-rastenbachklamm",
+     "name": "Rastenbachklamm",
+     "kind": "natur",
+     "lat": 46.402,
+     "lon": 11.237,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Kleine Klamm mit Stegen oberhalb von Kaltern."
+    },
+    {
+     "id": "kalterer-see-weinmuseum",
+     "name": "Südtiroler Weinmuseum Kaltern",
+     "kind": "kultur",
+     "lat": 46.414,
+     "lon": 11.239,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Museum zur Weinbaugeschichte im Ortszentrum."
+    }
+   ]
+  },
+  {
+   "id": "eggental",
+   "name": "Eggental (Karersee & Latemar)",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.409,
+   "lon": 11.575,
+   "kinds": [
+    "berge",
+    "natur",
+    "winter",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Dolomiten-Tal unter Rosengarten und Latemar mit dem farbigen Karersee und der Bletterbachschlucht.",
+   "angle": "Den Karersee am frühen Morgen besuchen, wenn das Wasser ruhig ist und die Spiegelung des Latemar gelingt.",
+   "spots": [
+    {
+     "id": "eggental-karersee",
+     "name": "Karersee",
+     "kind": "natur",
+     "lat": 46.409,
+     "lon": 11.575,
+     "hours": 1,
+     "family": true,
+     "slot": "morgen",
+     "summary": "Kleiner Bergsee, in dem sich der Latemar spiegelt."
+    },
+    {
+     "id": "eggental-bletterbach",
+     "name": "Bletterbach-Schlucht",
+     "kind": "natur",
+     "lat": 46.355,
+     "lon": 11.425,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Geologische Schlucht des Welterbes Dolomiten mit Besucherzentrum."
+    },
+    {
+     "id": "eggental-rosengarten",
+     "name": "Seilbahn Laurin zur Kölner Hütte (Rosengarten)",
+     "kind": "berge",
+     "lat": 46.428,
+     "lon": 11.6,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Sessel- und Seilbahn an die Westwände des Rosengartens."
+    },
+    {
+     "id": "eggental-weissenstein",
+     "name": "Wallfahrtsort Maria Weißenstein",
+     "kind": "kultur",
+     "lat": 46.383,
+     "lon": 11.42,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Wallfahrtskirche auf einer Hochfläche über dem Etschtal."
+    }
+   ]
+  },
+  {
+   "id": "brixen",
+   "name": "Brixen & Eisacktal",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.716,
+   "lon": 11.657,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "berge",
+    "genuss"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Bischofsstadt mit Dom und Kreuzgang, Kloster Neustift und dem Villnößtal unter den Geislerspitzen.",
+   "angle": "Vormittags ins Villnößtal zur Kirche St. Magdalena, nachmittags Kloster Neustift und Brixner Altstadt.",
+   "spots": [
+    {
+     "id": "brixen-dom",
+     "name": "Domplatz & Kreuzgang",
+     "kind": "kultur",
+     "lat": 46.716,
+     "lon": 11.657,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Barocker Dom mit freskiertem Kreuzgang."
+    },
+    {
+     "id": "brixen-neustift",
+     "name": "Kloster Neustift",
+     "kind": "kultur",
+     "lat": 46.737,
+     "lon": 11.659,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Augustiner-Chorherrenstift mit Bibliothek und Stiftskellerei."
+    },
+    {
+     "id": "brixen-plose",
+     "name": "Plose-Seilbahn",
+     "kind": "berge",
+     "lat": 46.708,
+     "lon": 11.692,
+     "hours": 3,
+     "family": true,
+     "summary": "Kabinenbahn auf den Hausberg mit Dolomitenblick."
+    },
+    {
+     "id": "brixen-villnoess",
+     "name": "Villnößtal & St. Magdalena",
+     "kind": "natur",
+     "lat": 46.638,
+     "lon": 11.738,
+     "hours": 3,
+     "slot": "nachm",
+     "summary": "Kirchlein vor den Geislerspitzen, eines der bekanntesten Dolomitenmotive."
+    },
+    {
+     "id": "brixen-saeben",
+     "name": "Klausen & Kloster Säben",
+     "kind": "kultur",
+     "lat": 46.638,
+     "lon": 11.567,
+     "hours": 2,
+     "summary": "Künstlerstädtchen unter einem Kloster auf dem Felsen."
+    }
+   ]
+  },
+  {
+   "id": "pustertal",
+   "name": "Bruneck & Pustertal",
+   "region": "Südtirol",
+   "country": "IT",
+   "lat": 46.796,
+   "lon": 11.936,
+   "kinds": [
+    "berge",
+    "natur",
+    "kultur",
+    "burg",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Lebendige Kleinstadt mit Bergmuseum im Schloss, Kronplatz und dem Pragser Wildsee als Ausflugsklassiker.",
+   "angle": "Den Pragser Wildsee sehr früh oder spät besuchen und tagsüber Kronplatz und Museen einplanen.",
+   "spots": [
+    {
+     "id": "pustertal-ripa",
+     "name": "Schloss Bruneck & Messner Mountain Museum Ripa",
+     "kind": "kultur",
+     "lat": 46.798,
+     "lon": 11.937,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum über Bergvölker in der Burg über der Altstadt."
+    },
+    {
+     "id": "pustertal-kronplatz",
+     "name": "Kronplatz & LUMEN",
+     "kind": "berge",
+     "lat": 46.739,
+     "lon": 11.957,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Gipfelplateau mit Seilbahnen und Museum für Bergfotografie."
+    },
+    {
+     "id": "pustertal-pragser-wildsee",
+     "name": "Pragser Wildsee",
+     "kind": "wasser",
+     "lat": 46.694,
+     "lon": 12.085,
+     "hours": 2,
+     "family": true,
+     "summary": "Smaragdgrüner Bergsee mit Rundweg und Ruderbooten.",
+     "tip": "Im Sommer ist die Zufahrt reguliert – vorher informieren."
+    },
+    {
+     "id": "pustertal-reinbach",
+     "name": "Reinbachfälle & Burg Taufers",
+     "kind": "natur",
+     "lat": 46.92,
+     "lon": 11.952,
+     "hours": 2,
+     "family": true,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Wasserfallweg und Burg in Sand in Taufers."
+    },
+    {
+     "id": "pustertal-dietenheim",
+     "name": "Volkskundemuseum Dietenheim",
+     "kind": "kultur",
+     "lat": 46.807,
+     "lon": 11.958,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freilichtmuseum mit Bauernhöfen aus Südtirol."
+    }
+   ]
+  }
+ ]
+}

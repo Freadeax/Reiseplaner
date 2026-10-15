@@ -42,7 +42,11 @@ const near = C.searchLocal(DATA, { lat: goe.lat, lon: goe.lon, maxKm: 150 });
 assert(near.places.length >= 3);
 for (const p of near.places) assert(p.airKm * C.ROAD_FACTOR <= 150 + 0.1);
 for (let i = 1; i < near.places.length; i++) assert(near.places[i].airKm >= near.places[i - 1].airKm);
-assert.equal(near.places[0].id, 'bad-urach');
+assert.equal(near.places[0].id, 'stauferland', 'Stauferland liegt bei Göppingen (Katalog v4)');
+assert(near.places.slice(0, 5).some(p => p.id === 'bad-urach'));
+/* Katalog v4: jede Art hat genug Ziele, jeder Referenzpunkt mindestens 15 Ziele im 150-km-Luftlinienkreis */
+for (const k of Object.keys(C.KINDS)) assert(DATA.places.filter(p => p.kinds.includes(k)).length >= 10, 'Art ' + k + ' zu dünn');
+for (const o of C.ORIGINS) assert(DATA.places.filter(p => C.airKm(o, p) <= 150).length >= 15, 'Referenzpunkt ' + o.label + ' zu dünn');
 const far = C.searchLocal(DATA, { lat: goe.lat, lon: goe.lon, minKm: 400, maxKm: 900 });
 assert(far.places.length >= 5);
 for (const p of far.places) { const r = p.airKm * C.ROAD_FACTOR; assert(r >= 399.9 && r <= 900.1, p.id + ' außerhalb'); }
@@ -216,7 +220,12 @@ const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 const win = { addEventListener() {}, RPCatalog: C, RP_CATALOG: DATA };
-const ctx = { window: win, document: { addEventListener() {}, querySelector() { return null; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild() {} }, head: { appendChild() {} } },
+/* Skript-Nachladen (Index, Kacheln) wie im Browser: Datei im selben Kontext ausführen, dann onload/onerror.
+   Ohne das blieb der App-Teil seit K1 stumm hängen und Node beendete sich mit 0 (siehe Abschlusswächter unten). */
+const loadScript = el => setImmediate(() => { let ok = true; try { vm.runInContext(fs.readFileSync(path.join(ROOT, el.src), 'utf8'), ctx); } catch (e) { ok = false; } (ok ? el.onload : el.onerror)(); });
+let finished = false;
+process.on('exit', code => { if (!code && !finished) { console.error('catalog.cjs: App-Teil nicht abgeschlossen (hängendes Promise)'); process.exitCode = 1; } });
+const ctx = { window: win, document: { addEventListener() {}, querySelector() { return null; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild: loadScript }, head: { appendChild: loadScript } },
   localStorage: { getItem() { return null; }, setItem() {} }, setTimeout, clearTimeout, console, navigator: {} };
 vm.createContext(ctx); vm.runInContext(code, ctx);
 const a = win.__app;
@@ -273,5 +282,30 @@ const a = win.__app;
   const db = await a.catalogQuery({ lat: goe.lat, lon: goe.lon, maxKm: 150 });
   assert.equal(db.source, 'db');
   assert.deepEqual(db.places.map(q => [q.id, q.airKm, q.nights.join('-')]), near.places.map(q => [q.id, q.airKm, q.nights.join('-')]));
-  console.log('Umkreis-Katalog: ' + DATA.places.length + ' Ziele/' + allSpots.length + ' Attraktionen gültig, Migration aktuell, Kilometerbereich, Themen, Saison, Stopps, Ausflüge, Tagesgerüst, Übernahme mit offenem Preis, Plan-Check, Sicherung und Datenbank-Rückfall geprüft.');
+  /* Wunsch-Bewertung sieht alle Treffer: lokal über 80 hinaus, Datenbank seitenweise bis zur Gesamtzahl */
+  const farQ = { lat: goe.lat, lon: goe.lon, minKm: 400, maxKm: 1200 };
+  const farAll = C.searchLocal(DATA, farQ, { limit: 5000 });
+  assert(farAll.total > 80, 'genug ferne Ziele für den Seitentest');
+  win.RPCloud = undefined;
+  const farLocal = await a.catalogQuery(farQ);
+  assert.equal(farLocal.source, 'lokal');
+  assert.equal(farLocal.places.length, farAll.total, 'lokal nicht bei 80 abgeschnitten');
+  assert(farLocal.places.some(q => q.id === 'berlin'));
+  const fake = Array.from({ length: 450 }, (_, i) => ({ id: 'x' + String(i).padStart(4, '0') }));
+  const calls = [];
+  win.RPCloud = { enabled: () => true, catalogSearch: async (q, pg) => { calls.push(pg); return { version: 4, total: fake.length, places: fake.slice(pg.offset, pg.offset + pg.limit) }; } };
+  const paged = await a.catDbAll(win.RPCloud, farQ);
+  assert.deepEqual(calls.map(c => c.offset + '/' + c.limit), ['0/200', '200/200', '400/200']);
+  assert.deepEqual(paged.places.map(q => q.id), fake.map(q => q.id));
+  assert.equal(paged.total, 450);
+  calls.length = 0;
+  win.RPCloud.catalogSearch = async (q, pg) => { calls.push(pg); return { version: 3, places: fake.slice(0, 80) }; }; /* alte catalog_search ohne total */
+  const v1 = await a.catDbAll(win.RPCloud, farQ);
+  assert.equal(calls.length, 1, 'ohne Gesamtzahl nur eine Seite'); assert.equal(v1.places.length, 80);
+  calls.length = 0;
+  win.RPCloud.catalogSearch = async (q, pg) => { calls.push(pg); return { version: 4, total: 99999, places: fake.slice(0, 200) }; };
+  assert.equal((await a.catDbAll(win.RPCloud, farQ)).places.length, a.CAT_RANK_MAX, 'Obergrenze');
+  assert.equal(calls.length, a.CAT_RANK_MAX / 200);
+  console.log('Umkreis-Katalog: ' + DATA.places.length + ' Ziele/' + allSpots.length + ' Attraktionen gültig, Migration aktuell, Kilometerbereich, Themen, Saison, Stopps, Ausflüge, Tagesgerüst, Übernahme mit offenem Preis, Plan-Check, Sicherung, Datenbank-Rückfall und Seitenabruf geprüft.');
+  finished = true;
 })().catch(e => { console.error(e); process.exit(1); });

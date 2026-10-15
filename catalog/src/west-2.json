@@ -1,0 +1,2552 @@
+{
+ "group": "west-2",
+ "places": [
+  {
+   "id": "haltern-duelmen",
+   "name": "Haltern am See & Dülmen",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.743,
+   "lon": 7.184,
+   "kinds": [
+    "baden",
+    "natur",
+    "tiere",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Stausee mit Sandstrand, Römermuseum, Heidelandschaft und die Wildpferde im Merfelder Bruch.",
+   "angle": "Morgens zu den Wildpferden, mittags ins Römermuseum, abends zum Schwimmen an den Stausee – alles in einem Radius von 15 km.",
+   "spots": [
+    {
+     "id": "haltern-duelmen-seebad",
+     "name": "Seebad Haltern am Stausee",
+     "kind": "baden",
+     "lat": 51.751,
+     "lon": 7.213,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Sandstrand am Halterner Stausee mit flachem Einstieg und Liegewiese.",
+     "tip": "An heißen Wochenenden früh kommen."
+    },
+    {
+     "id": "haltern-duelmen-roemermuseum",
+     "name": "LWL-Römermuseum Haltern",
+     "kind": "kultur",
+     "lat": 51.744,
+     "lon": 7.18,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Funde aus den römischen Lagern an der Lippe, gut als Regenprogramm."
+    },
+    {
+     "id": "haltern-duelmen-westruper-heide",
+     "name": "Westruper Heide",
+     "kind": "natur",
+     "lat": 51.733,
+     "lon": 7.238,
+     "hours": 1.5,
+     "months": [
+      8,
+      9
+     ],
+     "slot": "abend",
+     "summary": "Wacholderheide am Südufer des Stausees, im Spätsommer lila blühend.",
+     "tip": "Zur Heideblüte im August und September am schönsten."
+    },
+    {
+     "id": "haltern-duelmen-wildpark",
+     "name": "Wildpark Dülmen",
+     "kind": "tiere",
+     "lat": 51.828,
+     "lon": 7.282,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Weitläufiger Park, in dem Damwild frei zwischen den Spaziergängern läuft."
+    },
+    {
+     "id": "haltern-duelmen-wildpferde",
+     "name": "Wildpferde im Merfelder Bruch",
+     "kind": "tiere",
+     "lat": 51.839,
+     "lon": 7.166,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Seltene Herde verwilderter Dülmener Pferde in einem Moor- und Heidegebiet.",
+     "tip": "Fernglas mitnehmen; die Herde steht nicht immer am Weg."
+    }
+   ]
+  },
+  {
+   "id": "xanten",
+   "name": "Xanten & Niederrhein",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.662,
+   "lon": 6.454,
+   "kinds": [
+    "kultur",
+    "familie",
+    "baden",
+    "freizeit"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Römerstadt mit Archäologischem Park, gotischem Dom, Badeseen und dem Wunderland im alten Kraftwerk Kalkar.",
+   "angle": "Regenplan eingebaut: Römermuseum und Dom drinnen, bei Sonne an die Südsee – und für Kinder einen Abstecher nach Kalkar.",
+   "spots": [
+    {
+     "id": "xanten-apx",
+     "name": "LVR-Archäologischer Park Xanten",
+     "kind": "kultur",
+     "lat": 51.666,
+     "lon": 6.444,
+     "hours": 3,
+     "family": true,
+     "summary": "Rekonstruierte Teile der Römerstadt Colonia Ulpia Traiana mit Amphitheater und Tempel."
+    },
+    {
+     "id": "xanten-roemermuseum",
+     "name": "LVR-RömerMuseum",
+     "kind": "kultur",
+     "lat": 51.665,
+     "lon": 6.445,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Museumsbau über den Resten der römischen Thermen."
+    },
+    {
+     "id": "xanten-dom",
+     "name": "Dom St. Viktor",
+     "kind": "kultur",
+     "lat": 51.66,
+     "lon": 6.452,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Gotischer Dom mitten in der kleinen Altstadt."
+    },
+    {
+     "id": "xanten-suedsee",
+     "name": "Xantener Südsee",
+     "kind": "baden",
+     "lat": 51.65,
+     "lon": 6.467,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Freizeitsee am Stadtrand mit Badestrand, Wassersport und Rundweg."
+    },
+    {
+     "id": "xanten-wunderland",
+     "name": "Wunderland Kalkar",
+     "kind": "freizeit",
+     "lat": 51.763,
+     "lon": 6.332,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freizeitpark im nie in Betrieb gegangenen Schnellen Brüter, Kühlturm mit Kletterwand.",
+     "tip": "Saisonzeiten vorab prüfen."
+    }
+   ]
+  },
+  {
+   "id": "tecklenburg",
+   "name": "Tecklenburger Land & Dörenther Klippen",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 52.22,
+   "lon": 7.812,
+   "kinds": [
+    "natur",
+    "kultur",
+    "freizeit",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Fachwerkstädtchen auf dem Teutoburger-Wald-Kamm, Sandsteinfelsen, Sommerrodelbahn und ein Moorsee.",
+   "angle": "Feierabendrunde: über den Hermannsweg zum Hockenden Weib und zum Sonnenuntergang zurück nach Tecklenburg.",
+   "spots": [
+    {
+     "id": "tecklenburg-altstadt",
+     "name": "Altstadt Tecklenburg & Burgruine",
+     "kind": "kultur",
+     "lat": 52.22,
+     "lon": 7.812,
+     "hours": 1.5,
+     "summary": "Fachwerkgassen am Hang, Burgruine mit großer Freilichtbühne."
+    },
+    {
+     "id": "tecklenburg-klippen",
+     "name": "Dörenther Klippen & Hockendes Weib",
+     "kind": "natur",
+     "lat": 52.243,
+     "lon": 7.745,
+     "hours": 2,
+     "family": true,
+     "slot": "abend",
+     "summary": "Sandsteinfelsen am Kamm mit Weitblick ins Münsterland.",
+     "tip": "Festes Schuhwerk, die Felsen sind bei Nässe rutschig."
+    },
+    {
+     "id": "tecklenburg-rodelbahn",
+     "name": "Sommerrodelbahn Ibbenbüren",
+     "kind": "freizeit",
+     "lat": 52.249,
+     "lon": 7.738,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rodelbahn am Hang des Teutoburger Waldes, nahe den Klippen."
+    },
+    {
+     "id": "tecklenburg-hermannsweg",
+     "name": "Hermannsweg-Etappe",
+     "kind": "aktiv",
+     "lat": 52.225,
+     "lon": 7.79,
+     "hours": 3,
+     "summary": "Kammweg durch Buchenwald zwischen Tecklenburg und Brochterbeck."
+    },
+    {
+     "id": "tecklenburg-heiliges-meer",
+     "name": "Naturschutzgebiet Heiliges Meer",
+     "kind": "natur",
+     "lat": 52.349,
+     "lon": 7.632,
+     "hours": 1.5,
+     "summary": "Durch Erdfall entstandener Heidesee mit Moorlandschaft und Lehrpfad."
+    }
+   ]
+  },
+  {
+   "id": "osnabrueck",
+   "name": "Osnabrück & Varusschlacht",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.277,
+   "lon": 8.043,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "tiere",
+    "technik"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Friedensstadt mit historischem Rathaus, Felix-Nussbaum-Haus, Zoo und dem Varusschlacht-Museum Kalkriese.",
+   "angle": "Geschichte im Doppelpack: vormittags Römer gegen Germanen in Kalkriese, nachmittags der Friedenssaal von 1648 in der Altstadt.",
+   "spots": [
+    {
+     "id": "osnabrueck-rathaus",
+     "name": "Rathaus des Westfälischen Friedens",
+     "kind": "kultur",
+     "lat": 52.277,
+     "lon": 8.043,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Friedenssaal, in dem 1648 der Westfälische Frieden mit verhandelt wurde."
+    },
+    {
+     "id": "osnabrueck-nussbaum",
+     "name": "Museumsquartier & Felix-Nussbaum-Haus",
+     "kind": "kultur",
+     "lat": 52.274,
+     "lon": 8.04,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Bau von Daniel Libeskind für die Bilder des Malers Felix Nussbaum."
+    },
+    {
+     "id": "osnabrueck-zoo",
+     "name": "Zoo Osnabrück",
+     "kind": "tiere",
+     "lat": 52.253,
+     "lon": 8.07,
+     "hours": 4,
+     "family": true,
+     "summary": "Zoo am Schölerberg mit Themenwelten und unterirdischem Bereich."
+    },
+    {
+     "id": "osnabrueck-kalkriese",
+     "name": "Museum und Park Kalkriese",
+     "kind": "kultur",
+     "lat": 52.408,
+     "lon": 8.129,
+     "hours": 3,
+     "family": true,
+     "summary": "Mutmaßlicher Ort der Varusschlacht mit Museum, Aussichtsturm und Gelände."
+    },
+    {
+     "id": "osnabrueck-piesberg",
+     "name": "Piesberg & Museum Industriekultur",
+     "kind": "technik",
+     "lat": 52.3,
+     "lon": 8.02,
+     "hours": 2.5,
+     "family": true,
+     "summary": "Ehemaliges Bergwerk und Steinbruch mit Industriemuseum und Aussicht."
+    }
+   ]
+  },
+  {
+   "id": "bad-bentheim",
+   "name": "Bad Bentheim & Grafschaft",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.303,
+   "lon": 7.159,
+   "kinds": [
+    "burg",
+    "natur",
+    "tiere",
+    "aktiv"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Sandsteinburg über dem Kurort, Moorlandschaft im Gildehauser Venn und der Tierpark Nordhorn an der Vechte.",
+   "angle": "Burg am Vormittag, danach mit dem Rad an die Vechte nach Nordhorn und abends Kanu auf dem Fluss.",
+   "spots": [
+    {
+     "id": "bad-bentheim-burg",
+     "name": "Burg Bentheim",
+     "kind": "burg",
+     "lat": 52.304,
+     "lon": 7.159,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Mächtige Höhenburg aus Bentheimer Sandstein mit Museumsräumen."
+    },
+    {
+     "id": "bad-bentheim-schlosspark",
+     "name": "Schlosspark & Bentheimer Wald",
+     "kind": "natur",
+     "lat": 52.3,
+     "lon": 7.17,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Spazierwege rund um den Burgfelsen und im angrenzenden Wald."
+    },
+    {
+     "id": "bad-bentheim-venn",
+     "name": "Gildehauser Venn",
+     "kind": "natur",
+     "lat": 52.315,
+     "lon": 7.095,
+     "hours": 2,
+     "summary": "Moor- und Heidegebiet mit Wegen und Aussichtspunkten.",
+     "tip": "Auf den Wegen bleiben, das Moor ist geschützt."
+    },
+    {
+     "id": "bad-bentheim-tierpark",
+     "name": "Tierpark Nordhorn",
+     "kind": "tiere",
+     "lat": 52.441,
+     "lon": 7.043,
+     "hours": 3,
+     "family": true,
+     "summary": "Familienfreundlicher Zoo mit Haustierrassen und Vechtehof."
+    },
+    {
+     "id": "bad-bentheim-vechte",
+     "name": "Kanu auf der Vechte",
+     "kind": "aktiv",
+     "lat": 52.433,
+     "lon": 7.068,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Gemächliche Paddelstrecke durch Nordhorn und die Grafschaft."
+    }
+   ]
+  },
+  {
+   "id": "baldeneysee",
+   "name": "Baldeneysee & Essen-Werden",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.405,
+   "lon": 7.02,
+   "kinds": [
+    "wasser",
+    "baden",
+    "aktiv",
+    "kultur"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    0
+   ],
+   "summary": "Ruhrstausee im Essener Süden mit Flussbad, Rundweg, Schiffen und der Villa Hügel.",
+   "angle": "Der Klassiker für den Feierabend: einmal um den See radeln und mit Blick aufs Wasser in Werden ausklingen lassen.",
+   "spots": [
+    {
+     "id": "baldeneysee-villa-huegel",
+     "name": "Villa Hügel",
+     "kind": "kultur",
+     "lat": 51.408,
+     "lon": 7.007,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Ehemaliger Wohnsitz der Familie Krupp mit großem Park über dem See."
+    },
+    {
+     "id": "baldeneysee-flussbad",
+     "name": "Flussbad Baldeneysee (Seaside Beach)",
+     "kind": "baden",
+     "lat": 51.404,
+     "lon": 7.033,
+     "hours": 3,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Offizielle Badestelle im See mit Strandbereich.",
+     "tip": "Baden ist nur bei freigegebener Wasserqualität erlaubt."
+    },
+    {
+     "id": "baldeneysee-schiff",
+     "name": "Weiße Flotte Baldeney",
+     "kind": "wasser",
+     "lat": 51.407,
+     "lon": 7.01,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundfahrten über den See, auch als Querverbindung zwischen den Anlegern."
+    },
+    {
+     "id": "baldeneysee-werden",
+     "name": "Werden: Abteikirche St. Ludgerus & Altstadt",
+     "kind": "kultur",
+     "lat": 51.388,
+     "lon": 7.004,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Altstadt mit romanischer Abteikirche und Folkwang-Hochschule."
+    },
+    {
+     "id": "baldeneysee-rundweg",
+     "name": "Baldeneysee-Rundweg",
+     "kind": "aktiv",
+     "lat": 51.405,
+     "lon": 7.02,
+     "hours": 2,
+     "family": true,
+     "summary": "Rund 14 km um den See, flach und gut zum Radfahren oder Skaten."
+    }
+   ]
+  },
+  {
+   "id": "dortmund",
+   "name": "Dortmund",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.514,
+   "lon": 7.468,
+   "kinds": [
+    "stadt",
+    "technik",
+    "tiere",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Fußballstadt mit Fußballmuseum, Phoenix-See auf altem Stahlwerksgelände, Zoo und Zeche Zollern.",
+   "angle": "Strukturwandel an einem Tag: vormittags Zeche Zollern, abends am Phoenix-See, wo früher Hochöfen standen.",
+   "spots": [
+    {
+     "id": "dortmund-fussballmuseum",
+     "name": "Deutsches Fußballmuseum",
+     "kind": "kultur",
+     "lat": 51.515,
+     "lon": 7.459,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Interaktives Museum zur Geschichte des Fußballs direkt am Hauptbahnhof."
+    },
+    {
+     "id": "dortmund-dortmunder-u",
+     "name": "Dortmunder U",
+     "kind": "kultur",
+     "lat": 51.518,
+     "lon": 7.457,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Ehemaliges Brauerei-Hochhaus mit Kunstmuseum und Aussichtsterrasse."
+    },
+    {
+     "id": "dortmund-phoenix-see",
+     "name": "Phoenix-See",
+     "kind": "wasser",
+     "lat": 51.491,
+     "lon": 7.512,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Künstlicher See auf einem früheren Stahlwerksgelände mit Uferpromenade."
+    },
+    {
+     "id": "dortmund-zoo",
+     "name": "Zoo Dortmund",
+     "kind": "tiere",
+     "lat": 51.473,
+     "lon": 7.471,
+     "hours": 3,
+     "family": true,
+     "summary": "Zoo im Süden der Stadt mit Schwerpunkt auf südamerikanischen Tieren."
+    },
+    {
+     "id": "dortmund-westfalenpark",
+     "name": "Westfalenpark & Florianturm",
+     "kind": "natur",
+     "lat": 51.495,
+     "lon": 7.476,
+     "hours": 2,
+     "family": true,
+     "summary": "Großer Park mit Rosengarten und Fernsehturm mit Aussicht."
+    },
+    {
+     "id": "dortmund-zollern",
+     "name": "LWL-Museum Zeche Zollern",
+     "kind": "technik",
+     "lat": 51.522,
+     "lon": 7.334,
+     "hours": 2,
+     "family": true,
+     "summary": "Jugendstil-Zeche mit prächtiger Maschinenhalle."
+    }
+   ]
+  },
+  {
+   "id": "moehnesee-soest",
+   "name": "Möhnesee & Soest",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.53,
+   "lon": 8.09,
+   "kinds": [
+    "wasser",
+    "stadt",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Talsperre am Arnsberger Wald und die Hansestadt Soest mit grünem Sandstein und gotischen Kirchen.",
+   "angle": "Morgens am Wasser um den See radeln, nachmittags durch die Soester Gassen – bei Regen in die Wiesenkirche.",
+   "spots": [
+    {
+     "id": "moehnesee-soest-staumauer",
+     "name": "Möhnetalsperre & Staumauer",
+     "kind": "technik",
+     "lat": 51.49,
+     "lon": 8.06,
+     "hours": 1,
+     "family": true,
+     "summary": "Rund 650 m lange Bruchsteinmauer mit Blick über den See."
+    },
+    {
+     "id": "moehnesee-soest-rundweg",
+     "name": "Möhnesee-Rundweg",
+     "kind": "aktiv",
+     "lat": 51.493,
+     "lon": 8.1,
+     "hours": 3,
+     "summary": "Rad- und Wanderweg rund um den See mit mehreren Brücken."
+    },
+    {
+     "id": "moehnesee-soest-altstadt",
+     "name": "Altstadt Soest",
+     "kind": "stadt",
+     "lat": 51.572,
+     "lon": 8.106,
+     "hours": 2,
+     "summary": "Fachwerk, Wallanlage und Gebäude aus grünem Sandstein."
+    },
+    {
+     "id": "moehnesee-soest-wiesenkirche",
+     "name": "St. Maria zur Wiese",
+     "kind": "kultur",
+     "lat": 51.576,
+     "lon": 8.11,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Gotische Hallenkirche mit dem Glasfenster des Westfälischen Abendmahls."
+    },
+    {
+     "id": "moehnesee-soest-patrokli",
+     "name": "Dom St. Patrokli",
+     "kind": "kultur",
+     "lat": 51.572,
+     "lon": 8.105,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Romanische Stiftskirche mit wuchtigem Turm."
+    }
+   ]
+  },
+  {
+   "id": "biggesee",
+   "name": "Biggesee & Attendorn",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.115,
+   "lon": 7.9,
+   "kinds": [
+    "wasser",
+    "baden",
+    "burg",
+    "aktiv"
+   ],
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Größter Stausee des Sauerlands mit Schiffen, Badebucht, Burg Schnellenberg und der Hansestadt Attendorn.",
+   "angle": "Schiff und Rad kombinieren: ein Stück mit dem Schiff über den See, zurück auf dem Uferweg.",
+   "spots": [
+    {
+     "id": "biggesee-schiff",
+     "name": "Personenschifffahrt Biggesee",
+     "kind": "wasser",
+     "lat": 51.11,
+     "lon": 7.89,
+     "hours": 2,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundfahrten mit mehreren Anlegern rund um den See."
+    },
+    {
+     "id": "biggesee-bucht",
+     "name": "Badestelle Waldenburger Bucht",
+     "kind": "baden",
+     "lat": 51.105,
+     "lon": 7.92,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badebucht mit Liegewiese am Biggesee nahe Attendorn."
+    },
+    {
+     "id": "biggesee-schnellenberg",
+     "name": "Burg Schnellenberg",
+     "kind": "burg",
+     "lat": 51.123,
+     "lon": 7.93,
+     "hours": 1,
+     "summary": "Große Burganlage auf dem Berg oberhalb von Attendorn."
+    },
+    {
+     "id": "biggesee-museum",
+     "name": "Südsauerlandmuseum Attendorn",
+     "kind": "kultur",
+     "lat": 51.127,
+     "lon": 7.902,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Regionalmuseum im historischen Rathaus der Hansestadt.",
+     "tip": "Bei Regen bietet sich auch die Atta-Höhle in Attendorn an."
+    },
+    {
+     "id": "biggesee-rundweg",
+     "name": "Biggesee-Uferweg",
+     "kind": "aktiv",
+     "lat": 51.1,
+     "lon": 7.88,
+     "hours": 3,
+     "summary": "Rad- und Wanderwege entlang der Ufer und über die Brücken."
+    }
+   ]
+  },
+  {
+   "id": "siegen",
+   "name": "Siegen & Siegerland",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.875,
+   "lon": 8.024,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "unterwelt",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Rubens-Stadt mit Oberem Schloss, Bergbaugeschichte unter Tage und dem Fachwerkensemble Alter Flecken in Freudenberg.",
+   "angle": "Für das Fotomotiv in Freudenberg zum Aussichtspunkt im Kurpark am späten Nachmittag gehen, wenn die Sonne auf den Fachwerkreihen liegt.",
+   "spots": [
+    {
+     "id": "siegen-oberes-schloss",
+     "name": "Oberes Schloss & Siegerlandmuseum",
+     "kind": "kultur",
+     "lat": 50.875,
+     "lon": 8.019,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Schloss über der Altstadt mit Originalgemälden von Peter Paul Rubens."
+    },
+    {
+     "id": "siegen-erbstollen",
+     "name": "Besucherbergwerk Reinhold Forster Erbstollen",
+     "kind": "unterwelt",
+     "lat": 50.835,
+     "lon": 7.987,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Ehemaliges Erzbergwerk in Eiserfeld mit Führungen unter Tage.",
+     "tip": "Führungstermine vorher prüfen."
+    },
+    {
+     "id": "siegen-freudenberg",
+     "name": "Alter Flecken Freudenberg",
+     "kind": "kultur",
+     "lat": 50.898,
+     "lon": 7.867,
+     "hours": 1.5,
+     "slot": "nachm",
+     "summary": "Geschlossenes Ensemble aus schwarz-weißen Fachwerkhäusern."
+    },
+    {
+     "id": "siegen-ginsburg",
+     "name": "Burgruine Ginsburg",
+     "kind": "burg",
+     "lat": 50.948,
+     "lon": 8.135,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burgruine im Wald bei Hilchenbach mit Aussichtsturm."
+    }
+   ]
+  },
+  {
+   "id": "bad-berleburg",
+   "name": "Bad Berleburg & Wittgensteiner Land",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.053,
+   "lon": 8.395,
+   "kinds": [
+    "tiere",
+    "natur",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Residenzschloss, frei lebende Wisente am Rothaarsteig und ruhige Wälder im Rothaargebirge.",
+   "angle": "Die Wisente am frühen Morgen oder späten Nachmittag besuchen, mittags durch das Schloss.",
+   "spots": [
+    {
+     "id": "bad-berleburg-schloss",
+     "name": "Schloss Berleburg",
+     "kind": "kultur",
+     "lat": 51.053,
+     "lon": 8.393,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Residenz der Fürsten zu Sayn-Wittgenstein-Berleburg, Besichtigung mit Führung."
+    },
+    {
+     "id": "bad-berleburg-wisente",
+     "name": "Wisent-Wildnis am Rothaarsteig",
+     "kind": "tiere",
+     "lat": 51.031,
+     "lon": 8.302,
+     "hours": 2.5,
+     "family": true,
+     "slot": "morgen",
+     "summary": "Großes Gehege, in dem Wisente auf einem Wanderweg beobachtet werden können."
+    },
+    {
+     "id": "bad-berleburg-kyrillpfad",
+     "name": "Kyrillpfad Schanze",
+     "kind": "natur",
+     "lat": 51.13,
+     "lon": 8.425,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Erlebnispfad durch Sturmwurf-Flächen des Orkans Kyrill."
+    },
+    {
+     "id": "bad-berleburg-rothaarsteig",
+     "name": "Rothaarsteig bei Bad Berleburg",
+     "kind": "aktiv",
+     "lat": 51.06,
+     "lon": 8.38,
+     "hours": 4,
+     "summary": "Fernwanderweg über die Höhen des Rothaargebirges, gut in Tagesetappen."
+    }
+   ]
+  },
+  {
+   "id": "willingen",
+   "name": "Willingen & Upland",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 51.293,
+   "lon": 8.61,
+   "kinds": [
+    "berge",
+    "winter",
+    "baden",
+    "aktiv",
+    "therme"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    3
+   ],
+   "summary": "Wintersportort im Upland mit Seilbahn auf den Ettelsberg, Großschanze, Erlebnisbad und dem Diemelsee.",
+   "angle": "Im Sommer Bergwiesen und Diemelsee, im Winter Piste – und bei schlechtem Wetter ins Lagunenbad.",
+   "spots": [
+    {
+     "id": "willingen-ettelsberg",
+     "name": "Ettelsberg-Seilbahn & Hochheideturm",
+     "kind": "berge",
+     "lat": 51.279,
+     "lon": 8.622,
+     "hours": 2,
+     "family": true,
+     "summary": "Seilbahn auf einen der höchsten Gipfel des Sauerlands mit Aussichtsturm."
+    },
+    {
+     "id": "willingen-schanze",
+     "name": "Mühlenkopfschanze",
+     "kind": "technik",
+     "lat": 51.288,
+     "lon": 8.595,
+     "hours": 1,
+     "summary": "Große Skisprungschanze, bekannt aus dem Weltcup."
+    },
+    {
+     "id": "willingen-lagunenbad",
+     "name": "Lagunen-Erlebnisbad Willingen",
+     "kind": "therme",
+     "lat": 51.294,
+     "lon": 8.61,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Erlebnisbad mit Rutschen und Sauna als Regenprogramm."
+    },
+    {
+     "id": "willingen-diemelsee",
+     "name": "Diemelsee bei Heringhausen",
+     "kind": "baden",
+     "lat": 51.375,
+     "lon": 8.72,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Stausee mit Badestellen und Uferweg."
+    },
+    {
+     "id": "willingen-bruchhauser-steine",
+     "name": "Bruchhauser Steine",
+     "kind": "natur",
+     "lat": 51.32,
+     "lon": 8.54,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Vier mächtige Felsen auf dem Istenberg mit Weitblick."
+    }
+   ]
+  },
+  {
+   "id": "reinhardswald",
+   "name": "Reinhardswald & Sababurg",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 51.55,
+   "lon": 9.51,
+   "kinds": [
+    "tiere",
+    "natur",
+    "burg",
+    "familie"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Märchenwald mit Dornröschenschloss, einem sehr alten Tierpark und dem Urwald Sababurg.",
+   "angle": "Märchenrunde: Tierpark und Urwald zu Fuß, danach zum Rapunzelturm in Trendelburg.",
+   "spots": [
+    {
+     "id": "reinhardswald-tierpark",
+     "name": "Tierpark Sababurg",
+     "kind": "tiere",
+     "lat": 51.548,
+     "lon": 9.503,
+     "hours": 3,
+     "family": true,
+     "summary": "Weitläufiger Wildpark mit Wisenten und Haustierrassen im Reinhardswald."
+    },
+    {
+     "id": "reinhardswald-schloss",
+     "name": "Dornröschenschloss Sababurg",
+     "kind": "burg",
+     "lat": 51.555,
+     "lon": 9.511,
+     "hours": 1,
+     "summary": "Burg aus dem Märchen der Brüder Grimm über dem Reinhardswald."
+    },
+    {
+     "id": "reinhardswald-urwald",
+     "name": "Urwald Sababurg",
+     "kind": "natur",
+     "lat": 51.535,
+     "lon": 9.525,
+     "hours": 2,
+     "family": true,
+     "summary": "Alte Hute-Eichen und Buchen in einem der ältesten Naturschutzgebiete Hessens."
+    },
+    {
+     "id": "reinhardswald-trendelburg",
+     "name": "Trendelburg",
+     "kind": "burg",
+     "lat": 51.574,
+     "lon": 9.421,
+     "hours": 1,
+     "summary": "Burg mit Rapunzelturm über dem Diemeltal."
+    }
+   ]
+  },
+  {
+   "id": "werra-meissner",
+   "name": "Hoher Meißner & Werratal",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 51.27,
+   "lon": 9.9,
+   "kinds": [
+    "natur",
+    "aktiv",
+    "kultur",
+    "genuss"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Frau-Holle-Land am Hohen Meißner, Kirschen in Witzenhausen, Gradierwerk in Bad Sooden-Allendorf und Burg Ludwigstein.",
+   "angle": "Zur Kirschblüte im April den Werratal-Radweg zwischen Witzenhausen und Bad Sooden-Allendorf fahren.",
+   "spots": [
+    {
+     "id": "werra-meissner-frau-holle-teich",
+     "name": "Frau-Holle-Teich am Hohen Meißner",
+     "kind": "natur",
+     "lat": 51.213,
+     "lon": 9.845,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Sagenumwobener Teich auf dem Bergplateau mit Rundwegen."
+    },
+    {
+     "id": "werra-meissner-bad-sooden",
+     "name": "Bad Sooden-Allendorf & Gradierwerk",
+     "kind": "kultur",
+     "lat": 51.271,
+     "lon": 9.973,
+     "hours": 1.5,
+     "summary": "Fachwerkstadt mit Salzgeschichte und Gradierwerk im Kurpark."
+    },
+    {
+     "id": "werra-meissner-ludwigstein",
+     "name": "Burg Ludwigstein",
+     "kind": "burg",
+     "lat": 51.329,
+     "lon": 9.911,
+     "hours": 1,
+     "summary": "Burg über dem Werratal, heute Jugendburg und Archiv."
+    },
+    {
+     "id": "werra-meissner-witzenhausen",
+     "name": "Witzenhausen Kirschenland",
+     "kind": "genuss",
+     "lat": 51.343,
+     "lon": 9.857,
+     "hours": 2,
+     "months": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "summary": "Große Kirschanbauregion: Blüte im April, Ernte im Sommer."
+    },
+    {
+     "id": "werra-meissner-radweg",
+     "name": "Werratal-Radweg",
+     "kind": "aktiv",
+     "lat": 51.3,
+     "lon": 9.9,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flacher Flussradweg zwischen Fachwerkorten."
+    }
+   ]
+  },
+  {
+   "id": "fritzlar",
+   "name": "Fritzlar & Homberg (Efze)",
+   "region": "Hessen",
+   "country": "DE",
+   "lat": 51.134,
+   "lon": 9.276,
+   "kinds": [
+    "kultur",
+    "stadt",
+    "aktiv"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Domstadt mit Fachwerkmarkt und Stadtmauer, dazu Homberg mit Burgberg und das Edertal per Rad.",
+   "angle": "Bei Regen in den Domschatz, bei Sonne auf dem Ederradweg weiter Richtung Edersee.",
+   "spots": [
+    {
+     "id": "fritzlar-dom",
+     "name": "Dom St. Peter & Domschatz",
+     "kind": "kultur",
+     "lat": 51.133,
+     "lon": 9.275,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Romanisch-gotischer Dom mit Domschatz und Museum."
+    },
+    {
+     "id": "fritzlar-altstadt",
+     "name": "Altstadt Fritzlar & Grauer Turm",
+     "kind": "stadt",
+     "lat": 51.134,
+     "lon": 9.276,
+     "hours": 1.5,
+     "summary": "Marktplatz mit Fachwerk und Stadtmauer mit hohem Wehrturm."
+    },
+    {
+     "id": "fritzlar-ederradweg",
+     "name": "Ederradweg",
+     "kind": "aktiv",
+     "lat": 51.13,
+     "lon": 9.28,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flussradweg durch das Edertal, ab Fritzlar flach."
+    },
+    {
+     "id": "fritzlar-homberg",
+     "name": "Homberg (Efze): Marktplatz & Burgberg",
+     "kind": "kultur",
+     "lat": 51.034,
+     "lon": 9.41,
+     "hours": 2,
+     "summary": "Fachwerkstadt mit Burgruine auf dem Schlossberg."
+    }
+   ]
+  },
+  {
+   "id": "hoexter-corvey",
+   "name": "Höxter & Schloss Corvey",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.775,
+   "lon": 9.385,
+   "kinds": [
+    "kultur",
+    "wasser",
+    "aktiv",
+    "stadt"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Welterbe Corvey mit karolingischem Westwerk, Fachwerkstadt an der Weser und Porzellan aus Fürstenberg.",
+   "angle": "Mit dem Rad auf dem Weserradweg von Höxter nach Fürstenberg und zurück über Corvey.",
+   "spots": [
+    {
+     "id": "hoexter-corvey-corvey",
+     "name": "Schloss Corvey & Westwerk",
+     "kind": "kultur",
+     "lat": 51.778,
+     "lon": 9.411,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Welterbestätte mit karolingischem Westwerk und Schlossmuseum."
+    },
+    {
+     "id": "hoexter-corvey-altstadt",
+     "name": "Altstadt Höxter",
+     "kind": "stadt",
+     "lat": 51.774,
+     "lon": 9.384,
+     "hours": 1.5,
+     "summary": "Fachwerkhäuser und Kirchen am Weserufer."
+    },
+    {
+     "id": "hoexter-corvey-fuerstenberg",
+     "name": "Museum Schloss Fürstenberg",
+     "kind": "kultur",
+     "lat": 51.732,
+     "lon": 9.396,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Porzellanmuseum im Schloss der Manufaktur Fürstenberg."
+    },
+    {
+     "id": "hoexter-corvey-weserradweg",
+     "name": "Weserradweg",
+     "kind": "aktiv",
+     "lat": 51.76,
+     "lon": 9.39,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flussradweg durch das Weserbergland."
+    },
+    {
+     "id": "hoexter-corvey-kanu",
+     "name": "Kanutour auf der Weser",
+     "kind": "aktiv",
+     "lat": 51.775,
+     "lon": 9.39,
+     "hours": 3,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Breiter, ruhiger Fluss mit vielen Anlegemöglichkeiten."
+    }
+   ]
+  },
+  {
+   "id": "paderborn",
+   "name": "Paderborn & Wewelsburg",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.718,
+   "lon": 8.754,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "wasser"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Bischofsstadt mit Dom und Paderquellen, dem großen Computermuseum und der Wewelsburg.",
+   "angle": "Regentag-Kombi: Computermuseum und Dom drinnen, bei Sonne und abends durchs Paderquellgebiet und hinaus zur Wewelsburg.",
+   "spots": [
+    {
+     "id": "paderborn-dom",
+     "name": "Dom & Dreihasenfenster",
+     "kind": "kultur",
+     "lat": 51.719,
+     "lon": 8.755,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Hoher Dom mit dem berühmten Dreihasenfenster im Kreuzgang."
+    },
+    {
+     "id": "paderborn-paderquellen",
+     "name": "Paderquellgebiet",
+     "kind": "wasser",
+     "lat": 51.72,
+     "lon": 8.752,
+     "hours": 1,
+     "family": true,
+     "summary": "Rund 200 Quellen mitten in der Stadt speisen die kurze Pader."
+    },
+    {
+     "id": "paderborn-hnf",
+     "name": "Heinz Nixdorf MuseumsForum",
+     "kind": "technik",
+     "lat": 51.731,
+     "lon": 8.738,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Großes Computermuseum mit Geschichte der Informationstechnik."
+    },
+    {
+     "id": "paderborn-wewelsburg",
+     "name": "Wewelsburg",
+     "kind": "kultur",
+     "lat": 51.608,
+     "lon": 8.651,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Dreiecksburg mit Kreismuseum und Erinnerungsort zur NS-Zeit."
+    }
+   ]
+  },
+  {
+   "id": "bielefeld",
+   "name": "Bielefeld & Sparrenburg",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 52.022,
+   "lon": 8.53,
+   "kinds": [
+    "stadt",
+    "burg",
+    "tiere",
+    "natur"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Universitätsstadt am Teutoburger Wald mit Sparrenburg, Tierpark Olderdissen und Wanderwegen direkt hinter der Altstadt.",
+   "angle": "Von der Altstadt hinauf zur Sparrenburg, weiter auf dem Hermannsweg zum Tierpark – ein Halbtag ohne Auto.",
+   "spots": [
+    {
+     "id": "bielefeld-sparrenburg",
+     "name": "Sparrenburg",
+     "kind": "burg",
+     "lat": 52.014,
+     "lon": 8.526,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Burg über der Stadt mit Turm und Kasematten."
+    },
+    {
+     "id": "bielefeld-olderdissen",
+     "name": "Tierpark Olderdissen",
+     "kind": "tiere",
+     "lat": 52.034,
+     "lon": 8.505,
+     "hours": 2,
+     "family": true,
+     "summary": "Heimattierpark mit einheimischen Wild- und Haustierarten."
+    },
+    {
+     "id": "bielefeld-kunsthalle",
+     "name": "Kunsthalle Bielefeld",
+     "kind": "kultur",
+     "lat": 52.018,
+     "lon": 8.525,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum für moderne Kunst in einem Bau von Philip Johnson."
+    },
+    {
+     "id": "bielefeld-botanischer-garten",
+     "name": "Botanischer Garten Bielefeld",
+     "kind": "natur",
+     "lat": 52.024,
+     "lon": 8.511,
+     "hours": 1,
+     "family": true,
+     "summary": "Hanggarten am Teutoburger Wald mit Rhododendren."
+    },
+    {
+     "id": "bielefeld-hermannsweg",
+     "name": "Hermannsweg über den Kamm",
+     "kind": "aktiv",
+     "lat": 52.02,
+     "lon": 8.52,
+     "hours": 3,
+     "summary": "Kammweg des Teutoburger Waldes mitten durch die Stadt."
+    }
+   ]
+  },
+  {
+   "id": "minden-porta",
+   "name": "Minden & Porta Westfalica",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 52.289,
+   "lon": 8.917,
+   "kinds": [
+    "technik",
+    "wasser",
+    "kultur",
+    "freizeit"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Wasserstraßenkreuz mit Kanalbrücke über die Weser, Kaiser-Wilhelm-Denkmal an der Porta und Mindener Dom.",
+   "angle": "Schiffstour durch die Schachtschleuse, danach zum Sonnenuntergang auf die Porta.",
+   "spots": [
+    {
+     "id": "minden-porta-wasserstrassenkreuz",
+     "name": "Wasserstraßenkreuz & Schachtschleuse",
+     "kind": "technik",
+     "lat": 52.302,
+     "lon": 8.923,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Der Mittellandkanal überquert hier auf einer Brücke die Weser."
+    },
+    {
+     "id": "minden-porta-schiff",
+     "name": "Schiffstour durch die Schachtschleuse",
+     "kind": "wasser",
+     "lat": 52.3,
+     "lon": 8.92,
+     "hours": 1.5,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Rundfahrt mit Schleusung zwischen Kanal und Weser."
+    },
+    {
+     "id": "minden-porta-denkmal",
+     "name": "Kaiser-Wilhelm-Denkmal",
+     "kind": "kultur",
+     "lat": 52.247,
+     "lon": 8.914,
+     "hours": 1.5,
+     "slot": "abend",
+     "summary": "Monument über dem Weserdurchbruch mit Weitblick."
+    },
+    {
+     "id": "minden-porta-dom",
+     "name": "Mindener Dom",
+     "kind": "kultur",
+     "lat": 52.289,
+     "lon": 8.918,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Dom mit romanischem Westwerk in der Altstadt."
+    },
+    {
+     "id": "minden-porta-potts-park",
+     "name": "Potts Park",
+     "kind": "freizeit",
+     "lat": 52.307,
+     "lon": 8.868,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Familien-Freizeitpark in Minden-Dützen."
+    }
+   ]
+  },
+  {
+   "id": "bad-iburg",
+   "name": "Bad Iburg & Teutoburger Wald",
+   "region": "Niedersachsen",
+   "country": "DE",
+   "lat": 52.159,
+   "lon": 8.047,
+   "kinds": [
+    "natur",
+    "freizeit",
+    "burg",
+    "aktiv"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Kurort mit Baumwipfelpfad, Schloss Iburg über der Stadt und dem Dörenberg im Teutoburger Wald.",
+   "angle": "Feierabendrunde für Osnabrück: Baumwipfelpfad am späten Nachmittag, danach hinauf auf den Dörenberg.",
+   "spots": [
+    {
+     "id": "bad-iburg-baumwipfelpfad",
+     "name": "Baumwipfelpfad Bad Iburg",
+     "kind": "freizeit",
+     "lat": 52.157,
+     "lon": 8.041,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Holzsteg in den Baumkronen am Rand des Teutoburger Waldes."
+    },
+    {
+     "id": "bad-iburg-schloss",
+     "name": "Schloss Iburg",
+     "kind": "burg",
+     "lat": 52.158,
+     "lon": 8.047,
+     "hours": 1,
+     "summary": "Ehemalige Residenz der Osnabrücker Fürstbischöfe über der Stadt."
+    },
+    {
+     "id": "bad-iburg-charlottensee",
+     "name": "Charlottensee & Kurpark",
+     "kind": "natur",
+     "lat": 52.157,
+     "lon": 8.043,
+     "hours": 0.5,
+     "family": true,
+     "summary": "Kleiner See im Kurpark unterhalb des Schlosses."
+    },
+    {
+     "id": "bad-iburg-doerenberg",
+     "name": "Dörenberg",
+     "kind": "natur",
+     "lat": 52.168,
+     "lon": 8.035,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Höchster Berg im Osnabrücker Teil des Teutoburger Waldes."
+    }
+   ]
+  },
+  {
+   "id": "duesseldorf",
+   "name": "Düsseldorf",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.226,
+   "lon": 6.772,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "genuss",
+    "tiere"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Rheinmetropole mit Altstadt und Rheinpromenade, MedienHafen, großen Kunstsammlungen und Schloss Benrath.",
+   "angle": "Abends von der Altstadt die Rheinuferpromenade zum MedienHafen laufen, wenn die Gehry-Bauten beleuchtet sind.",
+   "spots": [
+    {
+     "id": "duesseldorf-altstadt",
+     "name": "Altstadt & Rheinuferpromenade",
+     "kind": "stadt",
+     "lat": 51.226,
+     "lon": 6.772,
+     "hours": 2,
+     "slot": "abend",
+     "summary": "Gassen mit Brauhäusern und breite Promenade am Rhein."
+    },
+    {
+     "id": "duesseldorf-medienhafen",
+     "name": "MedienHafen",
+     "kind": "stadt",
+     "lat": 51.214,
+     "lon": 6.751,
+     "hours": 1,
+     "summary": "Umgebauter Hafen mit Gebäuden von Frank Gehry."
+    },
+    {
+     "id": "duesseldorf-k20",
+     "name": "K20 Kunstsammlung NRW",
+     "kind": "kultur",
+     "lat": 51.229,
+     "lon": 6.776,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Kunst des 20. Jahrhunderts am Grabbeplatz."
+    },
+    {
+     "id": "duesseldorf-aquazoo",
+     "name": "Aquazoo Löbbecke Museum",
+     "kind": "tiere",
+     "lat": 51.244,
+     "lon": 6.769,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Aquarium, Terrarium und Naturkundemuseum im Nordpark."
+    },
+    {
+     "id": "duesseldorf-benrath",
+     "name": "Schloss Benrath",
+     "kind": "kultur",
+     "lat": 51.162,
+     "lon": 6.87,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Rokoko-Lustschloss mit Park am südlichen Stadtrand."
+    }
+   ]
+  },
+  {
+   "id": "wuppertal",
+   "name": "Wuppertal & Bergisches Land",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 51.256,
+   "lon": 7.15,
+   "kinds": [
+    "technik",
+    "stadt",
+    "tiere",
+    "aktiv",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Schwebebahn, Nordbahntrasse, Zoo und im Süden die Müngstener Brücke und Schloss Burg an der Wupper.",
+   "angle": "Erst die Schwebebahn ganz durchfahren, dann mit dem Rad über die Nordbahntrasse zurück.",
+   "spots": [
+    {
+     "id": "wuppertal-schwebebahn",
+     "name": "Wuppertaler Schwebebahn",
+     "kind": "technik",
+     "lat": 51.254,
+     "lon": 7.15,
+     "hours": 1,
+     "family": true,
+     "summary": "Hängebahn über der Wupper, seit über 100 Jahren in Betrieb."
+    },
+    {
+     "id": "wuppertal-zoo",
+     "name": "Zoo Wuppertal",
+     "kind": "tiere",
+     "lat": 51.239,
+     "lon": 7.108,
+     "hours": 3,
+     "family": true,
+     "summary": "Hangzoo im Grünen mit Löwen und Pinguinanlage."
+    },
+    {
+     "id": "wuppertal-nordbahntrasse",
+     "name": "Nordbahntrasse",
+     "kind": "aktiv",
+     "lat": 51.269,
+     "lon": 7.168,
+     "hours": 2,
+     "family": true,
+     "summary": "Rad- und Fußweg auf ehemaliger Bahnstrecke mit Tunneln und Viadukten."
+    },
+    {
+     "id": "wuppertal-vdh-museum",
+     "name": "Von der Heydt-Museum",
+     "kind": "kultur",
+     "lat": 51.258,
+     "lon": 7.146,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Kunstmuseum mit Werken der klassischen Moderne."
+    },
+    {
+     "id": "wuppertal-muengsten",
+     "name": "Müngstener Brücke & Brückenpark",
+     "kind": "technik",
+     "lat": 51.162,
+     "lon": 7.134,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Höchste Eisenbahnbrücke Deutschlands über dem Wuppertal."
+    },
+    {
+     "id": "wuppertal-schloss-burg",
+     "name": "Schloss Burg",
+     "kind": "burg",
+     "lat": 51.136,
+     "lon": 7.153,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Rekonstruierte Burg der Grafen von Berg mit Museum."
+    }
+   ]
+  },
+  {
+   "id": "bonn-siebengebirge",
+   "name": "Bonn & Siebengebirge",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.7,
+   "lon": 7.15,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "berge",
+    "burg"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Beethovenstadt mit Museumsmeile und Rheinaue, gegenüber Drachenfels und Schloss Drachenburg.",
+   "angle": "Vormittags Museumsmeile, nachmittags über den Rhein und zum Sonnenuntergang auf den Drachenfels.",
+   "spots": [
+    {
+     "id": "bonn-siebengebirge-beethoven-haus",
+     "name": "Beethoven-Haus",
+     "kind": "kultur",
+     "lat": 50.737,
+     "lon": 7.102,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Geburtshaus Ludwig van Beethovens mit Museum."
+    },
+    {
+     "id": "bonn-siebengebirge-hdg",
+     "name": "Haus der Geschichte",
+     "kind": "kultur",
+     "lat": 50.715,
+     "lon": 7.121,
+     "hours": 2,
+     "indoor": true,
+     "summary": "Museum zur deutschen Zeitgeschichte an der Museumsmeile."
+    },
+    {
+     "id": "bonn-siebengebirge-rheinaue",
+     "name": "Rheinaue Bonn",
+     "kind": "natur",
+     "lat": 50.711,
+     "lon": 7.145,
+     "hours": 1,
+     "family": true,
+     "summary": "Großer Park am Rheinufer mit Seen und Wiesen."
+    },
+    {
+     "id": "bonn-siebengebirge-drachenfels",
+     "name": "Drachenfels",
+     "kind": "berge",
+     "lat": 50.665,
+     "lon": 7.21,
+     "hours": 2,
+     "family": true,
+     "slot": "abend",
+     "summary": "Burgruine auf dem Gipfel über dem Rhein, erreichbar mit der Zahnradbahn oder zu Fuß."
+    },
+    {
+     "id": "bonn-siebengebirge-drachenburg",
+     "name": "Schloss Drachenburg",
+     "kind": "burg",
+     "lat": 50.668,
+     "lon": 7.21,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Historistisches Schloss auf halber Höhe des Drachenfels."
+    }
+   ]
+  },
+  {
+   "id": "bad-muenstereifel",
+   "name": "Bad Münstereifel & Effelsberg",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.555,
+   "lon": 6.765,
+   "kinds": [
+    "stadt",
+    "technik",
+    "kultur",
+    "natur"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Ummauerte Altstadt an der Erft, das große Radioteleskop Effelsberg und das Freilichtmuseum Kommern.",
+   "angle": "Morgens zum Teleskop im Wald, mittags durch die Altstadt und am Nachmittag nach Kommern.",
+   "spots": [
+    {
+     "id": "bad-muenstereifel-altstadt",
+     "name": "Altstadt Bad Münstereifel",
+     "kind": "stadt",
+     "lat": 50.556,
+     "lon": 6.763,
+     "hours": 1.5,
+     "summary": "Mittelalterliche Stadtmauer, Fachwerk und die Erft mitten im Ort."
+    },
+    {
+     "id": "bad-muenstereifel-effelsberg",
+     "name": "Radioteleskop Effelsberg",
+     "kind": "technik",
+     "lat": 50.525,
+     "lon": 6.883,
+     "hours": 1.5,
+     "family": true,
+     "summary": "Eines der größten beweglichen Radioteleskope der Welt mit Besucherpavillon."
+    },
+    {
+     "id": "bad-muenstereifel-kommern",
+     "name": "LVR-Freilichtmuseum Kommern",
+     "kind": "kultur",
+     "lat": 50.613,
+     "lon": 6.648,
+     "hours": 4,
+     "family": true,
+     "summary": "Historische Gebäude aus dem Rheinland mit Höfen und Tieren."
+    },
+    {
+     "id": "bad-muenstereifel-erftradweg",
+     "name": "Erft-Radweg",
+     "kind": "aktiv",
+     "lat": 50.57,
+     "lon": 6.77,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flussradweg ab der Altstadt durch das Erfttal."
+    }
+   ]
+  },
+  {
+   "id": "nideggen-rureifel",
+   "name": "Nideggen, Heimbach & Zülpich (Rureifel)",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 50.69,
+   "lon": 6.483,
+   "kinds": [
+    "burg",
+    "natur",
+    "baden",
+    "technik"
+   ],
+   "months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Burgen auf rotem Buntsandstein im Rurtal, ein Jugendstil-Kraftwerk und der Badesee in der Römerstadt Zülpich.",
+   "angle": "Mit der Rurtalbahn ins Tal, zu Fuß über die Felsen nach Nideggen – an heißen Tagen am Zülpicher See enden.",
+   "spots": [
+    {
+     "id": "nideggen-rureifel-burg-nideggen",
+     "name": "Burg Nideggen",
+     "kind": "burg",
+     "lat": 50.692,
+     "lon": 6.483,
+     "hours": 1.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Burg auf einem Buntsandsteinfelsen mit Burgenmuseum."
+    },
+    {
+     "id": "nideggen-rureifel-felsen",
+     "name": "Buntsandsteinfelsen im Rurtal",
+     "kind": "natur",
+     "lat": 50.684,
+     "lon": 6.475,
+     "hours": 2,
+     "summary": "Rote Felsen und Aussichtspunkte über dem Tal."
+    },
+    {
+     "id": "nideggen-rureifel-hengebach",
+     "name": "Burg Hengebach Heimbach",
+     "kind": "burg",
+     "lat": 50.637,
+     "lon": 6.475,
+     "hours": 1,
+     "summary": "Burg über dem Ort Heimbach an der Rur."
+    },
+    {
+     "id": "nideggen-rureifel-kraftwerk",
+     "name": "Jugendstil-Wasserkraftwerk Heimbach",
+     "kind": "technik",
+     "lat": 50.631,
+     "lon": 6.48,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Historisches Wasserkraftwerk mit Maschinenhalle."
+    },
+    {
+     "id": "nideggen-rureifel-zuelpicher-see",
+     "name": "Wassersportsee Zülpich",
+     "kind": "baden",
+     "lat": 50.699,
+     "lon": 6.635,
+     "hours": 3,
+     "family": true,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "summary": "Badesee mit Strand und Seepark."
+    },
+    {
+     "id": "nideggen-rureifel-roemerthermen",
+     "name": "Römerthermen Zülpich",
+     "kind": "kultur",
+     "lat": 50.693,
+     "lon": 6.652,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum der Badekultur über erhaltenen römischen Thermen."
+    }
+   ]
+  },
+  {
+   "id": "kerkrade",
+   "name": "Kerkrade & Parkstad Limburg",
+   "region": "Limburg",
+   "country": "NL",
+   "lat": 50.866,
+   "lon": 6.063,
+   "kinds": [
+    "tiere",
+    "familie",
+    "kultur",
+    "winter"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Grenzstadt direkt bei Herzogenrath mit GaiaZOO, Abtei Rolduc, Discovery-Museum und einer Indoor-Skihalle.",
+   "angle": "Für Aachener ein Ausflug ohne lange Anfahrt: Zoo bei Sonne, Continium oder SnowWorld bei Regen.",
+   "spots": [
+    {
+     "id": "kerkrade-gaiazoo",
+     "name": "GaiaZOO",
+     "kind": "tiere",
+     "lat": 50.872,
+     "lon": 6.045,
+     "hours": 4,
+     "family": true,
+     "summary": "Moderner Zoo mit Landschaftszonen."
+    },
+    {
+     "id": "kerkrade-rolduc",
+     "name": "Abtei Rolduc",
+     "kind": "kultur",
+     "lat": 50.87,
+     "lon": 6.074,
+     "hours": 1,
+     "summary": "Große Abtei an der Grenze mit romanischer Krypta."
+    },
+    {
+     "id": "kerkrade-continium",
+     "name": "Continium discovery center",
+     "kind": "technik",
+     "lat": 50.864,
+     "lon": 6.062,
+     "hours": 2,
+     "indoor": true,
+     "family": true,
+     "summary": "Mitmach-Museum zu Technik und Alltag."
+    },
+    {
+     "id": "kerkrade-snowworld",
+     "name": "SnowWorld Landgraaf",
+     "kind": "winter",
+     "lat": 50.889,
+     "lon": 6.02,
+     "hours": 3,
+     "indoor": true,
+     "family": true,
+     "summary": "Indoor-Skihalle auf einer früheren Bergehalde."
+    }
+   ]
+  },
+  {
+   "id": "luettich",
+   "name": "Lüttich (Liège) & Blegny-Mine",
+   "region": "Wallonien",
+   "country": "BE",
+   "lat": 50.64,
+   "lon": 5.57,
+   "kinds": [
+    "stadt",
+    "kultur",
+    "technik",
+    "unterwelt"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    0,
+    2
+   ],
+   "summary": "Maasstadt mit Calatrava-Bahnhof, Treppe Montagne de Bueren, Museen und dem Welterbe-Bergwerk Blegny.",
+   "angle": "Mit dem Zug anreisen, damit der Bahnhof Guillemins gleich das erste Ziel ist.",
+   "spots": [
+    {
+     "id": "luettich-guillemins",
+     "name": "Bahnhof Liège-Guillemins",
+     "kind": "technik",
+     "lat": 50.625,
+     "lon": 5.567,
+     "hours": 0.5,
+     "summary": "Weiße Bahnhofshalle von Santiago Calatrava."
+    },
+    {
+     "id": "luettich-bueren",
+     "name": "Montagne de Bueren",
+     "kind": "stadt",
+     "lat": 50.648,
+     "lon": 5.577,
+     "hours": 1,
+     "slot": "abend",
+     "summary": "Treppe mit 374 Stufen hinauf zu den Coteaux mit Blick über die Stadt."
+    },
+    {
+     "id": "luettich-boverie",
+     "name": "La Boverie",
+     "kind": "kultur",
+     "lat": 50.632,
+     "lon": 5.58,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Kunstmuseum im Park zwischen Maas und Dérivation."
+    },
+    {
+     "id": "luettich-curtius",
+     "name": "Grand Curtius",
+     "kind": "kultur",
+     "lat": 50.648,
+     "lon": 5.581,
+     "hours": 1.5,
+     "indoor": true,
+     "summary": "Museum für Kunst und Geschichte an der Maas."
+    },
+    {
+     "id": "luettich-blegny",
+     "name": "Blegny-Mine",
+     "kind": "unterwelt",
+     "lat": 50.687,
+     "lon": 5.725,
+     "hours": 2.5,
+     "indoor": true,
+     "family": true,
+     "summary": "Welterbe-Kohlebergwerk mit Führung unter Tage."
+    }
+   ]
+  },
+  {
+   "id": "rheine",
+   "name": "Rheine & Emsauen",
+   "region": "Nordrhein-Westfalen",
+   "country": "DE",
+   "lat": 52.28,
+   "lon": 7.44,
+   "kinds": [
+    "tiere",
+    "natur",
+    "kultur",
+    "aktiv"
+   ],
+   "months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "nights": [
+    0,
+    1
+   ],
+   "summary": "Emsstadt mit NaturZoo, Saline Gottesgabe, Kloster Bentlage und Radwegen entlang der Ems.",
+   "angle": "Zoo, Saline und Kloster liegen nebeneinander in Bentlage – mit dem Rad von der Innenstadt an der Ems entlang hin.",
+   "spots": [
+    {
+     "id": "rheine-naturzoo",
+     "name": "NaturZoo Rheine",
+     "kind": "tiere",
+     "lat": 52.294,
+     "lon": 7.418,
+     "hours": 3,
+     "family": true,
+     "summary": "Zoo im Grünen, bekannt für begehbare Affenanlage und Weißstörche."
+    },
+    {
+     "id": "rheine-saline",
+     "name": "Saline Gottesgabe",
+     "kind": "technik",
+     "lat": 52.292,
+     "lon": 7.414,
+     "hours": 1,
+     "family": true,
+     "summary": "Historisches Gradierwerk der ehemaligen Saline."
+    },
+    {
+     "id": "rheine-bentlage",
+     "name": "Kloster Bentlage",
+     "kind": "kultur",
+     "lat": 52.297,
+     "lon": 7.414,
+     "hours": 1,
+     "indoor": true,
+     "summary": "Ehemaliges Kreuzherrenkloster mit Museum und Ausstellungen."
+    },
+    {
+     "id": "rheine-emsradweg",
+     "name": "EmsRadweg",
+     "kind": "aktiv",
+     "lat": 52.28,
+     "lon": 7.44,
+     "hours": 3,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Flussradweg durch die Emsauen."
+    },
+    {
+     "id": "rheine-basilika",
+     "name": "Basilika St. Antonius",
+     "kind": "kultur",
+     "lat": 52.276,
+     "lon": 7.439,
+     "hours": 0.5,
+     "indoor": true,
+     "summary": "Große neoromanische Kirche in der Innenstadt."
+    }
+   ]
+  },
+  {
+   "id": "spa-coo",
+   "name": "Spa & Wasserfall von Coo",
+   "region": "Wallonien",
+   "country": "BE",
+   "lat": 50.492,
+   "lon": 5.865,
+   "kinds": [
+    "therme",
+    "natur",
+    "freizeit",
+    "aktiv",
+    "technik"
+   ],
+   "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "nights": [
+    1,
+    2
+   ],
+   "summary": "Namensgebender Kurort mit Thermen über der Stadt, Rennstrecke Spa-Francorchamps und dem Wasserfall von Coo an der Amblève.",
+   "angle": "Aktiver Tag an der Amblève mit Kajak in Coo, danach zur Entspannung in die Thermen von Spa.",
+   "spots": [
+    {
+     "id": "spa-coo-thermes",
+     "name": "Thermes de Spa",
+     "kind": "therme",
+     "lat": 50.493,
+     "lon": 5.864,
+     "hours": 3,
+     "indoor": true,
+     "summary": "Thermalbad auf dem Hügel über der Stadt, mit Standseilbahn erreichbar."
+    },
+    {
+     "id": "spa-coo-coo",
+     "name": "Wasserfall von Coo",
+     "kind": "natur",
+     "lat": 50.392,
+     "lon": 5.879,
+     "hours": 1,
+     "family": true,
+     "summary": "Künstlich angelegter Wasserfall der Amblève."
+    },
+    {
+     "id": "spa-coo-plopsa",
+     "name": "Plopsa Coo",
+     "kind": "freizeit",
+     "lat": 50.392,
+     "lon": 5.88,
+     "hours": 4,
+     "family": true,
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "summary": "Freizeitpark direkt am Wasserfall."
+    },
+    {
+     "id": "spa-coo-kajak",
+     "name": "Kajak auf der Amblève",
+     "kind": "aktiv",
+     "lat": 50.392,
+     "lon": 5.878,
+     "hours": 2.5,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "summary": "Kajakstrecken ab Coo durch das Tal."
+    },
+    {
+     "id": "spa-coo-francorchamps",
+     "name": "Circuit de Spa-Francorchamps",
+     "kind": "technik",
+     "lat": 50.437,
+     "lon": 5.971,
+     "hours": 1.5,
+     "summary": "Berühmte Rennstrecke in den Ardennen."
+    },
+    {
+     "id": "spa-coo-warfaaz",
+     "name": "Lac de Warfaaz",
+     "kind": "natur",
+     "lat": 50.504,
+     "lon": 5.882,
+     "hours": 1,
+     "family": true,
+     "summary": "Kleiner See mit Rundweg am Stadtrand von Spa."
+    }
+   ]
+  }
+ ]
+}
