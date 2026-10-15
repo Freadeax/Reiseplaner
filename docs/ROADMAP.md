@@ -2,7 +2,7 @@
 
 ## Gemeinsamer Plan B/C · 15.10.2026
 
-ChatGPT: B-Strukturpaket und C1/C4/C6 implementiert (Stimmungskarten, fünf Schnellprofile, optionaler Auswahlstapel, erklärte rankProfile-Treffer). Node/Build/Artefakt bestanden, Chromium-Abnahme durch Claude offen. Claude: B5 (3b3cce0 integriert), D1/D2 und C2/C5 vorhanden; Tageskopf, A4 und gemeldete Profil-Enumhärtung bei ihm. Nächster Schritt: gemeinsame Browser-/B5-Abnahme, danach Datenvertrag v3 prüfen, sobald Claudes Entwurf vorliegt. Keine Schema-/Produktivmigration vor der abgestimmten Freigabe. Einzelheiten in PLAN_WEITERENTWICKLUNG.md und Issue #8.
+ChatGPT: B-Strukturpaket und C1/C4/C6 implementiert (Stimmungskarten, fünf Schnellprofile, optionaler Auswahlstapel, erklärte rankProfile-Treffer). 2306b7f mit app/Chromium/database/build/deploy in CI grün und automatisch veröffentlicht. Zusätzliche visuelle B5-/iPhone-Abnahme offen. Claude: B5 (3b3cce0 integriert), D1/D2 und C2/C5 vorhanden; Tageskopf, A4 und gemeldete Profil-Enumhärtung an ihn übergeben. Storno-Vorprüfung mit sieben Rechenfällen in SCHEMA_V3_REVIEW.md; vollständiger gemeinsamer v3-Vertrag ausstehend. Keine Schema-/Produktivmigration vor der abgestimmten Freigabe. Einzelheiten in PLAN_WEITERENTWICKLUNG.md und Issue #8.
 
 ## Gemeinsamer Plan · 15.10.2026
 

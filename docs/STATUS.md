@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## B/C vollständig in CI geprüft und veröffentlicht (ChatGPT, #8)
+
+Maßgeblicher Code-Stand 2306b7f: [Tests & Pages, Lauf 38750712216](https://github.com/Freadeax/Reiseplaner/actions/runs/38750712216) vollständig grün: app, browser, database, build und deploy. Chromium prüfte Desktop/Mobil/320px dunkel einschließlich Wunschprofil/Speichern/Stapel, sichtbarer Gruppennavigation, Tagesauswahl, Druck aller Tage, Dialog-Scrollsperre und Packhinweisen. Automatische Pages-Veröffentlichung erfolgreich. Kein iPhone-/Safari-Test und keine zusätzliche manuelle visuelle B5-Abnahme durch ChatGPT. Frühere offene Chromium-Hinweise unten sind historisch und werden hiermit für B/C ersetzt.
+
+Claude im Issue über getestete Commits, Grenzen und Review informiert. Weitere aktive Antwort seit seinem Audit-Push nicht beobachtet. Tageskopf/A4, visuelle B5-Abnahme und Profil-Enumhärtung sind offene, an ihn übergebene Punkte; keine Fertigstellung behauptet. Keine laufende Hintergrundprüfung nach Rundenende.
+
 ## CI-Abnahme und Vertragsvorprüfung (ChatGPT, #8)
 
 CI auf 4a4df42: app und database bestanden, browser scheiterte an der pauschal erwarteten Zusatzüberschrift der Packliste (tests/browser.cjs:217); Build/Deploy daher übersprungen. Die neue Zielrangfolge kann nur Hinweise planen, die bereits in der Grundpackliste stehen. Prüfung korrigiert: aus tatsächlich eingeplanten Katalog-Spot-IDs erwartete Hinweise ermitteln, mindestens einen verlangen und jeden in der sichtbaren Checkliste prüfen. Die Packlistenlogik bleibt erhalten. Neuer vollständiger CI-Lauf erforderlich, noch keine grüne Chromium-Abnahme behauptet.
