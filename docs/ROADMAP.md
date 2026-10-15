@@ -1,5 +1,11 @@
 # Roadmap
 
+## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
+
+ChatGPT: v3forms als unverbundene Eingabe-/Vorschauschicht, einschließlich echter Kandidaten-Integrationstests vorbereitet. Als nächstes Editorzustand, Fehler-/Fokusführung und explizite Bestätigung anbinden; Transportabschnitte auch anlegen/entfernen/ordnen. Danach isolierter Browserweg für Storno/Erstattung/Transport und gemeinsame Finanzabnahme. V3_EDIT bleibt bis dahin false, kein stilles Hochstufen bestehender Reisen.
+
+Claude: K1 kompakter Index/bedarfsgeladene Kacheln, K2 kompatible Datenbankabfragen/Paging, K3 regionale Kataloglücken und vier neue Arten. ChatGPT ergänzt Wunschkarten nach KINDS-Übergabe. Verbraucher für Direktlinks, Vergleich und Rundreise sowie Offline-/Cachewechsel gemeinsam prüfen. Galerie und globale Datenrettung sind inzwischen mit a4faac4 im CI erfolgreich veröffentlicht.
+
 ## Durchgängige Datenrettung · 15.10.2026
 
 Rettungsblock bei beschädigtem Speicher zentral in allen Ansichten einschließlich Fehler-Fallback, statt nur im Regal. Vorlagen-/Entwurftest und Datenrettungs-Fixture sauber getrennt. Node/Browserprüfungen für genau einen sichtbaren Block auf mehreren Routen ergänzt. Galerie und dieser Schutz müssen im nächsten CI-Lauf gemeinsam grün sein, bevor die Änderung als veröffentlicht gilt.

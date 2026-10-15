@@ -1,5 +1,9 @@
 # Vorprüfung Datenvertrag v3 · 15.10.2026
 
+## Aktuelle Einordnung nach Lese-Release 4c82841
+
+Die drei unten dokumentierten Repros zu 9097f46 sind mit 728c044 korrigiert und in Logik-/App-Tests abgesichert. Format 3 wird mit eigener Transport-/Storno-/Netto-Rechnung gelesen, unverändert exportiert und synchronisiert, bleibt aber hinter V3_EDIT=false schreibgeschützt. E2-Existenz in Produktion ist lesend nachgewiesen. Reine Kandidaten aus c9e781e bilden die gemeinsame Formular-Schnittstelle; zusätzliche v3forms-Integrationstests prüfen echte Payloads ohne Speicherung. Noch keine gemeinsame Freigabe für produktives Bearbeiten: vollständige UI-Anbindung, Browser-Klickwege und Finanzabnahme fehlen weiter. Historische Vorbehalte unten sind kein aktueller Befund gegen bereits korrigierte Regeln.
+
 ## Nachtrag: Review-Runde 2 und API-Prüfung
 
 Produktions-E2 am 15.10.2026 inzwischen direkt und rein lesend nachgewiesen: produktive config.js auf verbundenes Projekt zurückgeführt, Migration 20261015160000 vorhanden, CHECK 2/3 und aktivierter Downgrade-Trigger samt Funktionskörper geprüft. Keine Nutzerdaten oder Testreise in Produktion geschrieben. Die unten genannten früheren Vorbehalte zum fehlenden Existenznachweis sind damit überholt; Rechnungs-/Schutzverdrahtung und vollständige Verhaltenstests bleiben separate Bedingungen.

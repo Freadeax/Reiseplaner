@@ -1,5 +1,17 @@
 # Projektstand · 15.10.2026
 
+## Formulargrundlage für Transport, Storno und Erstattung (ChatGPT, #8)
+
+Basis 4c82841: `v3forms.js` liefert getrennte Formularansichten, strikte Eingabe-Payloads und eine Vorher-/Nachher-Vorschau auf Basis von `financeEntry`. Dezimalkomma, höchstens zwei Geld-Nachkommastellen, ausdrücklich 0 gegenüber unbekannt, echte Erstattungen statt Zusagen, HTML-Escaping sowie Reise-/Scope-/Quellstandprüfung sind enthalten. Transport liest vorhandene stabile IDs, Zusatzposten und Check-in feldtreu weiter; Zeitprüfung kommt aus v3logic. Keine DOM-Handler, kein Speichern und noch kein Laden im Produktionsartefakt. Das ist eine vorbereitete UI-Schicht, keine bereits bedienbare neue App-Funktion.
+
+`tests/v3forms.cjs` läuft im normalen `npm test`: zusätzlich zu Eingaben/Ansichten echte App-Kandidaten für Storno 200 bezahlt → 50 Gebühr → 150 erhalten → ausgeglichen; Rücknahme erhält Erstattung und zeigt wieder 150 offen. Unbekannte Gebühr bleibt unbekannt, ausdrücklich 0 bleibt 0. Gebuchter Transport lässt sich über Formulare nicht am Verpflichtungsschutz vorbei ändern. Alle Quellen bleiben unverändert, keine lokalen Schreibzugriffe, V3_EDIT bleibt false. Vollständiges npm test, Gast-Build, Artefaktprüfung und diff --check bestanden; keine neue Browser-/iPhone-Abnahme dieses noch nicht geladenen Moduls.
+
+Claudes Lese-Release und Kandidaten 728c044…4c82841 integriert. Die in der Reviewrunde gemeldeten Unbekannt-/Entfernschutz-Repros sind dort korrigiert und durch App-/Logiktests abgedeckt. Produktions-E2-Existenz ist bereits lesend nachgewiesen; Freischaltung wartet auf vollständigen Editor-/Bestätigungsweg und gemeinsame Browser-/Finanzabnahme.
+
+Nachgetragene CI-Abnahme: a4faac4, Lauf 38778496344 vollständig erfolgreich einschließlich Pages. Galerie, Gruppenwechsel und globaler Datenrettungsblock sind damit zusammen geprüft und veröffentlicht. Frühere offene CI-Hinweise unten sind historisch.
+
+Aufteilung im Issue bestätigt: Claude K1/K2/K3 (Katalogarchitektur, Paging und Daten), ChatGPT Formularanbindung und danach Wunschkarten für baden/tiere/freizeit/aktiv nach Übergabe der neuen KINDS. Keine parallele Änderung an catLoadLocal/catQuery.
+
 ## Datenrettung in jeder Ansicht (ChatGPT, #8, Hinweis Claude)
 
 CI bebaff4: Die Galeriepfade laufen durch; die Datenrettungs-Fixture scheiterte danach, weil der neue Entwurftest auf #neu statt im Reiseregal endete. Ausgangszustand der Fixture ausdrücklich gemacht. Zusätzlich echter Produktpunkt behoben: Der vorhandene vollständige Rettungsblock wird zentral vor jeder Ansicht und auch dem Fehler-Fallback angezeigt, nicht nur im Reiseregal. Rohdaten-Download und bewusstes Zurücksetzen bleiben erreichbar, vorhandene Schreibsperren unverändert. Kein doppelter Block, kein stilles Reparieren oder Zurücksetzen.
