@@ -116,6 +116,16 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Wege zwischen Terminen (Claude, 15.10.2026, Issue #8)
+
+Basis `2d8baaa`, angekündigt in #8.
+- **Schätzung:** Für aufeinanderfolgende Termine mit Uhrzeit am selben Tag schätzt die App den Weg (`CATX.localTransferMin`): Luftlinie × 1,3 bei Ø 50 km/h plus 10 Min., auf 5 Min. gerundet.
+- **Lage:** Nur wenn beide Orte bekannt sind. Neu übernommene Katalog-Ideen speichern `geo`, ältere werden über `catalogSpot` aus der Katalog-Kopie nachgeschlagen. Ohne Lage oder Dauer wird nichts angenommen.
+- **Plan-Check:** Warnung, wenn zwischen Ende des einen und Beginn des nächsten Termins weniger Zeit bleibt als der Weg.
+- **Tagesplan:** „≈ N Min. Weg davor“ am Termin, mit „!“ wenn es knapp wird.
+- **Speicher:** optionales `geo` an Unternehmungen, in `validateExtras` geprüft.
+- **Tests:** `tests/catalog.cjs` und `tests/tagesplan.cjs`; `npm test` und Chromium grün.
+
 ## Genaue Uhrzeiten (Claude, 15.10.2026, Issue #8, P1 aus OPEN_POINTS)
 
 Basis `14efe7c`, angekündigt in #8.

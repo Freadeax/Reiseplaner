@@ -184,6 +184,13 @@ assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele
   const noOrigin = C.compareRows([{ place: rk[0].place, roadKm: null, minutes: null, spots: rk[0].spots }], {});
   assert.equal(noOrigin[0].values[0], 'Abfahrtsort fehlt'); assert(!noOrigin.some(r => /^Im /.test(r.label)));
 }
+{ /* Weg im Nahbereich: 10 km Luftlinie = 13 km bei 50 km/h ≈ 15,6 + 10 Min. → 25 Min.; gleicher Ort 10 Min.; ungültig null */
+  assert.equal(C.localTransferMin({ lat: 48, lon: 9 }, { lat: 48 + 10 / 111.2, lon: 9 }), 25);
+  assert.equal(C.localTransferMin({ lat: 48, lon: 9 }, { lat: 48, lon: 9 }), 10);
+  assert.equal(C.localTransferMin({ lat: 48, lon: 9 }, null), null);
+  const ac = C.toAct(DATA.places[0].spots[0], DATA.places[0], fakeUid);
+  assert.deepEqual(ac.geo, { lat: DATA.places[0].spots[0].lat, lon: DATA.places[0].spots[0].lon }, 'Lage wird mitgespeichert');
+}
 { /* Regenzwilling: nächste Drinnen-Idee, nicht sie selbst, Saison und Ausschluss beachtet */
   const fall = C.findSpot(all, 'bad-urach-wasserfall');
   assert.equal(fall.place.id, 'bad-urach');

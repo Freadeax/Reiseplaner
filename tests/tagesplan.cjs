@@ -399,6 +399,28 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   /* Eckdaten: setField prüft Format */
   const o = {}; a.setField(o, 'departTime', '07:45'); assert.equal(o.departTime, '07:45'); a.setField(o, 'departTime', ''); assert.equal(o.departTime, undefined);
 }
+/* Wege zwischen Terminen: knapp → Warnung; ohne Lage keine Annahme; Lage über catalogSpot aus der Katalog-Kopie */
+{
+  const tt = trip({ dateMode: 'fix', start: '2027-05-01', end: '2027-05-03' });
+  const p1 = act('Burg', 1, { geo: { lat: 48.485, lon: 9.387 } }), p2 = act('Höhle', 1, { geo: { lat: 48.371, lon: 9.183 } }), p3 = act('Ohne Lage', 1);
+  tt.customActs = [p1, p2, p3];
+  tt.items = [{ uid: 'g1', act: p1.id, day: 1, slot: 'morgen', time: '09:00' }, { uid: 'g2', act: p2.id, day: 1, slot: 'morgen', time: '10:15' }, { uid: 'g3', act: p3.id, day: 1, slot: 'nachm', time: '14:00' }];
+  const gs = a.transferGaps(tt);
+  assert.equal(gs.length, 1, 'nur Paar mit bekannter Lage');
+  assert.equal(gs[0].gap, 15); assert(gs[0].need > 15 && gs[0].short);
+  const ch = a.checks(tt).map(x => x[1]).join(' | ');
+  assert(/Zwischen Burg \(Ende ca\. 10:00\) und Höhle \(10:15\) bleiben 15 Min\., der Weg dauert ca\. \d+ Min\./.test(ch));
+  tt.items[1].time = '12:00';
+  assert(!a.transferGaps(tt)[0].short, 'genug Zeit: keine Warnung');
+  /* Lage über catalogSpot */
+  win.RP_CATALOG = { places: [{ id: 'x', spots: [{ id: 'x-a', lat: 48.1, lon: 9.1 }] }] };
+  assert.deepEqual(a.actGeo({ catalogSpot: 'x-a' }), { lat: 48.1, lon: 9.1 });
+  assert.equal(a.actGeo({ catalogSpot: 'gibt-es-nicht' }), null);
+  delete win.RP_CATALOG;
+  const bk = { format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(Object.assign({}, tt, { id: 'tgeo2' })))] };
+  bk.trips[0].customActs[0].geo = { lat: 500, lon: 0 };
+  assert.throws(() => a.validateBackup(bk), /Unternehmung/);
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';
@@ -412,4 +434,4 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.catYear({ places: [] }), '');
   a.catState().month = '';
 }
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) geprüft.');
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) und Wege zwischen Terminen geprüft.');

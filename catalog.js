@@ -363,20 +363,26 @@
     return null;
   }
 
+  /* Weg zwischen zwei Orten im Nahbereich: Luftlinie × ROAD_FACTOR bei Ø 50 km/h plus 10 Min. für Parken/Fußweg, auf 5 Min. gerundet. Schätzung. */
+  function localTransferMin(a, b) {
+    if (!validPoint(a) || !validPoint(b)) return null;
+    return Math.max(5, Math.round((airKm(a, b) * ROAD_FACTOR / 50 * 60 + 10) / 5) * 5);
+  }
+
   /* Attraktion als eigene Unternehmung der Reise. Kosten sind offen, nicht kostenlos. */
   function toAct(s, place, uidFn) {
     return { id: uidFn('c'), custom: true, t: s.name, cat: KIND_CAT[s.kind] || 'ausflug', cost: 0, costOpen: true, per: 'pp',
       dur: s.hours >= 1 ? 'ca. ' + String(s.hours).replace('.', ',') + ' Std.' : 'ca. ' + Math.round(s.hours * 60) + ' Min.',
       link: '', note: s.summary + (s.tip ? ' Tipp: ' + s.tip : '') + ' (Katalog: ' + place.name + '. Preis, Öffnungszeiten und Saison vor Ort prüfen.)',
       slot: s.slot || (s.indoor ? 'nachm' : 'morgen'), indoor: !!s.indoor, catalogSpot: s.id, ort: place.name, map: s.name + ', ' + place.name,
-      hours: s.hours, bring: bringFor(s.kind) };
+      hours: s.hours, bring: bringFor(s.kind), geo: { lat: s.lat, lon: s.lon } };
   }
 
   var api = { ROAD_FACTOR: ROAD_FACTOR, AVG_KMH: AVG_KMH, MAX_KM: MAX_KM, KINDS: KINDS, KIND_CAT: KIND_CAT, RANGES: RANGES, ORIGINS: ORIGINS,
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
-    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
+    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, localTransferMin: localTransferMin, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);
