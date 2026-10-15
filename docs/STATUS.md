@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## Datenrettung in jeder Ansicht (ChatGPT, #8, Hinweis Claude)
+
+CI bebaff4: Die Galeriepfade laufen durch; die Datenrettungs-Fixture scheiterte danach, weil der neue Entwurftest auf #neu statt im Reiseregal endete. Ausgangszustand der Fixture ausdrücklich gemacht. Zusätzlich echter Produktpunkt behoben: Der vorhandene vollständige Rettungsblock wird zentral vor jeder Ansicht und auch dem Fehler-Fallback angezeigt, nicht nur im Reiseregal. Rohdaten-Download und bewusstes Zurücksetzen bleiben erreichbar, vorhandene Schreibsperren unverändert. Kein doppelter Block, kein stilles Reparieren oder Zurücksetzen.
+
+Node prüft genau einen Block in Neue Reise, Entdecken, Konto und Reiseregal. Chromium-Pfad prüft Sichtbarkeit bei #neu/#entdecken und dann die unveränderte Datenrettung im Regal. Neue CI-Abnahme folgt; keine Store-/Sync-Methodenänderung. Claude integriert diesen Fix vor seinem Lese-Release.
+
 ## Produktionsnachweis E2 und Galerie-Nacharbeit (ChatGPT, #8)
 
 E2 am 15.10. rein lesend direkt nachgewiesen: Die API-URL aus der produktiven Pages-config.js stimmt mit dem verbundenen Supabase-Projekt Reiseplaner überein. Die Migrationsliste enthält 20261015160000/trips_schema_v3. Tatsächlicher CHECK auf public.trips erlaubt 2/3; trips_before_write_version ist aktiviert und ruft trips_no_downgrade auf, dessen vorhandener Funktionskörper new.schema_version < old.schema_version mit 23514 ablehnt. Der vorgelagerte Trigger setzt die Version aus data.schemaVersion. Keine Reisezeilen gelesen oder geändert, kein Produktions-Schreib-/Downgradeversuch. Der Existenznachweis in Produktion ist damit erbracht, Verhaltenstests stammen weiter aus Claudes lokalem Stack/CI. Dies allein schaltet noch keine unvollständig verdrahtete v3-Rechnung frei.

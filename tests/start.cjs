@@ -9,6 +9,15 @@ ctx.localStorage.getItem=()=>'{kaputt';
 ctx.window.__app.Store.loadLocal();
 ctx.window.__app.render();
 if(!els['#view'].innerHTML.includes('Rohdaten sichern')||!els['#view'].innerHTML.includes('nicht überschrieben'))throw new Error('Hinweis zur Datenrettung fehlt');
+const recoveryApp=ctx.window.__app;
+recoveryApp.UI.draft=recoveryApp.newTrip();
+for(const view of ['neu','entdecken','konto','reisen']){
+ recoveryApp.UI.view=view;recoveryApp.render();
+ if((els['#view'].innerHTML.match(/data-storage-recovery/g)||[]).length!==1)throw new Error('Genau ein Rettungsblock fehlt in '+view);
+ if(els['#view'].innerHTML.includes('Die Ansicht konnte nicht geladen werden'))throw new Error('Ansichtsfehler in '+view);
+}
+recoveryApp.UI.view='reisen';
+console.log('Datenrettung: Hinweis genau einmal in Neue Reise, Entdecken, Konto und Reiseregal geprüft.');
 
 // Darstellung darf keine Reise schreiben oder deren Daten verändern.
 const assert=require('assert');

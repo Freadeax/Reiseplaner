@@ -634,7 +634,13 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.inputValue('#draft [data-f="title"]'),'Mein offener Entwurf',name+': Abbruch erhält Formularentwurf');
 
   /* Beschädigter Speicher wird nicht überschrieben */
+  await p.click('header [data-go="reisen"]');
   await p.evaluate(() => localStorage.setItem('rp-trips', '{kaputt'));
+  await p.goto(base+'/index.html#neu');
+  assert(await p.isVisible('[data-storage-recovery]'),name+': Rettungshinweis auch bei Neuer Reise');
+  await p.goto(base+'/index.html#entdecken');
+  assert(await p.isVisible('[data-storage-recovery]'),name+': Rettungshinweis auch bei Entdecken');
+  await p.goto(base+'/index.html#reisen');
   await p.reload();
   assert((await viewText(p)).includes('Rohdaten sichern'), name + ': Rettungshinweis fehlt');
   await p.click('[data-go="neu"]').catch(() => {});

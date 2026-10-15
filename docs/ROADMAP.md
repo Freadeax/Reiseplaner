@@ -1,5 +1,9 @@
 # Roadmap
 
+## Durchgängige Datenrettung · 15.10.2026
+
+Rettungsblock bei beschädigtem Speicher zentral in allen Ansichten einschließlich Fehler-Fallback, statt nur im Regal. Vorlagen-/Entwurftest und Datenrettungs-Fixture sauber getrennt. Node/Browserprüfungen für genau einen sichtbaren Block auf mehreren Routen ergänzt. Galerie und dieser Schutz müssen im nächsten CI-Lauf gemeinsam grün sein, bevor die Änderung als veröffentlicht gilt.
+
 ## Vorlagen und v3-Übergabe · 15.10.2026
 
 E2-Existenz in Produktion inzwischen direkt über Migrationsliste sowie tatsächlichen CHECK/aktivierten Trigger/Funktionskörper nachgewiesen, Live-config-Projektzuordnung geprüft (rein lesend). Die weiteren Freischaltbedingungen Rechnung/Schutz/Feldtreue bleiben bestehen. Galerie-Nacharbeit hält den Vorlagenbereich beim Gruppenwechsel offen; neuer Chromium-Lauf steht aus.
