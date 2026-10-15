@@ -250,6 +250,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert(/\/?#r-[a-z0-9]+-unterkunft$/.test(p.url()), name + ': nach Anlegen nicht im Bereich Unterkunft');
   await p.fill('[data-f="dest"]', 'Wien');
   await p.press('[data-f="dest"]', 'Tab');
+  await p.click('[data-act="route-endpoint-apply"]');
   await p.click('summary:has-text("Eigene Unterkunft")');
   await p.fill('#cs-name', 'Testpension');
   await p.fill('#cs-price', '100');
@@ -781,6 +782,26 @@ async function routeProposalGuard(browser,base,name,ctxOpts){
  await noOverflow(p,name+' Routenvorschlag');await ctx.close();console.log(name+': veraltete Route gesperrt, neu berechnet und bewusst übernommen.');
 }
 
+async function routeEndpointFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Ortswechsel: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.newTrip({origin:'Göppingen',originGeo:{lat:48.7,lon:9.65},dest:'Ulm',destGeo:{lat:48.4,lon:9.99},km:222,kmSrc:'route',routeMin:90,routeHomeMin:95,routeAt:'2026-10-15'});a.Store.put(t,true);a.go('r-'+t.id+'-unterkunft');return t.id});
+ const original=await p.evaluate(id=>JSON.stringify(window.__app.Store.get(id)),id);
+ await p.fill('[data-f="dest"]','München');await p.press('[data-f="dest"]','Tab');
+ await p.waitForSelector('[data-act="route-endpoint-apply"]');
+ assert.equal(await p.evaluate(id=>JSON.stringify(window.__app.Store.get(id)),id),original,'Tippen/Vorschau ändern nichts');
+ await p.click('.sheet .x');assert.equal(await p.inputValue('[data-f="dest"]'),'Ulm');
+ await p.fill('[data-f="dest"]','München');await p.press('[data-f="dest"]','Tab');await p.click('[data-act="route-endpoint-apply"]');
+ const changed=await p.evaluate(id=>window.__app.Store.get(id),id);
+ assert.equal(changed.dest,'München');assert.equal(changed.destGeo,undefined);assert.equal(changed.km,0);assert.equal(changed.routeKm,0);assert.equal(changed.routeMin,undefined);
+ await p.click('[data-act="edit-trip"]');await p.fill('#editform [data-f="origin"]','Berlin');await p.click('[data-act="edit-save"]');
+ await p.waitForSelector('[data-act="route-endpoint-apply"]');await p.click('[data-act="route-endpoint-apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).originGeo,id),undefined);
+ await p.reload();assert.equal(await p.inputValue('[data-f="dest"]'),'München');
+ await noOverflow(p,name+' Ortswechsel');await ctx.close();console.log(name+': Ortswechsel mit Abbruch/Übernahme und offenen Routenwerten geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -808,6 +829,8 @@ async function routeProposalGuard(browser,base,name,ctxOpts){
     await tripShelfFlow(browser,base,'regal-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await routeProposalGuard(browser,base,'route-desktop',{viewport:{width:1280,height:900}});
     await routeProposalGuard(browser,base,'route-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await routeEndpointFlow(browser,base,'ortswechsel-desktop',{viewport:{width:1280,height:900}});
+    await routeEndpointFlow(browser,base,'ortswechsel-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

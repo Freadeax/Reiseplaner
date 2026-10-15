@@ -704,6 +704,35 @@ function routeApply(t,d){
   t.kmSrc='route';t.routeAt=d.at;t.routeKm=null;if(!t.originGeo&&d.originGeo)t.originGeo=d.originGeo;
   return t;
 }
+/* Ortswechsel erst bewusst übernehmen: alte Routenwerte sind keine neue Strecke. */
+function invalidateEndpointRoute(before,candidate){
+ const origin=before.origin!==candidate.origin,dest=before.dest!==candidate.dest;
+ if(origin)delete candidate.originGeo;
+ if(dest)delete candidate.destGeo;
+ const legs=Array.isArray(candidate.legs)&&candidate.legs.length,routeChanged=origin||dest&&!legs;
+ if(routeChanged){
+  candidate.km=0;candidate.routeKm=0;
+  for(const key of ['kmSrc','routeMin','routeHomeMin','routeAt'])delete candidate[key];
+  if(origin&&legs){candidate.legs[0].roadKm=0;delete candidate.legs[0].routeMin}
+ }
+ return {origin,dest,routeChanged};
+}
+function routeEndpointPreview(t,candidate){
+ if(!candidate||candidate.id!==t.id)throw new Error('Reiseentwurf nicht mehr vorhanden.');
+ if(candidate.origin===t.origin&&candidate.dest===t.dest)return null;
+ const c=clone(candidate),changes=invalidateEndpointRoute(t,c),issues=commitmentIssues(t,c);
+ if(issues.length)throw new Error('Nicht geändert: '+issues.join(' · '));
+ return {trip:t.id,source:JSON.stringify(t),candidate:c,changes,beforeKm:routeKm(t),beforeTime:outboundMin(t)};
+}
+function applyRouteEndpointChange(t,d){
+ if(!d||d.trip!==t.id||d.source!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Ortswechsel bitte neu prüfen.');
+ const issues=commitmentIssues(t,d.candidate);if(issues.length)throw new Error('Nicht geändert: '+issues.join(' · '));
+ adoptPlanChange(t,clone(d.candidate));return t;
+}
+function sheetRouteEndpoint(t,d){
+ const c=d.candidate;
+ openSheet('<h2>Start oder Ziel ändern?</h2><dl class="facts"><dt>Start vorher</dt><dd>'+esc(t.origin||'Offen')+'</dd><dt>Start danach</dt><dd>'+esc(c.origin||'Offen')+'</dd><dt>Ziel vorher</dt><dd>'+esc(t.dest||(placeOf(t)||{}).name||'Offen')+'</dd><dt>Ziel danach</dt><dd>'+esc(c.dest||(placeOf(c)||{}).name||'Offen')+'</dd><dt>Bisherige Strecke</dt><dd>'+d.beforeKm+' km einfach'+(d.beforeTime?' · ca. '+d.beforeTime+' Min.':'')+'</dd><dt>Strecke danach</dt><dd>'+(d.changes.routeChanged?'Offen – bitte neu berechnen oder eintragen':'Etappen bestimmen weiterhin die Strecke')+'</dd></dl><p>Nur nach Übernahme werden die betroffenen Koordinaten und alten Routenwerte zurückgesetzt. Das ist keine Ersparnis: Fahrtkosten und Fahrzeit müssen neu geprüft werden.</p><p class="small muted">Unterkunft, Buchungen, Zahlungen und Termine werden nicht automatisch angepasst. Bei Rundreisen bleiben die Etappen erhalten; ein neuer Start setzt nur deren erste Anfahrt zurück.</p><div class="row"><button type="button" class="btn" data-act="route-endpoint-apply">Änderung übernehmen</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.routeEndpointDraft=d;
+}
 function arrivalMin(t){const dep=timeMin(t.departTime);if(dep==null||t.travel!=='auto')return null;const m=outboundMin(t);return m>0?dep+m+tzDiffMin(t):null}
 
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
@@ -1870,8 +1899,8 @@ function protectedPlanChange(t,action,args={}){
   if(!o||o.id!==t.id)throw new Error('Reiseentwurf nicht mehr vorhanden.');
   if(o.dateMode==='fix'&&!(pd(o.start)&&pd(o.end)&&pd(o.end)>=pd(o.start)))throw new Error('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');
   if(t.start!==o.start||t.end!==o.end||t.persons!==o.persons||t.dateMode!==o.dateMode||t.month!==o.month||nightsOf(t)!==nightsOf(o))resetStay(o);
-  if(t.origin!==o.origin){o.routeKm=null;o.km=0;delete o.kmSrc;delete o.originGeo;}
-  Object.assign(c,o);if(!('kmSrc' in o))delete c.kmSrc;if(!('originGeo' in o))delete c.originGeo;
+  Object.assign(c,o);if(!('kmSrc' in o))delete c.kmSrc;if(!('originGeo' in o))delete c.originGeo;if(!('destGeo' in o))delete c.destGeo;
+  invalidateEndpointRoute(t,c);
  }else throw new Error('Unbekannte Planänderung.');
  const issues=commitmentIssues(t,c);
  if(issues.length)throw new Error('Nicht geändert: '+issues.join(' · ')+'. Buchungen oder Zahlungen zuerst prüfen.');
@@ -2097,7 +2126,7 @@ function openSheet(html){
  if(s.focus)s.focus();
 }
 function closeSheet(){
- UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
+ UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
  $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
  if(opener&&opener.isConnected!==false&&opener.focus)opener.focus();
  else if(opener){const view=$('#view');if(view&&view.focus)view.focus()}
@@ -2190,7 +2219,7 @@ function setField(obj,f,v){
   else if(f==='stayQuote') obj[f]=num(v,0)>0?num(v,0):null;
   else if(f==='tz'){if(v===''||!validTz(v))delete obj.tz;else obj.tz=v;}
   else if(f==='departTime'||f==='checkinTime'){if(v==='')delete obj[f];else if(TIME_RE.test(v))obj[f]=v;else alertMsg('Bitte eine gültige Uhrzeit (HH:MM) eingeben.');}
-  else{if(f==='origin'&&obj[f]!==v)delete obj.originGeo;obj[f]=v;}
+  else{if(obj[f]!==v){if(f==='origin')delete obj.originGeo;if(f==='dest')delete obj.destGeo}obj[f]=v;}
 }
 document.addEventListener('click',async e=>{
   if(e.target.closest('.skip-link')){e.preventDefault();const view=$('#view');if(view)view.focus();return}
@@ -2233,7 +2262,8 @@ document.addEventListener('click',async e=>{
      try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
      try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
    case 'edit-trip': sheetEdit(t);return;
-   case 'edit-save':{try{if(UI.editSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Eckdaten bitte erneut öffnen.');adoptPlanChange(t,protectedPlanChange(t,'edit',{draft:UI.edit}));save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
+   case 'edit-save':{try{if(UI.editSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Eckdaten bitte erneut öffnen.');const c=protectedPlanChange(t,'edit',{draft:UI.edit}),d=routeEndpointPreview(t,c);if(d){render();sheetRouteEndpoint(t,d);return}adoptPlanChange(t,c);save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
+   case 'route-endpoint-apply':{try{applyRouteEndpointChange(t,UI.routeEndpointDraft);UI.routeEndpointDraft=null;UI.routeDraft=null;save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
@@ -2324,6 +2354,7 @@ document.addEventListener('change',e=>{
   const f=el.getAttribute('data-f'); if(!f) return;
   if(el.closest('#draft')){setField(UI.draft,f,el.value);if(['start','end','nights'].includes(f))render();return}
   if(el.closest('#editform')){setField(UI.edit,f,el.value);return}
+  if(t&&(f==='origin'||f==='dest')&&t[f]!==el.value){try{const c=clone(t);setField(c,f,el.value);const d=routeEndpointPreview(t,c);render();if(d)sheetRouteEndpoint(t,d)}catch(err){alertMsg(err.message);render()}return}
   if(t){setField(t,f,el.value);save(t);if(f!=='notes')render();else{const box=document.getElementById('notes-extra');if(box)box.innerHTML=notesExtras(t)}}
 });
 document.addEventListener('input',e=>{
@@ -2332,6 +2363,7 @@ document.addEventListener('input',e=>{
   if(el.closest('#draft')){setField(UI.draft,f,el.value);return}
   if(el.closest('#editform')){setField(UI.edit,f,el.value);return}
   if(!t) return;
+  if(f==='origin'||f==='dest')return; /* Ortswechsel erst nach change mit Vorschau. */
   setField(t,f,el.value);save(t);
   if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
 });
@@ -3201,6 +3233,7 @@ Store.loadLocal();
 window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
+Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

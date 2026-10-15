@@ -1,5 +1,9 @@
 # Roadmap
 
+## Ortswechsel und Routenwerte · 15.10.2026 (ChatGPT, #8)
+
+Freie Zieländerung und Startwechsel über Eckdaten mit unverändernder Vorschau/Abbruch. Nach bewusster Übernahme sind veraltete Koordinaten/Zeiten entfernt und die Strecke offen; manuelle Kilometer nicht still gelöscht. Rundreise-Etappen erhalten, nur neue Anfahrt zurückgesetzt. Node/Build/Artefakt grün, Chromium-Abnahme vorbereitet/offen. Nächster Schritt: gemeinsame Abnahme; Claudes Client-Kompatibilitätsschutz getrennt. Produktive Downgrade-Schutzmigration wartet wie von Claude verlangt auf Philipps ausdrückliche Freigabe, Storno-Semantik bleibt zurückgestellt.
+
 ## Verlässliche Routenvorschläge · 15.10.2026 (ChatGPT, #8)
 
 Snapshot und Quellstandprüfung bei asynchroner Routenberechnung umgesetzt; veraltete Vorschläge sichtbar und Übernehmen gesperrt. Node/Build/Artefakt bestanden, Chromium-Abnahme offen. Nächster abgegrenzter Punkt mit Claude: Koordinaten-/Routeninvalidierung bei geändertem Start/Ziel, manuelle Kilometer und Rundreise-Etappen ohne stillen Datenverlust behandeln.

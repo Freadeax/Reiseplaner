@@ -433,6 +433,39 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.favMerge([], many).list.length, 100, 'höchstens 100');
   assert(/Wachau – .*#ziel-wachau/.test(a.favText(r.list)));
 }
+/* Start-/Zielwechsel: Entwurf, bewusstes Rücksetzen und unveränderndes Abbrechen. */
+{
+ const old=trip({origin:'Göppingen',originGeo:{lat:48.7,lon:9.65},dest:'Ulm',destGeo:{lat:48.4,lon:9.99},km:150,routeKm:null,kmSrc:'route',routeMin:90,routeHomeMin:95,routeAt:'2026-10-15'});
+ const before=JSON.stringify(old),candidate=JSON.parse(before);candidate.dest='München';
+ const d=a.routeEndpointPreview(old,candidate);
+ assert.equal(JSON.stringify(old),before,'Vorschau/Abbruch verändert die Reise nicht');
+ assert.equal(d.beforeKm,150);assert.equal(d.candidate.km,0);assert.equal(d.candidate.routeKm,0);
+ assert.equal(d.candidate.destGeo,undefined);assert.deepEqual(d.candidate.originGeo,old.originGeo);
+ for(const key of ['kmSrc','routeMin','routeHomeMin','routeAt'])assert.equal(d.candidate[key],undefined);
+ const stale=JSON.parse(before);stale.notes='Zwischenänderung';const staleBefore=JSON.stringify(stale);
+ assert.throws(()=>a.applyRouteEndpointChange(stale,d),/neu prüfen/);assert.equal(JSON.stringify(stale),staleBefore);
+ const applied=JSON.parse(before);a.applyRouteEndpointChange(applied,d);
+ assert.equal(applied.dest,'München');assert.equal(a.routeKm(applied),0);assert.equal(a.arrivalMin(applied),null);
+ assert(a.openCosts(applied).includes('Fahrstrecke fehlt'));
+ assert.equal(a.validateBackup(a.backupData([applied]))[0].routeKm,0,'Rundlauf ohne neues Speicherformat');
+ assert.equal(a.routeEndpointPreview(old,old),null);
+ const manual=JSON.parse(before);delete manual.kmSrc;manual.routeKm=222;
+ const manualNext=JSON.parse(JSON.stringify(manual));manualNext.origin='Berlin';
+ assert.equal(a.routeEndpointPreview(manual,manualNext).beforeKm,222,'Manueller Altwert in Vorschau');
+ assert.equal(manual.routeKm,222,'Manueller Altwert vor Übernahme erhalten');
+ const catalog=trip({catalog:'allgaeu',place:'oberjoch',origin:'Berlin',km:500});
+ const catNext=JSON.parse(JSON.stringify(catalog));catNext.origin='73110 Hattenhofen';
+ assert.equal(a.routeKm(a.routeEndpointPreview(catalog,catNext).candidate),0,'Katalogstrecke nicht still als Ersatz verwenden');
+ const round=JSON.parse(before);round.legs=[{place:'a',name:'A',lat:48,lon:10,nights:1,roadKm:150,routeMin:90},{place:'b',name:'B',lat:47,lon:11,nights:1,roadKm:80,routeMin:60}];
+ const rd=JSON.parse(JSON.stringify(round));rd.origin='Berlin';const rc=a.routeEndpointPreview(round,rd).candidate;
+ assert.equal(rc.legs.length,2);assert.equal(rc.legs[0].roadKm,0);assert.equal(rc.legs[0].routeMin,undefined);
+ assert.equal(rc.legs[1].roadKm,80);assert.equal(rc.legs[1].routeMin,60,'Innere Etappe unverändert');
+ const renamed=JSON.parse(JSON.stringify(round));renamed.dest='Neue Rundreisebezeichnung';
+ const rename=a.routeEndpointPreview(round,renamed);assert.equal(rename.changes.routeChanged,false);assert.equal(rename.candidate.km,150);
+ const field=JSON.parse(before);a.setField(field,'dest','München');assert.equal(field.destGeo,undefined);
+ const edited=JSON.parse(before);edited.origin='Berlin';const guarded=a.protectedPlanChange(old,'edit',{draft:edited});
+ assert.equal(guarded.routeMin,undefined);assert.equal(guarded.routeKm,0,'Eckdatenweg ebenfalls abgesichert');
+}
 /* Echte Route (nachgebildete Antwort), Übernahme, Fahrzeit je Tag, Ankunft; Zeitzonen; Kalender in UTC; Sicherung */
 {
   const sample = { code: 'Ok', routes: [{ distance: 300000, duration: 3 * 3600 + 60, legs: [{ distance: 150000, duration: 5400 }, { distance: 150000, duration: 5460 }] }] };
