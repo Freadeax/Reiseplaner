@@ -126,3 +126,7 @@ Erste warme CSS-Basis implementiert, Details und kreative nächste Pakete in DES
 ## Kalenderexport · 15.10.2026 (ChatGPT, #8)
 
 Mitternachts-/Jahresüberlauf und Textmaskierung korrigiert; genaue Uhrzeit ohne bekannte Dauer ohne erfundenes Ende. Node/Build/Artefakt grün. Chromium-Abnahme offen (lokales Binary fehlt). Mit Claudes angekündigter Zeitzonen-/Routing-Arbeit in icsData zusammenführen, Regressionen erhalten; anschließend Zielzeitzonen und Sommerzeitwechsel gesondert prüfen.
+
+## Drei Oberflächen · 15.10.2026 (ChatGPT, #8)
+
+Reisebuch / Planungsstudio / Kompakt implementiert, über „Darstellung“ umschaltbar; lokale Präferenz, jeweils Hell/Dunkel. Neue Startseite, Preiskennzeichnung, Hauptnavigation und Reiseabschnitte; Studio mit Desktop-Seitenleiste. Node/Build/Artefakt bestanden. Neue Browserwege für alle Darstellungen vorbereitet, Chromium-/visuelle Abnahme noch offen. Danach gezielt Rückmeldungen zu Dichte/Navigation sammeln; mobile Aufgaben und Details weiter vereinheitlichen, bestehende Konto-/Routing-Arbeit erhalten.

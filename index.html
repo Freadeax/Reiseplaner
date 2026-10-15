@@ -262,15 +262,103 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
   .card.click,.btn,.lnk{transition:border-color .15s,box-shadow .15s}
   .card.click:hover{box-shadow:0 6px 20px #182b2320}
 }
+
+/* Drei Darstellungen derselben Reise: keine unterschiedlichen Reisedaten. */
+@media screen {
+  .wrap{max-width:1180px;padding-inline:24px}
+  .top{gap:16px;border:0;padding-block:18px 24px;margin:0}
+  .brand{align-items:center;text-align:left;min-width:0}
+  .brand-mark{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:14px;background:var(--spruce);color:var(--bg);font:700 25px Georgia,serif}
+  .brand-copy{display:flex;flex-direction:column;gap:2px}.brand-copy small{color:var(--muted);font-size:.75rem}
+  .app-nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .app-nav .lnk{background:transparent;border-color:transparent}
+  .app-nav [aria-current=page]{background:var(--surface);border-color:var(--line);box-shadow:0 2px 8px #182b2308}
+  .skip-link{position:fixed;top:8px;left:8px;z-index:100;transform:translateY(-180%);background:var(--surface);padding:12px;border:2px solid var(--spruce);border-radius:10px}.skip-link:focus{transform:none}
+  #view{min-width:0}#view:focus{outline:none}
+  #view>.home-hero{position:relative;overflow:hidden;padding:clamp(24px,5vw,52px);border:1px solid var(--line);background:var(--spruce-soft);border-radius:28px;gap:22px}
+  .home-hero h1{font:500 clamp(2.6rem,6vw,4.5rem)/1.05 Georgia,serif;letter-spacing:-.045em;max-width:13ch}
+  .home-hero .lead{max-width:45ch}.home-hero>*{position:relative;z-index:1}.home-hero .hero-art{position:absolute;right:-24px;bottom:-34px;width:36%;max-width:350px;opacity:.25;z-index:0;pointer-events:none}
+  .hero-meta{display:flex;gap:8px;flex-wrap:wrap}.hero-meta span{padding:5px 12px;border:1px solid var(--line);border-radius:99px;font-size:.82rem;background:var(--surface)}
+  .home-hero details{max-width:680px}.home-hero .row{max-width:720px}
+  .section-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}.section-heading p{font-size:.9rem;color:var(--muted)}
+  .trip-card{position:relative;overflow:hidden;padding:24px;gap:14px;min-height:265px}
+  .trip-card:before{content:'';position:absolute;inset:0 0 auto;height:5px;background:var(--spruce)}
+  .trip-card h3{font-size:1.4rem;letter-spacing:-.02em}.trip-card .trip-price{margin-top:auto;padding-top:16px;border-top:1px solid var(--line)}
+  .trip-card .price{font-size:1.8rem}.trip-open{display:flex;justify-content:space-between;gap:10px;color:var(--spruce);font-size:.87rem;font-weight:600}
+  .trip-content{min-width:0}.trip-header{background:var(--spruce-soft);border:1px solid var(--line)!important;border-radius:24px;padding:24px!important;margin:8px 0 18px}
+  .trip-header h1{max-width:24ch}.trip-header .eyebrow{color:var(--spruce)}
+  .trip-content>section.block{margin-block:18px;padding:24px;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
+  .trip-content>section.block .card,.trip-content>section.block .kpi{box-shadow:none;background:var(--bg)}
+  .trip-content .kpi{padding:20px}.trip-content .kpi b{font-size:1.9rem;line-height:1.25}
+  .tabs{margin:0;padding:10px 0 14px;scroll-padding-inline:8px}.tab{display:flex;align-items:center;gap:6px;justify-content:space-between;background:var(--surface);border:1px solid var(--line)}
+  .tab[aria-current=page]{background:var(--spruce);color:var(--bg);border-color:var(--spruce)}
+  .tab .n{border:1px solid currentColor;border-radius:6px;padding:1px 5px}
+  .design-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .design-choice{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:12px;min-width:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);text-align:left;cursor:pointer}
+  .design-choice[aria-pressed=true]{outline:2px solid var(--spruce);outline-offset:2px}
+  .design-choice strong{font-size:1rem}.design-choice small{color:var(--muted);line-height:1.45}
+  .design-preview{height:90px;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;background:#f1ede4;border-radius:10px;color:#345d4c}
+  .design-preview i{display:block;background:#fffefa;border:1px solid #d8dace;border-radius:5px}.design-preview i:first-child{grid-column:1/-1;background:#c9d8c6}
+  .design-preview.studio{background:#e8edf4;grid-template-columns:1fr 2fr}.design-preview.studio i:first-child{grid-column:auto;grid-row:1/3;background:#a8bfd8}
+  .design-preview.compact{background:#e9e6e0;grid-template-columns:1fr;gap:4px}.design-preview.compact i:first-child{background:#c7b6a1}
+  .design-choice .choice-state{font-size:.8rem;font-weight:700;color:var(--spruce)}
+  .home-support{margin-block:14px}.home-support summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+  html[data-layout=studio]{--r:12px}
+  html[data-layout=studio] .home-hero h1{font-family:var(--f-body);font-weight:700;max-width:16ch}
+  html[data-layout=studio] .home-hero,html[data-layout=studio] .trip-header,html[data-layout=studio] .trip-content>section.block{border-radius:14px}
+  html[data-layout=compact]{--r:10px}
+  html[data-layout=compact] .wrap{max-width:1000px}
+  html[data-layout=compact] .home-hero{padding:24px;border-radius:16px;gap:14px}
+  html[data-layout=compact] .home-hero h1{font:700 clamp(2rem,5vw,2.8rem)/1.15 var(--f-body);max-width:none}
+  html[data-layout=compact] .hero-art{display:none}
+  html[data-layout=compact] section.block{padding-block:18px;gap:12px}
+  html[data-layout=compact] .card,html[data-layout=compact] .panel,html[data-layout=compact] .kpi{padding:14px;box-shadow:none}
+  html[data-layout=compact] .trip-card{min-height:0;gap:10px}
+  html[data-layout=compact] .trip-content>section.block{padding:16px;margin-block:12px;border-radius:12px}
+  html[data-layout=compact] .trip-header{padding:18px!important;border-radius:14px}
+}
+@media screen and (min-width:1000px){
+  html[data-layout=studio] .trip-workspace{display:grid;grid-template-columns:205px minmax(0,1fr);gap:0 24px;align-items:start}
+  html[data-layout=studio] .trip-header{grid-column:1/-1}
+  html[data-layout=studio] .trip-workspace>.tabs{flex-direction:column;position:sticky;top:16px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:visible}
+  html[data-layout=studio] .trip-workspace>.tabs .tab{white-space:normal;text-align:left;border-color:transparent}
+  html[data-layout=studio] .trip-workspace>.tabs .tab[aria-current=page]{border-color:var(--spruce)}
+  html[data-layout=studio] .trip-content>section.block:first-child{margin-top:0}
+}
+@media screen and (max-width:600px){
+  .wrap{padding-inline:14px}.top{gap:10px;padding-block:12px 18px}.brand-copy small{display:none}
+  .app-nav{order:3;width:100%;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  .app-nav .lnk{justify-content:center;padding:8px 4px;font-size:.85rem}.top .sync{margin-left:auto;max-width:47%;font-size:.62rem;padding:4px}
+  #view>.home-hero{padding:24px 20px;gap:18px}.home-hero h1{font-size:2.8rem}.home-hero .hero-art{width:50%;opacity:.13}
+  .home-hero .row>.btn{flex:1 1 160px}.home-hero .lead{max-width:35ch}.home-hero .panel{padding:12px}
+  .trip-content>section.block{padding:18px 14px;border-radius:16px;margin-block:14px}
+  .trip-header{padding:18px!important;border-radius:18px}.trip-header h1{overflow-wrap:anywhere}
+  .trip-content .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.trip-content .kpi{padding:12px}.trip-content .kpi b{font-size:1.4rem}
+  .grid,.grid.wide{grid-template-columns:minmax(0,1fr)}.card{overflow-wrap:anywhere}
+  .design-choices{grid-template-columns:1fr}.design-choice{display:grid;grid-template-columns:90px minmax(0,1fr);gap:4px 14px;align-items:start}
+  .design-choice .design-preview{grid-row:1/4;height:80px}.design-choice .choice-state{grid-column:2}.design-choice small{font-size:.85rem}
+}
+@media print{.app-nav,.skip-link,.design-choices{display:none!important}.trip-workspace,.trip-content{display:block!important}}
+
+@media screen {
+ :root[data-layout=studio]:not([data-theme=dark]){--bg:#F2F5F9;--surface:#FFFFFF;--surface-2:#E8EDF4;--surface-3:#D9E2ED;--ink:#26394E;--muted:#58697C;--line:#CFDAE5;--spruce:#345E88;--spruce-soft:#E3ECF5;--sign:#E0EAF5;--sign-ink:#273E59}
+ :root[data-layout=compact]:not([data-theme=dark]){--bg:#F5F2EE;--surface:#FFFEFC;--surface-2:#EDE7DF;--surface-3:#DED3C5;--ink:#3D352C;--muted:#706456;--line:#DCD2C6;--spruce:#6F523A;--spruce-soft:#EBE2D7;--sign:#E7C5A6;--sign-ink:#493522}
+ :root[data-layout=studio][data-theme=dark]{--bg:#17202C;--surface:#202D3D;--surface-2:#2B3A4E;--surface-3:#394B61;--ink:#EFF4FA;--muted:#B2C1D3;--line:#435973;--spruce:#A9C9EE;--spruce-soft:#293F58;--sign:#B6D2EF;--sign-ink:#1C3045}
+ :root[data-layout=compact][data-theme=dark]{--bg:#25211C;--surface:#302A23;--surface-2:#3C342B;--surface-3:#4A4034;--ink:#F5EFE6;--muted:#C9BDAC;--line:#5E5142;--spruce:#E3C3A3;--spruce-soft:#43372B;--sign:#E5C4A4;--sign-ink:#33271D}
+}
+@media screen and (prefers-color-scheme:dark){
+ :root[data-layout=studio]:not([data-theme=light]){--bg:#17202C;--surface:#202D3D;--surface-2:#2B3A4E;--surface-3:#394B61;--ink:#EFF4FA;--muted:#B2C1D3;--line:#435973;--spruce:#A9C9EE;--spruce-soft:#293F58;--sign:#B6D2EF;--sign-ink:#1C3045}
+ :root[data-layout=compact]:not([data-theme=light]){--bg:#25211C;--surface:#302A23;--surface-2:#3C342B;--surface-3:#4A4034;--ink:#F5EFE6;--muted:#C9BDAC;--line:#5E5142;--spruce:#E3C3A3;--spruce-soft:#43372B;--sign:#E5C4A4;--sign-ink:#33271D}
+}
 </style>
 
-<div class="wrap">
+<a class="skip-link" href="#view">Zum Inhalt</a><div class="wrap">
   <header class="top">
-    <button type="button" class="brand" data-go="reisen"><b>Reiseplaner</b><span class="eyebrow">Ausflüge · Kurztrips · Urlaub · v3.3</span></button>
-    <button type="button" class="lnk" data-go="entdecken">Entdecken</button>
+    <button type="button" class="brand" data-go="reisen" aria-label="Reiseplaner – Meine Reisen"><span class="brand-mark" aria-hidden="true">↗</span><span class="brand-copy"><b>Reiseplaner</b><small>Mehr Vorfreude. Weniger Hin und Her.</small></span></button>
+    <nav class="app-nav" aria-label="Hauptnavigation"><button type="button" class="lnk" data-go="reisen">Meine Reisen</button><button type="button" class="lnk" data-go="entdecken">Entdecken</button><button type="button" class="lnk" data-act="appearance-open">Darstellung</button></nav>
     <button type="button" class="sync" id="sync" data-go="konto" aria-label="Konto und Speicherstatus"><i></i><span>Nur in diesem Browser</span></button>
   </header>
-  <main id="view"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
+  <main id="view" tabindex="-1"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
 </div>
 <div class="dock" id="dock" hidden role="status" aria-live="polite"><div class="in"><span class="nm" id="dock-nm"></span><span class="sum num" id="dock-sum"></span><div class="bar" id="dock-bar"><i></i></div></div></div>
 <div id="sheet-root"></div>
@@ -1272,21 +1360,44 @@ function go(h,keepScroll){
 const cur=()=>UI.view==='reise'?Store.get(UI.tid):null;
 function save(t,now){Store.put(t,now)}
 
+const APPEARANCES={book:{name:'Reisebuch',description:'Warm und großzügig. Große Reisekarten und ruhige Bereiche.'},studio:{name:'Planungsstudio',description:'Klar und sachlich. Seitennavigation auf großen Bildschirmen.'},compact:{name:'Kompakt',description:'Weniger Abstand, schneller Überblick. Alle Funktionen bleiben da.'}};
+function appearanceValue(value){return Object.prototype.hasOwnProperty.call(APPEARANCES,value)?value:'book'}
+let appearance='book';
+try{appearance=appearanceValue(localStorage.getItem('rp-appearance'))}catch(e){}
+function applyAppearance(value,persist){
+  appearance=appearanceValue(value);
+  if(document.documentElement)document.documentElement.setAttribute('data-layout',appearance);
+  const label=document.querySelector('[data-act="appearance-open"]');if(label)label.setAttribute('aria-label','Darstellung ändern, aktuell '+APPEARANCES[appearance].name);
+  if(persist)try{localStorage.setItem('rp-appearance',appearance)}catch(e){alertMsg('Darstellung für jetzt geändert. Dieser Browser konnte die Auswahl nicht speichern.')}
+  return appearance;
+}
+function appearanceSheet(){
+ openSheet('<span class="eyebrow">So plant es sich für euch am besten</span><h2>Dein Planer. Dein Stil.</h2><p>Wähle eine Darstellung. Inhalte und Funktionen bleiben gleich. Hell und dunkel richten sich weiterhin nach deinem Gerät.</p><div class="design-choices">'+Object.entries(APPEARANCES).map(([key,x])=>'<button type="button" class="design-choice" data-act="appearance-set" data-val="'+key+'" aria-pressed="'+(appearance===key)+'"><span class="design-preview '+key+'" aria-hidden="true"><i></i><i></i><i></i></span><strong>'+x.name+'</strong><small>'+x.description+'</small><span class="choice-state">'+(appearance===key?'✓ Aktiv':'Auswählen')+'</span></button>').join('')+'</div><p class="small muted">Die Auswahl gilt nur in diesem Browser.</p>');
+ const selected=document.querySelector('.design-choice[aria-pressed="true"]');if(selected)selected.focus();
+}
+applyAppearance(appearance,false);
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-act="appearance-open"],[data-act="appearance-set"]');if(!b)return;
+ if(b.getAttribute('data-act')==='appearance-open'){appearanceSheet();return}
+ applyAppearance(b.getAttribute('data-val'),true);appearanceSheet();
+ const choice=document.querySelector('.design-choice[aria-pressed="true"]');if(choice)choice.focus();
+});
+
 /* ================= Ansichten ================= */
 function vReisen(){
   const list=Store.list();
   const card=t=>{const c=cost(t),ph=tripPhase(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
-    return '<button type="button" class="card click" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3>'+(Store.isAccount()?'<div class="badges">'+syncBadge(t.id)+(Store.role(t.id)!=='owner'?'<span class="badge">'+ROLE_TXT[Store.role(t.id)]+'</span>':'')+'</div>':'')+'<p class="small muted">'+esc(rangeText(t))+'</p>'+
+    return '<button type="button" class="card click trip-card" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3>'+(Store.isAccount()?'<div class="badges">'+syncBadge(t.id)+(Store.role(t.id)!=='owner'?'<span class="badge">'+ROLE_TXT[Store.role(t.id)]+'</span>':'')+'</div>':'')+'<p class="small muted">'+esc(rangeText(t))+'</p>'+
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
     (ph?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
-    '<div class="between"><span class="price num">'+eur(c.total)+'</span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+'</button>'};
+    '<div class="between trip-price"><span><span class="small muted">Planwert gesamt</span><br><span class="price num">'+eur(c.total)+'</span></span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+(openCosts(t).length?'<span class="small" style="color:var(--warn)">Weitere Kosten sind noch offen</span>':'')+'<span class="trip-open"><span>Reise öffnen</span><span aria-hidden="true">↗</span></span></button>'};
   return (Store.corruptRaw!==null?'<section class="block"><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>':'')+
-   '<section class="block"><span class="eyebrow">Übersicht</span><h1>Meine Reisen</h1><p class="lead muted">Kurztrips, Ausflüge oder lange Urlaube planen: mit festem Datum, nur einem Zeitraum oder noch ganz offen.</p>'+
+   '<section class="block home-hero"><svg class="hero-art" viewBox="0 0 280 280" fill="none" aria-hidden="true"><circle cx="140" cy="140" r="120" stroke="currentColor"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="2"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg><span class="eyebrow">Dein nächstes schönes Stück Auszeit</span><h1>Die Vorfreude beginnt hier.</h1><p class="lead muted">Ideen sammeln, gemeinsam abwägen und entspannt losfahren. Alles für eure Reise an einem Ort.</p><div class="hero-meta"><span>'+list.length+(list.length===1?' gespeicherte Reise':' gespeicherte Reisen')+'</span><span>Ausflug · Wochenende · Urlaub</span></div>'+
    (Store.isAccount()&&guestPendingCount()?'<div class="note"><b>'+guestPendingCount()+' Reise(n) ohne Konto in diesem Browser.</b><p>Sie werden nicht automatisch übertragen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und ins Konto übernehmen</button></div></div>':'')+(!Store.isAccount()&&Sync.cloud()?'<p class="small muted">Gastmodus: Reisen nur in diesem Browser. <button type="button" class="lnk" data-go="konto">Anmelden für Online-Speicherung und Teilen</button></p>':'')+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button><button type="button" class="btn ghost" data-go="entdecken">Ziele im Umkreis entdecken</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen füllen nur Reiseart und Dauer vor. Das Silvester-Beispiel zeigt eine fertig geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
-   '<section class="block">'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
+   '<section class="block"><div class="section-heading"><h2>Meine Reisen</h2><p>Eure Pläne, ein Griff entfernt.</p></div>'+(list.length?'<div class="grid wide">'+list.map(card).join('')+'</div>':'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
-   '<section class="block"><h2>So funktioniert’s</h2><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></section>';
+   '<details class="panel home-support"><summary><b>Neu hier? So funktioniert’s</b></summary><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></details>';
 }
 function tripForm(t,prefix){
   const dm=t.dateMode;
@@ -1316,7 +1427,7 @@ function vNeu(){
 }
 function tripHead(t){
   const ph=tripPhase(t);
-  return '<section class="block'+(UI.tab==='mappe'?' noprint':'')+'"><div class="between noprint"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
+  return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'"><div class="between noprint"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
   (ph&&ph.phase==='vor'?'<p class="muted">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p><b>'+esc(phaseText(ph))+'</b></p>':'')+'</section>'+
   '<nav class="tabs" aria-label="Bereiche">'+TABS.map(x=>{let n='';if(x[0]==='plan')n=(t.items||[]).length;if(x[0]==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
@@ -1748,12 +1859,13 @@ function tMappe(t){
 function vReise(){
   const t=cur(); if(!t) return vReisen();
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
-  return tripHead(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+costNotice(t)+body(t);
+  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+costNotice(t)+body(t)+'</div></div>';
 }
 function render(){
   const v=$('#view');
   try{
     v.innerHTML=UI.view==='neu'?vNeu():UI.view==='reise'?vReise():UI.view==='konto'?vKonto():UI.view==='entdecken'?vEntdecken():vReisen();
+    document.querySelectorAll&&document.querySelectorAll('.app-nav [data-go]').forEach(b=>{if(b.getAttribute('data-go')===(UI.view==='entdecken'?'entdecken':UI.view==='konto'?'konto':'reisen'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
     renderDock();
   }catch(err){
     console.error('Reiseplaner: Ansicht konnte nicht aufgebaut werden',err);
@@ -1858,6 +1970,7 @@ document.addEventListener('click',async e=>{
   const g=e.target.closest('[data-go]'); if(g){e.preventDefault();UI.confirm=null;go(g.getAttribute('data-go'));return}
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.getAttribute('data-act'), val=b.getAttribute('data-val'), t=cur();
+  if(act==='appearance-open'||act==='appearance-set')return;
   if(act==='corrupt-download'&&Store.corruptRaw!==null){downloadText(Store.corruptRaw,'Reiseplaner-Rohdaten-'+new Date().toISOString().slice(0,10)+'.txt','text/plain;charset=utf-8');return}
   if(act==='corrupt-confirm'&&Store.corruptRaw!==null){UI.confirm='corrupt-reset';render();return}
   if(act==='corrupt-cancel'){UI.confirm=null;render();return}
@@ -2840,7 +2953,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

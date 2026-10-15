@@ -616,6 +616,43 @@ async function offline(browser, base) {
   console.log('Offline-Start über Service Worker geprüft.');
 }
 
+async function appearances(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));
+ const p=await ctx.newPage();p.on('pageerror',e=>errors.push(name+' Darstellung: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);a.go('reisen');return t.id});
+ const original=await p.evaluate(()=>JSON.stringify(window.__app.Store.list()));
+ const colors=[];
+ for(const mode of ['book','studio','compact']){
+  await p.click('[data-act="appearance-open"]');
+  await p.click('[data-act="appearance-set"][data-val="'+mode+'"]');
+  assert.equal(await p.getAttribute('html','data-layout'),mode);
+  assert.equal(await p.getAttribute('[data-val="'+mode+'"][data-act="appearance-set"]','aria-pressed'),'true');
+  await noOverflow(p,name+' Darstellung '+mode);
+  await p.click('.sheet .x');
+  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-appearance')),mode);
+  colors.push(await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()));
+  await p.click('.trip-card[data-go="r-'+id+'-ueber"]');
+  await noOverflow(p,name+' Reise '+mode);
+  if(mode==='studio'&&ctxOpts.viewport.width>=1000){
+   assert.equal(await p.$eval('.trip-workspace>.tabs',el=>getComputedStyle(el).flexDirection),'column');
+  }
+  await p.click('.tabs [data-go$="-plan"]');await noOverflow(p,name+' Plan '+mode);
+  await p.click('.tabs [data-go$="-kosten"]');await noOverflow(p,name+' Kosten '+mode);
+  await p.click('.tabs [data-go$="-mappe"]');
+  await p.emulateMedia({media:'print'});
+  assert.equal(await p.$eval('.tabs',el=>getComputedStyle(el).display),'none');
+  await p.emulateMedia({media:'screen'});
+  await p.reload();assert.equal(await p.getAttribute('html','data-layout'),mode);
+  await p.click('.app-nav [data-go="reisen"]');
+  await shot(p,name+'-'+mode);
+ }
+ assert.equal(new Set(colors).size,3,'Drei eigene Paletten');
+ assert.equal(await p.evaluate(()=>JSON.stringify(window.__app.Store.list())),original,'Darstellung ändert keine Reisedaten');
+ await ctx.close();console.log(name+': drei Darstellungen, Navigation, Druck und Erhalt der Reise geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -630,6 +667,9 @@ async function offline(browser, base) {
     await entdecken(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' });
     await completion(browser, base, 'desktop', { viewport: {width:1280,height:900} });
     await completion(browser, base, 'dunkel-schmal', { viewport: {width:320,height:640},colorScheme:'dark' });
+    await appearances(browser,base,'design-desktop',{viewport:{width:1280,height:900}});
+    await appearances(browser,base,'design-mobil',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await appearances(browser,base,'design-dunkel',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

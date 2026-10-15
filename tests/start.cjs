@@ -9,3 +9,29 @@ ctx.localStorage.getItem=()=>'{kaputt';
 ctx.window.__app.Store.loadLocal();
 ctx.window.__app.render();
 if(!els['#view'].innerHTML.includes('Rohdaten sichern')||!els['#view'].innerHTML.includes('nicht überschrieben'))throw new Error('Hinweis zur Datenrettung fehlt');
+
+// Darstellung darf keine Reise schreiben oder deren Daten verändern.
+const assert=require('assert');
+const app=ctx.window.__app;
+app.Store.corruptRaw=null;
+const before=JSON.stringify(app.Store.trips), writes=[];
+ctx.localStorage.setItem=(key,value)=>writes.push([key,value]);
+ctx.document.documentElement={setAttribute(key,value){this[key]=value}};
+for(const mode of ['book','studio','compact']){
+ assert.equal(app.applyAppearance(mode,true),mode);
+ assert.equal(ctx.document.documentElement['data-layout'],mode);
+}
+assert(writes.every(([key])=>key==='rp-appearance'));
+assert.equal(JSON.stringify(app.Store.trips),before);
+assert.equal(app.appearanceValue('__proto__'),'book');
+assert.equal(app.appearanceValue('<script>'),'book');
+assert.equal(app.appearanceValue(null),'book');
+// Reload reads the saved preference before the first route render.
+ctx.localStorage.getItem=key=>key==='rp-appearance'?'studio':null;
+vm.runInContext(s,ctx);
+assert.equal(ctx.document.documentElement['data-layout'],'studio');
+const fresh=ctx.window.__app;
+fresh.appearanceSheet();
+assert(els['#sheet-root'].innerHTML.includes('aria-pressed="true"'));
+assert.equal((els['#sheet-root'].innerHTML.match(/class="design-choice"/g)||[]).length,3);
+console.log('Darstellung: drei Modi, lokale Präferenz, Wiederherstellung und keine Reiseänderung geprüft.');

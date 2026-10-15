@@ -16,6 +16,10 @@ python3 -m http.server 8000
 
 Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, merkt sich die App ihre Dateien und startet danach auch ohne Netz. Auf dem iPhone lässt sie sich über „Zum Home-Bildschirm“ wie eine App ablegen. Als Datei geöffnet gibt es keinen Offline-Start. Eine Dateivorschau innerhalb der ChatGPT-iPhone-App kann die interaktive Oberfläche nicht zuverlässig ausführen. Der HTML-Anhang in ChatGPT ist daher kein App-Link.
 
+## Darstellung wählen
+
+Oben über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (warm und großzügig), **Planungsstudio** (klare Arbeitsbereiche, Seitennavigation am Desktop) und **Kompakt** (weniger Abstand für schnelle Orientierung). Alle nutzen dieselben Reisen und Funktionen. Die Auswahl bleibt in diesem Browser; Hell-/Dunkelmodus folgt dem Gerät.
+
 ## Was bereits geht
 
 - Reisen mit festem, flexiblem oder offenem Zeitraum anlegen und bearbeiten, leer oder mit einer Vorlage (Wochenende, Städtereise, Tagesausflug, Sommer-, Winterurlaub; Silvester als ausgefülltes Beispiel)

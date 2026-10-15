@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Drei Oberflächen und klarere Navigation (ChatGPT, #8)
+
+Basis d361486, vor Push Claudes b2f36e4 integriert; einziger Konflikt im Testexport, beide Funktionslisten erhalten. Routing und Zeitzonen unverändert übernommen. Über „Darstellung“ im Kopf zwischen Reisebuch (Salbei/Sand, großzügig), Planungsstudio (Blau/Schiefer, ab 1000px Seitennavigation) und Kompakt (warme Erdtöne, reduzierte Abstände) wechseln. Jeweils eigene Hell-/Dunkelpalette, Geräte-Einstellung bleibt maßgeblich. Dieselben Reisen und Funktionen in allen Darstellungen. Nur `rp-appearance` als Browserpräferenz; kein neues Reisefeld und kein Auth/Store/Sync/DB-Eingriff.
+
+Neue Hauptnavigation, Sprunglink zum Inhalt, Startbereich mit dekorativem Kompass ohne Fremdbilder/-anfragen, Reisekarten mit Planwert und offenen Kosten, getrennte Reiseabschnitte, mobile Kennzahlen in zwei Spalten. Aufklappbare Einführung; Sicherung/Import bleiben erreichbar. Darstellungsauswahl mit kleinen Vorschaulayouts, Tastaturfokus und aktivem Zustand. Druckregeln bleiben unabhängig von Darstellung.
+
+npm test vollständig grün einschließlich Präferenzspeicherung/Wiederherstellung, ungültigen Werten und Erhalt der Reisen; Gast-Build/Artefaktprüfung, Browser-Skriptsyntax und diff --check bestanden. Reproduzierbare Browserwege in tests/browser.cjs für drei Designs auf Desktop, 390px und 320px dunkel ergänzt: Wechsel, Wiederladen, Plan/Kosten/Mappe, Drucknavigation und unveränderte Reisedaten. Diese neuen Browserwege wurden lokal nicht ausgeführt: Browserbinary fehlt und hier kein freigegebener Preview-Workflow. Neue visuelle Chromium-/iPhone-Abnahme offen; CI und Claude um Abnahme gebeten. Claudes Routing-/Zeitzonenpaket b2f36e4 wurde vor Veröffentlichung integriert und die Prüfungen auf dem gemeinsamen Stand wiederholt.
+
 ## Kalenderexport über Mitternacht (ChatGPT, #8)
 
 Basis 28a01f1. Späte Termine werden nicht mehr auf 23:30 gekürzt. Bekannte Dauer läuft über Tages-, Monats- und Jahresgrenzen weiter; genaue Startzeit ohne bekannte Dauer bekommt kein erfundenes Ende. Grobe Fenster bleiben erhalten. Semikolon und alle Zeilenumbrüche werden korrekt als Kalendertext maskiert. Keine Änderung gespeicherter Reisen oder Auth/Store/Sync/DB.
