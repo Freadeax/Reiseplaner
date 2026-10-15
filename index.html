@@ -2294,6 +2294,20 @@ function catCard(x,i){
 const CAT_FAV_KEY='rp-merkliste';
 function catFavs(){try{const l=JSON.parse(localStorage.getItem(CAT_FAV_KEY)||'[]');return Array.isArray(l)?l.filter(f=>f&&typeof f.id==='string'&&CATX&&CATX.validPoint(f)).slice(0,100):[]}catch(e){return []}}
 function catFavToggle(p){let l=catFavs();if(l.some(f=>f.id===p.id))l=l.filter(f=>f.id!==p.id);else l.unshift({id:p.id,name:String(p.name).slice(0,120),region:String(p.region||'').slice(0,80),lat:+p.lat,lon:+p.lon,months:(p.months||[]).slice(0,12),added:iso(todayUTC())});try{localStorage.setItem(CAT_FAV_KEY,JSON.stringify(l.slice(0,100)))}catch(e){alertMsg('Merkliste konnte in diesem Browser nicht gespeichert werden.')}}
+/* Merkliste sichern/importieren/teilen: eigene kleine Datei, getrennt von der Reise-Sicherung */
+const FAV_FORMAT='reiseplaner-merkliste';
+function favClean(f){if(!f||typeof f!=='object'||typeof f.id!=='string'||!/^[a-z0-9-]{2,40}$/.test(f.id)||!CATX||!CATX.validPoint(f))return null;
+  return {id:f.id,name:String(f.name||f.id).slice(0,120),region:String(f.region||'').slice(0,80),lat:+f.lat,lon:+f.lon,months:Array.isArray(f.months)?f.months.filter(m=>Number.isInteger(m)&&m>=1&&m<=12).slice(0,12):[],added:/^\d{4}-\d{2}-\d{2}$/.test(f.added||'')?f.added:iso(todayUTC())}}
+function favExportData(list){return {format:FAV_FORMAT,version:1,exportedAt:new Date().toISOString(),items:list.map(favClean).filter(Boolean)}}
+/* Zusammenführen: vorhandene Einträge behalten, neue anhängen, keine Dubletten, höchstens 100. Gibt {list, added, skipped} zurück. */
+function favMerge(current,raw){
+  if(!raw||raw.format!==FAV_FORMAT||raw.version!==1||!Array.isArray(raw.items))throw new Error('Keine Reiseplaner-Merkliste.');
+  if(raw.items.length>500)throw new Error('Die Datei enthält zu viele Einträge.');
+  const list=current.slice(),ids=new Set(list.map(f=>f.id));let added=0,skipped=0;
+  raw.items.forEach(x=>{const f=favClean(x);if(!f||ids.has(f.id)||list.length>=100){skipped++;return}list.push(f);ids.add(f.id);added++});
+  return {list,added,skipped};
+}
+function favText(list){return 'Merkliste „Irgendwann mal“ (Reiseplaner)\n'+list.map(f=>'• '+f.name+(f.region?' ('+f.region+')':'')+' – '+catShareUrl(f.id)).join('\n')}
 function catFind(id){const s=catState();return (s.res&&s.res.ranked.find(r=>r.place.id===id))||s.extra[id]||null}
 /* Ein einzelnes Ziel (Merkliste, Rundreise) nachladen und wie ein Suchtreffer bewerten */
 async function catLoadPlace(id,lat,lon){
@@ -2351,7 +2365,9 @@ function vEntdecken(){
   if(s.tour.length)out+='<section class="block"><div class="note" role="status"><b>Rundreise: '+s.tour.length+' von 6 Zielen</b><p>'+s.tour.map(q=>esc(q.name)).join(' · ')+'</p><div class="row"><button type="button" class="btn sm" data-act="cat-tour-open"'+(s.tour.length>=2&&o?'':' disabled')+'>Rundreise planen</button><button type="button" class="btn ghost sm" data-act="cat-tour-clear">Auswahl leeren</button>'+(s.tour.length<2?'<span class="small">Mindestens zwei Ziele wählen.</span>':'')+'</div></div></section>';
   if(favs.length)out+='<section class="block"><details class="panel"'+(s.res?'':' open')+'><summary><b>Merkliste „Irgendwann mal“</b> <small class="muted">'+favs.length+' Ziel(e), nur in diesem Browser</small></summary><div class="checks-list">'+
     favs.map(f=>{const d=o?CATX.roadKm(CATX.airKm(o,f)):null,sf=s.month&&f.months&&f.months.length?f.months.includes(+s.month):null;return '<div class="chk info"><span><strong>'+esc(f.name)+'</strong> <span class="small muted">'+esc(f.region)+(d!=null?' · ≈ '+d+' km':'')+'</span>'+(sf===true?' <span class="badge ok">passt in den '+esc(MONTHS[+s.month-1])+'</span>':sf===false?' <span class="badge est">eher nicht im '+esc(MONTHS[+s.month-1])+'</span>':'')+'</span><span class="row" style="margin-left:auto"><button type="button" class="btn ghost sm" data-act="cat-fav-open" data-val="'+esc(f.id)+'"'+(o?'':' disabled')+'>Ansehen</button><button type="button" class="lnk" data-act="cat-fav" data-val="'+esc(f.id)+'">Entfernen</button></span></div>'}).join('')+
-    '</div>'+(o?'':'<p class="small muted">Für Entfernungen und Planung erst einen Abfahrtsort wählen.</p>')+'</details></section>';
+    '</div>'+(o?'':'<p class="small muted">Für Entfernungen und Planung erst einen Abfahrtsort wählen.</p>')+
+    '<div class="row"><button type="button" class="btn ghost sm" data-act="cat-fav-export">Merkliste sichern</button><button type="button" class="btn ghost sm" data-act="cat-fav-import">Merkliste importieren</button><button type="button" class="btn ghost sm" data-act="cat-fav-share">Als Text teilen</button><input id="fav-file" type="file" accept=".json,application/json" hidden></div><p class="small muted">Die Merkliste liegt nur in diesem Browser. Mit „sichern“ entsteht eine kleine Datei (nur Ziele, keine Reisedaten) für ein anderes Gerät.</p></details></section>';
+  else out+='<section class="block"><p class="small muted">Merkliste leer. <button type="button" class="lnk" data-act="cat-fav-import">Gesicherte Merkliste importieren</button><input id="fav-file" type="file" accept=".json,application/json" hidden></p></section>';
   if(s.busy)out+='<section class="block"><p role="status">Suche läuft …</p></section>';
   else if(s.err)out+='<section class="block"><div class="note" role="alert"><b>Suche nicht möglich</b><p>'+esc(s.err)+'</p></div></section>';
   else if(res){
@@ -2443,7 +2459,7 @@ async function catFindRun(q){
   const data=await catLoadLocal();s.findHits=CATX.findPlaces(data.places,s.findQ,12);render();
   const el=document.getElementById('cat-find');if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
 }
-function catShareUrl(id){return location.origin+location.pathname+'#ziel-'+id}
+function catShareUrl(id){return (typeof location!=='undefined'&&location.origin?location.origin+location.pathname:'')+'#ziel-'+id}
 /* Zielvergleich: Unterschiede nebeneinander, keine Wertung */
 function catCompareSheet(){
   const s=catState(),xs=s.cmp.map(catFind).filter(Boolean);if(xs.length<2)return;
@@ -2605,6 +2621,9 @@ document.addEventListener('click',e=>{
     case 'cat-tour-open':catTourSheet();return;
     case 'cat-tour-create':catTourCreate();return;
     case 'cat-q-clear':s.q='';render();return;
+    case 'cat-fav-export':{const l=catFavs();if(!l.length)return;downloadText(JSON.stringify(favExportData(l),null,2),'Reiseplaner-Merkliste-'+iso(todayUTC())+'.json','application/json');return}
+    case 'cat-fav-import':{const f=$('#fav-file');if(f)f.click();return}
+    case 'cat-fav-share':{const txt=favText(catFavs());(async()=>{try{if(navigator.share){await navigator.share({title:'Merkliste',text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}try{await navigator.clipboard.writeText(txt);alertMsg('Merkliste als Text kopiert.')}catch(err){openSheet('<h2>Merkliste als Text</h2><div class="copybox">'+esc(txt)+'</div>')}})();return}
     case 'cat-find':catFindRun(($('#cat-find')||{}).value);return;
     case 'cat-open-id':catOpenById(val).catch(err=>alertMsg(err.message));return;
     case 'cat-share':{const u=catShareUrl(val);(async()=>{try{if(navigator.share){await navigator.share({title:'Reiseziel',url:u});return}}catch(err){if(err&&err.name==='AbortError')return}try{await navigator.clipboard.writeText(u);alertMsg('Link kopiert: '+u)}catch(err){alertMsg('Link: '+u)}})();return}
@@ -2616,8 +2635,11 @@ document.addEventListener('click',e=>{
     case 'cat-trip-add':{const t=cur();if(!t)return;const picked=catPicked();if(!picked.length){alertMsg('Keine Idee ausgewählt.');return}const r=catApply(t,picked.map(e=>Object.assign({},e,{kind:e.kind==='dest'?'dest':'near'})),nightsOf(t));save(t);closeSheet();render();alertMsg(r.acts+' Ideen hinzugefügt.');return}
   }
 });
-document.addEventListener('change',e=>{
+document.addEventListener('change',async e=>{
   const el=e.target;if(!CATX)return;
+  if(el.id==='fav-file'&&el.files&&el.files[0]){const file=el.files[0];el.value='';
+    try{if(file.size>200000)throw new Error('Die Datei ist zu groß für eine Merkliste.');const r=favMerge(catFavs(),JSON.parse(await file.text()));localStorage.setItem(CAT_FAV_KEY,JSON.stringify(r.list));render();alertMsg(r.added+' Ziel(e) übernommen'+(r.skipped?', '+r.skipped+' übersprungen (schon vorhanden, ungültig oder Liste voll)':'')+'.')}
+    catch(err){alertMsg(err instanceof SyntaxError?'Die Datei ist keine gültige Merkliste.':err.message)}return}
   if(el.id==='cat-city'&&el.value!==''){const o=CATX.ORIGINS[+el.value];if(o)catSetOrigin(o);return}
   const f=el.getAttribute&&el.getAttribute('data-cf');if(!f)return;
   const s=catState();
@@ -2739,7 +2761,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

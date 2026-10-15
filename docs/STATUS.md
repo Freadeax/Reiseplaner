@@ -116,6 +116,15 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Merkliste sichern, importieren, teilen (Claude, 15.10.2026, Issue #8)
+
+Basis `42c4923`, angekündigt in #8.
+- **Sichern:** „Merkliste sichern“ erzeugt eine eigene kleine Datei (`reiseplaner-merkliste` v1) mit Ziel-ID, Name, Region, Lage, guten Monaten und Datum, ohne Reisedaten. Bewusst getrennt von der Reise-Sicherung.
+- **Importieren:** „Merkliste importieren“ führt die Datei mit der vorhandenen Liste zusammen. Keine Dubletten, ungültige Einträge werden übersprungen und gezählt, höchstens 100 Einträge, Dateigröße bis 200 KB.
+- **Teilen:** „Als Text teilen“ gibt Namen und Links `#ziel-<id>` aus (Web-Share bzw. Zwischenablage).
+- **Fehlerbehebung:** `catShareUrl` funktioniert jetzt auch ohne Seitenadresse (Testumgebung).
+- **Tests:** `tests/tagesplan.cjs` und Browsertest (sichern, Liste löschen, Datei wieder importieren); `npm test` und Chromium grün.
+
 ## Wege zwischen Terminen (Claude, 15.10.2026, Issue #8)
 
 Basis `2d8baaa`, angekündigt in #8.

@@ -421,6 +421,18 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   bk.trips[0].customActs[0].geo = { lat: 500, lon: 0 };
   assert.throws(() => a.validateBackup(bk), /Unternehmung/);
 }
+/* Merkliste-Datei: Export nur Ziele, Import ohne Dubletten, ungültige Einträge übersprungen, Obergrenze 100 */
+{
+  const cur = [{ id: 'harz', name: 'Harz', region: 'Sachsen-Anhalt', lat: 51.8, lon: 10.8, months: [5, 6], added: '2026-10-14' }];
+  const ex = a.favExportData(cur);
+  assert.equal(ex.format, 'reiseplaner-merkliste'); assert.equal(ex.items.length, 1); assert(!('trips' in ex));
+  const r = a.favMerge(cur, { format: 'reiseplaner-merkliste', version: 1, items: [cur[0], { id: 'wachau', name: 'Wachau', lat: 48.38, lon: 15.45 }, { id: 'BAD ID', lat: 1, lon: 1 }, { id: 'x1', lat: 999, lon: 0 }] });
+  assert.equal(r.added, 1); assert.equal(r.skipped, 3); assert.deepEqual(r.list.map(f => f.id), ['harz', 'wachau']);
+  assert.throws(() => a.favMerge(cur, { format: 'reiseplaner-backup', version: 2, trips: [] }), /Merkliste/);
+  const many = { format: 'reiseplaner-merkliste', version: 1, items: Array.from({ length: 120 }, (_, i) => ({ id: 'z' + i, lat: 48, lon: 9 })) };
+  assert.equal(a.favMerge([], many).list.length, 100, 'höchstens 100');
+  assert(/Wachau – .*#ziel-wachau/.test(a.favText(r.list)));
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';
@@ -434,4 +446,4 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.catYear({ places: [] }), '');
   a.catState().month = '';
 }
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) und Wege zwischen Terminen geprüft.');
+console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) Wege zwischen Terminen und Merkliste-Datei geprüft.');

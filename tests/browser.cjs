@@ -43,7 +43,7 @@ const viewText = p => p.textContent('#view');
 /* Umkreis-Katalog (#7): Abfahrtsort suchen (Nominatim-Antwort im Test nachgebildet), Bereich, Thema, Ergebnis,
    Reise mit Tagesgerüst anlegen, offener Preis, geschätzte Fahrstrecke, weitere Ideen, Zwischenstopps. */
 async function entdecken(browser, base, name, ctxOpts) {
-  const ctx = await browser.newContext(Object.assign({ serviceWorkers: 'block' }, ctxOpts));
+  const ctx = await browser.newContext(Object.assign({ serviceWorkers: 'block', acceptDownloads: true }, ctxOpts));
   const p = await ctx.newPage();
   p.on('pageerror', e => errors.push(name + ' Entdecken: ' + e.message));
   await p.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
@@ -148,6 +148,15 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('summary:has-text("Wann wohin?")');
   await p.click('[data-act="cat-month"][data-val="1"]');
   assert((await viewText(p)).includes('Merkliste „Irgendwann mal“'), name + ': Merkliste');
+  /* Merkliste sichern, leeren, wieder importieren */
+  await p.click('summary:has-text("Merkliste")').catch(() => {});
+  const [favDl] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="cat-fav-export"]')]);
+  const favFile = await favDl.path();
+  assert(JSON.parse(fs.readFileSync(favFile, 'utf8')).items.some(f => f.id === 'bad-urach'), name + ': Merkliste gesichert');
+  await p.evaluate(() => localStorage.removeItem('rp-merkliste')); await p.click('[data-act="cat-search"]'); await p.waitForSelector('#cat-results');
+  await p.setInputFiles('#fav-file', favFile);
+  await p.waitForSelector('text=Merkliste „Irgendwann mal“');
+  assert(await p.evaluate(() => JSON.parse(localStorage.getItem('rp-merkliste')).some(f => f.id === 'bad-urach')), name + ': Merkliste importiert');
   await p.fill('[data-cf="q"]', 'Wasserfall'); await p.press('[data-cf="q"]', 'Enter');
   await p.waitForSelector('text=/passen zu „Wasserfall“/');
   await p.click('[data-act="cat-q-clear"] >> nth=0').catch(() => {});
