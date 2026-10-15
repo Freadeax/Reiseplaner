@@ -17,6 +17,13 @@ const ids = pr => R(pr).map(x => x.place.id);
 assert.deepEqual(C.checkProfile({ kinds: { therme: 'must', foo: 'must', natur: 'egal' }, month: 13, pace: 'wild', maxMin: '90', travel: 'zug' }),
   { kinds: { therme: 'must' }, month: null, nights: null, pace: null, party: null, weatherSafe: false, maxMin: 90, travel: null, budgetPp: null });
 
+/* Prototyp-Namen und fremde Typen werden abgewiesen */
+const evil = JSON.parse('{"kinds":{"__proto__":"must","constructor":"like","toString":"avoid","therme":"__proto__","natur":"like"},"pace":"toString","party":"constructor","travel":"__proto__","weatherSafe":"true","month":[3],"maxMin":{}}');
+assert.deepEqual(C.checkProfile(evil), { kinds: { natur: 'like' }, month: null, nights: null, pace: null, party: null, weatherSafe: false, maxMin: null, travel: null, budgetPp: null });
+assert.deepEqual(C.checkProfile({ kinds: Object.create({ therme: 'must' }) }).kinds, {}, 'nur einfache Objekte');
+assert.deepEqual(C.checkProfile(null).kinds, {}); assert.deepEqual(C.checkProfile([1]).kinds, {});
+assert.equal(C.rankProfile({ places }, evil).length, 3, 'manipuliertes Profil bricht die Bewertung nicht');
+
 /* unbedingt: erfüllt über Art des Ziels oder saisonal passende Attraktion; fehlend → mustOk false, ans Ende, aber sichtbar */
 let r = R({ kinds: { therme: 'must' } });
 assert.deepEqual(r.map(x => [x.place.id, x.mustOk]), [['a', true], ['b', true], ['c', false]]);

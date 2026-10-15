@@ -125,14 +125,18 @@
   var LEVELS = { must: 1, like: 1, avoid: 1 }, PACES = { ruhig: 1, gemischt: 1, aktiv: 1 }, PARTIES = { paar: 1, familie: 1, freunde: 1, allein: 1 },
     TRAVELS = { auto: 1, bahn: 1, flug: 1 };
   var CALM = ['therme', 'genuss', 'wasser', 'natur'], ACTIVE = ['berge', 'natur', 'winter', 'unterwelt'];
+  var own = function (o, k) { return typeof k === 'string' && Object.prototype.hasOwnProperty.call(o, k); };
+  /* einfaches Objekt auch aus anderem Realm (iframe/vm): Prototyp ist null oder ein Objekt-Prototyp ohne weiteren Prototyp */
+  var plain = function (o) { if (!o || typeof o !== 'object' || Array.isArray(o)) return false; var p = Object.getPrototypeOf(o); return p === null || Object.getPrototypeOf(p) === null; };
+  /* Eingaben aus Browserprofil oder Formular: nur eigene, bekannte Schlüssel und Werte (kein __proto__/constructor/toString) */
   function checkProfile(pr) {
-    pr = pr || {};
+    pr = plain(pr) ? pr : {};
     var kinds = {};
-    Object.keys(pr.kinds || {}).forEach(function (k) { if (KINDS[k] && LEVELS[pr.kinds[k]]) kinds[k] = pr.kinds[k]; });
-    var num = function (v, lo, hi) { v = v === '' || v == null ? null : +v; return v != null && isFinite(v) && v >= lo && v <= hi ? v : null; };
-    return { kinds: kinds, month: num(pr.month, 1, 12), nights: num(pr.nights, 0, 60), pace: PACES[pr.pace] ? pr.pace : null,
-      party: PARTIES[pr.party] ? pr.party : null, weatherSafe: !!pr.weatherSafe, maxMin: num(pr.maxMin, 5, 2000),
-      travel: TRAVELS[pr.travel] ? pr.travel : null, budgetPp: num(pr.budgetPp, 0, 1e6) };
+    if (plain(pr.kinds)) Object.keys(pr.kinds).forEach(function (k) { var v = pr.kinds[k]; if (own(KINDS, k) && own(LEVELS, v)) kinds[k] = v; });
+    var num = function (v, lo, hi) { if (typeof v !== 'number' && typeof v !== 'string') return null; v = v === '' ? null : +v; return v != null && isFinite(v) && v >= lo && v <= hi ? v : null; };
+    return { kinds: kinds, month: num(pr.month, 1, 12), nights: num(pr.nights, 0, 60), pace: own(PACES, pr.pace) ? pr.pace : null,
+      party: own(PARTIES, pr.party) ? pr.party : null, weatherSafe: pr.weatherSafe === true, maxMin: num(pr.maxMin, 5, 2000),
+      travel: own(TRAVELS, pr.travel) ? pr.travel : null, budgetPp: num(pr.budgetPp, 0, 1e6) };
   }
   function rankProfile(result, profile) {
     var pr = checkProfile(profile), ks = Object.keys(pr.kinds);
