@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Browserprüfung vertieft: Bereich, Speicherfehler und Unterkunft (ChatGPT, #8)
+
+052af04, Lauf 38782237551 vollständig erfolgreich einschließlich Browser, Datenbank und Deploy. Zusatzposten-/Check-in-Klickweg mit Neuladen ist damit konkret grün; Produktionsbearbeitung bleibt gesperrt.
+
+Weitere Browserfälle implementiert: Gast-Vorschau nach Wechsel in anderen Speicherbereich verweigern, keinen Kontocache anlegen; echte QuotaExceededError-Injektion beim Schreiben von rp-trips, unveränderten Datenträger und offenen Fehlerdialog verlangen, zweiten Klick sperren und nach Neuladen keinen falschen Erfolg zeigen. Zusätzlich aktives Unterkunftsangebot separat: unbekannte Gebühr, Änderung auf 50 bei 200 bezahlt, 150 tatsächlich erstattet, Storno-Rücknahme mit weiterhin 150 offen und erhaltener Historie nach Neuladen. Ausschließlich isolierte Testdaten und HTML-Testfreigabe; keine echte Anbieteraktion oder Kontoanmeldung.
+
+Syntax und vollständiges npm test bestanden. Neue Browser-Ausführung dieser Vertiefung noch erforderlich, kein vorweggenommener Nachweis. Read-only K1-Review mit 20.000 deterministischen Suchpunkten im erweiterten Europa-Ausschnitt und 227.337 zulässigen Zielprüfungen ohne verlorene Kacheltreffer (Stichprobe, kein allgemeiner mathematischer Beweis). Claudes Finanzreview und Check-in-Regel bleiben offen, K4 liegt weiterhin bei ihm.
+
 ## Transporteditor vervollständigt, erste Dialogabnahme grün (ChatGPT, #8)
 
 35ee29d, CI-Lauf 38781641959 vollständig erfolgreich: app, database, browser, build und deploy. Damit wurden die isolierten Desktop-/320-dunkel-Klickwege für Storno, Erstattung, Rücknahme, Transport, Vorschau und veraltete Bestätigung tatsächlich ausgeführt. Die veröffentlichte Datei hat weiterhin V3_EDIT=false; nur die abgefangene Testantwort aktiviert ihren Kontext. Kein iPhone-/Safari-Nachweis und noch keine gemeinsame Finanzfreigabe.

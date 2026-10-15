@@ -955,6 +955,34 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  await p.evaluate(id=>{const a=window.__app,t=a.Store.get(id);t.title+=' geändert';a.Store.put(t)},id);
  await p.click('[data-v3-editor-action="apply"]');assert((await p.textContent('#v3-editor-error')).includes('geändert'));
  await p.keyboard.press('Escape');assert.equal(await p.locator('[data-v3-sheet]').count(),0);
+ /* Kontobereich wechselt, während die alte Gast-Vorschau noch offen ist. */
+ await row().locator('[data-v3-open="cancel"]').click();await p.fill('[name="on"]','2026-10-15');await p.fill('[name="fee"]','0');await p.click('[data-v3-editor-action="preview-cancel"]');
+ const rawBeforeScope=await p.evaluate(()=>localStorage.getItem('rp-trips'));
+ await p.evaluate(()=>window.__app.Store.setScope('v3-test-other-scope'));await p.click('[data-v3-editor-action="apply"]');
+ assert((await p.textContent('#v3-editor-error')).includes('geändert'));assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),rawBeforeScope);
+ assert.equal(await p.evaluate(()=>localStorage.getItem('rp-u:v3-test-other-scope')),null,'Alte Gast-Vorschau schreibt keine Kontoreise');
+ await p.keyboard.press('Escape');await p.evaluate(id=>{const a=window.__app;a.Store.setScope('guest');a.go('r-'+id+'-kosten')},id);
+ /* Wirklicher Storage-Ausnahmepfad: keine Erfolgsansicht und kein geänderter Datenträger. */
+ await row().locator('[data-v3-open="cancel"]').click();await p.fill('[name="on"]','2026-10-15');await p.fill('[name="fee"]','0');await p.click('[data-v3-editor-action="preview-cancel"]');
+ const rawBeforeQuota=await p.evaluate(()=>localStorage.getItem('rp-trips'));
+ await p.evaluate(()=>{const original=Storage.prototype.setItem;window.__v3RestoreStorage=()=>{Storage.prototype.setItem=original};Storage.prototype.setItem=function(k,v){if(k==='rp-trips')throw new DOMException('Editor-Testquota','QuotaExceededError');return original.call(this,k,v)}});
+ await p.click('[data-v3-editor-action="apply"]');assert((await p.textContent('#v3-editor-error')).includes('nicht gespeichert'));
+ assert(await p.isVisible('[data-v3-sheet]'));assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),rawBeforeQuota);
+ await p.click('[data-v3-editor-action="apply"]');assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),rawBeforeQuota,'Erneuter Klick überschreibt trotz Speicherfehler nichts');
+ await p.evaluate(()=>window.__v3RestoreStorage());await p.keyboard.press('Escape');await p.reload();
+ assert.equal(await p.evaluate(id=>!!window.__app.Store.get(id).ledger['xc:xceditor'].cancel,id),false,'Fehlgeschlagene Änderung nach Neuladen nicht als gespeichert ausgegeben');
+ /* Derselbe Ablauf für das aktive Unterkunftsangebot, getrennt vom Zahlungsbuch. */
+ await p.evaluate(id=>{const a=window.__app,t=a.Store.get(id),o={id:'oeditor',stayId:t.stayId,name:'Editor-Testunterkunft',location:'Testort',provider:'direkt',type:'hotel',start:t.start,end:t.end,persons:t.persons,price:200,basis:'stay',url:'https://example.org/editor-fixture',checkedAt:'2026-10-15',validUntil:'2027-01-04',availability:'available',terms:'Nur Testdaten',paid:200,deposit:0,booked:true,features:Object.fromEntries(['sauna','kitchen','breakfast','cancel','quiet','accessible','parking'].map(k=>[k,'unknown'])),fees:Object.fromEntries(['tax','cleaning','parking','wellness','mandatory'].map(k=>[k,{state:'included',amount:0}]))};t.offers=[o];t.activeOfferId=o.id;a.validateOffer(o);a.validateExtras(t);a.Store.put(t);a.render()},id);
+ const offerButton=action=>p.locator('[data-v3-open="'+action+'"][data-v3-target*="oeditor"]');
+ await offerButton('cancel').click();await p.fill('[name="on"]','2026-10-15');await p.click('[data-v3-editor-action="preview-cancel"]');
+ assert((await p.textContent('[data-v3-financial-preview]')).includes('unbekannt'));await p.click('[data-v3-editor-action="apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).offers[0].cancel.fee,id),null);
+ await offerButton('cancel').click();await p.fill('[name="fee"]','50');await p.click('[data-v3-editor-action="preview-cancel"]');await p.click('[data-v3-editor-action="apply"]');
+ await offerButton('refund').click();await p.fill('[name="on"]','2026-10-15');await p.fill('[name="amount"]','150');await p.click('[data-v3-editor-action="preview-refund"]');await p.click('[data-v3-editor-action="apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.financeEntry(window.__app.Store.get(id),{kind:'offer',id:'oeditor'}).math.refundOpen,id),0);
+ await offerButton('uncancel').click();await p.click('[data-v3-editor-action="preview-uncancel"]');await p.click('[data-v3-editor-action="apply"]');await p.reload();
+ assert.equal(await p.evaluate(id=>window.__app.financeEntry(window.__app.Store.get(id),{kind:'offer',id:'oeditor'}).math.open,id),150);
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).offers[0].refunds.length,id),1);
  await ctx.close();console.log(name+': isolierter v3-Editorweg Storno/Refund/Rücknahme/Transport/Quellstand geprüft; Produktionsgate unverändert.');
 }
 
