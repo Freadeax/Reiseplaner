@@ -2,7 +2,7 @@
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
-ChatGPT: v3forms als unverbundene Eingabe-/Vorschauschicht, einschließlich echter Kandidaten-Integrationstests vorbereitet. Als nächstes Editorzustand, Fehler-/Fokusführung und explizite Bestätigung anbinden; Transportabschnitte auch anlegen/entfernen/ordnen. Danach isolierter Browserweg für Storno/Erstattung/Transport und gemeinsame Finanzabnahme. V3_EDIT bleibt bis dahin false, kein stilles Hochstufen bestehender Reisen.
+ChatGPT: v3forms/v3editor, Dialoge, Fehlerfokus und explizite Bestätigung hinter V3_EDIT=false angebunden, Transportabschnitte auch anlegen/entfernen/ordnen. Echte Kandidaten- und Store-Integration im isolierten Node-Test; isolierte Browserwege vorbereitet, neue CI-/Claude-Abnahme offen. Zusatzposten-Neuanlage und Check-in-Eingabe noch ergänzen, Finanz-/Verpflichtungsfälle gemeinsam abnehmen. Erst danach Freischaltung erwägen, kein stilles Hochstufen bestehender Reisen. Vier neue Wunschkarten werden automatisch mit verfügbaren KINDS sichtbar; bis dahin keine ungültigen Wünsche.
 
 Claude: K1 kompakter Index/bedarfsgeladene Kacheln, K2 kompatible Datenbankabfragen/Paging, K3 regionale Kataloglücken und vier neue Arten. ChatGPT ergänzt Wunschkarten nach KINDS-Übergabe. Verbraucher für Direktlinks, Vergleich und Rundreise sowie Offline-/Cachewechsel gemeinsam prüfen. Galerie und globale Datenrettung sind inzwischen mit a4faac4 im CI erfolgreich veröffentlicht.
 

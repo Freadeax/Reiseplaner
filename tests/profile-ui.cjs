@@ -28,8 +28,14 @@ m.a.catSetMood('natur','');assert(!('natur' in m.a.catProfile().kinds));
 m.a.catSetMood('__proto__','must');assert(!Object.hasOwn(m.a.catProfile().kinds,'__proto__'));
 m.a.catPreset('kultur');assert.equal(s.profile.kinds.kultur,'must');assert.equal(s.profile.nights,2);assert.equal(s.profile.party,null,'Profil ersetzt bisherige Rahmenangaben');assert.equal(s.origin.label,legacy.origin.label);assert.equal(s.maxKm,150);
 m.a.catPreset('familie');assert.equal(s.profile.nights,0);assert.equal(s.family,true);assert.equal(s.rainy,false);
-const p=m.a.catMoodPanel();assert.equal((p.match(/data-profile-kind=/g)||[]).length,12);assert.equal((p.match(/data-act="cat-preset"/g)||[]).length,5);assert(!p.includes('data-act="cat-family"'));
-s.deckMode=true;s.deckIndex=0;assert.equal((m.a.catMoodPanel().match(/data-act="cat-vote"/g)||[]).length,3);s.deckIndex=12;assert(m.a.catMoodPanel().includes('Eure Auswahl ist bereit'));
+const p=m.a.catMoodPanel();assert.equal((p.match(/data-profile-kind=/g)||[]).length,m.a.catMoodKeys().length);assert.equal((p.match(/data-act="cat-preset"/g)||[]).length,5);assert(!p.includes('data-act="cat-family"'));
+s.deckMode=true;s.deckIndex=0;assert.equal((m.a.catMoodPanel().match(/data-act="cat-vote"/g)||[]).length,3);s.deckIndex=m.a.catMoodKeys().length;assert(m.a.catMoodPanel().includes('Eure Auswahl ist bereit'));
+/* Vorbereitete Karten sind ohne KINDS unsichtbar; neue Katalogart aktiviert sie ohne UI-Sonderrelease. */
+if(!Object.hasOwn(C.KINDS,'baden')){
+ const n=load();assert(!n.a.catMoodPanel().includes('data-profile-kind="baden"'));const count=n.writes.length;n.a.catSetMood('baden','must');assert.equal(n.writes.length,count);
+ C.KINDS.baden='Baden & Strand';
+ try{assert(n.a.catMoodPanel().includes('data-profile-kind="baden"'));n.a.catSetMood('baden','must');assert.equal(n.a.catProfile().kinds.baden,'must');}finally{delete C.KINDS.baden}
+}
 const future=JSON.stringify({version:9,profile:{kinds:{natur:'must'}}}),f=load({'rp-entdecken-profile':future});
 assert(f.a.catState().profileLocked);f.a.catSetMood('stadt','like');assert.equal(f.stored.get('rp-entdecken-profile'),future,'Zukünftiges Profil nie überschreiben');assert(f.a.catMoodPanel().includes('nicht überschrieben'));
 const broken=load({'rp-entdecken-profile':'{kaputt','rp-entdecken':JSON.stringify(legacy)});assert.equal(broken.a.catProfile().kinds.burg,'like');

@@ -478,6 +478,8 @@ button.profile-tag{cursor:pointer}button.profile-tag:hover{border-color:var(--sp
 <script src="cloud.js"></script>
 <script src="catalog.js"></script>
 <script src="v3logic.js"></script>
+<script src="v3forms.js"></script>
+<script src="v3editor.js"></script>
 <script>
 (function(){
 "use strict";
@@ -840,6 +842,45 @@ const V3=typeof window!=='undefined'&&window.RPV3?window.RPV3:null;
 /* Kompatibilitäts-Gate: Reisen im Format 3 bleiben schreibgeschützt, bis Bedienung und Verpflichtungsschutz vollständig
    verdrahtet und E2 in der Produktion bestätigt ist (Review ChatGPT, #8). Gilt für Import und Sync ebenso. */
 const V3_EDIT=false;
+let v3Editor=null;
+function v3CanEdit(t){const m=t&&Store.meta[t.id];return !!(t&&V3_EDIT&&Store.corruptRaw===null&&!Store.localError&&!Store.conflict&&Store.canEdit(t.id)&&!(m&&(m.unreadable||m.conflict)))}
+function v3Controller(){
+ if(!window.RPV3Forms||!window.RPV3Editor)throw Error('Die Editorbausteine konnten nicht geladen werden. Bitte neu laden.');
+ if(!v3Editor)v3Editor=window.RPV3Editor.create({financeEntry,cancelEntry,addRefund,uncancel,setTransport},{getTrip:id=>Store.get(id),scope:()=>Store.scope,enabled:()=>V3_EDIT,canEdit:v3CanEdit,newId:()=>uid('rf'),put:t=>Store.put(t)});
+ return v3Editor;
+}
+function v3Actions(t,target){
+ if(!v3CanEdit(t))return '';let view;try{view=financeEntry(t,target)}catch(e){return ''}
+ const entry=view.entry||{},attrs=' data-v3-target="'+esc(JSON.stringify(target))+'"';
+ return '<div class="row">'+[['cancel',entry.cancel?'Storno ändern':'Storno erfassen'],...(entry.paid>0?[['refund','Erstattung erhalten']]:[]),...(entry.cancel?[['uncancel','Storno zurücknehmen']]:[])].map(([action,label])=>'<button type="button" class="btn ghost sm" data-v3-open="'+action+'"'+attrs+'>'+label+'</button>').join('')+'</div>';
+}
+function v3TransportBlock(t){return v3CanEdit(t)?'<section class="block"><h2>Anreise in Abschnitten</h2><p class="small muted">Hin- und Rückreise mit eigenen Preisen, Ortszeiten und Zusatzposten vorbereiten. Erst eine geprüfte Vorschau übernehmen.</p><button type="button" class="btn ghost" data-v3-open="transport">Abschnitte bearbeiten</button></section>':''}
+function v3Sheet(){
+ const s=v3Controller().state();if(!s)return;const F=window.RPV3Forms,t=Store.get(s.tripId);
+ const body=s.phase==='preview'?s.preview+'<div class="row"><button type="button" class="btn" data-v3-editor-action="apply" data-token="'+s.token+'">Änderung im Reiseplan speichern</button><button type="button" class="btn ghost" data-v3-editor-action="back">Weiter bearbeiten</button></div>':s.action==='transport'?F.transportForm(s.transport):F.financialForm(s.action,financeEntry(t,s.target));
+ openSheet('<div data-v3-sheet><p class="eyebrow">'+(s.phase==='preview'?'2 · Prüfen & bestätigen':'1 · Angaben vorbereiten')+'</p><div id="v3-editor-error" class="note" role="alert" tabindex="-1" hidden></div>'+body+'</div>');
+ if(s.phase!=='preview')document.querySelectorAll('[data-v3-sheet] [name]').forEach(el=>{if(Object.hasOwn(s.fields,el.name))el.value=s.fields[el.name]});
+}
+function v3EditorOpen(t,action,target){v3Controller().begin(t.id,action,target);v3Sheet()}
+document.addEventListener('change',e=>{
+ if(!e.target.closest('[data-v3-sheet]')||!String(e.target.name||'').endsWith('.mode'))return;
+ try{const fields={};document.querySelectorAll('[data-v3-sheet] [name]').forEach(el=>{fields[el.name]=el.value});v3Controller().revise(fields);v3Sheet()}
+ catch(err){const box=$('#v3-editor-error');if(box){box.textContent=err.message;box.hidden=false;box.focus()}}
+});
+document.addEventListener('click',e=>{
+ const open=e.target.closest('[data-v3-open]'),button=e.target.closest('[data-v3-editor-action]');if(!open&&!button)return;
+ try{
+  if(open){const t=cur();if(!t)throw Error('Reise nicht mehr geöffnet.');v3EditorOpen(t,open.getAttribute('data-v3-open'),JSON.parse(open.getAttribute('data-v3-target')||'null'));return}
+  if(!button.closest('[data-v3-sheet]'))return;
+  const editor=v3Controller(),action=button.getAttribute('data-v3-editor-action'),fields={};
+  document.querySelectorAll('[data-v3-sheet] [name]').forEach(el=>{fields[el.name]=el.value});
+  if(action==='apply'){editor.apply(Number(button.getAttribute('data-token')));closeSheet();render();return}
+  if(action==='back')editor.back();
+  else if(action.startsWith('segment-'))editor.segment({action:action.slice(8),dir:button.getAttribute('data-dir'),id:button.getAttribute('data-id')},fields);
+  else if(action.startsWith('preview-'))editor.preview(fields);else return;
+  v3Sheet();
+ }catch(err){const box=$('#v3-editor-error');if(box){box.textContent=err.message;box.hidden=false;box.focus()}else alertMsg(err.message)}
+});
 const V3_LOCK_TXT='Diese Reise nutzt Anreise-Abschnitte oder Storno (Format 3). Diese App-Version zeigt sie nur an, Änderungen werden nicht gespeichert.';
 function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=f.v3||{};
   return '<section class="block"><div class="note" role="status"><b>Nur ansehen: Format 3</b><p>'+esc(V3_LOCK_TXT)+' Kosten berücksichtigen Anreise-Abschnitte und Storno. Erstattungen und Stornogebühren stehen getrennt, ohne Verrechnung.</p>'+
@@ -1415,6 +1456,12 @@ function setLedger(t,key,field,value){
   validateLedger(l);
   t.ledger=l;return t;
 }
+function ledgerBalanceText(r){
+ if(r.unknown)return '<b>'+(r.cancelled?'Stornogebühr unbekannt':'Betrag unbekannt')+' · noch nicht abschließend prüfbar</b>';
+ if(r.open>0.005)return 'Noch offen: <b>'+eur(r.open)+'</b>';
+ if(r.refundOpen>0.005)return 'Erstattung noch offen: <b>'+eur(r.refundOpen)+'</b>';
+ return '<b>'+(r.cancelled?'Stornoposten ausgeglichen':'Vollständig bezahlt')+'</b>';
+}
 function ledgerSection(t){
   const f=financeSummary(t);
   const row=r=>'<div class="panel ledger"><div class="between"><b>'+esc(r.label)+'</b><span class="small muted">Plan '+eur(r.plan)+(r.orphan?' · <b>nicht mehr im Plan</b>':'')+'</span></div>'+
@@ -1422,7 +1469,7 @@ function ledgerSection(t){
    '<label class="fld"><span>Gebuchter Betrag (€)</span><input type="number" min="0" step="0.01" inputmode="decimal" data-ledger="'+esc(r.key)+'" data-ledger-f="amount" value="'+(r.amount!=null?r.amount:'')+'" placeholder="Plan '+Math.round(r.plan)+'"></label>'+
    '<label class="fld"><span>Bezahlt (€)</span><input type="number" min="0" step="0.01" inputmode="decimal" data-ledger="'+esc(r.key)+'" data-ledger-f="paid" value="'+(r.paid||'')+'"></label>'+
    '<label class="fld"><span>Fällig am</span><input type="date" data-ledger="'+esc(r.key)+'" data-ledger-f="due" value="'+esc(r.due)+'"></label></div>'+
-   '<p class="small">'+(r.open>0.005?'Noch offen: <b>'+eur(r.open)+'</b>':'<b>Vollständig bezahlt</b>')+(r.due&&r.open>0.005?' · fällig '+esc(fmtLong(pd(r.due))):'')+'</p></div>';
+   '<p class="small">'+ledgerBalanceText(r)+(r.due&&r.open>0.005?' · fällig '+esc(fmtLong(pd(r.due))):'')+'</p>'+(r.refundsReceived?'<p class="small muted">Zurückerhalten: '+eur(r.refundsReceived)+' · netto bezahlt: '+eur(r.netPaid)+'</p>':'')+v3Actions(t,{kind:'ledger',key:r.key})+'</div>';
   const rows=f.rows;
   return '<section class="block"><h2>Buchungen & Zahlungen</h2><p class="small muted">Je Posten Status, tatsächlich gebuchten Betrag, Bezahltes und Fälligkeit festhalten. Ein gebuchter Betrag ersetzt den Planwert in der Kostenrechnung. Buchungsnummern gehören in die Notizen. Die Unterkunft verwaltet ihr über das ausgewählte Angebot.</p>'+
    '<div class="kpis"><div class="kpi"><small>Gebucht</small><b class="num">'+eur(f.booked)+'</b><small>Status „gebucht“'+(f.stay?' inkl. Unterkunft, falls extern gebucht':'')+'</small></div><div class="kpi"><small>Bezahlt</small><b class="num">'+eur(f.paid)+'</b><small>alle erfassten Zahlungen</small></div><div class="kpi"><small>Noch offen</small><b class="num">'+eur(f.open)+'</b><small>bis Reiseende, inkl. vor Ort</small></div>'+(f.deposit?'<div class="kpi"><small>Kaution separat</small><b class="num">'+eur(f.deposit)+'</b><small>kein Reiseaufwand</small></div>':'')+'</div>'+
@@ -2195,7 +2242,7 @@ function tKosten(t){
    order.filter(k=>groups[k]).map(k=>'<tr class="grp"><td>'+COSTCAT[k][0]+'</td><td></td><td class="r">'+eur(c.byCat[k])+'</td></tr>'+groups[k].map(l=>'<tr><td>'+esc(l.t)+'<small>'+esc(l.s)+'</small></td><td>'+srcBadge(l.src)+'</td><td class="r">'+eur(l.c)+'</td></tr>').join('')).join('')+
    '<tr class="total"><td>Gesamt</td><td></td><td class="r">'+eur(c.total)+'</td></tr><tr><td>pro Person</td><td></td><td class="r">'+eur(c.total/c.P)+'</td></tr></tbody></table></div>'+
    (c.saved?'<p class="small" style="color:var(--ok)">Gästekarte spart beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  budgetSection(t)+scenarioSection(t)+offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-edit" data-val="'+esc(e.id)+'">Bearbeiten</button><button type="button" class="lnk" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" step="0.01" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
+  budgetSection(t)+scenarioSection(t)+v3TransportBlock(t)+offerFinance(t)+ledgerSection(t)+'<section class="block"><h2>Eigene Kostenposten</h2><div class="checks-list">'+(t.extraCosts||[]).map(e=>'<div class="chk info"><span>'+esc(e.t)+' · <b class="num">'+eur(e.c)+'</b></span><button type="button" class="lnk" style="margin-left:auto" data-act="xc-edit" data-val="'+esc(e.id)+'">Bearbeiten</button><button type="button" class="lnk" data-act="xc-del" data-val="'+esc(e.id)+'">Entfernen</button></div>').join('')+'</div><div class="form"><label class="fld"><span>Bezeichnung</span><input type="text" id="xc-t" placeholder="z. B. Parken, Vignette"></label><label class="fld"><span>Betrag (€)</span><input type="number" min="0" step="0.01" id="xc-c"></label></div><button type="button" class="btn sm" data-act="xc-add">Posten hinzufügen</button></section>'+
   '<section class="block"><h2>Spartipps</h2>'+(tips.length?'<div class="checks-list">'+tips.map((x,i)=>'<div class="chk ok"><b>−'+eur(x.save)+'</b><span>'+esc(x.t)+'</span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="tip" data-val="'+i+'">Änderung prüfen</button></div>').join('')+'</div>':'<p class="muted">Keine sichere automatische Einsparung gefunden. Das bedeutet nicht, dass der Plan bereits optimal ist.</p>')+'<p class="small muted">Spartipps verändern keine gebuchten Termine, Zahlungen oder Fälligkeiten. Selbstkochen wird nur mit bestätigter Küche vorgeschlagen. Puffer entfernen ist keine Einsparung.</p></section>';
 }
 /* Bestehende Verpflichtungen dürfen automatische Spartipps nicht verändern. */
@@ -2468,6 +2515,7 @@ function openSheet(html){
  if(s.focus)s.focus();
 }
 function closeSheet(){
+ if(v3Editor)v3Editor.close();
  UI.templatePreview=null;
  UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
  $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
@@ -2847,7 +2895,10 @@ function applyOffer(t,o){
  return t;
 }
 function offerForecast(t,o){if(!offerCurrent(o,t)||o.availability==='unavailable')return null;const x=clone(t);x.check={};x.activeOfferId=null;x.offers=[clone(o)];const y=x.offers[0];applyOffer(x,y);const c=cost(x),f=financeSummary(x);return {total:c.total,open:openCosts(x),remaining:f.open,deposit:Number(o.deposit)};}
-function offerFinance(t){const o=activeOffer(t);if(!o)return '';const a=offerAmounts(o);return '<section class="block"><h2>Unterkunft: Buchung & Zahlungen</h2><p>'+esc(o.name)+' · '+(o.booked?'Extern gebucht laut Erfassung':'Keine Buchung erfasst')+'</p><dl class="facts"><dt>Bekannte Kosten</dt><dd>'+eur(a.total)+'</dd><dt>Bezahlt</dt><dd>'+eur(o.paid)+'</dd><dt>Noch zu zahlen</dt><dd>'+eur(Math.max(0,a.total-o.paid))+(a.unknown.length?' + offene Gebühren':'')+'</dd><dt>Kaution separat</dt><dd>'+eur(o.deposit)+'</dd></dl><p class="small muted">Bezahlte Beträge bleiben Reisekosten. Andere Reiseposten stehen im Zahlungsbuch darunter. Kaution ist zusätzlicher Geldbedarf, keine Reiseausgabe.</p><button class="btn ghost sm" data-search-act="offer-edit" data-value="'+o.id+'">Zahlungen / Tarif bearbeiten</button></section>';}
+function offerFinance(t){
+ const o=activeOffer(t);if(!o)return '';const a=offerAmounts(o),view=isV3(t)?financeEntry(t,{kind:'offer',id:o.id}):null,m=view&&view.math,show=n=>n==null?'Unbekannt':eur(n);
+ return '<section class="block"><h2>Unterkunft: Buchung & Zahlungen</h2><p>'+esc(o.name)+' · '+(o.cancel?'Storno erfasst':o.booked?'Extern gebucht laut Erfassung':'Keine Buchung erfasst')+'</p><dl class="facts"><dt>'+(m&&m.cancelled?'Stornogebühr':'Bekannte Kosten')+'</dt><dd>'+show(m?m.cost:a.total)+'</dd><dt>Brutto bezahlt</dt><dd>'+eur(o.paid)+'</dd>'+(m?'<dt>Zurückerhalten</dt><dd>'+show(m.refundsReceived)+'</dd><dt>Netto bezahlt</dt><dd>'+show(m.netPaid)+'</dd>':'')+'<dt>Noch zu zahlen</dt><dd>'+show(m?m.open:Math.max(0,a.total-o.paid))+(a.unknown.length?' + offene Gebühren':'')+'</dd>'+(m?'<dt>Erstattung offen</dt><dd>'+show(m.refundOpen)+'</dd>':'')+'<dt>Kaution separat</dt><dd>'+eur(o.deposit)+'</dd></dl><p class="small muted">Buchungen und Zahlungen werden nur dokumentiert. Kaution ist zusätzlicher Geldbedarf, keine Reiseausgabe.</p><button class="btn ghost sm" data-search-act="offer-edit" data-value="'+o.id+'">Zahlungen / Tarif bearbeiten</button>'+v3Actions(t,{kind:'offer',id:o.id})+'</section>';
+}
 function searchBrief(t,q){return 'Ort / Region: '+q.destination+'\nZeitraum: '+rangeText(t)+' · '+t.persons+' Personen\nReisebudget: '+eur(t.budget)+'; Unterkunftslimit: '+(q.maxPrice===''?'offen':eur(+q.maxPrice))+'\nMuss: '+(q.must.map(k=>FEATURES[k]).join(', ')||'keine')+'\nWünsche: '+(q.wish.map(k=>FEATURES[k]).join(', ')||'keine')+'\nFahrzeit maximal: '+(q.maxDrive===''?'offen':q.maxDrive+' Minuten')+'\nBitte Gesamtpreis, Gebühren, Stornierung, Tarif, genaue Belegung, Quelle und Verfügbarkeit prüfen.';}
 function offerCard(t,o,e){const a=e.amounts,current=offerCurrent(o,t),forecast=offerForecast(t,o);return '<article class="card"><div class="between"><span class="eyebrow">'+esc((PROVIDERS.find(p=>p.id===o.provider)||{}).name)+'</span><span class="badge">'+(o.booked?'Buchung erfasst':o.favorite?'♥ Merkliste':'Angebot erfasst')+'</span></div><h3>'+esc(o.name)+'</h3><p>'+esc(o.location)+'</p><p class="small">'+esc(o.start)+' – '+esc(o.end)+' · '+o.persons+' Personen</p><div class="price num">'+eur(a.total)+'</div><p class="small">'+(a.unknown.length?'Bekannte Kosten · offen: '+esc(a.unknown.join(', ')):'Erfasster Unterkunfts-Gesamtpreis')+'</p>'+ (forecast?'<p class="small"><b>Reise mit diesem Angebot: ≈ '+eur(forecast.total)+'</b> · Planwert'+(forecast.total>t.budget?' über Budget':' · offene Kosten prüfen')+'</p>':'')+'<p class="small">'+e.points+'/'+e.possible+' Wünsche erfüllt · '+(current?'Zeitraum / Belegung passen':'Anderer Zeitraum, andere Belegung oder Gültigkeit abgelaufen')+'</p><p class="small muted">Geprüft laut Erfassung: '+esc(o.checkedAt)+' · '+({unknown:'Verfügbarkeit unbestätigt',available:'Verfügbarkeit als gegeben erfasst',unavailable:'Nicht verfügbar'}[o.availability])+'</p><div class="row"><a class="btn ghost sm" href="'+esc(safeOfferUrl(o.url))+'" target="_blank" rel="noopener noreferrer">Quelle ↗</a><button class="btn ghost sm" data-search-act="offer-edit" data-value="'+o.id+'">Details / Bearbeiten</button><button class="btn ghost sm" data-search-act="favorite" data-value="'+o.id+'">'+(o.favorite?'♥ Gemerkt':'♡ Merken')+'</button><button class="btn ghost sm" data-search-act="compare" data-value="'+o.id+'">'+(o.compare?'✓ Im Vergleich':'+ Vergleichen')+'</button><button class="btn ghost sm" data-search-act="offer-use" data-value="'+o.id+'">Für Planung auswählen</button></div></article>';}
 function comparisonTable(t,offers){if(!offers.length)return '<div class="empty">Noch kein Angebot zum Vergleich markiert.</div>';const rows=[['Zeitraum',o=>o.start+' – '+o.end+' · '+o.persons+' Personen'],['Passend zur Reise',o=>offerCurrent(o,t)?'Ja':'Nein / abgelaufen'],['Bekannte Kosten',o=>eur(offerAmounts(o).total)],['Reise mit diesem Angebot',o=>{const f=offerForecast(t,o);return f?'≈ '+eur(f.total)+' (Planwert)':'Nicht vergleichbar';}],['Offene Gebühren',o=>offerAmounts(o).unknown.join(', ')||'Keine laut Erfassung'],['Sauna / Wellness',o=>featureLabel(o,'sauna')],['Küche',o=>featureLabel(o,'kitchen')],['Frühstück',o=>featureLabel(o,'breakfast')],['Stornierung',o=>featureLabel(o,'cancel')],['Fahrzeit einfach',o=>o.drive==null?'Unbekannt':o.drive+' Minuten'],['Bewertung',o=>o.rating==null?'Unbekannt':o.rating+'/10'],['Bereits bezahlt',o=>eur(o.paid)],['Noch zu zahlen',o=>eur(Math.max(0,offerAmounts(o).total-o.paid))+(offerAmounts(o).unknown.length?' + offene Gebühren':'')],['Kaution separat',o=>eur(o.deposit)],['Prüfdatum',o=>o.checkedAt],['Bedingungen',o=>o.terms||'Nicht erfasst']];return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kriterium</th>'+offers.map(o=>'<th>'+esc(o.name)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(([label,fn])=>'<tr><th>'+label+'</th>'+offers.map(o=>'<td>'+esc(fn(o))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
@@ -3068,8 +3119,14 @@ const CAT_MOODS={
  kultur:['◈','Kultur erleben','Museen, Geschichte und besondere Bauwerke'],burg:['♜','Burgen & Schlösser','Alte Mauern und Geschichten zum Staunen'],
  therme:['♨','Wärme & Ruhe','Thermen, Wellness und Zeit zum Abschalten'],familie:['☺','Spiel & Staunen','Erlebnisse, die auch Kindern Spaß machen'],
  genuss:['☕','Genussmomente','Regionale Spezialitäten und gemütliche Pausen'],technik:['⚙','Technik verstehen','Erfindungen, Fahrzeuge und Industriegeschichte'],
- winter:['❄','Winter erleben','Schnee, Winterwege und Berglandschaften'],unterwelt:['◇','Unter die Erde','Höhlen, Stollen und verborgene Welten']
+ winter:['❄','Winter erleben','Schnee, Winterwege und Berglandschaften'],unterwelt:['◇','Unter die Erde','Höhlen, Stollen und verborgene Welten'],
+ baden:['≈','Eintauchen & abschalten','Badesee, Strand oder Freibad – zum Beispiel eine Pause am Wasser mit Badestelle'],
+ tiere:['♧','Tieren begegnen','Zoo, Wildpark oder Aquarium – zum Beispiel Tiere beobachten und Neues über ihre Lebensräume lernen'],
+ freizeit:['✧','Gemeinsam etwas erleben','Freizeitpark, Sommerrodelbahn oder Baumwipfelpfad – zum Beispiel ein Erlebnistag mit Abwechslung'],
+ aktiv:['↗','Selbst in Bewegung kommen','Rad, Kanu oder Kletterwald – zum Beispiel eine Tour statt nur eines Aussichtspunkts']
 };
+/* Neue Karten erst anbieten, wenn der zugehörige Katalog die Art wirklich kennt. */
+function catMoodKeys(){return Object.keys(CAT_MOODS).filter(k=>CATX&&Object.hasOwn(CATX.KINDS,k))}
 const CAT_PRESETS={
  paar:{name:'Auszeit zu zweit',hint:'Ruhig · 2 Nächte',profile:{kinds:{therme:'like',natur:'like',genuss:'like'},pace:'ruhig',party:'paar',nights:2}},
  familie:{name:'Familientag',hint:'Spiel & Natur · ohne Übernachtung',profile:{kinds:{familie:'must',natur:'like'},party:'familie',nights:0}},
@@ -3090,7 +3147,7 @@ function catSyncProfile(s){s.kinds=Object.keys(s.profile.kinds).filter(k=>s.prof
 function catProfile(){const s=catState();return CATX.checkProfile(s.profile)}
 function catRank(r){return CATX.rankProfile(r,catProfile()).map(x=>Object.assign(x,{version:r.version,source:r.source}))}
 function catProfileChange(patch){const s=catState();s.profileUndo=null;s.profile=CATX.checkProfile(Object.assign({},s.profile,patch));catSyncProfile(s);if(s.res)s.res.ranked=catRank(s.res);Object.keys(s.extra).forEach(id=>{const x=s.extra[id];s.extra[id]=catRank({places:[x.place],version:x.version,source:x.source})[0]});catSavePrefs()}
-function catSetMood(kind,level){if(!Object.hasOwn(CAT_MOODS,kind))return;const kinds=Object.assign({},catProfile().kinds);if(['must','like','avoid'].includes(level))kinds[kind]=level;else delete kinds[kind];catProfileChange({kinds})}
+function catSetMood(kind,level){if(!catMoodKeys().includes(kind))return;const kinds=Object.assign({},catProfile().kinds);if(['must','like','avoid'].includes(level))kinds[kind]=level;else delete kinds[kind];catProfileChange({kinds})}
 function catReplaceProfile(profile,label){const s=catState(),before=catProfile(),after=CATX.checkProfile(profile);if(JSON.stringify(before)===JSON.stringify(after))return;const deckIndex=s.deckIndex||0;catProfileChange(after);s.deckIndex=0;s.profileUndo={before,after:JSON.stringify(catProfile()),label,deckIndex}}
 function catPreset(id){const p=Object.hasOwn(CAT_PRESETS,id)?CAT_PRESETS[id]:null;if(p)catReplaceProfile(p.profile,'Schnellprofil „'+p.name+'“ übernommen')}
 function catClearProfile(){catReplaceProfile({},'Wünsche zurückgesetzt')}
@@ -3165,7 +3222,7 @@ function catNextMonth(m){const now=new Date(),y=now.getFullYear()+(+m<now.getMon
 function catMoodCard(k,deck){const m=CAT_MOODS[k],v=catProfile().kinds[k]||'';
  return '<div class="mood-card" data-level="'+v+'"><span class="mood-symbol" aria-hidden="true">'+m[0]+'</span><h3>'+m[1]+'</h3><p class="small muted">'+m[2]+'</p>'+
  (deck?'':'<label class="fld"><span>'+esc(CATX.KINDS[k])+' – euer Wunsch</span><select data-profile-kind="'+k+'">'+[['','Offen / egal'],['must','Unbedingt'],['like','Gern'],['avoid','Lieber nicht']].map(o=>'<option value="'+o[0]+'"'+(v===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></label>')+'</div>'}
-function catMoodPanel(){const s=catState(),keys=Object.keys(CAT_MOODS),i=Math.min(keys.length,Math.max(0,s.deckIndex||0));
+function catMoodPanel(){const s=catState(),keys=catMoodKeys(),i=Math.min(keys.length,Math.max(0,s.deckIndex||0));
  const deck=i===keys.length?'<div class="empty"><b>Eure Auswahl ist bereit.</b><span>Alle Wünsche lassen sich in der Kartenübersicht ändern – auch zu „unbedingt“.</span><button type="button" class="btn ghost sm" data-act="cat-deck-back">Letzte Karte bearbeiten</button></div>':
  '<div class="mood-deck"><p class="small muted" role="status">Karte '+(i+1)+' von '+keys.length+' · '+esc(CATX.KINDS[keys[i]])+'</p>'+catMoodCard(keys[i],true)+'<div class="mood-votes">'+[['avoid','Nein'],['','Vielleicht'],['like','Ja']].map(o=>'<button type="button" class="btn ghost" data-act="cat-vote" data-val="'+keys[i]+'|'+o[0]+'" aria-pressed="'+((s.profile.kinds[keys[i]]||'')===o[0])+'">'+o[1]+'</button>').join('')+'</div><p class="small muted">Ja = gern · Nein = lieber nicht (Abwertung) · Vielleicht = offen</p>'+(i?'<button type="button" class="lnk" data-act="cat-deck-back">← Vorherige Karte</button>':'')+'</div>';
  return '<div class="panel mood-panel"><span class="eyebrow">Euer Reisegefühl</span><h2>3 · Worauf habt ihr Lust?</h2><p>Wählt frei oder startet mit einem Profil. „Unbedingt“ muss belegt sein. „Lieber nicht“ wertet passende Ziele ab, blendet sie aber nicht aus.</p>'+
@@ -3529,7 +3586,7 @@ document.addEventListener('click',e=>{
     case 'cat-must-all':s.mustOnly=false;render();return;
     case 'cat-mood-mode':s.deckMode=val==='deck';render();return;
     case 'cat-deck-back':s.deckIndex=Math.max(0,(s.deckIndex||0)-1);render();return;
-    case 'cat-vote':{const [kind,level]=String(val||'').split('|');if(Object.keys(CAT_MOODS)[s.deckIndex||0]!==kind)return;catSetMood(kind,level);s.deckIndex=Math.min(Object.keys(CAT_MOODS).length,(s.deckIndex||0)+1);render();const next=$('[data-act="cat-vote"]')||$('[data-act="cat-deck-back"]');if(next&&next.focus)next.focus();return}
+    case 'cat-vote':{const [kind,level]=String(val||'').split('|');if(catMoodKeys()[s.deckIndex||0]!==kind)return;catSetMood(kind,level);s.deckIndex=Math.min(catMoodKeys().length,(s.deckIndex||0)+1);render();const next=$('[data-act="cat-vote"]')||$('[data-act="cat-deck-back"]');if(next&&next.focus)next.focus();return}
     case 'cat-search':catSearch(false);return;
     case 'cat-surprise':catSearch(true);return;
     case 'cat-open':e.preventDefault();catOpen(val);return;
@@ -3696,6 +3753,9 @@ Object.assign(window.__app,{catLoadForQuery,catLoadIndex,financeEntry,cancelEntr
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});
+Object.assign(window.__app,{catMoodKeys});
+Object.assign(window.__app,{v3CanEdit,v3Actions,v3TransportBlock,v3Controller,v3EditorOpen,v3Sheet});
+Object.assign(window.__app,{ledgerBalanceText});
 Object.assign(window.__app,{TEMPLATE_GROUPS,templateGroups,tplButtons,templatePreview,templatePreviewHtml,sheetTemplate,commitTemplatePreview});
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));

@@ -73,7 +73,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   assert.equal(geoCalls, 1, name + ': Ortssuche nur auf Knopfdruck');
   await p.click('[data-act="cat-pick"][data-val="1"]');
   assert((await viewText(p)).includes('Start: Göppingen, Landkreis Göppingen'), name + ': Abfahrtsort übernommen');
-  assert.equal(await p.locator('[data-profile-kind]').count(),12,name+': zwölf Wunschkarten');
+  assert.equal(await p.locator('[data-profile-kind]').count(),await p.evaluate(()=>window.__app.catMoodKeys().length),name+': alle verfügbaren Wunschkarten');
   await p.click('[data-act="cat-preset"][data-val="paar"]');
   assert.equal(await p.inputValue('[data-cf="nights"]'),'2',name+': Schnellprofil setzt Dauer');
   await p.selectOption('[data-profile-kind="natur"]','must');
@@ -909,6 +909,46 @@ async function layoutStructure(browser,base,name,ctxOpts){
  assert.equal(await p.$eval('body',e=>e.style.overflow),'');await noOverflow(p,name+' Struktur');await ctx.close();console.log(name+': Struktur, Suche, Tagesauswahl, Druck und Scrollsperre geprüft.');
 }
 
+/* Ausschließlich die Antwort dieses isolierten Browserkontexts aktivieren.
+   Produktionsdatei und Standardkontexte behalten V3_EDIT=false. */
+async function v3EditorFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' v3Editor: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');assert(html.includes('const V3_EDIT=false;'));
+ await p.route(base+'/index.html',r=>r.fulfill({status:200,contentType:'text/html',body:html.replace('const V3_EDIT=false;','const V3_EDIT=true;')}));
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.extraCosts=[{id:'xceditor',t:'Editor-Testposten',c:200}];t.ledger={'xc:xceditor':{status:'gebucht',amount:200,paid:200,due:''}};a.Store.put(t);a.go('r-'+t.id+'-kosten');return t.id});
+ const row=()=>p.locator('.ledger').filter({hasText:'Editor-Testposten'});
+ await row().locator('[data-v3-open="cancel"]').click();
+ await p.fill('[data-v3-sheet] [name="on"]','2026-10-15');await p.fill('[data-v3-sheet] [name="fee"]','abc');
+ await p.click('[data-v3-editor-action="preview-cancel"]');assert(await p.isVisible('#v3-editor-error'));assert.equal(await p.evaluate(()=>document.activeElement.id),'v3-editor-error');
+ await p.fill('[data-v3-sheet] [name="fee"]','50,00');await p.click('[data-v3-editor-action="preview-cancel"]');
+ assert((await p.textContent('[data-v3-financial-preview]')).includes('150,00'));
+ assert.equal(await p.evaluate(id=>!!window.__app.Store.get(id).ledger['xc:xceditor'].cancel,id),false,'Vorschau speichert nichts');
+ await p.click('[data-v3-editor-action="back"]');assert.equal(await p.inputValue('[name="fee"]'),'50,00');
+ await p.click('[data-v3-editor-action="preview-cancel"]');await noOverflow(p,name+' Stornovorschau');await p.click('[data-v3-editor-action="apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).ledger['xc:xceditor'].cancel.fee,id),50);
+ await row().locator('[data-v3-open="refund"]').click();await p.fill('[name="on"]','2026-10-15');await p.fill('[name="amount"]','150,00');
+ await p.click('[data-v3-editor-action="preview-refund"]');await p.click('[data-v3-editor-action="apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).ledger['xc:xceditor'].refunds.length,id),1);
+ await row().locator('[data-v3-open="uncancel"]').click();await p.click('[data-v3-editor-action="preview-uncancel"]');
+ assert((await p.textContent('[data-v3-financial-preview]')).includes('150,00'));await p.click('[data-v3-editor-action="apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.financeEntry(window.__app.Store.get(id),{kind:'ledger',key:'xc:xceditor'}).math.open,id),150);
+ await p.click('[data-v3-open="transport"]');await p.click('[data-v3-editor-action="segment-add"][data-dir="out"]');
+ await p.selectOption('[data-v3-sheet] [name$=".mode"]','flug');
+ await p.fill('[data-v3-sheet] [name$=".fromCode"]','STR');await p.fill('[data-v3-sheet] [name$=".toCode"]','PMI');
+ await p.fill('[data-v3-sheet] [name$=".cost"]','199,90');await p.click('[data-v3-editor-action="preview-transport"]');
+ assert((await p.textContent('[data-v3-transport-preview]')).includes('199,90'));await noOverflow(p,name+' Transportvorschau');
+ await p.click('[data-v3-editor-action="apply"]');await p.reload();
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).transport.out[0].cost,id),199.9);
+ await row().locator('[data-v3-open="cancel"]').click();await p.fill('[name="on"]','2026-10-15');await p.fill('[name="fee"]','0');await p.click('[data-v3-editor-action="preview-cancel"]');
+ await p.evaluate(id=>{const a=window.__app,t=a.Store.get(id);t.title+=' geändert';a.Store.put(t)},id);
+ await p.click('[data-v3-editor-action="apply"]');assert((await p.textContent('#v3-editor-error')).includes('geändert'));
+ await p.keyboard.press('Escape');assert.equal(await p.locator('[data-v3-sheet]').count(),0);
+ await ctx.close();console.log(name+': isolierter v3-Editorweg Storno/Refund/Rücknahme/Transport/Quellstand geprüft; Produktionsgate unverändert.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -940,6 +980,8 @@ async function layoutStructure(browser,base,name,ctxOpts){
     await routeEndpointFlow(browser,base,'ortswechsel-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await layoutStructure(browser,base,'struktur-desktop',{viewport:{width:1280,height:900}});
     await layoutStructure(browser,base,'struktur-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await v3EditorFlow(browser,base,'v3-desktop',{viewport:{width:1280,height:900}});
+    await v3EditorFlow(browser,base,'v3-320',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

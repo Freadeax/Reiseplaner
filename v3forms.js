@@ -1,4 +1,4 @@
-/* Formularbausteine für Format 3. Noch nicht in der App geladen/freigeschaltet.
+/* Formularbausteine für Format 3. App-Einstiege bleiben hinter V3_EDIT=false.
    Keine DOM-Ereignisse, kein Speicher, keine eigene Kostenrechnung. Der App-Controller
    bindet diese Darstellungen später an Kandidaten-Mutatoren und prüft assertFresh vor Übernahme. */
 (function(root,factory){
@@ -36,8 +36,9 @@
      input(p+'cost','Preis · €',s.cost,priceAttrs)+select(p+'per','Preis gilt',s.per,[['grp','Für alle zusammen'],['pp','Pro Person']])+
      (['auto','mietwagen'].includes(s.mode)?input(p+'km','Eigene Kilometer dieses Abschnitts',s.km,'type="text" inputmode="decimal" placeholder="leer = unbekannt"'):'')+'</div>'+
      (s.addons.length?'<h4>Zusatzposten</h4>'+s.addons.map(a=>'<div class="form">'+input(p+'addon.'+a.id+'.label','Bezeichnung',a.label,'type="text" maxlength="60"')+input(p+'addon.'+a.id+'.cost','Zusatzpreis · €',a.cost,priceAttrs)+select(p+'addon.'+a.id+'.per','Zusatzpreis gilt',a.per,[['grp','Für alle zusammen'],['pp','Pro Person']])+'</div>').join(''):'')+
+     '<div class="row">'+[['up','Nach oben',i===0],['down','Nach unten',i===tr[dir].length-1],['remove','Abschnitt entfernen',false]].map(([op,label,disabled])=>'<button type="button" class="btn ghost sm" data-v3-editor-action="segment-'+op+'" data-dir="'+dir+'" data-id="'+s.id+'"'+(disabled?' disabled':'')+'>'+label+'</button>').join('')+'</div>'+
      '<p class="small muted">Buchungen, Zahlungen und Fristen werden nicht durch das Ändern dieser Eingaben aufgehoben. Die anschließende Vorschau prüft vorhandene Verpflichtungen.</p></details>';
-   }).join('')+'</section>').join('')+'<button type="button" class="btn" data-v3-editor-action="preview-transport">Änderungen prüfen</button></section>';
+   }).join('')+'<button type="button" class="btn ghost" data-v3-editor-action="segment-add" data-dir="'+dir+'"'+(tr[dir].length>=12?' disabled':'')+'>+ Abschnitt ergänzen</button></section>').join('')+'<button type="button" class="btn" data-v3-editor-action="preview-transport">Änderungen prüfen</button></section>';
  }
  /* Fields: Werte aus name-Attributen, z. B. out.seg1.dep_date. Nicht gelieferte
     Angaben bleiben erhalten. IDs, bestehende Zusatzposten und Check-in werden nie neu aufgebaut. */
@@ -47,13 +48,30 @@
    const p=dir+'.'+s.id+'.',read=(key,old)=>own(fields,p+key)?fields[p+key]:old;
    s.mode=scalar(read('mode',s.mode));['from','to','carrier','number'].forEach(k=>{s[k]=scalar(read(k,s[k]))});
    s.cost=amount(read('cost',s.cost));s.per=scalar(read('per',s.per));
-   ['dep','arr'].forEach(k=>{const old=s[k]||{},q={};['date','time','tz'].forEach(f=>{q[f]=scalar(read(k+'_'+f,old[f]))||null});s[k]=q});
+   ['dep','arr'].forEach(k=>{const old=s[k]||{},q={};['date','time','tz'].forEach(f=>{q[f]=scalar(read(k+'_'+f,old[f]))||null});s[k]=!s[k]&&!Object.values(q).some(Boolean)?null:q});
    if(s.mode==='flug'){['fromCode','toCode'].forEach(k=>{const v=scalar(read(k,s[k])).toUpperCase();if(v)s[k]=v;else delete s[k]})}else{delete s.fromCode;delete s.toCode}
    s.km=['auto','mietwagen'].includes(s.mode)?distance(read('km',s.km)):null;
    s.addons.forEach(a=>{const ap='addon.'+a.id+'.';a.label=scalar(read(ap+'label',a.label));a.cost=amount(read(ap+'cost',a.cost));a.per=scalar(read(ap+'per',a.per))});
   }));return api().validateTransport(tr);
  }
  function cancelPayload(raw,entry){const payload={on:scalar(raw.on),fee:amount(raw.fee)};api().validateMoneyMoves(Object.assign({},entry,{cancel:payload}),'Storno');return payload}
+ /* Nur Entwurf: Der Controller muss das Resultat zusätzlich durch setTransport
+    gegen Verpflichtungen prüfen, bevor er die Änderung im Editor übernimmt. */
+ function changeTransport(model,{action,dir,id,newId}){
+  const tr=api().validateTransport(model)||{out:[],back:[]};
+  if(!['out','back'].includes(dir))throw Error('Ungültige Reiserichtung.');
+  const list=tr[dir],index=list.findIndex(s=>s.id===id);
+  if(action==='add')list.push({id:newId,mode:'bahn',cost:null,per:'grp'});
+  else{
+   if(index<0)throw Error('Abschnitt nicht mehr vorhanden.');
+   if(action==='remove')list.splice(index,1);
+   else if(action==='up'||action==='down'){
+    const to=index+(action==='up'?-1:1);if(to<0||to>=list.length)throw Error('Abschnitt kann nicht weiter verschoben werden.');
+    [list[index],list[to]]=[list[to],list[index]];
+   }else throw Error('Unbekannte Abschnittsaktion.');
+  }
+  return api().validateTransport(tr);
+ }
  function refundPayload(raw,id,entry){const payload={id,on:scalar(raw.on),amount:amount(raw.amount,{unknown:false,positive:true})};api().validateMoneyMoves(Object.assign({},entry,{refunds:(entry.refunds||[]).concat([payload])}),'Erstattung');return payload}
  function financialForm(action,view){
   if(!['cancel','refund','uncancel'].includes(action))throw Error('Unbekannte Finanzaktion.');
@@ -72,5 +90,12 @@
   return '<section data-v3-financial-preview><h2>Änderung prüfen</h2><p>'+esc(after.label)+'</p><div class="tbl-wrap"><table class="tbl"><thead><tr><th scope="col">Posten</th><th scope="col">Bisher</th><th scope="col">Danach</th></tr></thead><tbody>'+rows.map(([label,key])=>'<tr><th scope="row">'+label+'</th><td>'+esc(money(before.math&&before.math[key]))+'</td><td>'+esc(money(after.math&&after.math[key]))+'</td></tr>').join('')+'</tbody></table></div>'+
    (warnings.length?'<ul>'+[...new Set(warnings)].map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>':'')+'<p class="small muted">Dies löst keine Buchung, Stornierung oder Banküberweisung aus. Die Änderung betrifft nur den Reiseplan.</p></section>';
  }
- return {amount,distance,session,assertFresh,transportForm,readTransport,cancelPayload,refundPayload,financialForm,financialPreview};
+ function transportPreview(before,after){
+  function describe(model){const tr=api().validateTransport(model)||{out:[],back:[]};
+   const point=p=>!p?'unbekannt':[p.date||'Datum offen',p.time||'Uhrzeit offen',p.tz||'Zeitzone offen'].join(' · ');
+   return ['out','back'].map(dir=>'<h3>'+(dir==='out'?'Hinreise':'Rückreise')+'</h3>'+(!tr[dir].length?'<p>Keine Abschnitte</p>':'<ol>'+tr[dir].map(s=>'<li><b>'+esc(V.MODES[s.mode])+' · '+esc([s.from||s.fromCode||'Start offen',s.to||s.toCode||'Ziel offen'].join(' → '))+'</b><p class="small">Abfahrt: '+esc(point(s.dep))+'<br>Ankunft: '+esc(point(s.arr))+'<br>Preis: '+esc(money(s.cost))+' · '+(s.per==='pp'?'pro Person':'für alle')+(s.km!=null?' · '+esc(s.km)+' eigene km':'')+'</p>'+(s.addons.length?'<ul>'+s.addons.map(a=>'<li>'+esc(a.label)+' · '+esc(money(a.cost))+' · '+(a.per==='pp'?'pro Person':'für alle')+'</li>').join('')+'</ul>':'')+'</li>').join('')+'</ol>')).join('');
+  }
+  return '<section data-v3-transport-preview><h2>Anreiseänderung prüfen</h2><p class="note">Abschnittskosten ersetzen die bisherige Anreiseberechnung. Unbekannte Preise bleiben offen; dies ist kein geprüftes Ticketangebot.</p><details><summary>Bisherige Abschnitte</summary>'+describe(before)+'</details><h3>Danach</h3>'+describe(after)+'<p class="small muted">Die bisher erfassten Zahlungen und Buchungen bleiben ihren ursprünglichen Posten zugeordnet. Keine Buchung oder Stornierung beim Anbieter.</p></section>';
+ }
+ return {amount,distance,session,assertFresh,transportForm,readTransport,changeTransport,transportPreview,cancelPayload,refundPayload,financialForm,financialPreview};
 });
