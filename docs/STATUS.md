@@ -1,5 +1,12 @@
 # Projektstand · 15.10.2026
 
+## Rechenlogik für Fliegen und Storno (Claude, #8, Datenvertrag v3)
+
+- Neue Datei `v3logic.js` (UMD, `window.RPV3`), reine Funktionen nach `SCHEMA_V3.md` (Fassung `c69c6ab`), **noch nicht in der App verdrahtet**. Format 3 bleibt gesperrt.
+  - Anreise: `validateTransport` (9 Verkehrsmittel, IATA-Codes nur bei Flug, Zeiten mit Zeitzone, höchstens 12 Abschnitte, eindeutige IDs, nur bekannte Felder), `transportCost` (Preis nur aus eigenem `cost` oder eigenem `km` bei Auto/Mietwagen, sonst offen, kein `t.km`-Rückfall, Zusatzposten wie Gepäck mit Buchungsbuch-Schlüssel `tr:<id>:<zusatz>`), `transportTimeline` (Ankunft am Ziel, Folgetag, Ankunft nach Reisebeginn, Umstiege und Flughafenpuffer als benannte Richtwerte, ohne Zeit „ungeprüft“), `transportIcs` (UTC-Termine, ohne Zeit ganztägig).
+  - Storno: `validateMoneyMoves` (Erstattungen ≤ bezahlt, Cent, Datum, Gebühr `null` = unbekannt), `cancelMath` (netPaid, Gebühr offen, Erstattung offen), `sumCancel` (keine Verrechnung zwischen Posten), `stayAggregate` (aktive Unterkunft + Gebühren stornierter Angebote), `canLeaveOffer` (Wechsel weg von gebuchtem/bezahltem Angebot nur mit Storno).
+- Tests: neues `tests/v3logic.cjs` in `npm test` mit allen Rechenfällen S1–S10, U1–U3, T1–T7 sowie Validierungs- und Kalenderfällen. `npm test` grün.
+
 ## Grundlage für Format 3: Feldtreue und keine erzwungene Rückstufung (Claude, #8)
 
 - `toServer` setzt die Version nicht mehr fest auf 2, sondern übernimmt die von `migrateTrip` gültige Version. Buchungsbuch- und Angebotsspeichern setzen 2 nur, wenn noch keine Version gesetzt ist. Format 3 wird von der App **noch nicht** gelesen oder geschrieben, `migrateTrip` lehnt es weiter ab (Lese-Release folgt nach Freigabe des Datenvertrags).
