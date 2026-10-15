@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## Datenbank: Speicherformat 3 zulassen, Rückstufung sperren (Claude, #8, Plan E2)
+
+- Freigabe Philipp am 15.10.2026. Neue Migration `20261015160000_trips_schema_v3.sql`: CHECK `schema_version in (2,3)` und Trigger `trips_before_write_version` (läuft nach `trips_before_write`). Er lehnt `new.schema_version < old.schema_version` mit `23514` und der Meldung „neuere App-Version … neu laden“ ab, auch für Eigentümer. Bestehende Zeilen und Migrationen bleiben unverändert, Clients schreiben weiterhin Format 2.
+- Wirkung: Sobald Reisen im Format 3 existieren, kann auch eine zwischengespeicherte ältere App sie nicht mehr mit Format 2 überschreiben. Zusammen mit dem Client-Schutz `58d7a87` gilt das für alte und neue Clients.
+- Geprüft lokal (Docker, `supabase start` mit allen Migrationen frisch): `supabase db lint --level warning` ohne Befund, `REQUIRE_DB=1 npm run test:db` mit neuen Fällen (3 erlaubt, 4 abgelehnt, 3→2 abgelehnt und Zeile unverändert, 3→3 und 2→3 erlaubt, nach Hochstufung keine Rückstufung, Soft-Delete weiter möglich) und `test:e2e` grün. Die Produktion spielt die Migration über die GitHub-Integration ein, Nachweis folgt mit CI und Live-Prüfung.
+
 ## Reisetyp-Vorlagen (Claude, #8, Plan A4)
 
 - Sechs neue Vorlagen unter „Mit einer Vorlage starten“: Fernreise mit Flug (14 Nächte), Badeurlaub mit Flug (7), Rundreise mit dem Auto (6), Camping (4), Aktivurlaub Wandern/Rad (3), Wellness-Auszeit (2). Sie nutzen nur vorhandene Reisetypen und Anreisearten (keine neuen Enum-Werte vor dem Datenvertrag v3). Typische Aufgaben stehen als eigene Checklistenpunkte (`customChecks`): Dokumente, Auswärtiges Amt, Impfungen, Online-Check-in, Gepäckregeln, Transfer, Stellplatz, Touren, Spa-Termine usw. Es gibt keine Preise und keine Fristen, die nicht vom Nutzer kommen.

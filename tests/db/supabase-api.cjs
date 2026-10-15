@@ -82,7 +82,27 @@ const doc = (id, title, extra) => Object.assign({ id, title, type: 'stadt', stat
   r = await A.c.from('trips').insert({ id: 't' + run + 'w', data: doc('t' + run + 'w', 'X', { end: null }) });
   assert(r.error, 'festes Datum ohne Abreise wird abgewiesen');
   r = await A.c.from('trips').insert({ id: 't' + run + 'v', data: doc('t' + run + 'v', 'X', { schemaVersion: 1 }) });
-  assert(r.error, 'nur schemaVersion 2');
+  assert(r.error, 'kein Format 1');
+  /* Format 3 erlaubt, 4 nicht; keine Rückstufung 3 → 2, auch nicht für den Eigentümer (Migration 20261015160000) */
+  r = await A.c.from('trips').insert({ id: 't' + run + 'f4', data: doc('t' + run + 'f4', 'X', { schemaVersion: 4 }) });
+  assert(r.error, 'Format 4 unbekannt');
+  const v3id = 't' + run + 'v3';
+  r = await A.c.from('trips').insert({ id: v3id, data: doc(v3id, 'Neu', { schemaVersion: 3 }) }).select().single();
+  assert.ifError(r.error); assert.equal(r.data.schema_version, 3);
+  r = await A.c.from('trips').update({ data: doc(v3id, 'Alt überschreibt') }).eq('id', v3id).select();
+  assert(r.error && String(r.error.code) === '23514' && /neueren App-Version/.test(r.error.message), 'Rückstufung 3 → 2 abgelehnt');
+  r = await A.c.from('trips').select('title, schema_version, version').eq('id', v3id).single();
+  assert.equal(r.data.title, 'Neu'); assert.equal(r.data.schema_version, 3); assert.equal(r.data.version, 1, 'nichts geändert');
+  r = await A.c.from('trips').update({ data: doc(v3id, 'Neu bearbeitet', { schemaVersion: 3 }) }).eq('id', v3id).select().single();
+  assert.ifError(r.error); assert.equal(r.data.title, 'Neu bearbeitet'); assert.equal(r.data.version, 2);
+  const upId = 't' + run + 'up';
+  r = await A.c.from('trips').insert({ id: upId, data: doc(upId, 'Zwei') }); assert.ifError(r.error);
+  r = await A.c.from('trips').update({ data: doc(upId, 'Zwei', { schemaVersion: 3 }) }).eq('id', upId).select('schema_version').single();
+  assert.ifError(r.error); assert.equal(r.data.schema_version, 3, 'Hochstufung 2 → 3 erlaubt');
+  r = await A.c.from('trips').update({ data: doc(upId, 'Zwei') }).eq('id', upId).select('id');
+  assert(r.error, 'nach Hochstufung keine Rückstufung');
+  r = await A.c.from('trips').update({ deleted_at: new Date().toISOString() }).eq('id', upId).select('id');
+  assert.ifError(r.error); /* Löschen durch den Eigentümer ändert das Format nicht und bleibt möglich */
 
   /* Unangemeldet und unberechtigt: nichts sichtbar, nichts änderbar */
   r = await anon.from('trips').select('id'); assert.deepEqual(r.data || [], []);

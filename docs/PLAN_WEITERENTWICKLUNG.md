@@ -135,7 +135,7 @@ Tests: `tests/profile.cjs`.
 | Nr. | Inhalt | Stand |
 | --- | --- | --- |
 | E1 | Schutz vor nicht lesbaren Serverfassungen im Client | umgesetzt `58d7a87` |
-| E2 | Serverseitiger Downgrade-Schutz (neue Migration) | wartet auf Philipps Freigabe |
+| E2 | Serverseitiger Downgrade-Schutz (neue Migration) | umgesetzt (Migration `20261015160000`, Freigabe Philipp 15.10.) |
 | E3 | **Datenvertrag v3** gemeinsam: Anreise-Abschnitte (A1/A2/A6), Storno/Erstattung, Ausgaben/Aufteilung (D8/D9), Tagebuch (D10). Eine Version für alles, mit Migration, Export/Import, Rückweg und DB-CHECK `in (2,3)` | Entwurf in #8 |
 
 ## Vorschlag Reihenfolge und Aufteilung (zur Abstimmung)
