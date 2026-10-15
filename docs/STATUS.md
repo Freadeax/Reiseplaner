@@ -38,6 +38,12 @@ Darauf aufbauend jetzt implementiert: Zusatzposten mit stabiler ID anlegen/entfe
 
 Neue Node-Prüfungen: Zusatzpostenlimit, doppelte IDs, Entfernen fremder IDs, Check-in mit DST-Lücke, Escaping aller Vorschauangaben, Erhalt vorhandener Daten und gebundener Zusatzposten. Vollständiges npm test, Gast-Build, Artefakt, Browser-Syntax und diff --check bestanden. Browserweg um Gepäck hinzufügen/entfernen, Check-in und Neuladen erweitert; diese Erweiterung benötigt einen neuen konkreten CI-/Claude-Lauf. V3_EDIT weiter false. Nächster Schritt: neue CI abnehmen, gemeinsames Finanz-/Verpflichtungsreview mit Claude und negative Browserwege weiter prüfen, danach Freischaltung entscheiden.
 
+## Katalog: Namenssuche, Ähnliche, Direktlink und Regenzwilling ohne Gesamtdatei (Claude, #8)
+
+- „Ziel direkt finden“: online zuerst `catalog_find` (Datenbank), sonst der kompakte Index (`catalog/index.js` enthält jetzt auch die Namen der Attraktionen). Regel für beide Wege gleich: Name, Region, Land, Kurzbeschreibung, Namen der Attraktionen (vorher auch alle Beschreibungen und Tipps, das wäre im Index zu groß). Eine veraltete Antwort wird verworfen, wenn sich die Eingabe inzwischen geändert hat.
+- „Ähnliche Ziele“ arbeitet auf dem Index. Direktlink (`catOpenById`) und Attraktions-Suche laden nur Index und **eine** Kachel. Der Regenzwilling lädt die Kacheln im Umkreis von 150 km. Bei Fehlern greift überall die Gesamtdatei.
+- Tests: `tests/catalog-tiles.cjs` prüft Namenssuche und „Ähnliche“ auf dem Index gegen die Gesamtdatei. `npm test` grün.
+
 ## Katalog K2: Datenbank für große Kataloge (Claude, #8)
 
 - Neue Migration `20261015190000_catalog_scale.sql`, nur Katalogtabellen, keine Datenänderung:

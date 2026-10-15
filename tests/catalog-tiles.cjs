@@ -25,6 +25,13 @@ for (const o of C.ORIGINS) for (const [minKm, maxKm] of [[0, 60], [0, 150], [80,
   assert.deepEqual(C.searchLocal(part, q).places.map(p => p.id), C.searchLocal(D, q).places.map(p => p.id), o.label + ' ' + minKm + '–' + maxKm);
   n++; loaded += keys.length;
 }
+/* Namenssuche und „Ähnliche“ direkt auf dem Index (ohne Kacheln) wie auf der Gesamtdatei */
+for (const q of ['alb', 'burg', 'see', D.places[5].spots[1].name.toLowerCase().slice(0, 10)]) {
+  assert.deepEqual(C.findPlaces(I.places, q, 12).map(p => p.id), C.findPlaces(D.places, q, 12).map(p => p.id), 'Namenssuche „' + q + '“');
+}
+D.places.slice(0, 20).forEach(raw => { const p = C.normPlace(raw);
+  assert.deepEqual(C.similar(p, I.places, { max: 4 }).map(x => x.place.id), C.similar(p, D.places, { max: 4 }).map(x => x.place.id), 'Ähnliche ' + p.id); });
+
 /* Größe: Index bleibt kompakt (ohne Attraktionen) */
 assert(fs.statSync(path.join(dir, 'index.js')).size < fs.statSync(path.join(__dirname, '..', 'catalog-data.js')).size / 2, 'Index deutlich kleiner als die Gesamtdatei');
 console.log('Kachel-Katalog: ' + Object.keys(T).length + ' Kacheln, Index ' + I.places.length + ' Ziele; ' + n + ' Suchen identisch zur Gesamtdatei (Ø ' + (loaded / n).toFixed(1) + ' Kacheln je Suche).');

@@ -127,7 +127,8 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.waitForSelector('.tabs');
   assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': nach Anlegen im Tagesplan');
   const items = await p.$$eval('.item[data-act="item"]', l => l.length);
-  const comboNames = await p.evaluate(ids => ids.map(id => { for (const pl of window.RP_CATALOG.places) for (const sp of pl.spots) if (sp.id === id) return sp.name; return null; }), combo.split('|'));
+  /* Gesamtdatei oder geladene Kacheln (Katalog K1: Direktlinks laden nur eine Kachel) */
+  const comboNames = await p.evaluate(ids => { const all = [].concat(window.RP_CATALOG ? window.RP_CATALOG.places : [], ...Object.values(window.RP_CATALOG_TILES || {}).map(t => t.places)); return ids.map(id => { for (const pl of all) for (const sp of pl.spots) if (sp.id === id) return sp.name; return null; }); }, combo.split('|'));
   const comboDays = await p.$$eval('.dcol', (cols, names) => names.map(nm => cols.findIndex(c => c.textContent.includes(nm))), comboNames);
   assert(comboDays[0] >= 0 && comboDays[0] === comboDays[1], name + ': Kombi am selben Tag ' + JSON.stringify(comboDays));
 
@@ -235,7 +236,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   // stehen; eine zusätzliche Gruppe wird dann bewusst nicht angelegt.
   const packHints=await p.evaluate(()=>{
     const a=window.__app,id=location.hash.slice(3,-6),t=a.Store.get(id);
-    const spots=new Map(window.RP_CATALOG.places.flatMap(p=>p.spots.map(sp=>[sp.id,sp])));
+    const spots=new Map([].concat(window.RP_CATALOG?window.RP_CATALOG.places:[],...Object.values(window.RP_CATALOG_TILES||{}).map(t=>t.places)).flatMap(p=>p.spots.map(sp=>[sp.id,sp])));
     return [...new Set(t.items.flatMap(it=>{const act=t.customActs.find(x=>x.id===it.act),sp=act&&spots.get(act.catalogSpot);return sp?window.RPCatalog.bringFor(sp.kind):[]}))];
   });
   assert(packHints.length>0,name+': Rundreise enthält Katalog-Packhinweise');

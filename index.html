@@ -2567,7 +2567,9 @@ function sheetItem(t,u){
 async function rainTwinShow(t,u){
   const it=(t.items||[]).find(i=>i.uid===u),a=it&&actOf(t,it.act),box=$('#rain-twin');if(!a||!box)return;
   try{
-    const data=await catLoadLocal(),places=data.places.map(CATX.normPlace),hit=CATX.findSpot(places,a.catalogSpot);
+    const own=await catSpotPlace(a.catalogSpot).catch(()=>null);
+    const near=own?await catLoadForQuery({lat:own.lat,lon:own.lon,maxKm:150}).catch(()=>catLoadLocal()):await catLoadLocal();
+    const places=near.places.map(CATX.normPlace),hit=CATX.findSpot(places,a.catalogSpot);
     if(!hit)throw new Error('Idee nicht mehr im Katalog.');
     const month=t.dateMode==='fix'&&pd(t.start)?pd(t.start).getUTCMonth()+1:t.dateMode==='flex'&&t.month?+t.month.slice(5,7):null;
     const ex={};(t.customActs||[]).forEach(c=>{if(c.catalogSpot&&(t.items||[]).some(i=>i.act===c.id))ex[c.catalogSpot]=true});
@@ -3206,6 +3208,16 @@ const catScriptCache={};
 function catScript(src,ok){if(ok())return Promise.resolve();if(catScriptCache[src])return catScriptCache[src];
   return catScriptCache[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>ok()?res():rej(new Error('Katalogteil leer: '+src));s.onerror=()=>{delete catScriptCache[src];rej(new Error('Katalogteil nicht geladen: '+src))};document.head.appendChild(s)})}
 function catLoadIndex(){return catScript('catalog/index.js',()=>!!window.RP_CATALOG_INDEX).then(()=>window.RP_CATALOG_INDEX)}
+async function catTile(k){await catScript('catalog/t-'+k+'.js',()=>!!(window.RP_CATALOG_TILES&&window.RP_CATALOG_TILES[k]));return window.RP_CATALOG_TILES[k]}
+/* Ein Ziel bzw. das Ziel einer Attraktion über Index + eine Kachel (statt Gesamtdatei); Fallback Gesamtdatei */
+async function catPlaceRaw(id){
+  try{const idx=await catLoadIndex(),e=idx.places.find(p=>p.id===id);if(!e)return {version:idx.version,raw:null};const tl=await catTile(e.tile);return {version:idx.version,raw:tl.places.find(p=>p.id===id)||null}}
+  catch(e){const d=await catLoadLocal();return {version:d.version,raw:d.places.find(p=>p.id===id)||null}}
+}
+async function catSpotPlace(spotId){
+  const idx=await catLoadIndex(),e=idx.places.filter(p=>String(spotId).startsWith(p.id+'-')).sort((a,b)=>b.id.length-a.id.length)[0];
+  return e?(await catPlaceRaw(e.id)).raw:null;
+}
 async function catLoadForQuery(q){
   const idx=await catLoadIndex(),keys=CATX.tilesFor(idx,q);
   await Promise.all(keys.map(k=>catScript('catalog/t-'+k+'.js',()=>!!(window.RP_CATALOG_TILES&&window.RP_CATALOG_TILES[k]))));
@@ -3417,20 +3429,25 @@ async function catExtras(x){
 /* Ziel per ID öffnen (Direktsuche, Ähnliche, Link #ziel-<id>); mit Start wie ein Suchtreffer bewertet, sonst ohne Entfernung */
 async function catOpenById(id){
   const s=catState();let x=catFind(id);
-  if(!x){const data=await catLoadLocal(),raw=data.places.find(q=>q.id===id);if(!raw){alertMsg('Dieses Ziel gibt es im Katalog nicht (mehr).');return}
+  if(!x){const data=await catPlaceRaw(id),raw=data.raw;if(!raw){alertMsg('Dieses Ziel gibt es im Katalog nicht (mehr).');return}
     if(s.origin){try{x=await catLoadPlace(id,raw.lat,raw.lon)}catch(e){x=null}}
     if(!x){const p=CATX.normPlace(raw);x={place:p,spots:p.spots.filter(sp=>CATX.spotSeason(sp,s.month)!==false),why:[],score:0,season:CATX.seasonFit(p,s.month),nightsFit:null,roadKm:null,minutes:null,closed:0,indoor:0,version:data.version,source:'lokal'};x.closed=p.spots.length-x.spots.length;s.extra[id]=x}}
   catOpen(id);
 }
 async function catSimilar(p){
-  const s=catState(),data=await catLoadLocal(),list=CATX.similar(p,data.places,{origin:s.origin,max:4});
+  const s=catState();let pool;try{pool=(await catLoadIndex()).places}catch(e){pool=(await catLoadLocal()).places}
+  const list=CATX.similar(p,pool,{origin:s.origin,max:4});
   const el=$('#cat-similar');if(!el||s.openId!==p.id)return;
   el.innerHTML=list.length?'<div class="checks-list">'+list.map(x=>'<div class="chk info"><span><strong>'+esc(x.place.name)+'</strong> <span class="small muted">'+esc(x.place.region)+(x.airKm!=null?' · ≈ '+CATX.roadKm(x.airKm)+' km von euch':'')+'</span><br><small>gemeinsam: '+x.shared.map(k=>esc(CATX.KINDS[k])).join(', ')+'</small></span><button type="button" class="btn ghost sm" style="margin-left:auto" data-act="cat-open-id" data-val="'+esc(x.place.id)+'">Ansehen</button></div>').join('')+'</div>':'<p class="small muted">Keine ähnlichen Ziele im Katalog.</p>';
 }
 async function catFindRun(q){
   const s=catState();s.findQ=String(q||'').trim().slice(0,60);
   if(s.findQ.length<2){s.findHits=null;render();return}
-  const data=await catLoadLocal();s.findHits=CATX.findPlaces(data.places,s.findQ,12);render();
+  /* online: Namenssuche in der Datenbank (catalog_find); sonst über den Index (Namen auch der Attraktionen) */
+  const c=window.RPCloud,query=s.findQ;let hits=null;
+  if(c&&c.enabled()&&c.catalogFind&&!(typeof navigator!=='undefined'&&navigator.onLine===false)){try{const r=await catTimeout(c.catalogFind(query,12),6000);if(r&&r.version>0)hits=(r.places||[]).map(CATX.normPlace)}catch(e){hits=null}}
+  if(!hits){let pool;try{pool=(await catLoadIndex()).places}catch(e){pool=(await catLoadLocal()).places}hits=CATX.findPlaces(pool,query,12)}
+  if(s.findQ!==query)return;s.findHits=hits;render();
   const el=document.getElementById('cat-find');if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}
 }
 function catShareUrl(id){return (typeof location!=='undefined'&&location.origin?location.origin+location.pathname:'')+'#ziel-'+id}
@@ -3757,7 +3774,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{catLoadForQuery,catLoadIndex,financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{catPlaceRaw,catSpotPlace,catLoadForQuery,catLoadIndex,financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});

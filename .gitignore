@@ -8,3 +8,6 @@ supabase/.branches
 supabase/.temp
 .env
 .env.*
+
+# Katalog-Entwürfe, werden erst nach Prüfung übernommen
+catalog/src/v4-*.json

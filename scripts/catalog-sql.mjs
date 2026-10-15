@@ -23,7 +23,8 @@ const SRC = path.join(root, 'catalog', 'src');
 /* Quelle zusammensetzen: Reihenfolge laut _meta.order, neue Ziele danach nach id (deterministisch). */
 export async function loadCatalog() {
   const meta = JSON.parse(await fs.readFile(path.join(SRC, '_meta.json'), 'utf8'));
-  const files = (await fs.readdir(SRC)).filter(f => f.endsWith('.json') && !f.startsWith('_')).sort();
+  /* Entwürfe (v4-*.json) gehören nicht zum Katalog, bis sie geprüft und umbenannt sind (.gitignore) */
+  const files = (await fs.readdir(SRC)).filter(f => f.endsWith('.json') && !f.startsWith('_') && !f.startsWith('v4-')).sort();
   const all = [], seen = new Map();
   for (const f of files) {
     const g = JSON.parse(await fs.readFile(path.join(SRC, f), 'utf8'));
@@ -59,7 +60,7 @@ export function indexAndTiles(c) {
     const k = tileKey(p.lat, p.lon);
     (tiles[k] = tiles[k] || []).push(p);
     return { id: p.id, name: p.name, region: p.region, country: p.country, lat: p.lat, lon: p.lon, kinds: p.kinds, months: p.months,
-      nights: p.nights, tile: k, n: p.spots.length, summary: p.summary };
+      nights: p.nights, tile: k, n: p.spots.length, summary: p.summary, sn: p.spots.map(x => x.name) };
   });
   const meta = {};
   for (const k of Object.keys(tiles).sort()) {
@@ -79,6 +80,24 @@ function air(a, b) {
   return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+/* Grobe Landesgrenzen (Rechteck) für die Plausibilität der Koordinaten; Grenzlagen mit kleinem Rand */
+const COUNTRY_BOX = { DE: [47.2, 5.8, 55.1, 15.1], AT: [46.3, 9.5, 49.1, 17.2], CH: [45.8, 5.9, 47.9, 10.6], LI: [47.0, 9.4, 47.3, 9.7],
+  FR: [41.3, -5.2, 51.2, 9.6], IT: [35.4, 6.6, 47.2, 18.6], CZ: [48.5, 12.0, 51.1, 18.9], PL: [49.0, 14.1, 54.9, 24.2], NL: [50.7, 3.3, 53.6, 7.3],
+  BE: [49.4, 2.5, 51.6, 6.5], LU: [49.4, 5.7, 50.2, 6.6], DK: [54.5, 8.0, 57.8, 15.2], SI: [45.4, 13.3, 46.9, 16.7], HU: [45.7, 16.1, 48.6, 22.9] };
+/* Hinweise ohne Abbruch: fast gleiche Ziele oder dieselbe Attraktion in zwei Zielen */
+export function catalogWarnings(c) {
+  const w = [], spots = [];
+  const norm = s => String(s).toLowerCase().replace(/[^a-zäöüß0-9]+/g, ' ').trim();
+  c.places.forEach((p, i) => {
+    c.places.slice(i + 1).forEach(q => { if (air(p, q) < 3) w.push('Ziele ' + p.id + ' und ' + q.id + ' liegen nur ' + air(p, q).toFixed(1) + ' km auseinander'); if (norm(p.name) === norm(q.name)) w.push('Gleicher Name: ' + p.id + ' / ' + q.id); });
+    p.spots.forEach(s => spots.push([p.id, s]));
+  });
+  for (let i = 0; i < spots.length; i++) for (let j = i + 1; j < spots.length; j++) {
+    const [pa, a] = spots[i], [pb, b] = spots[j];
+    if (pa !== pb && norm(a.name) === norm(b.name) && air(a, b) < 2) w.push('Attraktion doppelt: ' + a.id + ' / ' + b.id);
+  }
+  return w;
+}
 export function validateCatalog(c) {
   const errs = [], ids = new Set();
   const e = m => errs.push(m);
@@ -95,6 +114,7 @@ export function validateCatalog(c) {
     if (!p.name || p.name.length > 120) e(w + ': name');
     if (!/^[A-Z]{2}$/.test(p.country || '')) e(w + ': country');
     point(p, w); months(p.months, w);
+    { const b = COUNTRY_BOX[p.country]; if (!b) e(w + ': Land ' + p.country + ' ohne Prüfbereich'); else if (!(p.lat >= b[0] && p.lat <= b[2] && p.lon >= b[1] && p.lon <= b[3])) e(w + ': Koordinaten liegen nicht in ' + p.country); }
     if (!Array.isArray(p.kinds) || !p.kinds.length || p.kinds.some(k => !KINDS.includes(k))) e(w + ': kinds');
     if (!Array.isArray(p.nights) || p.nights.length !== 2 || !(p.nights[0] >= 0 && p.nights[1] >= p.nights[0] && p.nights[1] <= 60)) e(w + ': nights');
     if (!p.summary || p.summary.length > 300) e(w + ': summary');
@@ -164,6 +184,8 @@ async function main() {
   const c = await loadCatalog();
   const errs = validateCatalog(c);
   if (errs.length) { console.error('Katalog ungültig:\n - ' + errs.join('\n - ')); process.exit(1); }
+  const warns = catalogWarnings(c);
+  if (warns.length && !check) console.warn('Hinweise (prüfen):\n - ' + warns.join('\n - '));
   const files = await fs.readdir(MIG);
   const suffix = '_catalog_seed_v' + c.version + '.sql';
   let seedName = files.find(f => f.endsWith(suffix));

@@ -407,8 +407,12 @@
   /* Ziel direkt finden: Treffer über den ganzen Katalog, Name zuerst, dann Region/Ideen */
   function findPlaces(places, q, max) {
     q = String(q || '').trim().toLowerCase(); if (q.length < 2) return [];
-    var list = places.map(function (raw) { return raw.spots && raw.id ? raw : normPlace(raw); });
-    var hit = list.filter(function (p) { return textMatch(p, q); }).map(function (p) {
+    /* Index-Einträge (catalog/index.js) haben statt Attraktionen nur deren Namen in sn */
+    var list = places.map(function (raw) { var p = raw.spots && raw.id ? raw : normPlace(raw); return raw.sn && !(raw.spots && raw.spots.length) ? Object.assign({}, p, { spots: raw.sn.map(function (n, i) { return { id: p.id + '-' + i, name: n, summary: '' }; }) }) : p; });
+    /* Gleiche Regel für Gesamtdatei und kompakten Index: Name, Region, Land, Kurzbeschreibung und Namen der Attraktionen */
+    var match = function (p) { var hay = [p.name, p.region, p.country, p.summary].concat(p.spots.map(function (x) { return x.name; })).join(' ').toLowerCase();
+      return q.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; }); };
+    var hit = list.filter(match).map(function (p) {
       var n = p.name.toLowerCase(); return { place: p, rank: n.indexOf(q) === 0 ? 0 : n.indexOf(q) >= 0 ? 1 : p.region.toLowerCase().indexOf(q) >= 0 ? 2 : 3 };
     });
     return hit.sort(function (a, b) { return a.rank - b.rank || a.place.name.localeCompare(b.place.name, 'de'); }).slice(0, max || 12).map(function (x) { return x.place; });
