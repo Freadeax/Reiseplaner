@@ -120,9 +120,15 @@
     acceptInvite: async function (token) { return unwrap(await need().rpc('accept_trip_invite', { p_token: token }), 'Einladung ungültig'); },
 
     /* ---------- Umkreis-Katalog (Issue #7), öffentlich lesbar, auch ohne Anmeldung ---------- */
-    catalogSearch: async function (q) {
+    /* Katalog K2: catalog_search_v2 (Vorfilter, Seiten, Gesamtzahl); fehlt die Funktion noch, die bisherige Suche */
+    catalogSearch: async function (q, page) {
       await init();
-      return unwrap(await need().rpc('catalog_search', { p_lat: q.lat, p_lon: q.lon, p_max_km: Math.round(q.maxKm), p_min_km: Math.round(q.minKm || 0), p_kinds: q.kinds && q.kinds.length ? q.kinds : null }), 'Katalog nicht geladen');
-    }
+      var args = { p_lat: q.lat, p_lon: q.lon, p_max_km: Math.round(q.maxKm), p_min_km: Math.round(q.minKm || 0), p_kinds: q.kinds && q.kinds.length ? q.kinds : null };
+      var r = await need().rpc('catalog_search_v2', Object.assign({ p_limit: page && page.limit || 80, p_offset: page && page.offset || 0 }, args));
+      if (r.error && /PGRST202|catalog_search_v2|does not exist|Could not find/i.test(String(r.error.code) + ' ' + r.error.message)) r = await need().rpc('catalog_search', args);
+      return unwrap(r, 'Katalog nicht geladen');
+    },
+    catalogPlace: async function (id) { await init(); return unwrap(await need().rpc('catalog_place', { p_id: id }), 'Ziel nicht geladen'); },
+    catalogFind: async function (text, limit) { await init(); return unwrap(await need().rpc('catalog_find', { p_q: text, p_limit: limit || 12 }), 'Suche nicht möglich'); }
   };
 })();

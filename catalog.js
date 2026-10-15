@@ -75,7 +75,7 @@
 
   /* Gleiche Regel wie public.catalog_search: geschätzte Straßen-km im Bereich [min, max], Themen überschneiden sich,
      sortiert nach Luftlinie, höchstens 80 Ziele. */
-  function searchLocal(data, query) {
+  function searchLocal(data, query, opt) {
     var q = checkQuery(query), out = [];
     (data.places || []).forEach(function (raw) {
       var p = normPlace(raw), air = airKm(q, p), road = air * ROAD_FACTOR;
@@ -85,7 +85,8 @@
     });
     /* wie in SQL: nach ungerundeter Luftlinie, dann ID */
     out.sort(function (a, b) { return a.air - b.air || (a.p.id < b.p.id ? -1 : 1); });
-    return { version: data.version || 0, places: out.slice(0, 80).map(function (x) { return x.p; }) };
+    var lim = opt && opt.limit > 0 ? opt.limit : 80; /* wie die Datenbank: Standard 80 je Seite */
+    return { version: data.version || 0, total: out.length, places: out.slice(opt && opt.offset > 0 ? opt.offset : 0, (opt && opt.offset > 0 ? opt.offset : 0) + lim).map(function (x) { return x.p; }) };
   }
 
   function seasonFit(p, month) { return !month || !p.months.length ? null : p.months.indexOf(+month) >= 0; }

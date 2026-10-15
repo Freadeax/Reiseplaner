@@ -204,6 +204,35 @@ const doc = (id, title, extra) => Object.assign({ id, title, type: 'stadt', stat
     assert.deepEqual(db.map(p => p.id), loc.places.map(p => p.id), 'gleiche Ziele für ' + JSON.stringify(q));
     db.forEach((p, i) => { const l = loc.places[i]; assert(Math.abs(p.airKm - l.airKm) <= 0.1); assert.deepEqual(p.spots.map(s => s.id), l.spots.map(s => s.id)); assert.deepEqual(p.nights, l.nights); assert.deepEqual(p.months, l.months); });
   }
+  /* Katalog K2 (Migration 20261015190000): v2 mit Vorfilter und Seiten liefert dieselben Ziele in derselben Reihenfolge */
+  for (const q of queries.concat([{ lat: 54.784, lon: 9.437, maxKm: 600 }, { lat: 46.624, lon: 14.308, minKm: 100, maxKm: 1500 }])) {
+    const old = await pub.rpc('catalog_search', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null }); assert.ifError(old.error);
+    const all = await pub.rpc('catalog_search_v2', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null, p_limit: 200, p_offset: 0 }); assert.ifError(all.error);
+    const loc = CatJs.searchLocal(DATA, q, { limit: 200 }).places.map(p => p.id);
+    assert.deepEqual(all.data.places.map(p => p.id), loc, 'v2 = lokale Regel für ' + JSON.stringify(q));
+    assert.equal(all.data.total, CatJs.searchLocal(DATA, q).total);
+    assert.deepEqual(old.data.places.map(p => p.id), all.data.places.slice(0, 80).map(p => p.id), 'v2 erste 80 = alte Suche');
+    assert.deepEqual(all.data.places.map(p => p.spots.length), CatJs.searchLocal(DATA, q, { limit: 200 }).places.map(p => p.spots.length));
+    if (loc.length > 3) {
+      const p1 = await pub.rpc('catalog_search_v2', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null, p_limit: 2, p_offset: 0 });
+      const p2 = await pub.rpc('catalog_search_v2', { p_lat: q.lat, p_lon: q.lon, p_max_km: q.maxKm, p_min_km: q.minKm || 0, p_kinds: q.kinds || null, p_limit: 2, p_offset: 2 });
+      assert.deepEqual(p1.data.places.map(p => p.id).concat(p2.data.places.map(p => p.id)), loc.slice(0, 4), 'Seiten ohne Lücke und Doppelung');
+      assert.equal(p2.data.total, loc.length);
+    }
+  }
+  r = await pub.rpc('catalog_search_v2', { p_lat: 48.7, p_lon: 9.6, p_max_km: 100, p_limit: 500 }); assert(r.error && /limit/.test(r.error.message));
+  r = await pub.rpc('catalog_search_v2', { p_lat: 48.7, p_lon: 9.6, p_max_km: 100, p_offset: -1 }); assert(r.error);
+  r = await pub.rpc('catalog_place', { p_id: DATA.places[0].id }); assert.ifError(r.error);
+  assert.equal(r.data.place.id, DATA.places[0].id); assert.equal(r.data.place.spots.length, DATA.places[0].spots.length); assert.equal(r.data.version, DATA.version);
+  r = await pub.rpc('catalog_place', { p_id: 'gibt-es-nicht' }); assert.ifError(r.error); assert.equal(r.data, null);
+  r = await pub.rpc('catalog_place', { p_id: "x'; drop table" }); assert.ifError(r.error); assert.equal(r.data, null);
+  const probe = DATA.places[0], word = probe.name.split(/[\s&]+/)[0].toLowerCase();
+  r = await pub.rpc('catalog_find', { p_q: word }); assert.ifError(r.error);
+  assert(r.data.places.some(p => p.id === probe.id) && !('spots' in r.data.places[0]), 'Namenssuche ohne Attraktionen');
+  assert(r.data.places.length <= 12);
+  r = await pub.rpc('catalog_find', { p_q: probe.spots[0].name.toLowerCase().slice(0, 12) }); assert(r.data.places.some(p => p.id === probe.id), 'auch über Attraktionsnamen');
+  r = await pub.rpc('catalog_find', { p_q: '%%' }); assert.ifError(r.error); assert.equal(r.data.places.length, 0, 'Platzhalter wörtlich');
+  r = await pub.rpc('catalog_find', { p_q: 'a' }); assert(r.error, 'mindestens 2 Zeichen');
   r = await pub.rpc('catalog_search', { p_lat: 48.7, p_lon: 9.6, p_max_km: 5000 }); assert(r.error && /2000/.test(r.error.message));
   r = await pub.rpc('catalog_search', { p_lat: 120, p_lon: 9.6, p_max_km: 100 }); assert(r.error && /Koordinaten/.test(r.error.message));
   console.log('Supabase-API: Registrierung mit Bestätigung, Anmeldung, Abmeldung, Passwort-Reset, Eigentümer/Bearbeiter/Leser, unberechtigtes Konto, Einladung einmalig/widerrufen, Rechteänderung/Entzug, Versionskonflikt, Soft-Delete, Umkreis-Katalog (öffentlich lesbar, nicht schreibbar, gleiche Ergebnisse wie die App) geprüft.');

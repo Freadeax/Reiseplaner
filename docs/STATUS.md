@@ -1,5 +1,16 @@
 # Projektstand · 15.10.2026
 
+## Katalog K2: Datenbank für große Kataloge (Claude, #8)
+
+- Neue Migration `20261015190000_catalog_scale.sql`, nur Katalogtabellen, keine Datenänderung:
+  - Indizes auf `(lat, lon)` und `kinds` (GIN).
+  - `catalog_search_v2` mit Bounding-Box-Vorfilter (sicher, +1 % Rand, polnah ganze Länge), Seiten (`p_limit` 1–200, `p_offset` 0–5000) und Gesamtzahl `total`. Gleiche Entfernungsregel und Reihenfolge wie bisher.
+  - `catalog_place(p_id)` für ein Ziel mit Attraktionen.
+  - `catalog_find(p_q, p_limit ≤ 50)` sucht nach Namen, Region und Attraktionsnamen, Platzhalter werden wörtlich genommen.
+  - Das alte `catalog_search` bleibt für zwischengespeicherte Clients.
+- `cloud.js` nutzt `catalog_search_v2` (80 je Seite) und fällt auf `catalog_search` zurück, solange die Funktion fehlt. Neu sind `catalogPlace` und `catalogFind` (noch nicht in der Oberfläche verdrahtet). `CATX.searchLocal` kennt optional `limit`/`offset` und liefert `total`.
+- Geprüft lokal (Docker, alle Migrationen frisch): `db lint` ohne Befund. `test:db` mit neuen Fällen: v2 entspricht der lokalen Regel auch mit 200 Treffern, die ersten 80 entsprechen der alten Suche, Seiten ohne Lücke und Doppelung, Grenzen, Einzelabfrage inklusive unbekannter und unzulässiger ID, Namenssuche ohne Attraktionen und auch über Attraktionsnamen, Platzhalter wörtlich, Mindestlänge. `test:e2e` und `npm test` grün. Die Produktion spielt die Migration über die GitHub-Integration ein.
+
 ## Formulargrundlage für Transport, Storno und Erstattung (ChatGPT, #8)
 
 Basis 4c82841: `v3forms.js` liefert getrennte Formularansichten, strikte Eingabe-Payloads und eine Vorher-/Nachher-Vorschau auf Basis von `financeEntry`. Dezimalkomma, höchstens zwei Geld-Nachkommastellen, ausdrücklich 0 gegenüber unbekannt, echte Erstattungen statt Zusagen, HTML-Escaping sowie Reise-/Scope-/Quellstandprüfung sind enthalten. Transport liest vorhandene stabile IDs, Zusatzposten und Check-in feldtreu weiter; Zeitprüfung kommt aus v3logic. Keine DOM-Handler, kein Speichern und noch kein Laden im Produktionsartefakt. Das ist eine vorbereitete UI-Schicht, keine bereits bedienbare neue App-Funktion.
