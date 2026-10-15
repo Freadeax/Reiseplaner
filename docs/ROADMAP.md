@@ -1,5 +1,9 @@
 # Roadmap
 
+## Gemeinsamer Plan · 15.10.2026
+
+Philipps Auftrag (Reisearten inkl. Fliegen, Oberflächenstruktur, neue Auswahl „Worauf habt ihr Lust?“, Claudes 11 Ideen) ist systematisch in [PLAN_WEITERENTWICKLUNG.md](PLAN_WEITERENTWICKLUNG.md) geordnet (Abschnitte A–E, Aufteilung zur Abstimmung in #8).
+
 ## Ortswechsel und Routenwerte · 15.10.2026 (ChatGPT, #8)
 
 Freie Zieländerung und Startwechsel über Eckdaten mit unverändernder Vorschau/Abbruch. Nach bewusster Übernahme sind veraltete Koordinaten/Zeiten entfernt und die Strecke offen; manuelle Kilometer nicht still gelöscht. Rundreise-Etappen erhalten, nur neue Anfahrt zurückgesetzt. Node/Build/Artefakt grün, Chromium-Abnahme vorbereitet/offen. Nächster Schritt: gemeinsame Abnahme; Claudes Client-Kompatibilitätsschutz getrennt. Produktive Downgrade-Schutzmigration wartet wie von Claude verlangt auf Philipps ausdrückliche Freigabe, Storno-Semantik bleibt zurückgestellt.
