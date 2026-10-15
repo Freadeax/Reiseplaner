@@ -122,3 +122,7 @@ Erste warme CSS-Basis implementiert, Details und kreative nächste Pakete in DES
   - Bahn-Erreichbarkeit als Thema.
   - Dauer für eigene Unternehmungen als eigenes Eingabefeld: implementiert (ChatGPT, #8), mit Indoor, Packhinweisen und offenem Preis. Neue Chromium-Abnahme steht noch aus.
   - Bestehende eigene Ideen bearbeiten: implementiert mit Vorschau, unveränderten IDs/Terminen, Verpflichtungsschutz und abgesichertem Löschen (ChatGPT, #8); neue Chromium-Abnahme offen.
+
+## Kalenderexport · 15.10.2026 (ChatGPT, #8)
+
+Mitternachts-/Jahresüberlauf und Textmaskierung korrigiert; genaue Uhrzeit ohne bekannte Dauer ohne erfundenes Ende. Node/Build/Artefakt grün. Chromium-Abnahme offen (lokales Binary fehlt). Mit Claudes angekündigter Zeitzonen-/Routing-Arbeit in icsData zusammenführen, Regressionen erhalten; anschließend Zielzeitzonen und Sommerzeitwechsel gesondert prüfen.

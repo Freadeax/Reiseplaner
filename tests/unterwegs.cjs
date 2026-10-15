@@ -51,7 +51,7 @@ const folded = a.icsFold('DESCRIPTION:' + 'ä'.repeat(80));
 folded.split('\r\n').forEach(line => assert(Buffer.byteLength(line, 'utf8') <= 75));
 assert.equal(folded.replace(/\r\n /g, ''), 'DESCRIPTION:' + 'ä'.repeat(80));
 const odd = a.newTrip({ title: 'A;B,C\\D\nE', dateMode: 'fix', start: '2026-05-01', end: '2026-05-03' });
-assert(a.icsData(odd).text.includes('SUMMARY:A\;B\\,C\\\\D\\nE\r\n'));
+assert(a.icsData(odd).text.includes('SUMMARY:A\\;B\\,C\\\\D\\nE\r\n'));
 /* Punkte nach dem letzten Tag werden gezählt, nicht exportiert; ohne feste Daten kein Kalender */
 odd.customActs = [{ id: 'c1', custom: true, t: 'Spät', cat: 'eigen', cost: 0, per: 'grp' }];
 odd.items = [{ uid: 'i1', act: 'c1', day: 9, slot: 'abend' }];
@@ -141,3 +141,23 @@ assert.equal(a.tripPhase(tag, at('2027-06-06')).phase, 'nach');
 const ti = a.icsData(tag);
 assert(ti.text.includes('DTSTART;VALUE=DATE:20270605\r\n') && ti.text.includes('DTEND;VALUE=DATE:20270606\r\n'));
 console.log('Tagesausflug in Unterwegs-Ansicht und Kalender geprüft.');
+
+/* Uhrzeiten über Mitternacht, Jahreswechsel und unbekannte Dauer. */
+const late = a.newTrip({ dateMode: 'fix', start: '2026-12-31', end: '2026-12-31' });
+late.customActs = [{ id: 'late', custom: true, t: 'Nacht;Programm', cat: 'eigen', cost: 0, per: 'grp', hours: 2 }];
+late.items = [{ uid: 'late', act: 'late', day: 0, slot: 'abend', time: '23:45' }];
+const lateBefore = JSON.stringify(late);
+const lateEvent = () => a.icsData(late).text.replace(/\r\n /g, '').split('BEGIN:VEVENT').find(e => e.includes('SUMMARY:Nacht'));
+assert(lateEvent().includes('DTSTART:20261231T234500\r\nDTEND:20270101T014500'));
+assert.equal(JSON.stringify(late), lateBefore, 'Export verändert keine Reise');
+late.customActs[0].hours = 24;
+assert(lateEvent().includes('DTEND:20270101T234500'));
+delete late.customActs[0].hours;
+assert(!lateEvent().includes('DTEND:'), 'Unbekannte Dauer erfindet kein Enddatum');
+late.items[0].time = '00:00'; late.customActs[0].hours = 0.5;
+assert(lateEvent().includes('DTSTART:20261231T000000\r\nDTEND:20261231T003000'));
+/* Alle Zeilenumbrüche bleiben Text, auch ein einzelnes CR darf kein Kalenderfeld einschleusen. */
+late.customActs[0].t = 'Nacht;A\rLOCATION:Falsch\r\nB\nC';
+const escapedLate = lateEvent();
+assert(escapedLate.includes('SUMMARY:Nacht\\;A\\nLOCATION:Falsch\\nB\\nC'));
+console.log('Kalender: Mitternacht, Jahreswechsel, offene Dauer und Textmaskierung geprüft.');

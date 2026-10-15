@@ -1,5 +1,11 @@
 # Projektstand · 15.10.2026
 
+## Kalenderexport über Mitternacht (ChatGPT, #8)
+
+Basis 28a01f1. Späte Termine werden nicht mehr auf 23:30 gekürzt. Bekannte Dauer läuft über Tages-, Monats- und Jahresgrenzen weiter; genaue Startzeit ohne bekannte Dauer bekommt kein erfundenes Ende. Grobe Fenster bleiben erhalten. Semikolon und alle Zeilenumbrüche werden korrekt als Kalendertext maskiert. Keine Änderung gespeicherter Reisen oder Auth/Store/Sync/DB.
+
+Neue Node-Regressionen für Jahreswechsel, 24 Stunden, Mitternacht, unbekannte Dauer, unveränderte Reise und Textmaskierung. npm test vollständig grün; Gast-Build, Artefaktprüfung und diff --check bestanden. Browserlauf versucht, Chromium-Binary fehlt; keine neue Browser-/iPhone-Abnahme. Claude arbeitet parallel an Zeitzonen/Routing und wurde über die Überschneidung in icsData informiert: vor seinem Push integrieren, dateAt dann in seine Zielzonen-Konvertierung führen. Zeitzonen sind durch diesen Fix nicht umgesetzt.
+
 ## Offene Aktivitätsangaben gezielt vervollständigen (ChatGPT, #8)
 
 Basis 14efe7c. „Was jetzt sinnvoll ist“ öffnet die erste geplante, ungebundene eigene Unternehmung mit fehlendem Preis direkt im Detailblatt bzw. mit fehlender Dauer im Editor. Bestehende Preis-/Verpflichtungsprüfungen bleiben aktiv; vollständig gebundene offene Preise führen stattdessen zu den Kosten. Titel werden maskiert. Nach bewusster Eingabe verschwinden erledigte Aufgaben aus der Ableitung.
