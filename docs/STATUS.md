@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Einheitliche Module und Checklisten-Werkzeug (ChatGPT, #8)
+
+Basis d1e9d11. Mobile Bereichsauswahl für alle zehn Reiter, weiterhin anklickbare Reiter; Studio-Seitenleiste erhalten. Einheitliche kurze Orientierung für Planen/Organisieren. Checkliste: explizit abgesendete Suche, Status Alle/Offen/Erledigt, Gesamt-/Gruppenzähler, Zurücksetzen und hilfreiche Leerzustände. Gruppenzähler beschreiben die gesamte Gruppe, auch bei gefilterter Ansicht. Neue eigene Punkte bleiben durch Zurücksetzen der Filter sichtbar. Bei Reisewechsel werden die Checklistenfilter geleert. Keine Migration, keine Änderung der bestehenden check-IDs oder Auth/Store/Sync/DB/Routinglogik.
+
+Bedienungsfehler behoben: Entfernen eines eigenen Checkpunkts liegt außerhalb des Checkbox-Labels und kann dessen Häkchen nicht versehentlich umschalten. Der Sprunglink zum Inhalt fokussiert die aktuelle Ansicht ohne Hashänderung/Wechsel zur Startseite. Notizhinweis verweist auf tatsächlichen Speicherstatus. Zeitfelder nutzen dieselbe Gestaltung wie andere Formulare.
+
+npm test inklusive Suche/Status/Gruppen, ungültigem Filter, Leerzustand, allen zehn Bereichen und unveränderten Reisedaten grün; Gast-Build/Artefaktprüfung, Browser-Skriptsyntax und diff --check bestanden. Neue Browserwege für Suche/Abhaken/Entfernen/mobile Bereichsauswahl/Sprunglink vorbereitet; lokal mangels Browserbinary nicht ausgeführt. Claude übernimmt Browser-/Kontrastprüfung; neue Befunde vor Push prüfen. Keine neue iPhone-Abnahme behauptet.
+
 ## Drei Oberflächen und klarere Navigation (ChatGPT, #8)
 
 Basis d361486, vor Push Claudes b2f36e4 integriert; einziger Konflikt im Testexport, beide Funktionslisten erhalten. Routing und Zeitzonen unverändert übernommen. Über „Darstellung“ im Kopf zwischen Reisebuch (Salbei/Sand, großzügig), Planungsstudio (Blau/Schiefer, ab 1000px Seitennavigation) und Kompakt (warme Erdtöne, reduzierte Abstände) wechseln. Jeweils eigene Hell-/Dunkelpalette, Geräte-Einstellung bleibt maßgeblich. Dieselben Reisen und Funktionen in allen Darstellungen. Nur `rp-appearance` als Browserpräferenz; kein neues Reisefeld und kein Auth/Store/Sync/DB-Eingriff.

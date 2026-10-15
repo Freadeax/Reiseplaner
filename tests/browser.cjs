@@ -653,6 +653,33 @@ async function appearances(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': drei Darstellungen, Navigation, Druck und Erhalt der Reise geprüft.');
 }
 
+async function checklistModules(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Module: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.newTrip({customChecks:[{id:'k1',t:'Handtuch Test'},{id:'k2',t:'Unterlagen Test'}],check:{'c-k1':true}});a.Store.put(t,true);a.go('r-'+t.id+'-check');return t.id});
+ await p.click('[data-act="check-filter"][data-val="done"]');
+ assert.equal(await p.locator('[data-act="check"]').count(),1);
+ await p.fill('#check-q','Kein Treffer');await p.click('#check-search button');
+ assert((await viewText(p)).includes('Keine passenden Punkte'));
+ await p.click('[data-act="check-reset"]');
+ await p.fill('#check-q','Unterlagen Test');await p.press('#check-q','Enter');
+ assert.equal(await p.locator('[data-act="check"]').count(),1);
+ await p.check('[data-act="check"][data-val="c-k2"]');
+ assert(await p.evaluate(id=>window.__app.Store.get(id).check['c-k2'],id));
+ await p.click('[data-act="cc-del"][data-val="k2"]');
+ assert(await p.evaluate(id=>{const t=window.__app.Store.get(id);return !t.customChecks.some(x=>x.id==='k2')&&t.check['c-k1']===true},id));
+ await p.click('[data-act="check-reset"]');
+ await noOverflow(p,name+' Checkliste');
+ if(ctxOpts.viewport.width<=600){
+  for(const tab of ['kosten','plan','check','notiz','mappe']){await p.selectOption('#trip-area',tab);assert((await p.getAttribute('.tab[aria-current="page"]','data-go')).endsWith('-'+tab));await noOverflow(p,name+' '+tab)}
+ }
+ // Sprunglink muss in der Reise bleiben und darf keine Hash-Navigation auslösen.
+ const before=await p.evaluate(()=>location.hash);await p.focus('.skip-link');await p.press('.skip-link','Enter');
+ assert.equal(await p.evaluate(()=>location.hash),before);assert.equal(await p.evaluate(()=>document.activeElement.id),'view');
+ await ctx.close();console.log(name+': Checklistenfilter, Suche, Abhaken, Entfernen und Bereichswechsel geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -670,6 +697,8 @@ async function appearances(browser,base,name,ctxOpts){
     await appearances(browser,base,'design-desktop',{viewport:{width:1280,height:900}});
     await appearances(browser,base,'design-mobil',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await appearances(browser,base,'design-dunkel',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await checklistModules(browser,base,'module-desktop',{viewport:{width:1280,height:900}});
+    await checklistModules(browser,base,'module-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

@@ -350,6 +350,23 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
  :root[data-layout=studio]:not([data-theme=light]){--bg:#17202C;--surface:#202D3D;--surface-2:#2B3A4E;--surface-3:#394B61;--ink:#EFF4FA;--muted:#B2C1D3;--line:#435973;--spruce:#A9C9EE;--spruce-soft:#293F58;--sign:#B6D2EF;--sign-ink:#1C3045}
  :root[data-layout=compact]:not([data-theme=light]){--bg:#25211C;--surface:#302A23;--surface-2:#3C342B;--surface-3:#4A4034;--ink:#F5EFE6;--muted:#C9BDAC;--line:#5E5142;--spruce:#E3C3A3;--spruce-soft:#43372B;--sign:#E5C4A4;--sign-ink:#33271D}
 }
+
+@media screen{
+ .tabs{overflow:visible}.tab-links{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin;padding:3px;min-width:0;width:100%}
+ .area-picker{display:none}.module-guide{display:flex;align-items:baseline;gap:12px;padding:16px 4px 0;color:var(--muted);font-size:.9rem}.module-guide .eyebrow{flex:none}
+ .module-tools{display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--bg);border:1px solid var(--line);border-radius:14px}
+ .module-tools .row{align-items:end}.module-tools input[type=search]{width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;font:inherit;color:var(--ink)}
+ .check-group summary{cursor:pointer;min-height:44px;line-height:1.5}.check-group summary strong{margin-right:14px}.check-group[open] summary{margin-bottom:10px}
+ .check-row{display:flex;gap:8px;align-items:center}.check-row>.chk{flex:1;min-width:0;margin:0}.check-row>.lnk{flex:none}.check-row .chk span{overflow-wrap:anywhere}
+ .module-tools .fld{min-width:120px}
+ input[type=time]{border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:10px;width:100%;min-height:44px;font-size:1rem}
+}
+@media screen and (min-width:1000px){html[data-layout=studio] .tab-links{flex-direction:column;overflow:visible;padding:0}}
+@media screen and (max-width:600px){
+ .tabs{flex-direction:column;gap:4px;padding-block:6px}.area-picker{display:flex;align-items:center;gap:10px;width:100%;font-size:.8rem;color:var(--muted)}.area-picker>span{flex:none}.area-picker select{flex:1;min-width:0;width:auto;padding:8px;min-height:44px;font-weight:600;color:var(--ink)}
+ .tab-links{gap:6px;padding-block:2px 5px}.tab{padding:10px 12px;font-size:.9rem}.module-guide{flex-direction:column;gap:2px;padding-top:12px}
+ .check-row{align-items:stretch}.check-row>.lnk{padding-inline:8px;font-size:.8rem}.module-tools{padding:12px}
+}
 </style>
 
 <a class="skip-link" href="#view">Zum Inhalt</a><div class="wrap">
@@ -1342,15 +1359,33 @@ function remoteChanged(){if(UI.view==='konto'&&typeof document!=='undefined'&&do
 document.addEventListener('focusout',()=>{if(deferred){deferred=false;setTimeout(render,0)}});
 
 /* ================= Zustand & Routing ================= */
-const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
+const UI={view:'reisen',tid:null,tab:'ueber',fcat:'alle',ffree:false,findoor:false,fcard:false,fmissing:'',checkFilter:'all',checkQuery:'',pkgf:'alle',pkgfocus:'',sflt:{sauna:false,card:false,kitchen:false},confirm:null,draft:null};
 const TABS=[['ueber','Überblick'],['suche','Reisefinder'],['angebote','Angebote'],['unterkunft','Ort & Unterkunft'],['unternehmen','Unternehmungen'],['plan','Tagesplan'],['kosten','Kosten'],['check','Checkliste'],['notiz','Notizen'],['mappe','Mappe']];
+const MODULE_INFO={
+ ueber:['Orientieren','Das Wichtigste und eure nächsten Schritte.'],
+ suche:['Planen','Konkrete Angebote sammeln und unter gleichen Bedingungen vergleichen.'],
+ angebote:['Planen','Reisevorlagen als Ausgangspunkt wählen. Preise sind Schätzwerte.'],
+ unterkunft:['Planen','Ziel, Anreise und Unterkunft aufeinander abstimmen.'],
+ unternehmen:['Planen','Passende Ideen sammeln, prüfen und in euren Tagesplan übernehmen.'],
+ plan:['Planen','Termine, Wege und freie Zeit im Zusammenhang betrachten.'],
+ kosten:['Organisieren','Planwerte, offene Kosten und erfasste Zahlungen nachvollziehen.'],
+ check:['Organisieren','Buchungsaufgaben und Packpunkte im Blick behalten. Abhaken ist keine Buchung.'],
+ notiz:['Organisieren','Gedanken und wichtige Angaben zu dieser Reise festhalten.'],
+ mappe:['Unterwegs','Euren Plan kompakt mitnehmen, drucken oder als Kalender exportieren.']
+};
+function moduleGuide(t){
+ const info=MODULE_INFO[UI.tab]||MODULE_INFO.ueber;
+ if(UI.tab==='ueber'||UI.tab==='mappe')return '';
+ return '<aside class="module-guide noprint" aria-label="Bereichsorientierung"><span class="eyebrow">'+info[0]+'</span><p>'+info[1]+'</p></aside>';
+}
+function areaPicker(t){return '<label class="area-picker noprint"><span>Bereich wechseln</span><select id="trip-area" aria-label="Reisebereich wählen">'+TABS.map(([key,name])=>'<option value="'+key+'"'+(UI.tab===key?' selected':'')+'>'+name+'</option>').join('')+'</select></label>'}
 function go(h,keepScroll){
   h=(h||'').replace(/^#/,'');
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
   else if(h==='konto'){UI.view='konto'}
   else if(h==='entdecken'){UI.view='entdecken'}
   else if(/^ziel-[a-z0-9-]{2,40}$/.test(h)){UI.view='entdecken';UI.openZiel=h.slice(5)}
-  else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
+  else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){if(UI.tid!==id){UI.checkFilter='all';UI.checkQuery=''}UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
   const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.openZiel?'ziel-'+UI.openZiel:UI.view;
   try{history.replaceState(null,'','#'+target)}catch(e){}
@@ -1430,8 +1465,8 @@ function tripHead(t){
   return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'"><div class="between noprint"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><div class="row"><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></div>'+
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
   (ph&&ph.phase==='vor'?'<p class="muted">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p><b>'+esc(phaseText(ph))+'</b></p>':'')+'</section>'+
-  '<nav class="tabs" aria-label="Bereiche">'+TABS.map(x=>{let n='';if(x[0]==='plan')n=(t.items||[]).length;if(x[0]==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
-    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+x[0]+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</nav>';
+  '<nav class="tabs" aria-label="Bereiche">'+areaPicker(t)+'<div class="tab-links">'+TABS.map(x=>{let n='';if(x[0]==='plan')n=(t.items||[]).length;if(x[0]==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
+    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+x[0]+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div></nav>';
 }
 function stackBar(c){
   const tot=c.total||1, keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
@@ -1792,14 +1827,26 @@ function savingTips(t){
 
   return out.sort((a,b)=>b.save-a.save);
 }
+function checklistView(t,filter,query){
+ const mode=['all','open','done'].includes(filter)?filter:'all',q=String(query||'').trim().toLocaleLowerCase('de');
+ let total=0,done=0,visible=0;
+ const groups=checklist(t).map(([name,items])=>{
+  const rows=items.map(i=>{total++;const checked=!!(t.check&&t.check[i[0]]);if(checked)done++;return {item:i,done:checked}});
+  const shown=rows.filter(r=>(mode==='all'||(mode==='done')===r.done)&&(!q||[name,r.item[1],r.item[2]].join(' ').toLocaleLowerCase('de').includes(q)));
+  visible+=shown.length;
+  return {name,rows:shown,total:rows.length,done:rows.filter(r=>r.done).length};
+ });
+ return {groups,total,done,visible,mode,query:q};
+}
 function tCheck(t){
-  const g=checklist(t); let all=0,done=0; g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));
-  return '<section class="block"><div class="between"><h2>Checkliste</h2><span class="num"><b>'+done+'</b> von '+all+'</span></div><div class="bar"><i style="width:'+(all?done/all*100:0)+'%"></i></div>'+
-  g.map(gr=>'<div class="stack"><h3>'+esc(gr[0])+'</h3><div class="checks-list">'+(gr[1].length?gr[1].map(i=>'<label class="chk '+(t.check&&t.check[i[0]]?'ok':'info')+'"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"'+(t.check&&t.check[i[0]]?' checked':'')+'> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span>'+(i[3]?'<button type="button" class="lnk" style="margin-left:auto" data-act="cc-del" data-val="'+esc(i[3])+'">Entfernen</button>':'')+'</label>').join(''):'<p class="muted small">Noch keine.</p>')+'</div></div>').join('')+
-  '<div class="row"><input type="text" id="cc-t" placeholder="Eigener Punkt" style="flex:1;min-width:200px"><button type="button" class="btn sm" data-act="cc-add">Hinzufügen</button></div></section>';
+ const v=checklistView(t,UI.checkFilter,UI.checkQuery),active=v.mode!=='all'||v.query;
+ return '<section class="block"><div class="between"><h2>Checkliste</h2><span class="badge num">'+v.done+' von '+v.total+' abgehakt</span></div><p class="small muted">Buchungen prüfen, Vorbereitungen erledigen und die Tasche packen. Häkchen dokumentieren nur euren eigenen Stand.</p><div class="bar" role="img" aria-label="'+v.done+' von '+v.total+' Punkten abgehakt"><i style="width:'+(v.total?v.done/v.total*100:0)+'%"></i></div>'+
+ '<div class="module-tools"><form id="check-search" class="row" role="search"><label class="fld" style="flex:1"><span>Checkliste durchsuchen</span><input type="search" id="check-q" value="'+esc(UI.checkQuery||'')+'" maxlength="120" placeholder="z. B. Handtuch, Unterkunft …"></label><button type="submit" class="btn ghost sm">Suchen</button></form><div class="row" aria-label="Checklistenstatus">'+[['all','Alle'],['open','Offen'],['done','Erledigt']].map(([key,label])=>chipb('check-filter',key,label,v.mode===key)).join('')+'<button type="button" class="lnk" data-act="check-reset"'+(active?'':' disabled')+'>Zurücksetzen</button></div><p class="small muted" role="status">'+v.visible+' von '+v.total+' Punkten sichtbar · '+(v.total-v.done)+' insgesamt offen</p></div>'+
+ (v.visible?v.groups.filter(g=>g.rows.length).map(g=>'<details class="panel check-group" open><summary><strong>'+esc(g.name)+'</strong><span class="small muted">'+(g.total-g.done)+' offen · '+g.done+' erledigt</span></summary><div class="checks-list">'+g.rows.map(({item:i,done})=>'<div class="check-row"><label class="chk '+(done?'ok':'info')+'"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"'+(done?' checked':'')+'><span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>'+(i[3]?'<button type="button" class="lnk" data-act="cc-del" data-val="'+esc(i[3])+'" aria-label="Eigenen Punkt '+esc(i[1])+' entfernen">Entfernen</button>':'')+'</div>').join('')+'</div></details>').join(''):'<div class="empty"><b>'+ (v.mode==='open'&&!v.query?'Alle aktuellen Punkte abgehakt':'Keine passenden Punkte')+'</b><span>'+ (v.mode==='open'&&!v.query?'Das bestätigt keine Buchungen oder vollständige Reisebereitschaft.':'Suchwort oder Statusfilter ändern. Eure Punkte wurden nicht gelöscht.')+'</span><button type="button" class="btn ghost sm" data-act="check-reset">Alle Punkte zeigen</button></div>')+
+ '<div class="panel"><h3>Eigene Vorbereitung ergänzen</h3><label class="fld"><span>Neuer Checklistenpunkt</span><input type="text" id="cc-t" maxlength="160" placeholder="z. B. Ladegerät einpacken"></label><div class="row"><button type="button" class="btn sm" data-act="cc-add">Hinzufügen</button></div></div></section>';
 }
 function tNotiz(t){
-  return '<section class="block"><h2>Notizen</h2><p class="muted small">Ideen, Kontakte, Buchungsnummern. Wird automatisch gespeichert.</p><textarea data-f="notes" aria-label="Notizen">'+esc(t.notes)+'</textarea></section>';
+  return '<section class="block"><h2>Notizen</h2><p class="muted small">Ideen und wichtige Angaben zur Reise. Der Speicherstatus steht oben. Beim Teilen der Kurzfassung werden Notizen nur auf Wunsch aufgenommen.</p><textarea data-f="notes" aria-label="Notizen">'+esc(t.notes)+'</textarea></section>';
 }
 /* Unterwegs: was heute und morgen ansteht, ohne Wischen durch den ganzen Plan */
 function dayList(t,d,last){
@@ -1859,7 +1906,7 @@ function tMappe(t){
 function vReise(){
   const t=cur(); if(!t) return vReisen();
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
-  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+costNotice(t)+body(t)+'</div></div>';
+  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
 }
 function render(){
   const v=$('#view');
@@ -1967,6 +2014,7 @@ function setField(obj,f,v){
   else{if(f==='origin'&&obj[f]!==v)delete obj.originGeo;obj[f]=v;}
 }
 document.addEventListener('click',async e=>{
+  if(e.target.closest('.skip-link')){e.preventDefault();const view=$('#view');if(view)view.focus();return}
   const g=e.target.closest('[data-go]'); if(g){e.preventDefault();UI.confirm=null;go(g.getAttribute('data-go'));return}
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.getAttribute('data-act'), val=b.getAttribute('data-val'), t=cur();
@@ -2070,7 +2118,9 @@ document.addEventListener('click',async e=>{
    case 'xc-del':{try{sheetCostEntryPreview(t,costEntryPreview(t,val,null,true));}catch(err){alertMsg(err.message)}return;
    }
    case 'xc-confirm':{try{applyCostEntry(t,UI.costEntryDraft);save(t);UI.costEntryDraft=null;closeSheet();render();}catch(err){alertMsg(err.message)}return;}
-   case 'cc-add':{const ti=$('#cc-t').value.trim();if(!ti)return;t.customChecks=(t.customChecks||[]).concat([{id:uid('k'),t:ti}]);save(t);break}
+   case 'check-filter': UI.checkFilter=['all','open','done'].includes(val)?val:'all';break;
+   case 'check-reset': UI.checkFilter='all';UI.checkQuery='';break;
+   case 'cc-add':{const ti=$('#cc-t').value.trim();if(!ti)return;UI.checkFilter='all';UI.checkQuery='';t.customChecks=(t.customChecks||[]).concat([{id:uid('k'),t:ti}]);save(t);break}
    case 'cc-del': t.customChecks=(t.customChecks||[]).filter(x=>x.id!==val);if(t.check)delete t.check['c-'+val];save(t);break;
    default: return;
   }
@@ -2100,6 +2150,14 @@ document.addEventListener('input',e=>{
   if(!t) return;
   setField(t,f,el.value);save(t);
   if(['verb','preis','ticket','stayQuote','budget'].includes(f)){renderDock();const box=document.querySelector('.tbl-wrap');if(box&&UI.tab==='kosten'){clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const a=document.activeElement,id=a&&a.getAttribute('data-f'),pos=a&&a.selectionStart;render();if(id){const n=document.querySelector('[data-f="'+id+'"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}}}},500)}}
+});
+document.addEventListener('submit',e=>{
+ if(e.target.id!=='check-search')return;e.preventDefault();
+ UI.checkQuery=String($('#check-q').value||'').slice(0,120);render();const field=$('#check-q');if(field)field.focus();
+});
+document.addEventListener('change',e=>{
+ if(e.target.id!=='trip-area')return;const t=cur(),tab=e.target.value;
+ if(t&&TABS.some(x=>x[0]===tab)){go('r-'+t.id+'-'+tab);const content=$('#view');if(content)content.focus();}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 window.addEventListener('storage',e=>{if(e.key===Store.key()){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
@@ -2953,7 +3011,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

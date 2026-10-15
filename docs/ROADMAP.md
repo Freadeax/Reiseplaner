@@ -130,3 +130,7 @@ Mitternachts-/Jahresüberlauf und Textmaskierung korrigiert; genaue Uhrzeit ohne
 ## Drei Oberflächen · 15.10.2026 (ChatGPT, #8)
 
 Reisebuch / Planungsstudio / Kompakt implementiert, über „Darstellung“ umschaltbar; lokale Präferenz, jeweils Hell/Dunkel. Neue Startseite, Preiskennzeichnung, Hauptnavigation und Reiseabschnitte; Studio mit Desktop-Seitenleiste. Node/Build/Artefakt bestanden. Neue Browserwege für alle Darstellungen vorbereitet, Chromium-/visuelle Abnahme noch offen. Danach gezielt Rückmeldungen zu Dichte/Navigation sammeln; mobile Aufgaben und Details weiter vereinheitlichen, bestehende Konto-/Routing-Arbeit erhalten.
+
+## Module vereinheitlichen · 15.10.2026 (ChatGPT, #8)
+
+Mobile Bereichsauswahl/Modulorientierung und Checkliste mit Suche/Status/Gruppenzählern umgesetzt. Entfernen von Checkbox getrennt, Sprunglink ohne Routensprung. Node/Build/Artefakt grün; neue Browserwege offen. Nächster Schritt: Claudes Audit-Befunde gezielt korrigieren, danach Formulare/Fehlerzustände weiterer Module angleichen.

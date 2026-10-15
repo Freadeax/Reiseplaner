@@ -35,3 +35,24 @@ fresh.appearanceSheet();
 assert(els['#sheet-root'].innerHTML.includes('aria-pressed="true"'));
 assert.equal((els['#sheet-root'].innerHTML.match(/class="design-choice"/g)||[]).length,3);
 console.log('Darstellung: drei Modi, lokale Präferenz, Wiederherstellung und keine Reiseänderung geprüft.');
+
+// Checklistenfilter: alle Gruppen aus demselben Stand, keine Mutation.
+const ct=fresh.newTrip({customChecks:[{id:'k1',t:'Handtuch einpacken'},{id:'k2',t:'Buchung prüfen'}],check:{'c-k1':true}});
+const cb=JSON.stringify(ct), cv=fresh.checklistView(ct,'all','');
+const co=fresh.checklistView(ct,'open',''), cd=fresh.checklistView(ct,'done','');
+assert.equal(co.visible+cd.visible,cv.total);
+assert.equal(cd.visible,1);
+assert.equal(fresh.checklistView(ct,'done','HANDTUCH').visible,1);
+assert.equal(fresh.checklistView(ct,'open','Handtuch').visible,0);
+assert.equal(fresh.checklistView(ct,'all','Eigene Punkte').visible,2);
+assert.equal(fresh.checklistView(ct,'all','kein-treffer').visible,0);
+assert.equal(fresh.checklistView(ct,'invalid','').visible,cv.total);
+assert.equal(JSON.stringify(ct),cb);
+fresh.UI.checkFilter='open';fresh.UI.checkQuery='kein-treffer';
+assert(fresh.tCheck(ct).includes('Keine passenden Punkte'));
+assert(fresh.tCheck(ct).includes('cc-add'));
+assert(!/<label[^>]*class="chk[^>]*>[\s\S]*?<button/.test(fresh.tCheck(ct).split('class="check-row"')[1]?.split('</label>')[0]||''));
+fresh.UI.checkFilter='all';fresh.UI.checkQuery='';
+assert(fresh.tCheck(ct).includes('aria-label="Eigenen Punkt Handtuch einpacken entfernen"'));
+assert.equal((fresh.areaPicker(ct).match(/<option /g)||[]).length,10);
+console.log('Module: zehn Bereiche, Checklisten-Suche/Status/Gruppen/Leerzustand und Erhalt der Daten geprüft.');
