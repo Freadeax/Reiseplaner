@@ -47,6 +47,8 @@ Oben über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (w
 
 ## Reisefinder (v2.0)
 
+**Neue Wunsch-Auswahl in Entdecken:** zwölf Stimmungskarten mit „unbedingt“, „gern“ und „lieber nicht“, fünf Schnellprofile und ein optionaler Ja/Nein/Vielleicht-Stapel. Tempo, Reisegruppe, Regenalternativen, Monat und Dauer erklären die Zielreihenfolge. Fehlende Muss-Merkmale bleiben sichtbar; „lieber nicht“ wertet ab. Bahn-/Flugverbindungen und Preise sind ungeprüft, ein Budget wird nicht als erfüllt gezählt. Wünsche bleiben getrennt von Reisen in diesem Browser. Die Anreiseauswahl im Wunschprofil ist noch keine Flugplanung.
+
 In jeder Reise gibt es den Reiter **Reisefinder**:
 
 1. Ort, Unterkunftslimit, Fahrzeit, Bewertung und Unterkunftsart eingeben; Merkmale als **Muss**, **Wunsch** oder **Egal** markieren.

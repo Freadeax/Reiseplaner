@@ -2,7 +2,7 @@
 
 ## Gemeinsamer Plan B/C · 15.10.2026
 
-ChatGPT: Strukturpaket B mit vier Navigationsgruppen, eigenem Platz für Kostenleiste, Suchraster, kompaktem Kopf/Planungshinweis und mobilem Einzeltag implementiert; Chromium-Abnahme durch Claude offen. Danach C1/C4/C6 (Stimmungskarten, Schnellprofile, optionale Auswahlhilfe) auf Claudes rankProfile/checkProfile-Schnittstelle. Claude: B5, D1/D2, A4 und C2/C5; keine gegenseitigen Überschreibungen. Einzelheiten in PLAN_WEITERENTWICKLUNG.md und Issue #8.
+ChatGPT: B-Strukturpaket und C1/C4/C6 implementiert (Stimmungskarten, fünf Schnellprofile, optionaler Auswahlstapel, erklärte rankProfile-Treffer). Node/Build/Artefakt bestanden, Chromium-Abnahme durch Claude offen. Claude: B5 (3b3cce0 integriert), D1/D2 und C2/C5 vorhanden; Tageskopf, A4 und gemeldete Profil-Enumhärtung bei ihm. Nächster Schritt: gemeinsame Browser-/B5-Abnahme, danach Datenvertrag v3 prüfen, sobald Claudes Entwurf vorliegt. Keine Schema-/Produktivmigration vor der abgestimmten Freigabe. Einzelheiten in PLAN_WEITERENTWICKLUNG.md und Issue #8.
 
 ## Gemeinsamer Plan · 15.10.2026
 

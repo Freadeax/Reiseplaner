@@ -71,7 +71,24 @@ async function entdecken(browser, base, name, ctxOpts) {
   assert.equal(geoCalls, 1, name + ': Ortssuche nur auf Knopfdruck');
   await p.click('[data-act="cat-pick"][data-val="1"]');
   assert((await viewText(p)).includes('Start: Göppingen, Landkreis Göppingen'), name + ': Abfahrtsort übernommen');
-  await p.click('[data-act="cat-kind"][data-val="burg"]');
+  assert.equal(await p.locator('[data-profile-kind]').count(),12,name+': zwölf Wunschkarten');
+  await p.click('[data-act="cat-preset"][data-val="paar"]');
+  assert.equal(await p.inputValue('[data-cf="nights"]'),'2',name+': Schnellprofil setzt Dauer');
+  await p.selectOption('[data-profile-kind="natur"]','must');
+  await p.selectOption('[data-profile-kind="stadt"]','avoid');
+  await p.reload();
+  assert.equal(await p.inputValue('[data-profile-kind="natur"]'),'must',name+': unbedingt bleibt nach Neuladen');
+  assert.equal(await p.inputValue('[data-profile-kind="stadt"]'),'avoid',name+': lieber nicht bleibt nach Neuladen');
+  await p.click('[data-act="cat-mood-mode"][data-val="deck"]');
+  await p.click('[data-act="cat-vote"][data-val="natur|avoid"]');
+  assert((await p.textContent('.mood-deck')).includes('Karte 2 von 12'),name+': Stapel geht weiter');
+  await p.click('[data-act="cat-deck-back"]');
+  await p.click('[data-act="cat-vote"][data-val="natur|like"]');
+  await p.click('[data-act="cat-mood-mode"][data-val="cards"]');
+  assert.equal(await p.inputValue('[data-profile-kind="natur"]'),'like',name+': Stapel und Karten teilen ein Profil');
+  await noOverflow(p,name+' Wunschprofil');
+  await p.click('[data-act="cat-profile-clear"]');
+  await p.selectOption('[data-profile-kind="burg"]','like');
   await p.click('[data-act="cat-search"]');
   await p.waitForSelector('#cat-results');
   let txt = await viewText(p);
@@ -224,7 +241,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.click('[data-act="sheet-x"]');
   /* Weite Strecke mit Zwischenstopps; Filter bleiben nach Neuladen erhalten */
   await p.click('header [data-go="entdecken"]');
-  await p.click('[data-act="cat-kind"][data-val="burg"]');
+  await p.selectOption('[data-profile-kind="burg"]','like');
   await p.click('[data-act="cat-range"][data-val="weit"]');
   await p.click('[data-act="cat-search"]');
   await p.waitForSelector('[data-act="cat-open"][data-val="berlin"]');

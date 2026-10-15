@@ -1,5 +1,15 @@
 # Projektstand · 15.10.2026
 
+## Neue Wunsch-Auswahl in Entdecken (ChatGPT, #8, C1/C4/C6)
+
+Basis 770c9c2, Claudes Audit 3b3cce0 integriert. Zwölf beschriebene Stimmungskarten mit nativer Auswahl „offen / unbedingt / gern / lieber nicht“, fünf frei änderbare Schnellprofile und optionaler Ja/Nein/Vielleicht-Stapel mit Rückweg. Ein gemeinsames Profil für beide Ansichten; Schnellprofile ersetzen Wünsche und Rahmen, nicht Ort/Entfernung. Tempo, Reisegruppe, Regenalternativen, Dauer, Monat, Anreise, Zeitlimit und Budget nutzen Claudes rankProfile-Schnittstelle. Kilometer-Sonderwerte aufklappbar statt doppelt offen; Familien-Erlebnisse und Reisegruppe haben unterschiedliche Aufgaben.
+
+Suche lädt alle Themen im Kilometerrahmen. Profiländerungen bewerten die vorhandenen Treffer neu. Muss-Lücken und unbekannte Grenzen bleiben erklärt sichtbar, „lieber nicht“ ist eine Abwertung. Treffer zeigen Wunschabdeckung, Indoor-Anzahl und aufklappbare Gründe auch im Zielblatt. Autofahrzeiten sind Schätzungen; Bahn/Flug/Preise bleiben ausdrücklich ungeprüft. Anreisewahl im Wunschprofil wird nicht in eine angelegte Reise übertragen, Flugplanung benötigt den gemeinsamen Datenvertrag.
+
+Browserpräferenz rp-entdecken-profile mit Version 1; bisherige positive Themen → „gern“, Familie/Regen/Monat/Dauer übernommen. Legacy-Präferenz bleibt für alte App-Fassungen lesbar. Neuere Profilversion wird nicht überschrieben; Auswahl dann nur für die Sitzung. Keine Änderung an rp-trips, Reisesicherung, Konto oder Datenbank.
+
+Geprüft: npm test inklusive neuer profile-ui.cjs (Migration, Rundlauf, Zukunftsschutz, keine Reise-Schreibzugriffe, Karten/Stapel, vollständige Suche und Neubewertung), Build, Artefaktprüfung, Browser-Skriptsyntax und diff --check. Browserpfade auf neue native Auswahl umgestellt, zusätzliche Profil-/Stapel-/Reload-Bedienprüfung vorbereitet. Chromium/Safari lokal nicht ausgeführt; Claude um gemeinsame Browser-/B5-Abnahme gebeten. catalog.js-Enumhärtung an Claude gemeldet, seine Datei nicht parallel bearbeitet.
+
 ## Sichtprüfung: Überlappung und Durchscheinen (Claude, #8, Plan B5)
 
 - `npm run audit:ui` meldet zusätzlich überlappende Bedienelemente (ohne Inhalte zugeklappter `<details>`, bei offenem Dialog nur dessen Inhalt, ohne bewusst überlagernde SVG-Kartenpunkte) und feste oder klebende Leisten mit halbtransparentem Hintergrund ohne Unschärfe. Die gewollte Abdunkelung hinter Dialogen ist ausgenommen.
