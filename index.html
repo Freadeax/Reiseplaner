@@ -368,6 +368,17 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
  .tab-links{gap:6px;padding-block:2px 5px}.tab{padding:10px 12px;font-size:.9rem}.module-guide{flex-direction:column;gap:2px;padding-top:12px}
  .check-row{align-items:stretch}.check-row>.lnk{padding-inline:8px;font-size:.8rem}.module-tools{padding:12px}
 }
+
+/* Audit-Nacharbeit: durchgehend erreichbare Bedienelemente, auch bei Touch. */
+@media screen{
+ .brand,.sync,#sync{min-height:44px}
+ .brand-mark{width:44px;height:44px}
+ .add{min-height:44px;min-width:44px;padding:10px 8px}
+ .dtools .lnk{min-height:44px;padding:10px 12px}
+ summary{min-height:44px;padding-block:10px;cursor:pointer}
+ input[type=search]{border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;padding:10px;min-height:44px;width:100%;min-width:0}
+ .sheet{overscroll-behavior:contain}
+}
 </style>
 
 <a class="skip-link" href="#view">Zum Inhalt</a><div class="wrap">
@@ -1930,8 +1941,39 @@ function renderDock(){
 }
 
 /* ================= Blätter ================= */
-function openSheet(html){UI.secureJob=(UI.secureJob||0)+1;$('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';const s=$('.sheet');if(s)s.focus&&s.setAttribute('tabindex','-1')}
-function closeSheet(){UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;$('#sheet-root').innerHTML=''}
+let sheetOpener=null;
+/* Nur an den Dialoggrenzen umschalten; die normale Tab-Reihenfolge bleibt erhalten. */
+function sheetTabTarget(nodes,current,backwards){
+ if(!nodes.length)return null;
+ const first=nodes[0],last=nodes[nodes.length-1];
+ if(!nodes.includes(current))return backwards?last:first;
+ if(backwards&&current===first)return last;
+ if(!backwards&&current===last)return first;
+ return null;
+}
+function openSheet(html){
+ if(!$('.sheet'))sheetOpener=document.activeElement||null;
+ UI.secureJob=(UI.secureJob||0)+1;
+ $('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';
+ const s=$('.sheet');if(!s)return;
+ const title=s.querySelector('h1,h2');
+ if(title){title.id='rp-sheet-title';s.setAttribute('aria-labelledby',title.id)}else s.setAttribute('aria-label','Details');
+ if(s.focus)s.focus();
+}
+function closeSheet(){
+ UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
+ $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
+ if(opener&&opener.isConnected!==false&&opener.focus)opener.focus();
+ else if(opener){const view=$('#view');if(view&&view.focus)view.focus()}
+}
+function sheetKeydown(e){
+ const sheet=$('.sheet');if(!sheet)return;
+ if(e.key==='Escape'){e.preventDefault();closeSheet();return}
+ if(e.key!=='Tab')return;
+ const nodes=Array.from(sheet.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]:not([tabindex="-1"])')).filter(el=>el.tabIndex>=0&&!el.closest('[hidden],[inert]')&&el.getClientRects().length);
+ const target=sheetTabTarget(nodes,document.activeElement,e.shiftKey);
+ if(target){e.preventDefault();target.focus()}else if(!nodes.length){e.preventDefault();sheet.focus()}
+}
 function sheetAct(t,id,preDay,preSlot){
   const a=actOf(t,id); if(!a) return;
   const days=daysOf(t), c=actCost(t,a), planned=sortedItems(t).filter(i=>i.act===id);
@@ -2160,7 +2202,7 @@ document.addEventListener('change',e=>{
  if(e.target.id!=='trip-area')return;const t=cur(),tab=e.target.value;
  if(t&&TABS.some(x=>x[0]===tab)){go('r-'+t.id+'-'+tab);const content=$('#view');if(content)content.focus();}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+document.addEventListener('keydown',sheetKeydown);
 window.addEventListener('storage',e=>{if(e.key===Store.key()){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
 window.addEventListener('hashchange',()=>go(location.hash,true));
 document.addEventListener('change',e=>{
@@ -3012,7 +3054,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

@@ -680,6 +680,23 @@ async function checklistModules(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': Checklistenfilter, Suche, Abhaken, Entfernen und Bereichswechsel geprüft.');
 }
 
+async function sheetKeyboard(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Dialog: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');await p.click('[data-act="appearance-open"]');
+ assert.equal(await p.getAttribute('.sheet','aria-labelledby'),'rp-sheet-title');
+ assert(await p.evaluate(()=>!!document.activeElement.closest('.sheet')));
+ await p.focus('.sheet .x');await p.keyboard.press('Shift+Tab');
+ assert.equal(await p.evaluate(()=>document.activeElement.getAttribute('data-val')),'compact');
+ await p.keyboard.press('Tab');assert.equal(await p.evaluate(()=>document.activeElement.getAttribute('data-act')),'sheet-x');
+ await p.click('[data-act="appearance-set"][data-val="studio"]');
+ await p.keyboard.press('Escape');assert.equal(await p.locator('.sheet').count(),0);
+ assert.equal(await p.evaluate(()=>document.activeElement.getAttribute('data-act')),'appearance-open','Auslöser nach ersetzt/geschlossen');
+ const sizes=await p.evaluate(()=>Array.from(document.querySelectorAll('.brand,#sync')).map(e=>e.getBoundingClientRect().height));
+ assert(sizes.every(h=>h>=44),'Kopf-Touchziele mindestens44px');await noOverflow(p,name+' Touchkopf');await ctx.close();
+ console.log(name+': Dialogfokus, Tab-Grenzen, Escape/Rückkehr und Kopf-Touchflächen geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -699,6 +716,8 @@ async function checklistModules(browser,base,name,ctxOpts){
     await appearances(browser,base,'design-dunkel',{viewport:{width:320,height:640},colorScheme:'dark'});
     await checklistModules(browser,base,'module-desktop',{viewport:{width:1280,height:900}});
     await checklistModules(browser,base,'module-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await sheetKeyboard(browser,base,'dialog-desktop',{viewport:{width:1280,height:900}});
+    await sheetKeyboard(browser,base,'dialog-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Touchflächen und Tastaturführung (ChatGPT, #8)
+
+Basis ff300ff, vor Push Claudes 5f4fe4e ohne Konflikt integriert (Kostenzeilen-Überlauf). Auf seine konkreten Audit-Befunde abgestimmt: Kopfmarke/Kontostatus, Tagesplan-Hinzufügen und Tagesplanlinks, Zusammenfassungen und Suchfelder erhalten mindestens 44px Höhe. Die dicht liegenden SVG-Kartenpunkte bleiben bewusst unverändert; vollgroße Zielknöpfe in der Trefferliste sind die Touchalternative. Keine pauschale Vergrößerung überlappender Kartenpunkte.
+
+Detailblätter erhalten einen Titelbezug, Fokus beim Öffnen, Tab-/Umschalt-Tab-Grenzen und Fokus zurück zum ursprünglichen Auslöser bei Escape/Schließen. Beim Austausch eines offenen Blatts bleibt der ursprüngliche Auslöser erhalten. Unsichtbare/deaktivierte Elemente werden übersprungen. Keine Reisedaten-, Auth/Store/Sync/DB-Änderung. Kosten-/Notizmodule und der gemeldete .chk-Überlauf-Fix bleiben bei Claude.
+
+Node-Tests für Tab-Grenzen und DOM-Doubles für Öffnen/Name/Tab/Schließen/Rückkehr bestanden; npm test, Gast-Build/Artefaktprüfung, Browser-Skriptsyntax und diff --check grün. Neue Browserwege sheetKeyboard() für Desktop/320px dunkel vorbereitet, lokal ohne Browserbinary nicht ausgeführt. Claude um erneute Chromium-/Audit-Abnahme auf dem gemeinsamen Stand gebeten; keine neue iPhone-Prüfung.
+
 ## UI-Sichtprüfung in Chromium (Claude, #8)
 
 - Neu: `tests/ui-audit.cjs`, Befehl `npm run audit:ui` (nicht Teil von `npm test`, Befunde sind Hinweise; `AUDIT_STRICT=1` macht sie zum Fehler, `SHOT_DIR=…` speichert Screenshots). Prüft Start, Entdecken, Ziel-Blatt, Reise (Überblick, Tagesplan, Kosten, Mappe) und Konto in 1280 hell/dunkel, 390 hell und 320 dunkel für jede Darstellung (book/studio/compact): WCAG-Textkontrast, Tippflächen unter 44 px, Bedienelemente ohne Namen, seitlicher Überlauf, sichtbarer Fokus, JS-Fehler.
