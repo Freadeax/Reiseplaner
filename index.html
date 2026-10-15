@@ -516,7 +516,69 @@ function transferGaps(t){
       out.push({day:+k,from:p,to:n,need,gap,short:gap<need&&gap>=0})}});
   return out;
 }
-function arrivalMin(t){const dep=timeMin(t.departTime);if(dep==null||t.travel!=='auto')return null;const km=Array.isArray(t.legs)&&t.legs.length?num(t.legs[0].roadKm,0):routeKm(t);return km>0?dep+Math.round(km/80*60):null}
+/* Zeitzonen (optional t.tz, IANA). Uhrzeiten im Plan gelten als Ortszeit am Ziel. Ohne t.tz: Ortszeit wie dieses Gerät. */
+const TZ_LIST=[['','Wie dieses Gerät'],['Europe/Berlin','Mitteleuropa (Berlin, Wien, Zürich, Paris, Rom)'],['Europe/London','London, Dublin'],['Europe/Lisbon','Lissabon, Madeira'],['Atlantic/Canary','Kanaren'],['Europe/Helsinki','Helsinki, Baltikum'],['Europe/Athens','Athen, Bukarest'],['Europe/Istanbul','Istanbul'],['Asia/Dubai','Dubai'],['Asia/Bangkok','Bangkok'],['Asia/Tokyo','Tokio'],['Australia/Sydney','Sydney'],['America/New_York','New York'],['America/Los_Angeles','Los Angeles']];
+function validTz(z){if(!z)return false;try{new Intl.DateTimeFormat('de-DE',{timeZone:z});return true}catch(e){return false}}
+function deviceTz(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(e){return ''}}
+/* Versatz einer Zeitzone zu UTC in Minuten zum Zeitpunkt ms (über Intl, ohne Bibliothek) */
+function tzOffsetMin(z,ms){
+  const f=new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const p={};f.formatToParts(new Date(ms)).forEach(x=>{p[x.type]=x.value});
+  return Math.round((Date.UTC(+p.year,+p.month-1,+p.day,+p.hour%24,+p.minute,+p.second)-ms)/60000);
+}
+/* Ortszeit (Datum JJJJ-MM-TT + Minuten) in Zone z → UTC-Millisekunden; zweimal korrigiert für Umstellungstage */
+function zonedToUtc(date,min,z){const base=Date.UTC(+date.slice(0,4),+date.slice(5,7)-1,+date.slice(8,10))+min*60000;let ms=base-tzOffsetMin(z,base)*60000;ms=base-tzOffsetMin(z,ms)*60000;return ms}
+/* Unterschied Ziel minus Gerät in Minuten (positiv: am Ziel später) zum Reisebeginn; 0 ohne Zone */
+function tzDiffMin(t){if(!validTz(t.tz))return 0;const dev=deviceTz();const ms=pd(t.start)?pd(t.start).getTime()+12*3600000:Date.now();return tzOffsetMin(t.tz,ms)-(validTz(dev)?tzOffsetMin(dev,ms):-new Date(ms).getTimezoneOffset())}
+/* Einfache Fahrzeit der Anreise in Minuten: berechnete Route, sonst Schätzung Ø 80 km/h */
+function outboundMin(t){if(Array.isArray(t.legs)&&t.legs.length){const l=t.legs[0];return num(l.routeMin,0)>0?num(l.routeMin,0):Math.round(num(l.roadKm,0)/80*60)}
+  if(t.kmSrc==='route'&&num(t.routeMin,0)>0)return num(t.routeMin,0);return Math.round(routeKm(t)/80*60)}
+/* Ankunft am Ziel in Ortszeit am Ziel: Abfahrt (Ortszeit Start) + Fahrzeit + Zeitunterschied */
+/* Strecke berechnen: Vorschlag aus OpenStreetMap-Routing, Übernahme erst auf Knopfdruck */
+function routeBlock(t){
+  if(!CATX)return '';
+  if(t.travel==='bahn'||t.travel==='flug')return t.origin&&t.dest?'<div class="row">'+lk('https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(t.origin)+'&destination='+encodeURIComponent(t.dest)+'&travelmode=transit','Verbindung suchen (Bahn/ÖPNV)')+'</div><p class="small muted">Öffnet die Kartensuche mit öffentlichen Verkehrsmitteln. Fahrplan und Preise dort bzw. beim Verkehrsunternehmen prüfen.</p>':'';
+  const d=UI.routeDraft&&UI.routeDraft.trip===t.id?UI.routeDraft:null;
+  return '<div class="panel"><div class="row"><button type="button" class="btn ghost sm" data-act="route-calc"'+(UI.routeBusy?' disabled':'')+'>'+(UI.routeBusy?'Berechne …':'Strecke berechnen (OpenStreetMap)')+'</button>'+
+   (t.kmSrc==='route'?'<span class="small">Berechnet'+(t.routeAt?' am '+esc(fmtLong(pd(t.routeAt))):'')+': ≈ '+num(t.km,0)+' km, ca. '+esc(CATX.durText(num(t.routeMin,0)))+' einfach</span>':'')+'</div>'+
+   (d?'<div class="note"><b>Vorschlag: ≈ '+d.oneKm+' km, ca. '+esc(CATX.durText(d.oneMin))+' einfache Strecke</b>'+(d.legs?'<p class="small">'+d.legs.map((l,i)=>esc(l.label)+': ≈ '+l.km+' km, ca. '+esc(CATX.durText(l.minutes))).join('<br>')+'</p>':'')+
+     '<p class="small muted">Berechnet mit routing.openstreetmap.de (OpenStreetMap-Mitwirkende), ohne Verkehr und Pausen. Start: '+esc(d.fromLabel)+'.</p><div class="row"><button type="button" class="btn sm" data-act="route-apply">Übernehmen</button><button type="button" class="btn ghost sm" data-act="route-drop">Verwerfen</button></div></div>':'')+
+   '<p class="small muted">Übertragen werden nur Koordinaten; fehlen sie, wird der Ortsname bei OpenStreetMap (Nominatim) gesucht.</p></div>';
+}
+async function geoLookup(text){
+  const r=await catTimeout(fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=de&q='+encodeURIComponent(text),{headers:{Accept:'application/json'}}),10000);
+  if(!r.ok)throw new Error('Ortssuche: Fehler '+r.status);const j=await r.json();
+  if(!Array.isArray(j)||!j.length)throw new Error('Ort „'+text+'“ nicht gefunden.');
+  return {lat:+j[0].lat,lon:+j[0].lon,label:String(j[0].display_name||text).split(',').slice(0,2).join(',')};
+}
+/* Punkte der Reise: Start, Ziel bzw. Etappen, zurück zum Start */
+async function routePoints(t){
+  const from=t.originGeo&&CATX.validPoint(t.originGeo)?Object.assign({label:t.origin||'Start'},t.originGeo):t.origin?await geoLookup(t.origin):null;
+  if(!from)throw new Error('Bitte zuerst einen Start-Ort eintragen.');
+  let stops;
+  if(Array.isArray(t.legs)&&t.legs.length)stops=t.legs.map(l=>({lat:+l.lat,lon:+l.lon,label:l.name}));
+  else if(t.destGeo&&CATX.validPoint(t.destGeo))stops=[Object.assign({label:t.dest||'Ziel'},t.destGeo)];
+  else if(t.dest)stops=[await geoLookup(t.dest)];
+  else throw new Error('Bitte zuerst ein Ziel eintragen.');
+  return {from,stops};
+}
+async function routeCalc(t){
+  const {from,stops}=await routePoints(t);
+  const pts=[from].concat(stops,[from]);
+  const r=await catTimeout(fetch(CATX.routeUrl(pts)),15000);if(!r.ok)throw new Error('Routing: Fehler '+r.status);
+  const res=CATX.parseRoute(await r.json());
+  const legs=res.legs.map((l,i)=>Object.assign({label:(i===0?from.label:stops[i-1].label)+' → '+(i<stops.length?stops[i].label:from.label+' (Heimfahrt)')},l));
+  return {trip:t.id,fromLabel:from.label,originGeo:{lat:from.lat,lon:from.lon},oneKm:legs[0].km,oneMin:legs[0].minutes,totalKm:res.km,legs:legs.length>2?legs:null,raw:legs,at:iso(todayUTC())};
+}
+function routeApply(t,d){
+  if(!d||d.trip!==t.id)throw new Error('Kein Vorschlag vorhanden.');
+  const L=d.raw;
+  if(Array.isArray(t.legs)&&t.legs.length&&L.length===t.legs.length+1){t.legs=t.legs.map((l,i)=>Object.assign({},l,{roadKm:L[i].km,routeMin:L[i].minutes}));t.km=Math.round(d.totalKm/2);t.routeMin=L[0].minutes;t.routeHomeMin=L[L.length-1].minutes}
+  else{t.km=L[0].km;t.routeMin=L[0].minutes;t.routeHomeMin=L[L.length-1].minutes}
+  t.kmSrc='route';t.routeAt=d.at;t.routeKm=null;if(!t.originGeo&&d.originGeo)t.originGeo=d.originGeo;
+  return t;
+}
+function arrivalMin(t){const dep=timeMin(t.departTime);if(dep==null||t.travel!=='auto')return null;const m=outboundMin(t);return m>0?dep+m+tzDiffMin(t):null}
 
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
 function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
@@ -642,6 +704,7 @@ function checks(t){
     if(+k===0&&arr!=null)l.filter(x=>x.m<arr).forEach(x=>out.push(['warn',x.a.t+' um '+x.it.time+' liegt vor der geschätzten Ankunft (ca. '+minTime(arr)+')','plan']))});
    transferGaps(t).filter(g=>g.short).forEach(g=>{const d=days[g.day];out.push(['warn',(d?d.label:'')+': Zwischen '+g.from.a.t+' (Ende ca. '+minTime(g.from.m+Math.round(g.from.h*60))+') und '+g.to.a.t+' ('+g.to.it.time+') bleiben '+g.gap+' Min., der Weg dauert ca. '+g.need+' Min. (geschätzt)','plan'])});
    if(arr!=null&&timeMin(t.checkinTime)!=null&&arr<timeMin(t.checkinTime))out.push(['info','Ankunft ca. '+minTime(arr)+', Check-in erst ab '+t.checkinTime+': Gepäck oder Zwischenprogramm einplanen','plan']);}
+  {const dz=tzDiffMin(t);if(validTz(t.tz)&&dz)out.push(['info','Am Ziel gilt '+t.tz+': '+(Math.abs(dz)%60?(Math.abs(dz)/60).toFixed(1).replace('.',','):Math.abs(dz)/60)+' Std. '+(dz>0?'später':'früher')+' als auf diesem Gerät. Uhrzeiten im Plan sind Ortszeit am Ziel.','plan'])}
   dayLoad(t).forEach(L=>{if(L.over){const d=days[L.day];out.push(['warn',(d?d.label:'Tag')+': ca. '+String(L.planned).replace('.',',')+' Std. Programm, verfügbar ca. '+String(L.cap).replace('.',',')+' Std.'+(L.drive?' (nach ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std. Fahrt, geschätzt)':'')+'. Einen Punkt verschieben oder tauschen.','plan'])}});
   if(num(t.budget,0)>0&&c.total>num(t.budget,0)) out.push(['warn',eur(c.total-num(t.budget,0))+' über eurem Budget, siehe Spartipps','kosten']);
   if(t.ledger&&Object.keys(t.ledger).length){const fs=financeSummary(t);
@@ -842,7 +905,10 @@ function icsData(t,now){
     const startM=tm!=null?tm:(+w[0].slice(0,2))*60+(+w[0].slice(2));
     /* Kalenderdatum statt fester Millisekunden: auch Monats-/Jahres- und Sommerzeitwechsel.
        Ohne bekannte Dauer bleibt eine genaue Uhrzeit ein Start ohne erfundenes Ende. */
-    const dateAt=m=>{const date=new Date(d.date);date.setUTCDate(date.getUTCDate()+Math.floor(m/1440));const v=m%1440;return dt(date)+'T'+String(Math.floor(v/60)).padStart(2,'0')+String(v%60).padStart(2,'0')+'00'};
+    const dateAt=m=>{const date=new Date(d.date);date.setUTCDate(date.getUTCDate()+Math.floor(m/1440));const v=m%1440;
+      /* Zeitzone am Ziel gesetzt: Ortszeit dort als UTC ausgeben, damit jeder Kalender richtig umrechnet */
+      if(validTz(t.tz))return new Date(zonedToUtc(iso(date),v,t.tz)).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+      return dt(date)+'T'+String(Math.floor(v/60)).padStart(2,'0')+String(v%60).padStart(2,'0')+'00'};
     const endM=h?startM+Math.max(1,Math.round(h*60)):(tm==null?(+w[1].slice(0,2))*60+(+w[1].slice(2)):null);
     ev(t.id+'-'+it.uid,['DTSTART:'+dateAt(startM),endM!=null?'DTEND:'+dateAt(endM):'','SUMMARY:'+icsEsc(x.t),
       (x.map||x.ort||where)?'LOCATION:'+icsEsc(x.map||x.ort||where):'',
@@ -1235,6 +1301,7 @@ function tripForm(t,prefix){
    '<label class="fld"><span>Personen</span><input type="number" min="1" max="20" data-f="persons" value="'+esc(t.persons)+'"></label>'+
    '<label class="fld"><span>Budget gesamt (€)</span><input type="number" min="0" step="50" data-f="budget" value="'+esc(t.budget)+'"></label>'+
    '<label class="fld"><span>Start-Ort</span><input type="text" data-f="origin" value="'+esc(t.origin)+'"></label>'+
+   '<label class="fld"><span>Zeitzone am Ziel</span><select data-f="tz">'+TZ_LIST.map(z=>'<option value="'+z[0]+'"'+((t.tz||'')===z[0]?' selected':'')+'>'+esc(z[1])+'</option>').join('')+'</select></label>'+
    '<label class="fld"><span>Abfahrt am Anreisetag (optional)</span><input type="time" data-f="departTime" value="'+esc(t.departTime||'')+'"></label>'+
    (num(t.nights,1)>0||t.dateMode==='fix'?'<label class="fld"><span>Check-in ab (optional)</span><input type="time" data-f="checkinTime" value="'+esc(t.checkinTime||'')+'"></label>':'')+
   '</div>'+
@@ -1349,7 +1416,7 @@ function tUnterkunft(t){
     html+='<section class="block"><h2>1 · Ort wählen</h2><div class="grid">'+Object.keys(PLACES).map(k=>{const p=PLACES[k],sel=t.place===k;return '<div class="card'+(sel?' sel':'')+'"><span class="eyebrow">'+esc(p.region)+' · '+esc(p.time)+'</span><h3>'+esc(p.name)+'</h3><p class="small">'+esc(p.short)+'</p><ul class="plain small">'+p.pros.map(x=>'<li>'+esc(x)+'</li>').join('')+p.cons.map(x=>'<li class="muted">'+esc(x)+'</li>').join('')+'</ul><div class="foot">'+(sel?'<span class="badge ok">gewählt</span>':'<button type="button" class="btn sm" data-act="place" data-val="'+k+'">Diesen Ort wählen</button>')+(t.origin?lk(route(t.origin,p.map),'Route'):'<span class="small muted">Startort für eine Route eintragen</span>')+'</div></div>'}).join('')+'</div>'+
     (UI.confirm==='place'?'<div class="note"><b>Ort wechseln?</b><p>Unternehmungen vom alten Ort werden aus dem Tagesplan entfernt.</p><div class="row"><button type="button" class="btn sm" data-act="place-yes">Ja, wechseln</button><button type="button" class="btn ghost sm" data-act="place-no">Abbrechen</button></div></div>':'')+'</section>';
   } else {
-    html+='<section class="block"><h2>Ziel</h2><div class="form"><label class="fld"><span>Ort / Stadt</span><input type="text" data-f="dest" value="'+esc(t.dest)+'" placeholder="z. B. Wien"></label>'+(t.travel==='auto'?'<label class="fld"><span>Entfernung einfach (km)'+(t.kmSrc==='schaetzung'?' · geschätzt':'')+'</span><input type="number" min="0" data-f="km" value="'+esc(t.km)+'"></label>':'')+'</div>'+(t.kmSrc==='schaetzung'?'<p class="small muted">Aus dem Umkreis-Katalog geschätzt (Luftlinie × 1,3). Mit dem Routenplaner prüfen und hier eintragen.</p>':'')+(t.dest?'<div class="row">'+lk(route(t.origin,t.dest),'Route')+lk(mp(t.dest),'Karte')+'</div>':'')+'</section>';
+    html+='<section class="block"><h2>Ziel</h2><div class="form"><label class="fld"><span>Ort / Stadt</span><input type="text" data-f="dest" value="'+esc(t.dest)+'" placeholder="z. B. Wien"></label>'+(t.travel==='auto'?'<label class="fld"><span>Entfernung einfach (km)'+(t.kmSrc==='schaetzung'?' · geschätzt':'')+'</span><input type="number" min="0" data-f="km" value="'+esc(t.km)+'"></label>':'')+'</div>'+(t.kmSrc==='schaetzung'?'<p class="small muted">Aus dem Umkreis-Katalog geschätzt (Luftlinie × 1,3). Mit „Strecke berechnen“ prüfen oder selbst eintragen.</p>':'')+routeBlock(t)+(t.dest?'<div class="row">'+lk(route(t.origin,t.dest),'Route')+lk(mp(t.dest),'Karte')+'</div>':'')+'</section>';
   }
   let stays=(t.catalog==='allgaeu'&&pl?STAYS.filter(s=>s.place===t.place):[]).concat(t.customStays||[]);
   const f=UI.sflt; if(f.sauna)stays=stays.filter(s=>s.sauna);if(f.card)stays=stays.filter(s=>s.card===true);if(f.kitchen)stays=stays.filter(s=>s.kitchen);
@@ -1780,9 +1847,10 @@ function sheetImport(){
 function setField(obj,f,v){
   if(['persons','nights','budget','km','routeKm','ticket','verb','preis','stayQuote'].includes(f)&&num(v,0)<0){alertMsg('Negative Werte sind nicht erlaubt.');return;}
   if(['persons','nights'].includes(f)){obj[f]=Math.max(f==='persons'?1:0,Math.round(num(v,0)));return;}
-  if(['persons','nights','budget','km','routeKm','ticket'].includes(f)){obj[f]=Math.max(0,num(v,0));if(f==='km')delete obj.kmSrc;}
+  if(['persons','nights','budget','km','routeKm','ticket'].includes(f)){obj[f]=Math.max(0,num(v,0));if(f==='km'){delete obj.kmSrc;delete obj.routeMin;delete obj.routeHomeMin;delete obj.routeAt}}
   else if(['verb','preis'].includes(f)) obj[f]=num(v,f==='verb'?7.5:2.15);
   else if(f==='stayQuote') obj[f]=num(v,0)>0?num(v,0):null;
+  else if(f==='tz'){if(v===''||!validTz(v))delete obj.tz;else obj.tz=v;}
   else if(f==='departTime'||f==='checkinTime'){if(v==='')delete obj[f];else if(TIME_RE.test(v))obj[f]=v;else alertMsg('Bitte eine gültige Uhrzeit (HH:MM) eingeben.');}
   else{if(f==='origin'&&obj[f]!==v)delete obj.originGeo;obj[f]=v;}
 }
@@ -1869,6 +1937,9 @@ document.addEventListener('click',async e=>{
      const j=k+dir;if(j<0||j>=d.order.length)return;[d.order[k],d.order[j]]=[d.order[j],d.order[k]];[d.nights[k],d.nights[j]]=[d.nights[j],d.nights[k]];UI.legDraft=d;break}
    case 'leg-cancel': UI.legDraft=null;break;
    case 'leg-apply':{const d=UI.legDraft;if(!d||d.trip!==t.id)return;try{const r=reorderLegs(t,d.order,d.nights);const iss=typeof commitmentIssues==='function'?commitmentIssues(t,r.trip):[];if(iss.length)throw new Error('Nicht geändert: '+iss.join(' · '));Object.assign(t,r.trip);save(t);UI.legDraft=null;render();alertMsg('Etappen übernommen.'+(r.recalculated?' Kilometer neu geschätzt.':' Anfahrt/Heimfahrt nicht neu berechnet (Abfahrtsort ohne Koordinaten).'))}catch(err){alertMsg(err.message)}return}
+   case 'route-calc':{UI.routeBusy=true;render();try{UI.routeDraft=await routeCalc(t)}catch(err){alertMsg(err.message)}UI.routeBusy=false;render();return}
+   case 'route-apply':{try{routeApply(t,UI.routeDraft);save(t);UI.routeDraft=null;render();alertMsg('Strecke übernommen.')}catch(err){alertMsg(err.message)}return}
+   case 'route-drop': UI.routeDraft=null;break;
    case 'day-swap-open': sheetSwap(t,+val);return;
    case 'day-swap':{const [a,b2]=val.split('|').map(Number);const cand=swapDays(t,a,b2);const iss=typeof commitmentIssues==='function'?commitmentIssues(t,cand):[];if(iss.length){alertMsg('Nicht getauscht: '+iss.join(' · '));return}t.items=cand.items;t.packageId='';save(t);closeSheet();break}
    case 'plan-fill': planFillSheet(t);return;
@@ -1999,7 +2070,11 @@ function validateExtras(t){
  if(t.search)validateSearch(t.search);
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
  validateLedger(t.ledger);
- if(t.kmSrc!=null&&t.kmSrc!=='schaetzung')throw new Error('Ungültige Herkunft der Fahrstrecke.');
+ if(t.kmSrc!=null&&!['schaetzung','route'].includes(t.kmSrc))throw new Error('Ungültige Herkunft der Fahrstrecke.');
+ for(const k of ['routeMin','routeHomeMin'])if(t[k]!=null&&!(Number.isFinite(+t[k])&&+t[k]>=0&&+t[k]<=6000))throw new Error('Ungültige Fahrzeit in der Sicherung.');
+ if(t.routeAt!=null&&!/^\d{4}-\d{2}-\d{2}$/.test(t.routeAt))throw new Error('Ungültiges Routendatum.');
+ if(t.tz!=null&&!validTz(t.tz))throw new Error('Ungültige Zeitzone in der Sicherung.');
+ (t.legs||[]).forEach(l=>{if(l&&l.routeMin!=null&&!(Number.isFinite(+l.routeMin)&&+l.routeMin>=0&&+l.routeMin<=6000))throw new Error('Ungültige Fahrzeit einer Etappe.')});
  for(const k of ['departTime','checkinTime'])if(t[k]!=null&&!TIME_RE.test(t[k]))throw new Error('Ungültige Uhrzeit in der Sicherung.');
  (t.items||[]).forEach(i=>{if(i&&i.time!=null&&!TIME_RE.test(i.time))throw new Error('Ungültige Uhrzeit in der Sicherung.')});
  if(t.originGeo!=null&&!(t.originGeo&&Number.isFinite(+t.originGeo.lat)&&Number.isFinite(+t.originGeo.lon)&&Math.abs(+t.originGeo.lat)<=90&&Math.abs(+t.originGeo.lon)<=180))throw new Error('Ungültige Koordinaten des Abfahrtsorts.');
@@ -2664,12 +2739,13 @@ function actHours(a){if(!a)return null;const h=num(a.hours,0);if(h>0)return h;if
 /* Fahrminuten je Tag: Anreise, Etappen (Rundreise), Heimfahrt. Straßen-km aus der Reise, Ø 80 km/h, Schätzung. */
 function driveByDay(t){
   const n=daysOf(t).length,out=new Array(n).fill(0);if(t.travel!=='auto')return out;
-  const km=routeKm(t),min=k=>Math.round(k/DRIVE_KMH*60);
+  const km=routeKm(t),min=k=>Math.round(k/DRIVE_KMH*60),routed=t.kmSrc==='route';
   if(Array.isArray(t.legs)&&t.legs.length){let d=0;const inc=t.legs.reduce((x,l)=>x+num(l.roadKm,0),0);
-    t.legs.forEach((l,i)=>{if(d<n)out[d]+=min(num(l.roadKm,0));d+=Math.max(1,Math.round(num(l.nights,1)))});
-    out[n-1]+=min(Math.max(0,km*2-inc));return out}
-  if(n===1){out[0]=2*min(km);return out}
-  out[0]=min(km);out[n-1]+=min(km);return out;
+    t.legs.forEach((l,i)=>{if(d<n)out[d]+=num(l.routeMin,0)>0?num(l.routeMin,0):min(num(l.roadKm,0));d+=Math.max(1,Math.round(num(l.nights,1)))});
+    out[n-1]+=routed&&num(t.routeHomeMin,0)>0?num(t.routeHomeMin,0):min(Math.max(0,km*2-inc));return out}
+  const one=routed&&num(t.routeMin,0)>0?num(t.routeMin,0):min(km),back=routed&&num(t.routeHomeMin,0)>0?num(t.routeHomeMin,0):one;
+  if(n===1){out[0]=one+back;return out}
+  out[0]=one;out[n-1]+=back;return out;
 }
 function dayLoad(t){
   const days=daysOf(t),drive=driveByDay(t);
@@ -2764,7 +2840,7 @@ function legsBlock(t){
 
 /* ================= Start ================= */
 Store.loadLocal();
-window.__app={favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
+window.__app={routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

@@ -191,6 +191,15 @@ assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele
   const ac = C.toAct(DATA.places[0].spots[0], DATA.places[0], fakeUid);
   assert.deepEqual(ac.geo, { lat: DATA.places[0].spots[0].lat, lon: DATA.places[0].spots[0].lon }, 'Lage wird mitgespeichert');
 }
+{ /* Routing-URL und Antwort (Format wie routing.openstreetmap.de, am 15.10.2026 geprüft) */
+  const u = C.routeUrl([{ lat: 48.703, lon: 9.652 }, { lat: 48.491, lon: 9.399 }]);
+  assert.equal(u, 'https://routing.openstreetmap.de/routed-car/route/v1/driving/9.65200,48.70300;9.39900,48.49100?overview=false');
+  assert.throws(() => C.routeUrl([{ lat: 48, lon: 9 }]), /2 bis 25/);
+  assert.throws(() => C.routeUrl([{ lat: 99, lon: 9 }, { lat: 48, lon: 9 }]), /gültige/);
+  const r = C.parseRoute({ code: 'Ok', routes: [{ distance: 79070.1, duration: 5132.5, legs: [{ distance: 43209, duration: 3052.5 }, { distance: 35861.1, duration: 2080 }] }] });
+  assert.deepEqual(r, { km: 79, minutes: 85, legs: [{ km: 43, minutes: 50 }, { km: 36, minutes: 35 }] });
+  assert.throws(() => C.parseRoute({ code: 'NoRoute', message: 'Impossible route' }), /Keine Route.*Impossible/);
+}
 { /* Regenzwilling: nächste Drinnen-Idee, nicht sie selbst, Saison und Ausschluss beachtet */
   const fall = C.findSpot(all, 'bad-urach-wasserfall');
   assert.equal(fall.place.id, 'bad-urach');

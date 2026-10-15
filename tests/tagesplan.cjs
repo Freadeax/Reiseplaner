@@ -433,6 +433,64 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.favMerge([], many).list.length, 100, 'höchstens 100');
   assert(/Wachau – .*#ziel-wachau/.test(a.favText(r.list)));
 }
+/* Echte Route (nachgebildete Antwort), Übernahme, Fahrzeit je Tag, Ankunft; Zeitzonen; Kalender in UTC; Sicherung */
+{
+  const sample = { code: 'Ok', routes: [{ distance: 300000, duration: 3 * 3600 + 60, legs: [{ distance: 150000, duration: 5400 }, { distance: 150000, duration: 5460 }] }] };
+  let asked = '';
+  ctx.fetch = async url => { asked = url; return { ok: true, json: async () => sample }; };
+  const tt = trip({ origin: 'Göppingen', originGeo: { lat: 48.703, lon: 9.652 }, dest: 'Ulm', destGeo: { lat: 48.398, lon: 9.992 }, km: 100, kmSrc: 'schaetzung', nights: 2, departTime: '08:00' });
+  global.__routeTest = (async () => {
+    const d = await a.routeCalc(tt);
+    assert(asked.startsWith('https://routing.openstreetmap.de/routed-car/route/v1/driving/9.65200,48.70300;9.99200,48.39800;9.65200,48.70300'), 'Hin und zurück in einer Anfrage');
+    assert.equal(d.oneKm, 150); assert.equal(d.oneMin, 90);
+    assert.equal(tt.km, 100, 'Vorschlag ändert nichts');
+    a.routeApply(tt, d);
+    assert.equal(tt.km, 150); assert.equal(tt.kmSrc, 'route'); assert.equal(tt.routeMin, 90); assert.equal(tt.routeHomeMin, 90);
+    assert.deepEqual(Array.from(a.driveByDay(tt)), [90, 0, 90], 'echte Fahrzeit statt Schätzung');
+    assert.equal(a.arrivalMin(Object.assign({}, tt, { tz: undefined })), 8 * 60 + 90);
+    assert(!a.openCosts(tt).some(x => /geschätzt/.test(x)), 'berechnete Strecke ist keine Schätzung mehr');
+    const o = Object.assign({}, tt); a.setField(o, 'km', '120'); assert.equal(o.kmSrc, undefined); assert.equal(o.routeMin, undefined, 'eigene km verwerfen berechnete Zeit');
+    /* Rundreise: Etappen und Heimfahrt aus einer Anfrage */
+    const legsSample = { code: 'Ok', routes: [{ distance: 600000, duration: 21600, legs: [{ distance: 200000, duration: 7200 }, { distance: 150000, duration: 5400 }, { distance: 250000, duration: 9000 }] }] };
+    ctx.fetch = async () => ({ ok: true, json: async () => legsSample });
+    const rt = trip({ type: 'rund', nights: 4, origin: 'X', originGeo: { lat: 48.7, lon: 9.65 }, km: 500, kmSrc: 'schaetzung',
+      legs: [{ place: 'a', name: 'A', lat: 48.1, lon: 11.5, nights: 2, roadKm: 180 }, { place: 'b', name: 'B', lat: 47.8, lon: 13.0, nights: 2, roadKm: 120 }] });
+    const d2 = await a.routeCalc(rt); a.routeApply(rt, d2);
+    assert.deepEqual(rt.legs.map(l => [l.roadKm, l.routeMin]), [[200, 120], [150, 90]]);
+    assert.equal(rt.km, 300); assert.equal(rt.routeHomeMin, 150);
+    assert.deepEqual(Array.from(a.driveByDay(rt)), [120, 0, 90, 0, 150]);
+    /* Fehler bei fehlendem Start */
+    await assert.rejects(() => a.routeCalc(trip({ origin: '', dest: 'Ulm' })), /Start-Ort/);
+    ctx.fetch = async () => ({ ok: false, status: 503 });
+    await assert.rejects(() => a.routeCalc(tt), /503/);
+    delete ctx.fetch;
+  })();
+}
+{ /* Zeitzonen: Versatz mit Sommer-/Winterzeit, Umrechnung nach UTC, Kalender, Differenz, Sicherung */
+  const may = Date.UTC(2027, 4, 2, 12), jan = Date.UTC(2027, 0, 15, 12);
+  assert.equal(a.tzOffsetMin('Europe/Berlin', may), 120); assert.equal(a.tzOffsetMin('Europe/Berlin', jan), 60);
+  assert.equal(a.tzOffsetMin('Europe/London', may), 60); assert.equal(a.tzOffsetMin('America/New_York', jan), -300);
+  assert.equal(new Date(a.zonedToUtc('2027-05-02', 630, 'Europe/London')).toISOString(), '2027-05-02T09:30:00.000Z');
+  assert.equal(new Date(a.zonedToUtc('2027-03-28', 180, 'Europe/Berlin')).toISOString(), '2027-03-28T01:00:00.000Z', 'Tag der Zeitumstellung');
+  assert.equal(a.validTz('Europe/London'), true); assert.equal(a.validTz('Mars/Olympus'), false);
+  const base = { dateMode: 'fix', start: '2027-05-01', end: '2027-05-03' };
+  const lon = trip(Object.assign({ tz: 'Europe/London' }, base)), ber = trip(Object.assign({ tz: 'Europe/Berlin' }, base));
+  assert.equal(a.tzDiffMin(lon) - a.tzDiffMin(ber), -60, 'London eine Stunde früher als Berlin');
+  const m = act('Tower', 2); lon.customActs = [m]; lon.items = [{ uid: 'z1', act: m.id, day: 1, slot: 'morgen', time: '10:30' }];
+  const ics = a.icsData(lon, new Date('2027-04-01T00:00:00Z')).text.replace(/\r\n /g, '');
+  const ev = ics.split('BEGIN:VEVENT').find(e => e.includes('SUMMARY:Tower'));
+  assert(/DTSTART:20270502T093000Z/.test(ev) && /DTEND:20270502T113000Z/.test(ev), 'Ortszeit London als UTC');
+  /* Zeitzone und Mitternacht zusammen: 23:30 London + 2 Std. endet 01:30 Ortszeit = 00:30 UTC am Folgetag */
+  const late = act('Nachtfahrt', 2); lon.customActs.push(late); lon.items.push({ uid: 'z2', act: late.id, day: 1, slot: 'abend', time: '23:30' });
+  const ics2 = a.icsData(lon, new Date('2027-04-01T00:00:00Z')).text.replace(/\r\n /g, '');
+  const ev2 = ics2.split('BEGIN:VEVENT').find(e => e.includes('SUMMARY:Nachtfahrt'));
+  assert(/DTSTART:20270502T223000Z/.test(ev2) && /DTEND:20270503T003000Z/.test(ev2), 'Überlauf in UTC');
+  const o = {}; a.setField(o, 'tz', 'Europe/Lisbon'); assert.equal(o.tz, 'Europe/Lisbon'); a.setField(o, 'tz', 'Quatsch/X'); assert.equal(o.tz, undefined);
+  const bk = { format: 'reiseplaner-backup', version: 2, trips: [JSON.parse(JSON.stringify(Object.assign({}, lon, { id: 'ttz1', kmSrc: 'route', routeMin: 90, routeAt: '2026-10-15' })))] };
+  assert.equal(a.validateBackup(bk)[0].tz, 'Europe/London');
+  const b2 = JSON.parse(JSON.stringify(bk)); b2.trips[0].tz = 'Mars/Olympus'; assert.throws(() => a.validateBackup(b2), /Zeitzone/);
+  const b3 = JSON.parse(JSON.stringify(bk)); b3.trips[0].routeMin = -5; assert.throws(() => a.validateBackup(b3), /Fahrzeit/);
+}
 /* Wann wohin: Zählung je Monat, Beispiele, gewählter Monat hervorgehoben */
 {
   a.catState().month = '7';
@@ -446,4 +504,4 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
   assert.equal(a.catYear({ places: [] }), '');
   a.catState().month = '';
 }
-console.log('Tagesplan: Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) Wege zwischen Terminen und Merkliste-Datei geprüft.');
+global.__routeTest.then(() => console.log('Tagesplan: Route (Übernahme, Etappen, Fehler), Zeitzonen und Dauer, Fahrzeit (Auto/Bahn/Tagesausflug/Rundreise), Auslastung und Plan-Check, Tauschen mit Buchungsschutz, Tagesroute ohne Weiterfahrt, Etappen-Sicherung, Packhinweise, Saisonstreifen, Karte, Regenzwilling (Tausch, Erhalt, Buchungsschutz) Jahresüberblick und Etappen umsortieren (Blöcke, Weiterfahrt, km, feste Daten, Buchungsschutz), Mappe/Kalender/Teilen-Text und genaue Uhrzeiten (Fenster, Sortierung, Überschneidung, Ankunft, Check-in, Schutz, Kalender, Sicherung) Wege zwischen Terminen und Merkliste-Datei geprüft.')).catch(e => { console.error(e); process.exit(1); });

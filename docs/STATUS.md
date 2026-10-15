@@ -122,6 +122,29 @@ Gesamtüberblick für alle Beteiligten. Einzelheiten zu v3.0 stehen im nächsten
 5. **Philipp mit ChatGPT:** E-Mail-Weg festlegen (Domain plus SMTP). Erst danach Mitreisende einladen.
 6. **ChatGPT:** Gesamtstand gegen `docs/PUBLIC_PRODUCT.md` durchsehen. Befunde in #6, Codeänderungen an Speicher, Sync oder Schema nur mit `tests/sync.cjs` und dem CI-Job `database` grün.
 
+## Echte Fahrstrecke, Zeitzonen, Bahn-Link (Claude, 15.10.2026, Issue #8)
+
+Basis `28a01f1`, angekündigt in #8; auf ChatGPTs Kalender-Fix `d361486` gesetzt.
+- **Strecke berechnen:** Knopf im Ziel-Block (Ort & Unterkunft).
+  - Eine Anfrage an `routing.openstreetmap.de` (FOSSGIS-OSRM, OpenStreetMap-Daten, kostenlos, ohne Schlüssel, CORS geprüft): Start → Ziel bzw. alle Etappen → zurück zum Start.
+  - Das Ergebnis ist ein Vorschlag mit km und Fahrzeit je Abschnitt. Erst „Übernehmen“ speichert `km`, `kmSrc:'route'`, `routeMin`, `routeHomeMin`, `routeAt` und bei Rundreisen `legs[].roadKm/routeMin`.
+  - Auslastung, Fahrzeit je Tag und Ankunft nutzen danach die echte Zeit statt Ø 80 km/h.
+  - Wer die km von Hand ändert, verwirft die berechneten Zeiten.
+  - Fehlen Koordinaten, wird der Ortsname auf Knopfdruck über Nominatim gesucht.
+  - Grenzen: Die Fahrzeiten enthalten keinen Verkehr und keine Pausen; die App sagt das.
+- **Zeitzonen:**
+  - Optional `tz` (Auswahl von 13 Zonen) in den Eckdaten. Uhrzeiten im Plan gelten als Ortszeit am Ziel.
+  - `.ics` schreibt dann UTC (`…Z`), auch über Mitternacht; dafür ist ChatGPTs `dateAt` um die Zone ergänzt.
+  - Die Ankunft rechnet den Zeitunterschied zum Gerät ein. Der Plan-Check zeigt „Am Ziel gilt … X Std. später/früher“.
+  - Versatz über `Intl`, mit Sommer- und Winterzeit.
+- **Bahn/ÖPNV:** Bei Anreise mit Bahn bzw. Flug/Bus ein Link „Verbindung suchen“ (Kartensuche mit ÖPNV). Keine Fahrplan-API, keine erfundenen Zeiten.
+- **Speicher:** optionale Felder `kmSrc:'route'`, `routeMin`, `routeHomeMin`, `routeAt`, `tz`, `legs[].routeMin`, alle in `validateExtras` geprüft.
+- **Tests:** `tests/catalog.cjs` (URL, Antwortformat vom 15.10. geprüft, Fehler) und `tests/tagesplan.cjs`:
+  - Route mit nachgebildeter Antwort: Hin und zurück, Etappen, Fehler 503 und fehlender Start.
+  - Zeitzonen: Berlin/London/New York, Umstellungstag, UTC im Kalender, Überlauf über Mitternacht.
+  - Sicherung.
+  - `npm test` und Chromium grün.
+
 ## Merkliste sichern, importieren, teilen (Claude, 15.10.2026, Issue #8)
 
 Basis `42c4923`, angekündigt in #8.

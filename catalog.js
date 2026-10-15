@@ -369,6 +369,22 @@
     return Math.max(5, Math.round((airKm(a, b) * ROAD_FACTOR / 50 * 60 + 10) / 5) * 5);
   }
 
+  /* Echte Straßenroute über routing.openstreetmap.de (FOSSGIS-OSRM, OpenStreetMap-Daten, ohne Schlüssel).
+     Punkte als [{lat,lon}]; ergibt URL für eine Anfrage mit allen Abschnitten. */
+  var ROUTE_BASE = 'https://routing.openstreetmap.de/routed-car/route/v1/driving/';
+  function routeUrl(points) {
+    if (!Array.isArray(points) || points.length < 2 || points.length > 25 || !points.every(validPoint)) throw new Error('Route braucht 2 bis 25 gültige Punkte.');
+    return ROUTE_BASE + points.map(function (p) { return (+p.lon).toFixed(5) + ',' + (+p.lat).toFixed(5); }).join(';') + '?overview=false';
+  }
+  /* Antwort auswerten: km auf ganze km, Minuten auf 5 gerundet; je Abschnitt dasselbe. Fehler bei unbrauchbarer Antwort. */
+  function parseRoute(j) {
+    if (!j || j.code !== 'Ok' || !Array.isArray(j.routes) || !j.routes.length) throw new Error('Keine Route gefunden' + (j && j.message ? ': ' + j.message : '') + '.');
+    var r = j.routes[0], m = function (sec) { return Math.max(5, Math.round(sec / 60 / 5) * 5); };
+    if (!(r.distance >= 0) || !(r.duration >= 0)) throw new Error('Unvollständige Routenantwort.');
+    return { km: Math.round(r.distance / 1000), minutes: m(r.duration),
+      legs: (r.legs || []).map(function (l) { return { km: Math.round(l.distance / 1000), minutes: m(l.duration) }; }) };
+  }
+
   /* Attraktion als eigene Unternehmung der Reise. Kosten sind offen, nicht kostenlos. */
   function toAct(s, place, uidFn) {
     return { id: uidFn('c'), custom: true, t: s.name, cat: KIND_CAT[s.kind] || 'ausflug', cost: 0, costOpen: true, per: 'pp',
@@ -382,7 +398,7 @@
     airKm: airKm, roadKm: roadKm, driveMin: driveMin, durText: durText, validPoint: validPoint, normPlace: normPlace, normSpot: normSpot,
     checkQuery: checkQuery, searchLocal: searchLocal, seasonFit: seasonFit, spotSeason: spotSeason, rank: rank, surprise: surprise,
     stopsAlong: stopsAlong, nearbyFrom: nearbyFrom, dayPlan: dayPlan, toAct: toAct, BRING: BRING, bringFor: bringFor, parseHours: parseHours,
-    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, localTransferMin: localTransferMin, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
+    roundTrip: roundTrip, splitNights: splitNights, rainTwins: rainTwins, findSpot: findSpot, COMBOS: COMBOS, combos: combos, similar: similar, findPlaces: findPlaces, compareRows: compareRows, localTransferMin: localTransferMin, ROUTE_BASE: ROUTE_BASE, routeUrl: routeUrl, parseRoute: parseRoute, textMatch: textMatch, sortRanked: sortRanked, mapLayout: mapLayout, dayCapacity: dayCapacity };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.RPCatalog = api;
 })(typeof window !== 'undefined' ? window : globalThis);
