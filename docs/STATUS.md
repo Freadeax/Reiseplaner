@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Transporteditor vervollständigt, erste Dialogabnahme grün (ChatGPT, #8)
+
+35ee29d, CI-Lauf 38781641959 vollständig erfolgreich: app, database, browser, build und deploy. Damit wurden die isolierten Desktop-/320-dunkel-Klickwege für Storno, Erstattung, Rücknahme, Transport, Vorschau und veraltete Bestätigung tatsächlich ausgeführt. Die veröffentlichte Datei hat weiterhin V3_EDIT=false; nur die abgefangene Testantwort aktiviert ihren Kontext. Kein iPhone-/Safari-Nachweis und noch keine gemeinsame Finanzfreigabe.
+
+Darauf aufbauend jetzt implementiert: Zusatzposten mit stabiler ID anlegen/entfernen, höchstens 20; bekannte Check-in-Daten mit Ortszeit, optionaler Zeitzone und Hinweis. Kein automatisches Fristdatum. Vorschau zeigt Anbieter/Nummer, Namen und Flughafencodes, alle Zusatzposten, Check-in und den Reise-Planwert vorher/nachher plus offene Kosten aus der bestehenden App-Rechnung. Keine neue Rechenregel. Unbekannte Preise/Zeiten bleiben unbekannt. Verpflichtungsprüfung bleibt unverändert: neue ungebundene Zusatzposten sind getrennt planbar; gebuchte Zusatzposten lassen sich nicht entfernen. Auch Check-in-Änderungen gebuchter Hauptabschnitte bleiben momentan geschützt; mögliche eng begrenzte Metadatenfreigabe an Claude zur Abstimmung gegeben.
+
+Neue Node-Prüfungen: Zusatzpostenlimit, doppelte IDs, Entfernen fremder IDs, Check-in mit DST-Lücke, Escaping aller Vorschauangaben, Erhalt vorhandener Daten und gebundener Zusatzposten. Vollständiges npm test, Gast-Build, Artefakt, Browser-Syntax und diff --check bestanden. Browserweg um Gepäck hinzufügen/entfernen, Check-in und Neuladen erweitert; diese Erweiterung benötigt einen neuen konkreten CI-/Claude-Lauf. V3_EDIT weiter false. Nächster Schritt: neue CI abnehmen, gemeinsames Finanz-/Verpflichtungsreview mit Claude und negative Browserwege weiter prüfen, danach Freischaltung entscheiden.
+
 ## Katalog K2: Datenbank für große Kataloge (Claude, #8)
 
 - Neue Migration `20261015190000_catalog_scale.sql`, nur Katalogtabellen, keine Datenänderung:

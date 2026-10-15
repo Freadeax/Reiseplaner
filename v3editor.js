@@ -36,7 +36,8 @@
    else if(draft.action==='refund')next=api.addRefund(t,draft.target,F.refundPayload(draft.fields,hooks.newId(),draft.ref.entry));
    else next=api.uncancel(t,draft.target);
    if(next.id!==t.id)throw Error('Die geprüfte Änderung gehört zu einer anderen Reise.');
-   const html=draft.action==='transport'?F.transportPreview(t.transport,next.transport):F.financialPreview(draft.ref,api.financeEntry(next,draft.target));
+   const totals=draft.action==='transport'&&api.cost?{before:api.cost(t).total,after:api.cost(next).total,open:api.openCosts?api.openCosts(next):[]}:null;
+   const html=draft.action==='transport'?F.transportPreview(t.transport,next.transport,totals):F.financialPreview(draft.ref,api.financeEntry(next,draft.target));
    draft.candidate=clone(next);draft.preview=html;return state();
   }
   function apply(token){
@@ -56,7 +57,7 @@
    if(busy)throw Error('Speichern läuft bereits.');const t=current();
    if(draft.action!=='transport')throw Error('Kein Anreiseentwurf geöffnet.');
    draft.candidate=null;draft.preview='';draft.token=++serial;
-   const tr=F.changeTransport(F.readTransport(fields||{},draft.transport),Object.assign({},op,{newId:op.action==='add'?hooks.newId():undefined}));
+   const tr=F.changeTransport(F.readTransport(fields||{},draft.transport),Object.assign({},op,{newId:['add','add-addon'].includes(op.action)?hooks.newId():undefined}));
    api.setTransport(t,tr); /* auch innerhalb des Entwurfs keine versteckte Verpflichtungsverletzung */
    draft.transport=tr;draft.fields={};return state();
   }

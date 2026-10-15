@@ -846,7 +846,7 @@ let v3Editor=null;
 function v3CanEdit(t){const m=t&&Store.meta[t.id];return !!(t&&V3_EDIT&&Store.corruptRaw===null&&!Store.localError&&!Store.conflict&&Store.canEdit(t.id)&&!(m&&(m.unreadable||m.conflict)))}
 function v3Controller(){
  if(!window.RPV3Forms||!window.RPV3Editor)throw Error('Die Editorbausteine konnten nicht geladen werden. Bitte neu laden.');
- if(!v3Editor)v3Editor=window.RPV3Editor.create({financeEntry,cancelEntry,addRefund,uncancel,setTransport},{getTrip:id=>Store.get(id),scope:()=>Store.scope,enabled:()=>V3_EDIT,canEdit:v3CanEdit,newId:()=>uid('rf'),put:t=>Store.put(t)});
+ if(!v3Editor)v3Editor=window.RPV3Editor.create({financeEntry,cancelEntry,addRefund,uncancel,setTransport,cost,openCosts},{getTrip:id=>Store.get(id),scope:()=>Store.scope,enabled:()=>V3_EDIT,canEdit:v3CanEdit,newId:()=>uid('rf'),put:t=>Store.put(t)});
  return v3Editor;
 }
 function v3Actions(t,target){
@@ -876,7 +876,7 @@ document.addEventListener('click',e=>{
   document.querySelectorAll('[data-v3-sheet] [name]').forEach(el=>{fields[el.name]=el.value});
   if(action==='apply'){editor.apply(Number(button.getAttribute('data-token')));closeSheet();render();return}
   if(action==='back')editor.back();
-  else if(action.startsWith('segment-'))editor.segment({action:action.slice(8),dir:button.getAttribute('data-dir'),id:button.getAttribute('data-id')},fields);
+  else if(action.startsWith('segment-'))editor.segment({action:action.slice(8),dir:button.getAttribute('data-dir'),id:button.getAttribute('data-id'),addonId:button.getAttribute('data-addon')},fields);
   else if(action.startsWith('preview-'))editor.preview(fields);else return;
   v3Sheet();
  }catch(err){const box=$('#v3-editor-error');if(box){box.textContent=err.message;box.hidden=false;box.focus()}else alertMsg(err.message)}

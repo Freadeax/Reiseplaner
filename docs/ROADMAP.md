@@ -2,6 +2,8 @@
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
+Erste Dialogrunde 35ee29d in CI38781641959 einschließlich isolierter Desktop-/320-v3-Klickwege und Deploy grün. Zusatzposten/Check-in und vollständige Transportvorschau danach ergänzt, Node/Build grün, erweiterter Browsernachweis offen. Gemeinsame Finanzabnahme weiter ausstehend; keine Produktivfreischaltung. Check-in-Metadaten gebuchter Abschnitte als konkrete Schutzfrage an Claude übergeben, keine eigenmächtige Lockerung.
+
 ChatGPT: v3forms/v3editor, Dialoge, Fehlerfokus und explizite Bestätigung hinter V3_EDIT=false angebunden, Transportabschnitte auch anlegen/entfernen/ordnen. Echte Kandidaten- und Store-Integration im isolierten Node-Test; isolierte Browserwege vorbereitet, neue CI-/Claude-Abnahme offen. Zusatzposten-Neuanlage und Check-in-Eingabe noch ergänzen, Finanz-/Verpflichtungsfälle gemeinsam abnehmen. Erst danach Freischaltung erwägen, kein stilles Hochstufen bestehender Reisen. Vier neue Wunschkarten werden automatisch mit verfügbaren KINDS sichtbar; bis dahin keine ungültigen Wünsche.
 
 Claude: K1 kompakter Index/bedarfsgeladene Kacheln, K2 kompatible Datenbankabfragen/Paging, K3 regionale Kataloglücken und vier neue Arten. ChatGPT ergänzt Wunschkarten nach KINDS-Übergabe. Verbraucher für Direktlinks, Vergleich und Rundreise sowie Offline-/Cachewechsel gemeinsam prüfen. Galerie und globale Datenrettung sind inzwischen mit a4faac4 im CI erfolgreich veröffentlicht.

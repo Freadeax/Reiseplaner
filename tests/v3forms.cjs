@@ -19,6 +19,17 @@ assert.throws(()=>F.changeTransport(added,{action:'up',dir:'out',id:'seg1'}),/we
 assert.throws(()=>F.changeTransport(added,{action:'remove',dir:'back',id:'seg1'}),/nicht mehr vorhanden/);
 let full=transport;for(let i=2;i<=12;i++)full=F.changeTransport(full,{action:'add',dir:'out',newId:'seg'+i});
 assert.throws(()=>F.changeTransport(full,{action:'add',dir:'out',newId:'seg13'}),/höchstens 12/);
+const withAddon=F.changeTransport(transport,{action:'add-addon',dir:'out',id:'seg1',newId:'addon2'});
+assert.equal(withAddon.out[0].addons[1].cost,null);assert.equal(withAddon.out[0].addons[1].id,'addon2');
+assert.equal(F.changeTransport(withAddon,{action:'remove-addon',dir:'out',id:'seg1',addonId:'addon2'}).out[0].addons.length,1);
+assert.throws(()=>F.changeTransport(transport,{action:'remove-addon',dir:'out',id:'seg1',addonId:'absent'}),/nicht mehr vorhanden/);
+assert.throws(()=>F.changeTransport(transport,{action:'add-addon',dir:'out',id:'seg1',newId:'seg1'}),/doppelte ID/);
+let maxAddons=transport;for(let i=2;i<=20;i++)maxAddons=F.changeTransport(maxAddons,{action:'add-addon',dir:'out',id:'seg1',newId:'addon'+i});
+assert.throws(()=>F.changeTransport(maxAddons,{action:'add-addon',dir:'out',id:'seg1',newId:'addon21'}),/höchstens 20/);
+const checkin=F.readTransport({'out.seg1.checkin_date':'2026-10-16','out.seg1.checkin_time':'08:30','out.seg1.checkin_tz':'Europe/Berlin','out.seg1.checkin_note':'<script>Frist vom Anbieter'},transport);
+assert.equal(checkin.out[0].checkin.opens.time,'08:30');assert.equal(checkin.out[0].checkin.note,'<script>Frist vom Anbieter');
+const cp=F.transportPreview(transport,checkin,{before:100,after:200,open:['<img> Preis offen']});assert(cp.includes('08:30'));assert(cp.includes('200,00'));assert(cp.includes('&lt;script&gt;'));assert(!cp.includes('<script>'));assert(!cp.includes('<img>'));
+assert.throws(()=>F.readTransport({'out.seg1.checkin_date':'2026-03-29','out.seg1.checkin_time':'02:30','out.seg1.checkin_tz':'Europe/Berlin'},transport),/Zeitumstellung/);
 const next=F.readTransport({'out.seg1.cost':'199,90','out.seg1.toCode':'pmi','out.seg1.addon.add1.cost':'0'},transport);
 assert.equal(next.out[0].cost,199.9);assert.equal(next.out[0].toCode,'PMI');assert.equal(next.out[0].addons[0].cost,0);assert.equal(next.out[0].id,'seg1');assert.deepEqual(next.out[0].checkin,transport.out[0].checkin);assert.equal(JSON.stringify(trip),snapshot,'Quelldaten unverändert');
 assert.equal(F.readTransport({'out.seg1.cost':''},next).out[0].cost,null);
