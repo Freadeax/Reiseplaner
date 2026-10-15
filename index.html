@@ -662,11 +662,11 @@ function outboundMin(t){if(Array.isArray(t.legs)&&t.legs.length){const l=t.legs[
 function routeBlock(t){
   if(!CATX)return '';
   if(t.travel==='bahn'||t.travel==='flug')return t.origin&&t.dest?'<div class="row">'+lk('https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(t.origin)+'&destination='+encodeURIComponent(t.dest)+'&travelmode=transit','Verbindung suchen (Bahn/ÖPNV)')+'</div><p class="small muted">Öffnet die Kartensuche mit öffentlichen Verkehrsmitteln. Fahrplan und Preise dort bzw. beim Verkehrsunternehmen prüfen.</p>':'';
-  const d=UI.routeDraft&&UI.routeDraft.trip===t.id?UI.routeDraft:null;
+  const d=UI.routeDraft&&UI.routeDraft.trip===t.id?UI.routeDraft:null,stale=!!(d&&d.source!==JSON.stringify(t));
   return '<div class="panel"><div class="row"><button type="button" class="btn ghost sm" data-act="route-calc"'+(UI.routeBusy?' disabled':'')+'>'+(UI.routeBusy?'Berechne …':'Strecke berechnen (OpenStreetMap)')+'</button>'+
    (t.kmSrc==='route'?'<span class="small">Berechnet'+(t.routeAt?' am '+esc(fmtLong(pd(t.routeAt))):'')+': ≈ '+num(t.km,0)+' km, ca. '+esc(CATX.durText(num(t.routeMin,0)))+' einfach</span>':'')+'</div>'+
-   (d?'<div class="note"><b>Vorschlag: ≈ '+d.oneKm+' km, ca. '+esc(CATX.durText(d.oneMin))+' einfache Strecke</b>'+(d.legs?'<p class="small">'+d.legs.map((l,i)=>esc(l.label)+': ≈ '+l.km+' km, ca. '+esc(CATX.durText(l.minutes))).join('<br>')+'</p>':'')+
-     '<p class="small muted">Berechnet mit routing.openstreetmap.de (OpenStreetMap-Mitwirkende), ohne Verkehr und Pausen. Start: '+esc(d.fromLabel)+'.</p><div class="row"><button type="button" class="btn sm" data-act="route-apply">Übernehmen</button><button type="button" class="btn ghost sm" data-act="route-drop">Verwerfen</button></div></div>':'')+
+   (d?'<div class="note">'+(stale?'<b role="status">Vorschlag veraltet – Reise wurde geändert. Bitte neu berechnen.</b>':'')+'<b>Vorschlag: ≈ '+d.oneKm+' km, ca. '+esc(CATX.durText(d.oneMin))+' einfache Strecke</b>'+(d.legs?'<p class="small">'+d.legs.map((l,i)=>esc(l.label)+': ≈ '+l.km+' km, ca. '+esc(CATX.durText(l.minutes))).join('<br>')+'</p>':'')+
+     '<p class="small muted">Berechnet mit routing.openstreetmap.de (OpenStreetMap-Mitwirkende), ohne Verkehr und Pausen. Start: '+esc(d.fromLabel)+'.</p><div class="row"><button type="button" class="btn sm" data-act="route-apply"'+(stale?' disabled':'')+'>Übernehmen</button><button type="button" class="btn ghost sm" data-act="route-drop">Verwerfen</button></div></div>':'')+
    '<p class="small muted">Übertragen werden nur Koordinaten; fehlen sie, wird der Ortsname bei OpenStreetMap (Nominatim) gesucht.</p></div>';
 }
 async function geoLookup(text){
@@ -687,15 +687,17 @@ async function routePoints(t){
   return {from,stops};
 }
 async function routeCalc(t){
-  const {from,stops}=await routePoints(t);
+  const source=JSON.stringify(t),snapshot=JSON.parse(source);
+  const {from,stops}=await routePoints(snapshot);
   const pts=[from].concat(stops,[from]);
   const r=await catTimeout(fetch(CATX.routeUrl(pts)),15000);if(!r.ok)throw new Error('Routing: Fehler '+r.status);
   const res=CATX.parseRoute(await r.json());
   const legs=res.legs.map((l,i)=>Object.assign({label:(i===0?from.label:stops[i-1].label)+' → '+(i<stops.length?stops[i].label:from.label+' (Heimfahrt)')},l));
-  return {trip:t.id,fromLabel:from.label,originGeo:{lat:from.lat,lon:from.lon},oneKm:legs[0].km,oneMin:legs[0].minutes,totalKm:res.km,legs:legs.length>2?legs:null,raw:legs,at:iso(todayUTC())};
+  return {trip:snapshot.id,source,fromLabel:from.label,originGeo:{lat:from.lat,lon:from.lon},oneKm:legs[0].km,oneMin:legs[0].minutes,totalKm:res.km,legs:legs.length>2?legs:null,raw:legs,at:iso(todayUTC())};
 }
 function routeApply(t,d){
   if(!d||d.trip!==t.id)throw new Error('Kein Vorschlag vorhanden.');
+  if(!d.source||d.source!==JSON.stringify(t))throw new Error('Die Reise hat sich seit der Routenberechnung geändert. Bitte die Strecke neu berechnen.');
   const L=d.raw;
   if(Array.isArray(t.legs)&&t.legs.length&&L.length===t.legs.length+1){t.legs=t.legs.map((l,i)=>Object.assign({},l,{roadKm:L[i].km,routeMin:L[i].minutes}));t.km=Math.round(d.totalKm/2);t.routeMin=L[0].minutes;t.routeHomeMin=L[L.length-1].minutes}
   else{t.km=L[0].km;t.routeMin=L[0].minutes;t.routeHomeMin=L[L.length-1].minutes}

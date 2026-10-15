@@ -444,6 +444,15 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
     assert(asked.startsWith('https://routing.openstreetmap.de/routed-car/route/v1/driving/9.65200,48.70300;9.99200,48.39800;9.65200,48.70300'), 'Hin und zurück in einer Anfrage');
     assert.equal(d.oneKm, 150); assert.equal(d.oneMin, 90);
     assert.equal(tt.km, 100, 'Vorschlag ändert nichts');
+    const changed=JSON.parse(JSON.stringify(tt));changed.origin='Anderer Start';const changedBefore=JSON.stringify(changed);
+    assert.throws(()=>a.routeApply(changed,d),/neu berechnen/);
+    assert.equal(JSON.stringify(changed),changedBefore,'Veraltete Route verändert nichts');
+    assert.throws(()=>a.routeApply(tt,Object.assign({},d,{source:undefined})),/neu berechnen/);
+    a.UI.routeDraft=d;
+    assert(!a.routeBlock(tt).includes('route-apply" disabled'));
+    assert(a.routeBlock(changed).includes('route-apply" disabled'));
+    assert(a.routeBlock(changed).includes('Vorschlag veraltet'));
+    a.UI.routeDraft=null;
     a.routeApply(tt, d);
     assert.equal(tt.km, 150); assert.equal(tt.kmSrc, 'route'); assert.equal(tt.routeMin, 90); assert.equal(tt.routeHomeMin, 90);
     assert.deepEqual(Array.from(a.driveByDay(tt)), [90, 0, 90], 'echte Fahrzeit statt Schätzung');
@@ -459,6 +468,17 @@ assert(/role="img"/.test(mapHtml) && /data-val="harz"/.test(mapHtml) && />2<\/te
     assert.deepEqual(rt.legs.map(l => [l.roadKm, l.routeMin]), [[200, 120], [150, 90]]);
     assert.equal(rt.km, 300); assert.equal(rt.routeHomeMin, 150);
     assert.deepEqual(Array.from(a.driveByDay(rt)), [120, 0, 90, 0, 150]);
+    /* Eine laufende Ortssuche liest nur ihren Start-Snapshot, nicht spätere Eingaben. */
+    let releaseLookup,routeAsked='';
+    ctx.fetch=url=>url.includes('nominatim')?new Promise(resolve=>{releaseLookup=()=>resolve({ok:true,json:async()=>[{lat:'48.703',lon:'9.652',display_name:'Göppingen'}]})}):Promise.resolve({ok:true,json:async()=>{routeAsked=url;return sample}});
+    const pendingTrip=trip({origin:'Göppingen',dest:'Ulm',destGeo:{lat:48.398,lon:9.992}});
+    const pending=a.routeCalc(pendingTrip);
+    pendingTrip.dest='München';pendingTrip.destGeo={lat:48.137,lon:11.575};
+    releaseLookup();const oldProposal=await pending;
+    assert(routeAsked.includes('9.99200,48.39800'),'Abfrage verwendet unverändertes Ziel des Start-Snapshots');
+    const pendingBefore=JSON.stringify(pendingTrip);
+    assert.throws(()=>a.routeApply(pendingTrip,oldProposal),/neu berechnen/);
+    assert.equal(JSON.stringify(pendingTrip),pendingBefore);
     /* Fehler bei fehlendem Start */
     await assert.rejects(() => a.routeCalc(trip({ origin: '', dest: 'Ulm' })), /Start-Ort/);
     ctx.fetch = async () => ({ ok: false, status: 503 });

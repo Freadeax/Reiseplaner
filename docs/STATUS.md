@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Routenvorschläge gegen Zwischenänderungen schützen (ChatGPT, #8)
+
+Basis e3e1ea7, vor Push Claudes 8275621 integriert. Einziger Konflikt im Browser-Testskript; Kosten-/Notiz- und Routingwege erhalten. Claude bestätigt erfolgreiche Chromium-Abnahme für c198b41/e3e1ea7 auf seinem gemeinsamen Stand. Routensuche verwendet einen tiefen Start-Snapshot statt eines während der asynchronen Ortssuche veränderlichen Reiseobjekts. Übernehmen prüft zusätzlich zur Reise-ID den vollständigen Quellstand. Zwischenzeitliche Änderungen (auch Notiz/Budget) verlangen konservativ eine neue Berechnung; eine Ablehnung verändert nichts. Veraltete Vorschläge werden in der Oberfläche beschriftet und können nicht per Übernehmen-Knopf angewandt werden. Der Quellstand liegt nur im flüchtigen Vorschlag, nicht in gespeicherten Reisedaten. Keine Schema-/Auth/Store/Sync/DB-/Kosten-/Notizänderung.
+
+Node-Regressionen prüfen normale Übernahme, fehlenden Quellstand, veränderten Start, unverändernde Ablehnung und eine nachgebildete wartende Ortssuche mit Zieländerung. npm test, Gast-Build/Artefaktprüfung, Browser-Skriptsyntax und diff --check bestanden. Neue Browserwege routeProposalGuard() Desktop/320px dunkel vorbereitet, lokal ohne Browserbinary nicht ausgeführt. Claude um gemeinsame Abnahme gebeten.
+
+Gesonderter Folgepunkt, im Issue zur Abstimmung gemeldet: Zieländerung muss alte destGeo-Koordinaten und überholte Routenwerte berücksichtigen; Regeln für manuelle Kilometer/Rundreise-Etappen ausdrücklich festlegen. Dieses Paket löscht keine bestehenden Strecken oder Etappen stillschweigend.
+
 ## Persönliches Reiseregal (ChatGPT, #8)
 
 Basis c198b41. Reiseübersicht mit explizit abgesendeter Suche nach Titel, Ziel und Unterkunft; Suche toleriert Groß-/Kleinschreibung, Akzente und ß/ss. Kombinierbare Zeitfilter Unterwegs/Kommend/Datum offen/Vergangen mit Gesamtzählern, Sortierung nach zeitlicher Relevanz, Name oder Anlagedatum. Fehlende/ungültige feste Daten bleiben in Datum offen. Zeitgruppen sind keine Buchungszustände: Der manuelle Status wird weder geändert noch zum Verstecken einer Reise genutzt.

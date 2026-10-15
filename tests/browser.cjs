@@ -749,6 +749,23 @@ async function costNotes(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': Budget im Kostenmodul, Notiz-Bausteine, Links und Telefon geprüft.');
 }
 
+async function routeProposalGuard(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Routenvorschlag: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.route(/routing\.openstreetmap\.de/,r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({code:'Ok',routes:[{distance:300000,duration:10800,legs:[{distance:150000,duration:5400},{distance:150000,duration:5400}]}]})}));
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.newTrip({origin:'Göppingen',originGeo:{lat:48.703,lon:9.652},dest:'Ulm',destGeo:{lat:48.398,lon:9.992},km:100});a.Store.put(t,true);a.go('r-'+t.id+'-unterkunft');return t.id});
+ await p.click('[data-act="route-calc"]');await p.waitForSelector('[data-act="route-apply"]');
+ await p.fill('[data-f="km"]','222');await p.press('[data-f="km"]','Tab');
+ await p.waitForSelector('[data-act="route-apply"][disabled]');assert((await viewText(p)).includes('Vorschlag veraltet'));
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).km,id),222,'Keine Übernahme des alten Vorschlags');
+ await p.click('[data-act="route-calc"]');await p.waitForSelector('[data-act="route-apply"]:not([disabled])');
+ await p.click('[data-act="route-apply"]');
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).km,id),150);
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).kmSrc,id),'route');
+ await noOverflow(p,name+' Routenvorschlag');await ctx.close();console.log(name+': veraltete Route gesperrt, neu berechnet und bewusst übernommen.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -774,6 +791,8 @@ async function costNotes(browser,base,name,ctxOpts){
     await sheetKeyboard(browser,base,'dialog-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await tripShelfFlow(browser,base,'regal-desktop',{viewport:{width:1280,height:900}});
     await tripShelfFlow(browser,base,'regal-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await routeProposalGuard(browser,base,'route-desktop',{viewport:{width:1280,height:900}});
+    await routeProposalGuard(browser,base,'route-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();

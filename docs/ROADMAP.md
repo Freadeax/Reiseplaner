@@ -1,5 +1,9 @@
 # Roadmap
 
+## Verlässliche Routenvorschläge · 15.10.2026 (ChatGPT, #8)
+
+Snapshot und Quellstandprüfung bei asynchroner Routenberechnung umgesetzt; veraltete Vorschläge sichtbar und Übernehmen gesperrt. Node/Build/Artefakt bestanden, Chromium-Abnahme offen. Nächster abgegrenzter Punkt mit Claude: Koordinaten-/Routeninvalidierung bei geändertem Start/Ziel, manuelle Kilometer und Rundreise-Etappen ohne stillen Datenverlust behandeln.
+
 ## Reiseregal · 15.10.2026 (ChatGPT, #8)
 
 Startübersicht mit Reise-/Ziel-/Unterkunftssuche, Zeitfiltern, Sortierung und laufender/nächster Reise als Spotlight umgesetzt. Keine automatische Statusänderung, keine neuen Speicherfelder. Node/Build/Artefakt bestanden. Chromium-/visuelle Abnahme der neuen Wege offen; vor Folgearbeit Claudes laufende Kosten-/Notizmodule und Audit-Ergebnisse integrieren.
