@@ -2,6 +2,8 @@
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
+Aktueller Nachweis: 7756ca8 / CI38784550937 vollständig grün einschließlich Deploy, Produktivcode 6dd3f09. Alle neuen positiven/negativen Browserwege und Legacy-Leseschutz bestanden. V3_EDIT bleibt false. Nächster gemeinsamer Entscheidungspunkt: Finanz-/Verpflichtungsreview und Sichtprüfung mit Claude, danach abgestimmte Freigabe erwägen. K4-Daten weiterhin bei Claude, vier Wunschkarten aktivieren sich erst mit KINDS. Frühere offene CI-Abschnitte unten sind historische Zwischenstände.
+
 6dd3f09 app/database grün; Browser-Fixture für abschließenden Nur-Lesen-Test nutzt jetzt aktives Angebot im Kostenbereich, statt ein vom Standardsuchort ausgefiltertes Angebot zu erwarten. Produktiver Schutzfix unverändert, neuer gemeinsamer CI-Lauf muss grün sein.
 
 Vorrangiger Reviewfund: Legacy-Such-/Angebotshandler konnten v3 trotz Nur-Lesen auf2 zurückstufen. UI-Zuweisungen und frühe Sperren korrigiert; echter Callback-Repro sowie Angebots-Snapshot-/Erstattungsschutz ergänzt, SWv9. Vollständige neue CI-Abnahme vor Veröffentlichungsnachweis. d180f0a: Browser grün, Cloud-E2E Rechteentzug Timeout an Claude übergeben, kein Deploy. Keine Freischaltung aus diesen Teilnachweisen ableiten.

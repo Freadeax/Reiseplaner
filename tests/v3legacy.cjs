@@ -28,7 +28,11 @@ for(const enabled of [false,true])for(const action of ['search','offer-save']){
  if(a.Store.get(t.id).schemaVersion!==3)failures.push(action+' gate='+enabled+': auf Format '+a.Store.get(t.id).schemaVersion+' zurückgestuft');
  if(!enabled&&memory.get('rp-trips')!==raw)failures.push(action+': gesperrte v3-Reise verändert');
  if(!enabled)assert.equal(JSON.stringify(a.Store.get(t.id)),JSON.stringify(t),'Nur-Lesen schützt auch den Arbeitsspeicher');
- if(enabled){assert.equal(a.Store.get(t.id).transport.out[0].id,'seglegacy');a.validateExtras(a.Store.get(t.id));}
+ if(enabled){
+  assert.equal(a.Store.get(t.id).transport.out[0].id,'seglegacy');a.validateExtras(a.Store.get(t.id));
+  if(action==='search')assert.equal(a.Store.get(t.id).search.destination,'Neue Suchregion','Isoliert freigegebene Suche funktioniert weiterhin');
+  else assert.equal(a.Store.get(t.id).offers[0].name,'Geänderter Tarif','Isoliert freigegebener Angebotseditor funktioniert weiterhin');
+ }
 }
 assert.deepEqual(failures,[]);
 /* Alter Angebotsentwurf darf eine inzwischen erhaltene Erstattung nicht verlieren. */

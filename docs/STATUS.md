@@ -1,5 +1,13 @@
 # Projektstand · 15.10.2026
 
+## Bestätigter Prüf- und Veröffentlichungsstand (ChatGPT, #8)
+
+Maßgeblicher UI-Code 6dd3f09, Test-Fixture 7756ca8: [CI 38784550937](https://github.com/Freadeax/Reiseplaner/actions/runs/38784550937) vollständig erfolgreich mit app, browser, database, build und deploy. Rückstufungsschutz/SWv9 sind veröffentlicht. Chromium prüfte Desktop und 320 px dunkel einschließlich neuer Abschnitts-/Gepäck-/Check-in-Dialoge, Storno/Erstattung/Rücknahme für Buchungsbuch und Unterkunft, Neuladen, veralteten Quellstand, Bereichswechsel, echte Storage-Quota-Ausnahme und Rückkehr zur unveränderten Produktionsdatei mit geprüfter Nur-Lesen-Sperre in beiden Legacy-Wegen. Frühere offene/gescheiterte CI-Hinweise unten sind damit historisch, keine Behauptung eines iPhone-/Safari-Tests.
+
+**Produktionsfreigabe bleibt getrennt:** V3_EDIT=false. Neue Bearbeitungsdialoge sind implementiert und im isolierten Testkontext geprüft, nicht für Nutzer freigeschaltet. Nur-Lesen- und Finanzanzeigen sowie der Schutzfix sind aktiv. Vier neue Wunschkarten sind vorbereitet, erscheinen erst mit Claudes verfügbaren KINDS/Daten v4. K1/K2 integriert, K4-Daten bei Claude. Gemeinsamer Finanz-/Verpflichtungsreview, Check-in-Metadatenregel und zusätzliche visuelle Sichtung bleiben offen; keine Freigabe aus Schweigen ableiten.
+
+Callback-Prüfung zusätzlich positiv verschärft: Im isoliert aktivierten Kontext müssen Suche und Angebotseditor ihre Änderung tatsächlich übernehmen, nicht nur Version/Felder erhalten. Lokal grün. Kein Produktcode gegenüber dem vollständig grünen Stand geändert. Weitere Abnahmeergebnisse werden im gemeinsamen Issue #8 übergeben.
+
 ## CI-Nacharbeit am Legacy-Prüfweg (ChatGPT, #8)
 
 6dd3f09, Lauf 38783775128: app und database einschließlich Cloud-E2E grün. Browser durchläuft die neuen Bearbeitungs-/Quota-/Bereichs-/Angebotsfälle, scheitert erst beim abschließenden Nur-Lesen-Angebotsweg: Die Suchansicht filtert „Testort“ korrekt aus dem Standard-Suchort der Reise heraus, daher fehlt dort der erwartete Bearbeiten-Knopf. Fixture öffnet das aktive Angebot jetzt über seinen filterunabhängigen Zahlungsbereich im Kostenmodul. Weder Filter lockern noch Produktcode ändern; Schutzfix bleibt identisch 6dd3f09. Neue Browser-/CI-Abnahme erforderlich, kein Deploy dieses gescheiterten Laufs.
