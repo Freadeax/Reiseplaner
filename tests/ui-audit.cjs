@@ -6,6 +6,7 @@
    - Bedienelemente ohne zugänglichen Namen
    - seitliches Überlaufen der Seite
    - sichtbarer Fokus (Umriss oder Schatten) beim ersten Bedienelement nach Tab
+   - überlappende Bedienelemente und halbtransparente feste/klebende Leisten (Durchscheinen)
    Darstellungen: alle Werte von [data-act="appearance-set"] (book/studio/compact), gesetzt über localStorage
    rp-appearance und html[data-layout]. Ohne Auswahl wird nur die Standard-Darstellung geprüft. */
 const fs = require('fs');
@@ -48,7 +49,7 @@ function inspect() {
   };
   const visible = el => { const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
   const sel = el => { let s = el.tagName.toLowerCase(); if (el.id) s += '#' + el.id; const cl = [...el.classList].slice(0, 2); if (cl.length) s += '.' + cl.join('.'); const a = el.getAttribute('data-act') || el.getAttribute('data-go'); if (a) s += '[' + (el.getAttribute('data-act') ? 'data-act' : 'data-go') + '=' + a + ']'; return s; };
-  const out = { contrast: [], small: [], unnamed: [], overflow: document.documentElement.scrollWidth - window.innerWidth };
+  const out = { contrast: [], small: [], unnamed: [], overlap: [], seeThrough: [], overflow: document.documentElement.scrollWidth - window.innerWidth };
   const seen = new Set();
   const textEls = [...document.querySelectorAll('body *')].filter(el => visible(el) && [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length > 1));
   textEls.forEach(el => {
@@ -68,6 +69,21 @@ function inspect() {
     const name = (el.getAttribute('aria-label') || el.textContent || el.getAttribute('title') || el.value || (el.labels && el.labels[0] && el.labels[0].textContent) || el.getAttribute('placeholder') || '').trim();
     if (!name && !(el.closest('label') && el.closest('label').textContent.trim())) out.unnamed.push(sel(el));
   });
+  /* Überlappung: sichtbare Bedienelemente, die sich überdecken (Inhalte zugeklappter <details> zählen nicht) */
+  const shown = el => { const d = el.closest('details:not([open])'); return visible(el) && !(d && !el.closest('summary')); };
+  /* Offener Dialog: nur dessen Inhalt zählt (die Seite dahinter ist verdeckt). Kartenpunkte in SVG dürfen sich bewusst überlagern. */
+  const scope = document.querySelector('.sheet') || document;
+  const cs2 = [...scope.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, summary')].filter(el => shown(el) && !el.closest('svg'));
+  for (let i = 0; i < cs2.length && out.overlap.length < 10; i++) for (let j = i + 1; j < cs2.length; j++) {
+    const A = cs2[i], B = cs2[j]; if (A.contains(B) || B.contains(A)) continue;
+    const r = A.getBoundingClientRect(), q = B.getBoundingClientRect();
+    if (Math.min(r.right, q.right) - Math.max(r.left, q.left) > 2 && Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top) > 2) out.overlap.push(sel(A) + ' × ' + sel(B));
+  }
+  /* Durchscheinen: feste/klebende Leisten mit halbtransparentem Hintergrund ohne Unschärfe */
+  document.querySelectorAll('body *').forEach(el => { const cs = getComputedStyle(el); if (!['fixed', 'sticky'].includes(cs.position) || !visible(el)) return;
+    const c = parse(cs.backgroundColor), blur = (cs.backdropFilter || cs.webkitBackdropFilter || 'none') !== 'none';
+    const rr = el.getBoundingClientRect(), backdrop = rr.width * rr.height >= 0.9 * innerWidth * innerHeight; /* Abdunkelung hinter Dialogen ist gewollt */
+    if (c && c.a > 0 && c.a < 0.9 && !blur && !backdrop) out.seeThrough.push(sel(el) + ' (Deckkraft ' + c.a.toFixed(2) + ')'); });
   return out;
 }
 
@@ -120,11 +136,13 @@ async function focusCheck(p) {
         await p.waitForTimeout(150);
         const r = await p.evaluate(inspect);
         const foc = name === 'start' ? await focusCheck(p) : 'ok';
-        const n = r.contrast.length + r.small.length + r.unnamed.length + (r.overflow > 0 ? 1 : 0) + (foc !== 'ok' ? 1 : 0);
+        const n = r.contrast.length + r.small.length + r.unnamed.length + r.overlap.length + r.seeThrough.length + (r.overflow > 0 ? 1 : 0) + (foc !== 'ok' ? 1 : 0);
         total += n; r.small.forEach(c => { const k = c.sel + ' (' + c.h + ' px hoch)'; smallBy.set(k, (smallBy.get(k) || 0) + 1); });
         if (OUT) await p.screenshot({ path: path.join(OUT, [vname, d, name].join('_') + '.png'), fullPage: true });
         if (n) summary.push(vname + ' · ' + d + ' · ' + name + ': ' + [
           r.overflow > 0 ? 'Seite ' + r.overflow + ' px zu breit' : '',
+          r.overlap.length ? r.overlap.length + '× Überlappung (' + r.overlap.slice(0, 3).join('; ') + ')' : '',
+          r.seeThrough.length ? 'durchscheinend: ' + r.seeThrough.slice(0, 3).join('; ') : '',
           r.contrast.length ? r.contrast.length + '× Kontrast (z. B. ' + r.contrast.slice(0, 3).map(c => c.sel + ' ' + c.ratio + ':1 statt ' + c.need + ' „' + c.text + '“').join('; ') + ')' : '',
           r.small.length ? r.small.length + '× Tippfläche < 44 px (z. B. ' + r.small.slice(0, 3).map(c => c.sel + ' ' + c.w + '×' + c.h).join('; ') + ')' : '',
           r.unnamed.length ? r.unnamed.length + '× ohne Namen (' + r.unnamed.slice(0, 3).join(', ') + ')' : '',

@@ -1,5 +1,10 @@
 # Projektstand · 15.10.2026
 
+## Sichtprüfung: Überlappung und Durchscheinen (Claude, #8, Plan B5)
+
+- `npm run audit:ui` meldet zusätzlich überlappende Bedienelemente (ohne Inhalte zugeklappter `<details>`, bei offenem Dialog nur dessen Inhalt, ohne bewusst überlagernde SVG-Kartenpunkte) und feste oder klebende Leisten mit halbtransparentem Hintergrund ohne Unschärfe. Die gewollte Abdunkelung hinter Dialogen ist ausgenommen.
+- Ergebnis auf `581a6f8` (vor ChatGPTs B-Paket): `#trip-q` × „Suchen“ bei 320 px, Sprunglink „Zum Inhalt“ × „Merkliste importieren“ in Entdecken (390/320 px). Keine halbtransparenten festen Leisten gefunden. Das Durchscheinen aus Philipps Befund ist das Überdecken durch die feste Kostenleiste, das ChatGPTs B-Paket behebt.
+
 ## Profil-Bewertung für „Worauf habt ihr Lust?“ (Claude, #8, Plan C2/C5)
 
 - `CATX.rankProfile(result, profile)` und `CATX.checkProfile` in `catalog.js`. Schnittstelle, Werte, Regeln und Rückgabe stehen in `PLAN_WEITERENTWICKLUNG.md` (Abschnitt C). Die Oberfläche baut ChatGPT nach seinem Strukturpaket (C1/C4/C6). Bisher gibt es noch keine sichtbare Änderung.
