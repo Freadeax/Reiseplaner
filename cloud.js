@@ -66,6 +66,11 @@
     signOut: async function () { unwrap(await need().auth.signOut({ scope: 'local' }), 'Abmelden fehlgeschlagen'); },
     resetPassword: async function (email) { unwrap(await need().auth.resetPasswordForEmail(email, { redirectTo: siteUrl() }), 'E-Mail konnte nicht gesendet werden'); },
     updatePassword: async function (password) { unwrap(await need().auth.updateUser({ password: password }), 'Passwort nicht geändert'); },
+    /* Konto-Lebenszyklus (Migration 20261016120000): Übersicht, Export, Eigentümerwechsel, Löschung */
+    accountSummary: async function () { return unwrap(await need().rpc('my_account_summary'), 'Kontoübersicht nicht geladen'); },
+    exportAccount: async function () { return unwrap(await need().rpc('export_my_account'), 'Kontodaten nicht geladen'); },
+    transferTrip: async function (tripId, userId) { unwrap(await need().rpc('transfer_trip_ownership', { p_trip: tripId, p_new_owner: userId }), 'Reise nicht übergeben'); },
+    deleteAccount: async function (email, deleteShared) { return unwrap(await need().rpc('delete_my_account', { p_confirm_email: email, p_delete_shared: !!deleteShared }), 'Konto nicht gelöscht'); },
 
     /* ---------- Reisen ---------- */
     listTrips: async function (userId) {

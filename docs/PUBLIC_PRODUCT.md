@@ -92,7 +92,7 @@ Umgesetzt in `supabase/migrations/20261014120000_reiseplaner_core.sql`, Details 
 - **Service Worker:** Supabase-Antworten werden nicht gecacht (fremder Origin).
 - **Noch nicht umgesetzt:**
   - Kontoprofil und Anzeigename. Mitreisende sehen über `trip_member_list` die E-Mail-Adressen der Mitglieder derselben Reise.
-  - Besitzerwechsel, Kontolöschung und -export, Änderungsereignisse und Betreiber-Monitoring.
+  - Änderungsereignisse und Betreiber-Monitoring. (Besitzerwechsel, Kontolöschung und -export seit 16.10.2026 umgesetzt, siehe SUPABASE_SETUP.)
   - Granulare Leserechte für Notizen und Zahlungen.
 
 Diese Punkte bleiben offen im Sinn der Freigabestufen 2 bis 4. Die Rechte-Tests der Stufen 2 und 3 laufen in `tests/db/supabase-api.cjs` gegen einen lokalen Stack, noch nicht gegen das Produktionsprojekt.

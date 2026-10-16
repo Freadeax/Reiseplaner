@@ -37,7 +37,7 @@ Gelesen: Issues #1–#7 einschließlich Claude-Kommentaren, AGENTS, COLLABORATIO
 | P0 | Auth-E-Mail | Domain/SMTP festlegen, Bestätigung und Reset mit externen Adressen nachweisen. Kein Dienst in diesem Paket aktiviert |
 | P0 | Produktion und echte Geräte | iPhone-Nutzertest laut Philipp erfolgreich. Konkrete externe Auth-/Mehrkontenabnahme nach SMTP noch separat nachweisen; keine erneute pauschale Gerätetest-Aufgabe |
 | P1 | Betreiberbackup | Ablauf und isolierte Restore-Probe; Benutzerexport ersetzt dies nicht |
-| P1 | Konto-Lebenszyklus | Kontoexport/-löschung, Anzeigenamen, atomarer Besitzerwechsel. Neue Migrationen und echte Datenbanktests nötig |
+| P1 | Konto-Lebenszyklus | **Umgesetzt (Claude, 16.10.):** Kontoexport, Kontolöschung, atomarer Besitzerwechsel mit Migration `20261016120000`, `tests/db/account.cjs` und E2E. Produktion erst nach Einspielen der Migration. Offen: Anzeigenamen |
 | P1 | Öffentlicher Betrieb | Betreiberkontakt/Datenschutz mit tatsächlichem Betreiber und Datenflüssen; keine erfundenen Rechtstexte |
 | P1 | Vollständige Kosten | Drei abgeleitete Verpflegungsszenarien jetzt ergänzt; offene Gebühren, weitere Preisunsicherheiten, Erstattungen und Teilzahlungen bleiben offen |
 | P1 | Exakte Reisezeiten | **Teilweise umgesetzt (Claude, 15.10.):** Uhrzeit je Termin, Abfahrt und Check-in, Überschneidungen, Termine vor der Ankunft, Kalender. Wege zwischen Terminen mit bekannter Lage werden geschätzt und geprüft. Zeitzonen und echte Auto-Fahrzeiten (OpenStreetMap-Routing auf Knopfdruck) umgesetzt. Offen: Bahn-Fahrpläne (nur Link zur Verbindungssuche), Verkehr/Pausen |

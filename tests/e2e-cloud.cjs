@@ -164,8 +164,28 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await A.p.waitForSelector('text=Passwort geändert', { timeout: 15000 });
     assert((await api().auth.signInWithPassword({ email: aMail, password: aPw })).error, 'altes Passwort ungültig');
     assert(!(await api().auth.signInWithPassword({ email: aMail, password: 'Anna-NEU-' + run })).error, 'neues Passwort gültig');
+
+    /* Konto löschen (Migration 20261016120000): Übersicht, bewusste Wahl je geteilter Reise, Übergabe an Ben, Bestätigung */
+    const a2 = api(); await a2.auth.signInWithPassword({ email: aMail, password: 'Anna-NEU-' + run });
+    assert.ifError((await bApi.auth.signInWithPassword({ email: bMail, password: bPw })).error);
+    const inv2 = await a2.rpc('create_trip_invite', { p_trip: tid, p_role: 'viewer', p_hours: 24 }); assert.ifError(inv2.error);
+    assert.ifError((await bApi.rpc('accept_trip_invite', { p_token: inv2.data })).error);
+    await A.p.goto(BASE + '#konto'); await A.p.click('[data-acc="delete-open"]');
+    await A.p.waitForSelector('[data-del-trip="' + tid + '"]');
+    assert((await A.p.textContent('.sheet')).includes('Gast-Reise ' + run), 'geteilte eigene Reise in der Übersicht');
+    await A.p.fill('#acc-del-email', aMail); await A.p.click('form[data-acc-form="delete-account"] button[type="submit"]');
+    await A.p.waitForSelector('#acc-del-err:not([hidden])'); assert(/bitte.*wählen/i.test(await A.p.textContent('#acc-del-err')), 'ohne Wahl keine Löschung');
+    assert(!(await api().auth.signInWithPassword({ email: aMail, password: 'Anna-NEU-' + run })).error, 'Konto besteht noch');
+    await A.p.selectOption('[data-del-trip="' + tid + '"]', { label: 'Übergeben an ' + bMail });
+    await A.p.click('form[data-acc-form="delete-account"] button[type="submit"]');
+    await waitSync(A.p, /Gast/, 20000);
+    assert(!(await A.p.evaluate(() => Object.keys(localStorage).some(k => k.startsWith('rp-u:')))), 'Kontocache nach Löschung entfernt');
+    assert((await A.p.textContent('#view')).includes('Gast-Reise ' + run), 'Gastdaten im Browser unberührt');
+    assert((await api().auth.signInWithPassword({ email: aMail, password: 'Anna-NEU-' + run })).error, 'gelöschtes Konto kann sich nicht anmelden');
+    const kept = (await bApi.from('trips').select('id,owner_id').eq('id', tid)).data;
+    assert.equal(kept.length, 1, 'übergebene Reise bleibt erhalten'); assert.equal(kept[0].owner_id, (await bApi.auth.getUser()).data.user.id, 'Ben ist Eigentümer');
     await A.ctx.close(); await B.ctx.close();
   } finally { await browser.close(); server.close(); execSync('node scripts/build.mjs', { cwd: ROOT, stdio: 'ignore' }); }
   if (errors.length) { console.error('Fehler im Browser:\n' + errors.join('\n')); process.exit(1); }
-  console.log('E2E (Chromium, lokaler Supabase, /Reiseplaner/): Pfade/Direktlinks/404, Umkreis-Katalog aus der Datenbank, Registrierung+Bestätigung, Gast-Übernahme mit Vorschau, Online-Bestätigung, Neuladen, Einladung, zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden, Passwort-Reset geprüft.');
+  console.log('E2E (Chromium, lokaler Supabase, /Reiseplaner/): Pfade/Direktlinks/404, Umkreis-Katalog aus der Datenbank, Registrierung+Bestätigung, Gast-Übernahme mit Vorschau, Online-Bestätigung, Neuladen, Einladung, zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden, Passwort-Reset, Kontolöschung mit Übergabe geprüft.');
 })().catch(async e => { console.error(e); try { server.close(); execSync('node scripts/build.mjs', { cwd: ROOT, stdio: 'ignore' }); } catch (x) {} process.exit(1); });

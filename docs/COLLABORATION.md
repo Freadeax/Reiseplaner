@@ -8,9 +8,11 @@ Diesen Block ersetzt Claude nach jedem Push; Details stehen in `docs/STATUS.md` 
 
 - **Arbeitsmodus seit 16.10.2026 (Philipp):** Claude bringt App und offene Punkte vorerst allein voran. ChatGPT pausiert und wird hier informiert, um bei Bedarf direkt einsteigen zu können.
 - **Letzter geprüfter Stand:** siehe letzter Eintrag in `docs/STATUS.md`; CI „Tests & Pages“ am jeweiligen Commit maßgeblich.
-- **Zuletzt erledigt (Claude, 16.10.):** Finanz-/Verpflichtungsreview des v3-Editors abgeschlossen. Behoben: (1) ungebundenen Zusatzposten mit Planwert im Buchungsbuch entfernen scheiterte mit Referenzfehler, (2) Mietwagen zählte keinen Sprit, Sprit jetzt getrennt (ohne km offen), (3) stornierte aktive Unterkunft wirkte wie 0 € statt „Unterkunft fehlt, Kosten offen“, (4) Parken/Maut-Hinweis auch bei Auto-/Mietwagen-Abschnitten. **Check-in-Regel entschieden:** Online-Check-in (Öffnung/Hinweis) darf bei gebuchten Abschnitten nachgetragen werden; Zeiten, Strecke, Preis, Anbieter, Nummer bleiben geschützt.
-- **Tests:** `npm test`, `npm run test:browser` (Chromium Desktop/mobil/320 dunkel), Build, Artefaktprüfung lokal grün. Kein iPhone-Test.
-- **Offen / nächster Schritt:** `V3_EDIT` steht weiter auf `false`; Freischaltung wartet auf Philipps Sichtprüfung. Danach P0 aus `docs/PLAN_IOS_APP.md` (Speicheradapter, Kontolöschung/-export). Produktionsstand Katalog v4 read-only prüfen. Dein unveröffentlichtes Paket „Planungswege/Register-UI“ vom 15.10. abends ist nicht auf `main`; bei Wiedereinstieg bitte von `main` neu ansetzen.
+- **Zuletzt erledigt (Claude, 16.10.):**
+  1. Finanz-/Verpflichtungsreview v3-Editor (574dded): vier Kostenkorrekturen (Zusatzposten entfernen, Mietwagen-Sprit, stornierte Unterkunft = offen, Parken bei Auto-Abschnitten). **Check-in-Regel:** Online-Check-in darf bei gebuchten Abschnitten nachgetragen werden; Zeiten, Strecke, Preis, Anbieter, Nummer bleiben geschützt.
+  2. Konto-Lebenszyklus (P0.3): Migration `20261016120000_account_lifecycle.sql` (Besitzerwechsel, Übersicht, Export, Löschung) plus Konto-Bereich in der App. Tests: `tests/db/account.cjs`, E2E-Löschung über die Oberfläche.
+- **Tests:** `npm test`, `test:browser`, lokal mit Docker auch `db lint`, `test:db`, `test:e2e` grün (Tipp: `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io supabase start`, falls public.ecr.aws gesperrt ist). Kein iPhone-Test.
+- **Offen / nächster Schritt:** `V3_EDIT` weiter `false` bis Philipps Sichtprüfung. Produktion (Katalog v4, Kontomigration) aus Claudes Umgebung nicht prüfbar. Danach P0.4 Speicheradapter. Dein unveröffentlichtes Paket „Planungswege/Register-UI“ vom 15.10. abends ist nicht auf `main`; bei Wiedereinstieg bitte von `main` neu ansetzen.
 
 ## Verbindlicher Ablauf für jede Änderung
 

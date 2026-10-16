@@ -3046,7 +3046,42 @@ function vKonto(){
     (UI.confirm==='logout'?'<div class="note" role="alert"><b>'+n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.</b><p>Beim Abmelden bleiben sie in diesem Browser für dieses Konto liegen und werden nach der nächsten Anmeldung übertragen. Sichert sie zusätzlich als Datei, falls ihr das Gerät wechselt.</p><div class="row"><button type="button" class="btn sm" data-acc="sync">Erst synchronisieren</button><button type="button" class="btn ghost sm" data-act="backup-all">Als Datei sichern</button><button type="button" class="btn warn sm" data-acc="signout-force">Trotzdem abmelden</button></div></div>':'')+
     '<p class="small muted">Lokaler Speicher ist keine Datensicherung. Der kostenlose Supabase-Tarif enthält keine automatischen Backups; sichert wichtige Reisen zusätzlich als Datei.</p></section>'+
     (gp?'<section class="block"><h2>Reisen ohne Konto in diesem Browser</h2><p>'+gp+' Reise'+(gp===1?'':'n')+' aus dem Gastmodus. Sie werden nicht automatisch übertragen.</p><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und übernehmen</button></section>':'')+
+    '<section class="block"><h2>Meine Daten</h2><p class="small">Kontodaten enthalten alle Reisen, auf die ihr online Zugriff habt, mit eurer Rolle und euren Einladungen. Zum Wiederherstellen in der App dient die Reisesicherung.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="export">Kontodaten herunterladen</button><button type="button" class="btn ghost sm" data-act="backup-all">Reisen als Sicherung speichern</button></div>'+
+    '<h2>Konto löschen</h2><p class="small">Löscht euer Konto, eure eigenen Reisen und eure Mitgliedschaften endgültig. Vorher seht ihr genau, was betroffen ist, und könnt geteilte Reisen an Mitreisende übergeben.</p><button type="button" class="btn warn sm" data-acc="delete-open">Konto löschen …</button></section>'+
     '<section class="block"><h2>Einladung annehmen</h2><form class="row" data-acc-form="invite"><input type="text" id="acc-invite" placeholder="Einladungslink oder Code" style="flex:1;min-width:220px"><button class="btn ghost sm" type="submit">Annehmen</button></form></section>';
+}
+/* Konto löschen: Übersicht vom Server, je geteilter eigener Reise eine bewusste Wahl (übergeben oder mitlöschen),
+   Bestätigung mit der E-Mail-Adresse. Nichts wird vorausgewählt. */
+async function deleteAccountSheet(){
+  const c=Sync.cloud();openSheet('<h2>Konto löschen</h2><p>Lade Übersicht …</p>');
+  let s;try{s=await c.accountSummary()}catch(e){openSheet('<h2>Konto löschen</h2><p>'+esc(e.message)+'</p>');return}
+  UI.delSummary=s;
+  const shared=s.owned.filter(t=>t.members.length),solo=s.owned.filter(t=>!t.members.length),n=Store.pending();
+  openSheet('<span class="eyebrow">Endgültig</span><h2>Konto löschen</h2>'+
+    (n?'<div class="note" role="alert"><b>'+n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.</b><p>Sie gehen mit dem Konto verloren. Erst synchronisieren oder als Datei sichern.</p></div>':'')+
+    '<p class="small">Tipp: Ladet vorher eure Daten herunter. Eine Löschung lässt sich nicht rückgängig machen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="export">Kontodaten herunterladen</button><button type="button" class="btn ghost sm" data-act="backup-all">Reisen als Sicherung speichern</button></div>'+
+    '<h3>Was passiert</h3><ul class="small">'+
+    '<li><b>'+solo.length+'</b> eigene Reise'+(solo.length===1?'':'n')+' ohne Mitreisende '+(solo.length===1?'wird':'werden')+' gelöscht.</li>'+
+    '<li>Aus <b>'+s.member_of.length+'</b> geteilten Reise'+(s.member_of.length===1?'':'n')+' anderer werdet ihr entfernt. Diese Reisen bleiben für die anderen erhalten.</li>'+
+    '<li>Reisen ohne Konto in diesem Browser (Gastmodus) bleiben unberührt.</li></ul>'+
+    (shared.length?'<h3>Geteilte eigene Reisen</h3><p class="small">Bitte für jede Reise entscheiden. Bei „mitlöschen“ verlieren auch eure Mitreisenden die Reise.</p><div class="form">'+shared.map(t=>'<label class="fld"><span>'+esc(t.title)+(t.deleted?' (gelöscht markiert)':'')+'</span><select data-del-trip="'+esc(t.id)+'"><option value="">Bitte wählen</option>'+t.members.map(m=>'<option value="u:'+esc(m.user_id)+'">Übergeben an '+esc(m.email||m.user_id)+'</option>').join('')+'<option value="delete">Mitlöschen</option></select></label>').join('')+'</div>':'')+
+    '<form class="panel" data-acc-form="delete-account"><p id="acc-del-err" class="note" role="alert" tabindex="-1" hidden></p><label class="fld"><span>Zur Bestätigung eure E-Mail-Adresse</span><input type="email" id="acc-del-email" autocomplete="off" required></label><button class="btn warn" type="submit">Konto endgültig löschen</button></form>');
+}
+async function deleteAccountDo(email){
+  const c=Sync.cloud(),s=UI.delSummary;if(!s)throw new Error('Bitte die Übersicht neu öffnen.');
+  if(email.trim().toLowerCase()!==String(s.email||'').toLowerCase())throw new Error('Die E-Mail-Adresse stimmt nicht mit diesem Konto überein.');
+  const choice={};document.querySelectorAll('[data-del-trip]').forEach(el=>{choice[el.getAttribute('data-del-trip')]=el.value});
+  const shared=s.owned.filter(t=>t.members.length);
+  const missing=shared.filter(t=>!choice[t.id]);if(missing.length)throw new Error('Bitte für „'+missing[0].title+'“ wählen: übergeben oder mitlöschen.');
+  for(const t of shared){const v=choice[t.id];if(v.startsWith('u:'))await c.transferTrip(t.id,v.slice(2))}
+  /* Zwischenzeitlich neu geteilte Reisen nie ungefragt mitlöschen */
+  const now=await c.accountSummary(),left=now.owned.filter(t=>t.members.length).map(t=>t.id).sort(),agreed=shared.filter(t=>choice[t.id]==='delete').map(t=>t.id).sort();
+  if(JSON.stringify(left)!==JSON.stringify(agreed)){UI.delSummary=null;throw new Error('Inzwischen hat sich eine geteilte Reise geändert. Bitte die Übersicht neu öffnen. Übergaben sind bereits erfolgt.')}
+  const res=await c.deleteAccount(email.trim(),agreed.length>0),scope=Store.scope;
+  try{await c.signOut()}catch(e){}
+  try{localStorage.removeItem('rp-u:'+scope);localStorage.removeItem('rp-u:'+scope+':history')}catch(e){}
+  UI.delSummary=null;closeSheet();Auth.switchTo(null);UI.view='reisen';render();
+  alertMsg('Konto gelöscht ('+res.deleted_trips+' eigene Reise'+(res.deleted_trips===1?'':'n')+').');
 }
 function adoptSheet(){
   const pv=guestPreview();
@@ -3088,6 +3123,8 @@ document.addEventListener('submit',async e=>{
     else if(kind==='signup'){if(val('acc-pw')!==val('acc-pw2'))throw new Error('Passwörter stimmen nicht überein.');if(val('acc-pw').length<10)throw new Error('Mindestens 10 Zeichen.');const r=await c.signUp(UI.authEmail,val('acc-pw'));UI.authMsg=r.needsConfirmation?'Fast fertig: Bitte den Link in der E-Mail an '+UI.authEmail+' öffnen. Danach anmelden.':'Konto angelegt.';UI.authMode='signin'}
     else if(kind==='reset'){await c.resetPassword(UI.authEmail);UI.authMsg='Falls ein Konto zu '+UI.authEmail+' existiert, ist ein Link unterwegs. Bitte im selben Browser öffnen.'}
     else if(kind==='newpw'){if(val('acc-pw')!==val('acc-pw2'))throw new Error('Passwörter stimmen nicht überein.');if(val('acc-pw').length<10)throw new Error('Mindestens 10 Zeichen.');await c.updatePassword(val('acc-pw'));Auth.recovery=false;UI.authMsg='Passwort geändert.'}
+    else if(kind==='delete-account'){const btn=f.querySelector('button[type=submit]');if(btn.disabled)return;btn.disabled=true;
+      try{await deleteAccountDo(val('acc-del-email'))}catch(err){const box=document.getElementById('acc-del-err');if(box){box.textContent=err.message;box.hidden=false;box.focus()}else alertMsg(err.message)}finally{btn.disabled=false}return}
     else if(kind==='invite'){let v=val('acc-invite').trim();try{const u=new URL(v);v=u.searchParams.get('einladung')||v}catch(x){}if(!v)return;sessionStorage.setItem('rp-invite',v);await Auth.tryInvite();return}
     render();
   }catch(err){accErr(err)}
@@ -3106,6 +3143,8 @@ document.addEventListener('click',async e=>{
       case 'signout':await Auth.signOut(false);return;
       case 'signout-force':UI.confirm=null;await Auth.signOut(true);return;
       case 'adopt-open':adoptSheet();return;
+      case 'delete-open':await deleteAccountSheet();return;
+      case 'export':{const d=await c.exportAccount();downloadText(JSON.stringify(d,null,2),'reiseplaner-kontodaten-'+new Date().toISOString().slice(0,10)+'.json','application/json');alertMsg('Kontodaten heruntergeladen. Privat aufbewahren.');return}
       case 'adopt-do':{const ids=[...document.querySelectorAll('[data-adopt]')].filter(x=>x.checked).map(x=>x.getAttribute('data-adopt'));if(!ids.length){alertMsg('Keine Reise ausgewählt.');return}const added=adoptGuestTrips(ids);closeSheet();alertMsg(added.length+' Reise'+(added.length===1?'':'n')+' übernommen. Synchronisation läuft.');go('reisen');return}
       case 'share':if(t)await shareSheet(t);return;
       case 'invite-create':UI.inviteLink=await c.createInvite(t.id,$('#inv-role').value,+$('#inv-hours').value,($('#inv-email')&&$('#inv-email').value.trim())||null);await shareSheet(t);return;

@@ -86,7 +86,8 @@ Der Build lehnt Secret Keys und `service_role`-JWTs ab, und die Artefaktprüfung
 ```bash
 npm install -g supabase@2.120.0   # oder npx supabase@2.120.0 …
 supabase start                    # Docker nötig; spielt die Migrationen in einen lokalen Stack
-npm run test:db                   # Rechte, Auth, Einladungen, Konflikte über die echte API
+                                  # Sperrt ein Netz public.ecr.aws: SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io supabase start
+npm run test:db                   # Rechte, Auth, Einladungen, Konflikte, Konto-Lebenszyklus über die echte API
 npm run test:e2e                  # Chromium gegen die gebaute Website unter /Reiseplaner/ + lokalen Stack
 supabase stop
 ```
@@ -106,6 +107,15 @@ supabase stop
 - **Gültigkeitsprüfung:** Prüfung von IDs, Koordinaten, Monaten, Themen und Entfernung der Attraktion zum Ziel (höchstens 60 km). Texte mit Preis- oder Uhrzeitangaben werden abgelehnt.
 - **Ausweg ohne Integration:** `supabase/manual/apply-catalog-v1.sql` im SQL-Editor. Die Datei läuft in einer Transaktion und verbucht beide Migrationen in der Historie. Lokal geprüft: erster Lauf ok, zweiter bricht ohne Änderung ab.
 - **App ohne Datenbank:** Ohne Datenbank, offline oder bei leerem Katalog rechnet die App mit der Offline-Kopie und zeigt die Quelle an.
+
+## Konto-Lebenszyklus (Migration 20261016120000, 16.10.2026)
+
+- `transfer_trip_ownership(p_trip, p_new_owner)`: nur der Eigentümer, nur an ein bestehendes Mitglied; der bisherige Eigentümer wird Bearbeiter. `trips.owner_id` wandert mit (sonst nähme eine spätere Kontolöschung die Reise über `on delete cascade` mit). `trips_before_write` erlaubt den Wechsel nur innerhalb dieser Funktion.
+- `my_account_summary()`: eigene Reisen mit weiteren Mitgliedern, fremde Reisen mit Rolle.
+- `export_my_account()`: alle zugänglichen Reisen mit Rolle und vollständigem Dokument, selbst erstellte Einladungen.
+- `delete_my_account(p_confirm_email, p_delete_shared)`: Bestätigung über die eigene E-Mail; eigene geteilte Reisen nur mit `p_delete_shared = true`, sonst Abbruch. Löscht `auth.users`, alles Weitere über Fremdschlüssel.
+- Nebenbei behoben: Beim Löschen eines Kontos setzte `trips_before_write` das per Fremdschlüssel geleerte `updated_by` fremder Reisen wieder auf das gelöschte Konto und erhöhte die Version. Lokal mit der alten Triggerfassung nachgestellt.
+- Geprüft lokal (`supabase start`, Docker): `db lint`, `test:db` mit `tests/db/account.cjs`, `test:e2e` mit Kontolöschung über die Oberfläche.
 
 ## Änderungen am Schema
 

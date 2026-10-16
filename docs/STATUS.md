@@ -1,5 +1,16 @@
 # Projektstand · 16.10.2026
 
+## Konto übergeben, exportieren, löschen (Claude, #8, 16.10.)
+
+Plan P0.3 aus [PLAN_IOS_APP.md](PLAN_IOS_APP.md), App-Store-Pflicht. Implementiert:
+
+- **Migration `20261016120000_account_lifecycle.sql`:** `transfer_trip_ownership`, `my_account_summary`, `export_my_account`, `delete_my_account` (Details in [SUPABASE_SETUP.md](SUPABASE_SETUP.md#konto-lebenszyklus-migration-20261016120000-16102026)). `trips_before_write` erlaubt den Eigentümerwechsel nur innerhalb der Funktion und lässt das Leeren von `updated_by` durch den Fremdschlüssel ohne Versionssprung zu. Ohne diese zweite Ausnahme blieb nach einer Kontolöschung `updated_by` fremder Reisen auf dem gelöschten Konto stehen (mit alter Triggerfassung lokal nachgestellt).
+- **App (`cloud.js`, `vKonto`):** „Kontodaten herunterladen“ (JSON), „Reisen als Sicherung speichern“, „Konto löschen …“ mit Serverübersicht. Je geteilter eigener Reise muss „Übergeben an …“ oder „Mitlöschen“ gewählt werden, nichts ist vorausgewählt. Hinweis auf nicht synchronisierte Änderungen, Bestätigung mit der E-Mail-Adresse, Fehler im Dialog. Vor dem Löschen prüft die App erneut, ob sich geteilte Reisen geändert haben. Danach wird der Kontocache im Browser entfernt; Gastdaten bleiben.
+
+Tests (ausgeführt, lokal mit Docker/Supabase-Stack): `supabase db lint` ohne Befund; `REQUIRE_DB=1 npm run test:db` mit neuem `tests/db/account.cjs` (Übersicht, Wechsel nur durch Eigentümer und nur an Mitglieder, `owner_id` wandert mit, Export nur eigener Zugriffe, Löschung mit falscher E-Mail/fremdem Konto/geteilter Reise ohne Zustimmung abgelehnt, danach keine Anmeldung, fremde Reise ohne Versionssprung weiter bearbeitbar); `REQUIRE_DB=1 npm run test:e2e` mit Kontolöschung über die Oberfläche (Wahl erzwungen, Übergabe an zweites Konto, Kontocache entfernt, Gastdaten erhalten). Außerdem `npm test`, `npm run test:browser`, Build, Artefaktprüfung. Kein iPhone-Test.
+
+Grenzen: Die Supabase-GitHub-Integration spielt die Migration beim Push auf `main` in die Produktion ein. Ob und wann das geschieht, ist aus dieser Umgebung nicht prüfbar (kein Netz zu github.io/Supabase-Produktion). Offene Einladungen, die das gelöschte Konto für übergebene Reisen erstellt hatte, verfallen mit dem Konto. Anzeigenamen fehlen weiter.
+
 ## Finanz-/Verpflichtungsreview v3-Editor und Check-in-Regel (Claude, #8, 16.10.)
 
 Ausgangsstand `5149343` (CI 38804178390 grün). Review von `v3logic.js`, `v3forms.js`, `v3editor.js` und den App-Mutatoren (`setTransport`, `cancelEntry`, `addRefund`, `uncancel`, `commitmentIssues`, `cost`, `openCosts`) gegen die Projektregeln. Vier Funde behoben, alle mit Test, der vor dem Fix rot war:

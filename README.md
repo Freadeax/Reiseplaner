@@ -83,7 +83,8 @@ Seit Issue #6 im Code umgesetzt und gegen einen **lokalen** Supabase-Stack gepr�
   - Lokaler Speicher ist keine Datensicherung, und der Supabase-Gratistarif hat keine automatischen Backups. Wichtige Reisen zusätzlich als Datei sichern.
   - Ein Wechsel der Website-Domain überträgt weder Browser-Speicher noch Anmeldung.
   - Offline lassen sich nur Reisen bearbeiten, die schon im Browser liegen. Offline-Anmeldung und Einladungen sind nicht möglich.
-  - Kein Besitzerwechsel, keine Kontolöschung in der App, kein Realtime-Abgleich (Abgleich bei Änderung und Fokus sowie alle 60 s).
+  - Kein Realtime-Abgleich (Abgleich bei Änderung und Fokus sowie alle 60 s).
+- **Konto und Daten (Migration `20261016120000`):** Kontodaten herunterladen, Konto löschen mit Übersicht und bewusster Wahl je geteilter Reise (an Mitreisende übergeben oder mitlöschen), Bestätigung mit der E-Mail-Adresse. Gastdaten im Browser bleiben unberührt. Funktioniert erst, wenn die Migration in der Produktion eingespielt ist.
 
 Einrichtung und Betrieb: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md). Hosting und späterer Wechsel zu Cloudflare Pages: [docs/HOSTING_MIGRATION.md](docs/HOSTING_MIGRATION.md). Produktziel und Abnahmekriterien: [docs/PUBLIC_PRODUCT.md](docs/PUBLIC_PRODUCT.md).
 

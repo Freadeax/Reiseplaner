@@ -9,7 +9,7 @@
     "audit:ui": "node tests/ui-audit.cjs",
     "build": "node scripts/build.mjs",
     "check:artifact": "node scripts/check-artifact.mjs public",
-    "test:db": "node tests/db/supabase-api.cjs",
+    "test:db": "node tests/db/supabase-api.cjs && node tests/db/account.cjs",
     "test:e2e": "node tests/e2e-cloud.cjs"
   },
   "engines": {
