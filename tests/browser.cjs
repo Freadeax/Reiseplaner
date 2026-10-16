@@ -910,14 +910,13 @@ async function layoutStructure(browser,base,name,ctxOpts){
  assert.equal(await p.$eval('body',e=>e.style.overflow),'');await noOverflow(p,name+' Struktur');await ctx.close();console.log(name+': Struktur, Suche, Tagesauswahl, Druck und Scrollsperre geprüft.');
 }
 
-/* Ausschließlich die Antwort dieses isolierten Browserkontexts aktivieren.
-   Produktionsdatei und Standardkontexte behalten V3_EDIT=false. */
+/* Seit 16.10. ist V3_EDIT in der Produktionsdatei true (Freigabe Philipp). Der Editorweg läuft auf der echten Datei,
+   der Abschluss prüft den gesperrten Rückfall über eine abgefangene Antwort mit V3_EDIT=false. */
 async function v3EditorFlow(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
  p.on('pageerror',e=>errors.push(name+' v3Editor: '+e.message));
  await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
- const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');assert(html.includes('const V3_EDIT=false;'));
- await p.route(base+'/index.html',r=>r.fulfill({status:200,contentType:'text/html',body:html.replace('const V3_EDIT=false;','const V3_EDIT=true;')}));
+ const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');assert(html.includes('const V3_EDIT=true;'));
  await p.goto(base+'/index.html');
  const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.extraCosts=[{id:'xceditor',t:'Editor-Testposten',c:200}];t.ledger={'xc:xceditor':{status:'gebucht',amount:200,paid:200,due:''}};a.Store.put(t);a.go('r-'+t.id+'-kosten');return t.id});
  const row=()=>p.locator('.ledger').filter({hasText:'Editor-Testposten'});
@@ -984,9 +983,9 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  await offerButton('uncancel').click();await p.click('[data-v3-editor-action="preview-uncancel"]');await p.click('[data-v3-editor-action="apply"]');await p.reload();
  assert.equal(await p.evaluate(id=>window.__app.financeEntry(window.__app.Store.get(id),{kind:'offer',id:'oeditor'}).math.open,id),150);
  assert.equal(await p.evaluate(id=>window.__app.Store.get(id).offers[0].refunds.length,id),1);
- /* Zurück zur unveränderten Produktionsdatei: gelesene v3-Reisen bleiben auch
+ /* Rückfall mit gesperrtem Gate (V3_EDIT=false): gelesene v3-Reisen bleiben auch
     in den alten Such-/Angebotshandlern schreibgeschützt und behalten Version 3. */
- await p.unroute(base+'/index.html');await p.reload();assert.equal(await p.evaluate(()=>window.__app.V3_EDIT),false);
+ await p.route(base+'/index.html',r=>r.fulfill({status:200,contentType:'text/html',body:html.replace('const V3_EDIT=true;','const V3_EDIT=false;')}));await p.reload();assert.equal(await p.evaluate(()=>window.__app.V3_EDIT),false);
  await tripTab(p,'suche');const lockedRaw=await p.evaluate(()=>localStorage.getItem('rp-trips'));
  await p.fill('[data-search="destination"]','Nicht speichern');await p.locator('[data-search="destination"]').press('Tab');
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);
@@ -997,7 +996,7 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  await p.click('[data-search-act="offer-save"]');assert((await p.textContent('#offer-error')).includes('Format 3'));
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);
  assert.equal(await p.evaluate(id=>window.__app.Store.get(id).schemaVersion,id),3);
- await ctx.close();console.log(name+': isolierter v3-Editorweg Storno/Refund/Rücknahme/Transport/Quellstand geprüft; Produktionsgate unverändert.');
+ await ctx.close();console.log(name+': v3-Editorweg auf der freigegebenen Produktionsdatei (Storno/Refund/Rücknahme/Transport/Quellstand) und gesperrter Rückfall geprüft.');
 }
 
 (async () => {

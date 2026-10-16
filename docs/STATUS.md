@@ -1,5 +1,15 @@
 # Projektstand · 16.10.2026
 
+## Format-3-Bearbeitung freigeschaltet (Claude, #8, 16.10.)
+
+Philipp hat am 16.10. nach abgeschlossenem Finanz-/Verpflichtungsreview die Freischaltung gewählt: `V3_EDIT=true` in `index.html`. Nutzer sehen jetzt bei Posten „Storno erfassen/ändern“, „Erstattung erhalten“, „Storno zurücknehmen“ und in den Kosten „Anreise in Abschnitten“. Jede Änderung braucht Vorschau und ausdrückliche Bestätigung; Verpflichtungsschutz, Quellstand-, Bereichs- und Rechteprüfung unverändert. Eine Reise wird erst durch eine solche bestätigte Änderung zu Format 3, nie still. Die Datenbank akzeptiert Format 3 seit Migration `20261015160000`; der Rückstufungsschutz bleibt.
+
+Vorher veröffentlicht: Finanzreview 574dded (CI 38899096934 vollständig grün inkl. Deploy) und Konto-Lebenszyklus 404b6f7 (Push nach Philipps Freigabe der Migration; Einspielen durch die Integration aus dieser Umgebung nicht prüfbar).
+
+Tests angepasst: Node-Tests (`v3app`, `v3editor`, `v3forms`, `v3legacy`) prüfen den gesperrten Rückfall jetzt mit ausdrücklich auf `false` gesetztem Gate; `v3app` verlangt zusätzlich, dass die Produktionsdatei `true` enthält. Der Chromium-Editorweg läuft auf der echten Produktionsdatei, der Abschluss prüft den gesperrten Rückfall über eine abgefangene Antwort. Ausgeführt: `npm test`, `npm run test:browser`, lokal `test:e2e` mit Supabase-Stack, Build, Artefaktprüfung. Service Worker v11. Kein iPhone-Test.
+
+Zurücknehmen: `const V3_EDIT=false;` setzen; gespeicherte Format-3-Reisen bleiben dann lesbar und schreibgeschützt.
+
 ## Konto übergeben, exportieren, löschen (Claude, #8, 16.10.)
 
 Plan P0.3 aus [PLAN_IOS_APP.md](PLAN_IOS_APP.md), App-Store-Pflicht. Implementiert:

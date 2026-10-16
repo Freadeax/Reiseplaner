@@ -841,7 +841,7 @@ function costNotice(t){const open=openCosts(t);return '<details class="note plan
 const V3=typeof window!=='undefined'&&window.RPV3?window.RPV3:null;
 /* Kompatibilitäts-Gate: Reisen im Format 3 bleiben schreibgeschützt, bis Bedienung und Verpflichtungsschutz vollständig
    verdrahtet und E2 in der Produktion bestätigt ist (Review ChatGPT, #8). Gilt für Import und Sync ebenso. */
-const V3_EDIT=false;
+const V3_EDIT=true;
 let v3Editor=null;
 function v3CanEdit(t){const m=t&&Store.meta[t.id];return !!(t&&V3_EDIT&&Store.corruptRaw===null&&!Store.localError&&!Store.conflict&&Store.canEdit(t.id)&&!(m&&(m.unreadable||m.conflict)))}
 function v3Controller(){

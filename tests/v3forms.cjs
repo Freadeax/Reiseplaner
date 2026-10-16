@@ -50,7 +50,7 @@ const preview=F.financialPreview(view,view);assert(preview.includes('unbekannt')
 /* Eingaben durch die echten App-Kandidaten führen, ohne Speichern oder Freischaltung. */
 const fs=require('fs'),vm=require('vm');
 let code=fs.readFileSync(__dirname+'/../index.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
-code=code.replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
+code=code.replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','').replace('const V3_EDIT=true;','const V3_EDIT=false;'); /* gesperrtes Rückfall-Gate */
 const cache=new Map(),ctx={
  window:{addEventListener(){},RPV3:require('../v3logic.js'),RPCatalog:require('../catalog.js')},
  document:{addEventListener(){},querySelector(){return null},querySelectorAll(){return []},createElement(){return {setAttribute(){},style:{}}},body:{appendChild(){}}},
@@ -85,7 +85,7 @@ assert.equal(edited.transport.out[0].cost,80.1);assert.equal(edited.schemaVersio
 assert.equal(JSON.stringify(source),original,'Alle Vorschauen lassen die Quelle unverändert');
 assert.throws(()=>F.assertFresh(F.session(source,'guest'),received,'guest'));
 assert.equal(cache.size,0,'Kandidaten/Formulare schreiben keine lokalen Daten');
-assert.equal(app.V3_EDIT,false,'Keine produktive Freischaltung durch den Formbaustein');
+assert.equal(app.V3_EDIT,false,'Formbaustein schaltet ein gesperrtes Gate nicht frei');
 assert(!app.ledgerBalanceText({unknown:true,cancelled:true,open:0}).includes('Vollständig bezahlt'));
 assert(app.ledgerBalanceText({unknown:true,cancelled:true,open:0}).includes('Stornogebühr unbekannt'));
 assert(app.ledgerBalanceText({open:0,refundOpen:150}).includes('Erstattung noch offen'));

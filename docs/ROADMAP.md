@@ -2,7 +2,7 @@
 
 ## Claude allein, ChatGPT pausiert · 16.10.2026
 
-Philipp: Claude bringt App und offene Punkte vorerst allein voran, Übergabe für ChatGPT kompakt oben in [COLLABORATION.md](COLLABORATION.md). Erledigt: Finanz-/Verpflichtungsreview des v3-Editors mit vier Kostenkorrekturen und Check-in-Regel (siehe STATUS). Danach P0.3 Kontoexport/-löschung/Besitzerwechsel umgesetzt und lokal mit echtem Supabase-Stack getestet. Nächste Schritte: (1) `V3_EDIT` nach Philipps Sichtprüfung freischalten, (2) Produktionsstand Katalog v4 und Kontomigration read-only prüfen (aus der Cloud-Umgebung nicht erreichbar), (3) P0.4 Speicheradapter mit Migration von `rp-trips`, (4) P0.7 Anmeldung per E-Mail-Code.
+Philipp: Claude bringt App und offene Punkte vorerst allein voran, Übergabe für ChatGPT kompakt oben in [COLLABORATION.md](COLLABORATION.md). Erledigt: Finanz-/Verpflichtungsreview des v3-Editors mit vier Kostenkorrekturen und Check-in-Regel (siehe STATUS). Danach P0.3 Kontoexport/-löschung/Besitzerwechsel umgesetzt und lokal mit echtem Supabase-Stack getestet. `V3_EDIT` am 16.10. nach Philipps Wahl freigeschaltet. Nächste Schritte: (1) Rückmeldungen zu den Bearbeitungsdialogen aufnehmen, (2) Produktionsstand Katalog v4 und Kontomigration read-only prüfen (aus der Cloud-Umgebung nicht erreichbar), (3) P0.4 Speicheradapter mit Migration von `rp-trips`, (4) P0.7 Anmeldung per E-Mail-Code.
 
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 

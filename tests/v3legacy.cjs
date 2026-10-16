@@ -4,6 +4,7 @@ const html=fs.readFileSync(__dirname+'/../index.html','utf8');
 function load(enabled){
  let code=html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
  code=code.replace('function render(){','function render(){return;').replace('function closeSheet(){','function closeSheet(){return;');
+ code=code.replace('const V3_EDIT=true;','const V3_EDIT=false;'); /* produktiv true seit 16.10.; gesperrter Rückfall wird weiter geprüft */
  if(enabled)code=code.replace('const V3_EDIT=false;','const V3_EDIT=true;');
  const memory=new Map(),callbacks={},msg={style:{},setAttribute(){}};
  const ctx={window:{addEventListener(){},RPV3:require('../v3logic.js'),RPCatalog:require('../catalog.js')},document:{addEventListener:(k,fn)=>(callbacks[k]||=[]).push(fn),querySelector:k=>k==='#msg'?msg:null,querySelectorAll:()=>[]},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)},console,setTimeout:()=>0,clearTimeout(){}};
