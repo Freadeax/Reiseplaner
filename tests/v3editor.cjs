@@ -51,7 +51,9 @@ const real=b.v3Controller();real.begin(t2.id,'cancel',target);const cand=real.pr
 assert.equal(b.Store.get(t2.id).ledger['tr:seg1'].cancel.fee,50);assert.equal(JSON.parse(local.get('rp-trips'))[t2.id].ledger['tr:seg1'].cancel.fee,50);
 real.begin(t2.id,'transport');const addedAddon=real.segment({action:'add-addon',dir:'out',id:'seg1'},{}).transport.out[0].addons[0];
 assert(addedAddon.id,'Neuer, noch ungebundener Zusatzposten darf getrennt geplant werden');
-assert.throws(()=>real.revise({'out.seg1.checkin_date':'2026-12-29'}),/Anreise-Abschnitt/,'Auch Check-in lockert keine vorhandene Verpflichtung');
+/* Regel 16.10. (Claude, #8): Online-Check-in ist Anbieterinformation und darf beim gebuchten Abschnitt nachgetragen werden; Zeiten bleiben geschützt. */
+assert.throws(()=>real.revise({'out.seg1.dep_time':'23:59'}),/Anreise-Abschnitt/,'Abfahrtszeit des gebuchten Abschnitts bleibt geschützt');
+assert.equal(real.revise({'out.seg1.checkin_date':'2026-12-29','out.seg1.checkin_note':'Online ab 30 h'}).transport.out[0].checkin.note,'Online ab 30 h','Check-in beim gebuchten Abschnitt nachtragbar');
 const bound=b.setTransport(b.Store.get(t2.id),real.state().transport);bound.ledger['tr:seg1:'+addedAddon.id]={status:'gebucht',amount:25,paid:25,due:''};b.Store.put(bound);
 real.begin(t2.id,'transport');assert.throws(()=>real.segment({action:'remove-addon',dir:'out',id:'seg1',addonId:addedAddon.id},{}),/Anreise-Abschnitt/,'Gebuchter Zusatzposten bleibt geschützt');
 console.log('v3-Editor: Vorschau, explizite Übernahme, Rechte/Bereich/Quellstand/Freigabe, Fehlerwiederholung, alte Kandidaten und Doppelklick gegen echte Mutatoren geprüft. Kein DOM-/Browsertest.');

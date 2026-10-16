@@ -109,6 +109,7 @@ Das ist der sichere Fall aus der Review. Die UI zeigt vor der Rücknahme genau d
   `mietwagen` gibt es zusätzlich ein optionales eigenes `km`, das mit den Verbrauchs- und Preisangaben der Reise (`verb`, `preis`) rechnet.
   **Kein Rückfall auf `t.km`**, denn das ist die alte Zielstrecke, nicht etwa der Weg zum Flughafen. Ohne eigene Grundlage
   bleibt der Preis offen (`openCosts`).
+  **Mietwagen (16.10.):** `cost` ist der Mietpreis; Sprit aus eigenem `km` kommt als eigene Zeile ohne Buchungsschlüssel hinzu, ohne `km` bleibt er offen. Bei `auto` gilt weiter: `cost`, sonst Sprit aus `km`.
 - `t.travel` wird **nicht** automatisch umgedeutet. Es bleibt der vom Nutzer gewählte v2-Wert (`auto|bahn|flug`).
   Die Anzeige der Hauptanreise kommt in v3 aus den Abschnitten. Werte wie Bus, Fähre oder Rad landen nie in `t.travel`.
 - **Zeiten:** Ankunft am Ziel = `arr` des letzten `out`-Abschnitts in dessen Zeitzone. Der Plan-Check prüft die Reihenfolge

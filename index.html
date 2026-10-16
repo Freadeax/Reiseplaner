@@ -815,7 +815,7 @@ function arrivalMin(t){const trv=v3Transport(t);if(trv){const a=V3.transportTime
 
 function routeKm(t){const pl=placeOf(t);return t.routeKm!=null?Math.max(0,num(t.routeKm,0)):(pl&&t.origin==='73110 Hattenhofen'?pl.km:Math.max(0,num(t.km,0)))}
 function resetStay(t){t.stayQuote=null;t.activeOfferId=null;t.cardConfirmed=false;if(t.check)delete t.check.stay;}
-function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offerAmounts(o).unknown.map(k=>k+' offen'));if(!offerCurrent(o,t))out.push('Ausgewähltes Angebot passt nicht mehr zu Daten/Personen oder ist abgelaufen');if(o.availability!=='available')out.push('Verfügbarkeit des Angebots unbestätigt');}
+function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offerAmounts(o).unknown.map(k=>k+' offen'));if(!offerCurrent(o,t))out.push('Ausgewähltes Angebot passt nicht mehr zu Daten/Personen oder ist abgelaufen');if(o.availability!=='available')out.push('Verfügbarkeit des Angebots unbestätigt');if(isV3(t)&&o.cancel&&nightsOf(t)>0)out.push('Unterkunft storniert: neue Unterkunft fehlt, Kosten offen');}
  if(!stayOf(t)){if(nightsOf(t)>0)out.push('Unterkunft fehlt');}
  else if(!o){const st=stayOf(t);if(st.gone)out.push(st.name+': Inserat nicht mehr auffindbar, andere Unterkunft wählen');if(!(num(t.stayQuote,0)>0)){out.push('Konkretes Unterkunftsangebot fehlt');const sn=stayNight(t,st);if(sn.stale)out.push('Unterkunftspreis: ältere oder unklare Abfrage, aktuellen Preis erneut prüfen');if(sn.scaled)out.push('Unterkunftskosten auf andere Dauer hochgerechnet: feste Gebühren und Mindestnächte prüfen');if(sn.sample&&Math.round(num(t.persons,2))!==sn.sample.adults)out.push('Unterkunftspreis gilt laut Abfrage für '+sn.sample.adults+' Erwachsene, für '+Math.round(num(t.persons,2))+' Personen beim Anbieter prüfen');}out.push('Endreinigung, Pflichtzuschläge und enthaltene Gebühren prüfen');}
  if(v3Transport(t)){const tc=V3.transportCost(v3Transport(t),{persons:t.persons,verb:num(t.verb,7.5),preis:num(t.preis,2.15)});tc.open.forEach(x=>out.push('Anreise: '+x+' – Preis offen'));V3.transportTimeline(v3Transport(t),{start:t.start,end:t.end}).checks.filter(c=>c.level==='warn').forEach(c=>out.push('Anreise: '+c.text))}
@@ -824,7 +824,7 @@ function openCosts(t){const out=[];const o=activeOffer(t);if(o){out.push(...offe
  if(t.travel==='auto'&&t.kmSrc==='schaetzung'&&t.routeKm==null&&routeKm(t))out.push('Fahrstrecke geschätzt (Luftlinie × 1,3), mit dem Routenplaner prüfen');
  {const ids=new Set((t.items||[]).map(i=>i.act)),open=(t.customActs||[]).filter(a=>a.costOpen&&!num(a.cost,0)&&ids.has(a.id));if(open.length)out.push(open.length+' eingeplante Unternehmung(en) ohne Preis: '+open.slice(0,3).map(a=>a.t).join(', ')+(open.length>3?' …':''));}
  if(!v3Transport(t)&&t.travel!=='auto'&&!num(t.ticket,0))out.push('Ticketpreis fehlt');
- if(t.travel==='auto')out.push('Parken und gegebenenfalls Maut prüfen');
+ if(t.travel==='auto'||v3Transport(t)&&[].concat(v3Transport(t).out||[],v3Transport(t).back||[]).some(x=>x.mode==='auto'||x.mode==='mietwagen'))out.push('Parken und gegebenenfalls Maut prüfen');
  const pl=placeOf(t);
  if(pl){const c=cost(t);
   if(c.gearDays>5)out.push('Verleih über 5 Tage: Tarif beim Verleih erfragen');
@@ -944,15 +944,15 @@ function uncancel(t,target){
 }
 function setTransport(t,transport){
   const tr=V3?V3.validateTransport(transport):null;
-  const ids=x=>[].concat(x&&x.out||[],x&&x.back||[]).map(s=>s.id);
   /* gebundene Abschnitte: weder entfernen noch tauschen, ändern oder umsortieren (Inhalt über commitmentIssues, Reihenfolge hier) */
   const bound=id=>Object.keys(t.ledger||{}).some(k=>(k==='tr:'+id||k.startsWith('tr:'+id+':'))&&V3.segmentRemovalCheck({[k]:t.ledger[k]},id).ok===false);
   ['out','back'].forEach(dir=>{const before=(t.transport&&t.transport[dir]||[]).map(x=>x.id).filter(bound),after=(tr&&tr[dir]||[]).map(x=>x.id).filter(id=>before.includes(id));
     if(before.length&&JSON.stringify(before)!==JSON.stringify(after))throw new Error('Gebuchte Anreise-Abschnitte dürfen nicht entfernt, verschoben oder umsortiert werden.')});
-  const keep=new Set(ids(tr));
+  /* volle Schlüssel tr:<abschnitt> und tr:<abschnitt>:<zusatz>: auch ein entfernter Zusatzposten eines bleibenden Abschnitts */
+  const keep=new Set([].concat(tr&&tr.out||[],tr&&tr.back||[]).flatMap(s=>['tr:'+s.id,...(s.addons||[]).map(a=>'tr:'+s.id+':'+a.id)]));
   return v3Candidate(t,c=>{c.transport=tr;
     /* Planwerte entfernter Abschnitte ohne Historie verschwinden; Geld-/Stornohistorie bleibt immer am ursprünglichen Posten */
-    Object.keys(c.ledger||{}).forEach(k=>{const m=k.match(/^tr:([a-z0-9]+)/);if(!m||keep.has(m[1]))return;const e=c.ledger[k];
+    Object.keys(c.ledger||{}).forEach(k=>{if(!k.startsWith('tr:')||keep.has(k))return;const e=c.ledger[k];
       if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||e.cancel||(e.refunds&&e.refunds.length)))delete c.ledger[k]})});
 }
 function cost(t){
@@ -2256,9 +2256,11 @@ function commitmentIssues(before,after){
  const signature=(t,k)=>{const days=daysOf(t);return sortedItems(t).filter(it=>{const a=actOf(t,it.act);return a&&(k==='kurs'?a.kurs:k==='verleih'?a.gear:k==='skipass'?a.pass||a.kurs:k==='act:'+it.act);}).map(it=>{const d=days[it.day];return [it.uid,it.act,it.day,it.slot,it.time||'',d&&d.date?iso(d.date):[t.dateMode,t.month||'',t.start||''],t.persons];}).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));};
  Object.entries(before.check||{}).forEach(([k,done])=>{if(done&&k.startsWith('b-')&&JSON.stringify(signature(before,'act:'+k.slice(2)))!==JSON.stringify(signature(after,'act:'+k.slice(2))))out.push('Gebuchte Unternehmung würde verändert');});
  /* Format 3: Erstattungen und Storno sind selbst Verpflichtung/Historie; abgeschlossen stornierte Posten binden den Termin nicht mehr,
-    ihre Zahlungsangaben bleiben aber unveränderlich. Anreise-Abschnitte (tr:) werden über ihren Inhalt verglichen. */
+    ihre Zahlungsangaben bleiben aber unveränderlich. Anreise-Abschnitte (tr:) werden über ihren Inhalt verglichen.
+    Online-Check-in (Öffnung/Hinweis) ist reine Anbieterinformation und darf auch bei gebuchten Abschnitten nachgetragen werden
+    (Entscheidung Claude, #8, 16.10.); Zeiten, Strecke, Preis, Anbieter und Nummer bleiben geschützt. */
  const normTr=t=>{if(!t.transport||!V3)return null;try{return V3.validateTransport(t.transport)}catch(e){return t.transport}};
- const segSig=(t,k)=>{const m=k.match(/^tr:([a-z0-9]+)(?::([a-z0-9]+))?$/),tr=normTr(t);if(!m||!tr)return null;const seg=[].concat(tr.out||[],tr.back||[]).find(x=>x.id===m[1]);if(!seg)return null;return m[2]?(seg.addons||[]).find(a=>a.id===m[2])||null:Object.assign({},seg,{addons:undefined})};
+ const segSig=(t,k)=>{const m=k.match(/^tr:([a-z0-9]+)(?::([a-z0-9]+))?$/),tr=normTr(t);if(!m||!tr)return null;const seg=[].concat(tr.out||[],tr.back||[]).find(x=>x.id===m[1]);if(!seg)return null;return m[2]?(seg.addons||[]).find(a=>a.id===m[2])||null:Object.assign({},seg,{addons:undefined,checkin:undefined})};
  Object.entries(before.ledger||{}).forEach(([k,e])=>{const v3m=v3Money(before,e);if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||v3m))return;
   const settled=v3m&&e.cancel&&V3.cancelSettled(V3.cancelMath(e,null));
   if(!settled&&k.startsWith('tr:')&&JSON.stringify(segSig(before,k))!==JSON.stringify(segSig(after,k)))out.push('Gebuchter Anreise-Abschnitt würde verändert oder entfernt');

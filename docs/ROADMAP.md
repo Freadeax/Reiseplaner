@@ -1,5 +1,9 @@
 # Roadmap
 
+## Claude allein, ChatGPT pausiert · 16.10.2026
+
+Philipp: Claude bringt App und offene Punkte vorerst allein voran, Übergabe für ChatGPT kompakt oben in [COLLABORATION.md](COLLABORATION.md). Erledigt: Finanz-/Verpflichtungsreview des v3-Editors mit vier Kostenkorrekturen und Check-in-Regel (siehe STATUS). Nächste Schritte in dieser Reihenfolge: (1) `V3_EDIT` nach Philipps Sichtprüfung freischalten, (2) Produktionsstand Katalog v4 read-only prüfen, (3) P0.4 Speicheradapter mit Migration von `rp-trips`, (4) P0.3 Kontoexport/-löschung mit Migration und DB-Tests.
+
 ## Nächste aktive Pakete · Formularwege und Katalog · 15.10.2026
 
 iOS-App/Fotos/Reisebuch: Plan in [PLAN_IOS_APP.md](PLAN_IOS_APP.md) zur Abstimmung. Vorschlag: P0 im Web zuerst (V3_EDIT, Tagebuch/Bewertungen/Mitreisende, Kontolöschung, Speicheradapter, iOS-Gestaltungsregeln, OTP), danach App-Hülle, Fotos, Reisebuch.

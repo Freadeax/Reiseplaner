@@ -151,6 +151,43 @@ assert.equal(a.v3Banner(a.silvesterTemplate()), '', 'Format 2 ohne Hinweis');
   assert(dp.items.some(i => i.kind === 'checkin' && i.date === '2026-12-29' && /ab 08:30/.test(i.label)), 'Online-Check-in im Fahrplan');
 }
 
+/* Finanzreview Claude 16.10.: Zusatzposten entfernen, Check-in nach Buchung, Mietwagen-Sprit, stornierte Unterkunft */
+{
+  const x = J(t);
+  x.transport.out[1].addons.push({ id: 'bseat', label: 'Sitzplatz', cost: 10, per: 'pp' });
+  x.ledger['tr:sflug:abag'] = { status: 'gebucht', amount: null, paid: 60, due: '' };
+  x.ledger['tr:sflug:bseat'] = { status: 'offen', amount: 25, paid: 0, due: '' };
+  a.validateExtras(x);
+  const noSeat = J(x.transport); noSeat.out[1].addons = noSeat.out[1].addons.filter(q => q.id !== 'bseat');
+  const r1 = a.setTransport(x, noSeat);
+  assert(!r1.ledger['tr:sflug:bseat'] && r1.ledger['tr:sflug:abag'], 'ungebundener Zusatzposten samt Planwert entfernbar, gebundener bleibt');
+  const noBag = J(x.transport); noBag.out[1].addons = noBag.out[1].addons.filter(q => q.id !== 'abag');
+  assert.throws(() => a.setTransport(x, noBag), /Gebuchter Anreise-Abschnitt/, 'gebuchter Zusatzposten bleibt geschützt');
+  const ci = J(x.transport); ci.out[1].checkin = { opens: { date: '2026-12-29', time: '08:30', tz: 'Europe/Berlin' }, note: 'App' };
+  assert.deepEqual(a.setTransport(x, ci).transport.out[1].checkin.note, 'App', 'Check-in darf beim gebuchten Flug nachgetragen werden');
+  const tm = J(x.transport); tm.out[1].dep.time = '09:00';
+  assert.throws(() => a.setTransport(x, tm), /Gebuchter Anreise-Abschnitt/, 'Abflugzeit des gebuchten Flugs bleibt geschützt');
+  const nr = J(x.transport); nr.out[1].number = 'LH 1';
+  assert.throws(() => a.setTransport(x, nr), /Gebuchter Anreise-Abschnitt/, 'Flugnummer des gebuchten Flugs bleibt geschützt');
+
+  const m = J(t); m.transport.back = [{ id: 'smiet', mode: 'mietwagen', cost: 200, km: 300 }]; a.validateExtras(m);
+  const ml = a.cost(m).lines.filter(l => l.cat === 'anreise' && /Mietwagen/.test(l.t));
+  assert(ml.some(l => l.key === 'tr:smiet' && l.c === 200) && ml.some(l => !l.key && Math.abs(l.c - 300 * 7.5 / 100 * 2.15) < 0.01), 'Mietwagen: Miete und Sprit getrennt, Sprit nicht buchbar');
+  m.transport.back[0].km = null;
+  assert(a.openCosts(m).some(x => /Mietwagen · Sprit \(eigene km fehlen\)/.test(x)), 'Mietwagen ohne km: Sprit offen statt 0 €');
+  assert(a.openCosts(m).some(x => /Parken/.test(x)), 'Parken auch bei Auto-/Mietwagen-Abschnitten prüfen');
+
+  const s = J(t);
+  const o = { id: 'ofst', stayId: s.stayId, name: 'Testhaus', location: 'Testort', provider: 'direkt', type: 'hotel', start: s.start, end: s.end, persons: s.persons, price: 400, basis: 'stay', url: 'https://example.org/v3app-fixture', checkedAt: '2026-10-15', validUntil: '2027-01-04', availability: 'available', terms: 'Nur Testdaten', paid: 100, deposit: 0, booked: true,
+    features: Object.fromEntries(['sauna', 'kitchen', 'breakfast', 'cancel', 'quiet', 'accessible', 'parking'].map(k => [k, 'unknown'])), fees: Object.fromEntries(['tax', 'cleaning', 'parking', 'wellness', 'mandatory'].map(k => [k, { state: 'included', amount: 0 }])) };
+  s.offers = [o]; s.activeOfferId = 'ofst'; a.validateOffer(o); a.validateExtras(s);
+  assert(!a.openCosts(s).some(x => /Unterkunft storniert/.test(x)), 'aktive Buchung ohne Storno: kein Hinweis');
+  o.cancel = { on: '2026-11-01', fee: 0 }; o.refunds = [{ id: 'rfst', on: '2026-11-02', amount: 100 }]; a.validateExtras(s);
+  const stayLine = a.cost(s).lines.find(l => l.key === 'stay');
+  assert(stayLine.c === 0 && /storniert/.test(stayLine.t), 'stornierte Unterkunft zählt nur mit ihrer Gebühr');
+  assert(a.openCosts(s).some(x => /Unterkunft storniert: neue Unterkunft fehlt, Kosten offen/.test(x)), 'stornierte aktive Unterkunft ist offene Pflicht, nicht 0 €');
+}
+
 /* Abgrenzung */
 const v2 = a.silvesterTemplate(); v2.schemaVersion = 2;
 assert.throws(() => a.validateExtras(Object.assign(J(v2), { transport: t.transport })), /Format 3|Formats 3/, 'v3-Felder in v2 abgelehnt');

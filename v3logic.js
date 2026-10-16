@@ -129,8 +129,16 @@
     ['out', 'back'].forEach(function (dir) {
       (tr && tr[dir] || []).forEach(function (s) {
         var label = (dir === 'out' ? 'Hin: ' : 'Rück: ') + MODES[s.mode] + (s.from || s.to ? ' ' + [s.from, s.to].filter(Boolean).join(' → ') : '');
-        if (s.cost != null) add('tr:' + s.id, label, s.cost, s.per);
-        else if (own(CAR, s.mode) && s.km != null && verb > 0 && preis > 0) add('tr:' + s.id, label + ' (' + s.km + ' km, Sprit geschätzt)', Math.round(s.km * verb / 100 * preis * 100) / 100, 'grp');
+        var fuel = s.km != null && verb > 0 && preis > 0 ? Math.round(s.km * verb / 100 * preis * 100) / 100 : null;
+        if (s.mode === 'mietwagen') {
+          /* Mietpreis (cost) und Sprit sind getrennte Kosten: der Mietpreis enthält keinen Kraftstoff. Sprit ohne eigene km
+             bleibt offen statt 0 €. Ohne Schlüssel, weil eine Spritschätzung nicht gebucht oder bezahlt wird. */
+          add('tr:' + s.id, label + ' · Miete', s.cost, s.per);
+          if (fuel != null) add('', label + ' · Sprit (' + s.km + ' km, geschätzt)', fuel, 'grp');
+          else add('', label + ' · Sprit (eigene km fehlen)', null, 'grp');
+        }
+        else if (s.cost != null) add('tr:' + s.id, label, s.cost, s.per);
+        else if (own(CAR, s.mode) && fuel != null) add('tr:' + s.id, label + ' (' + s.km + ' km, Sprit geschätzt)', fuel, 'grp');
         else add('tr:' + s.id, label, null, s.per);
         (s.addons || []).forEach(function (a) { add('tr:' + s.id + ':' + a.id, label + ' · ' + a.label, a.cost, a.per); });
       });

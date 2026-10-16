@@ -2,6 +2,16 @@
 
 Philipp, Claude und ChatGPT arbeiten möglicherweise gleichzeitig am Reiseplaner. Das öffentliche Repository ist die gemeinsame technische Quelle; ein Chat bei einem Anbieter ist **kein** gemeinsamer Nachrichtenkanal. Claude und ChatGPT können einander nicht automatisch direkt anschreiben. Alle wichtigen Entscheidungen, Konflikte und Übergaben müssen daher hier beziehungsweise in GitHub-Issues nachlesbar sein.
 
+## Aktuelle Übergabe für ChatGPT (kurz lesen genügt)
+
+Diesen Block ersetzt Claude nach jedem Push; Details stehen in `docs/STATUS.md` (oben) und Issue #8.
+
+- **Arbeitsmodus seit 16.10.2026 (Philipp):** Claude bringt App und offene Punkte vorerst allein voran. ChatGPT pausiert und wird hier informiert, um bei Bedarf direkt einsteigen zu können.
+- **Letzter geprüfter Stand:** siehe letzter Eintrag in `docs/STATUS.md`; CI „Tests & Pages“ am jeweiligen Commit maßgeblich.
+- **Zuletzt erledigt (Claude, 16.10.):** Finanz-/Verpflichtungsreview des v3-Editors abgeschlossen. Behoben: (1) ungebundenen Zusatzposten mit Planwert im Buchungsbuch entfernen scheiterte mit Referenzfehler, (2) Mietwagen zählte keinen Sprit, Sprit jetzt getrennt (ohne km offen), (3) stornierte aktive Unterkunft wirkte wie 0 € statt „Unterkunft fehlt, Kosten offen“, (4) Parken/Maut-Hinweis auch bei Auto-/Mietwagen-Abschnitten. **Check-in-Regel entschieden:** Online-Check-in (Öffnung/Hinweis) darf bei gebuchten Abschnitten nachgetragen werden; Zeiten, Strecke, Preis, Anbieter, Nummer bleiben geschützt.
+- **Tests:** `npm test`, `npm run test:browser` (Chromium Desktop/mobil/320 dunkel), Build, Artefaktprüfung lokal grün. Kein iPhone-Test.
+- **Offen / nächster Schritt:** `V3_EDIT` steht weiter auf `false`; Freischaltung wartet auf Philipps Sichtprüfung. Danach P0 aus `docs/PLAN_IOS_APP.md` (Speicheradapter, Kontolöschung/-export). Produktionsstand Katalog v4 read-only prüfen. Dein unveröffentlichtes Paket „Planungswege/Register-UI“ vom 15.10. abends ist nicht auf `main`; bei Wiedereinstieg bitte von `main` neu ansetzen.
+
 ## Verbindlicher Ablauf für jede Änderung
 
 1. Vor Arbeitsbeginn den neuesten Stand von `main`, `AGENTS.md`, `docs/STATUS.md` und die betroffenen Dateien lesen. Das konkrete Ausgangs-Commit notieren. Bei größeren Aufgaben im passenden GitHub-Issue kurz Ziel, betroffene Dateien und offene Fragen festhalten.

@@ -1,4 +1,21 @@
-# Projektstand · 15.10.2026
+# Projektstand · 16.10.2026
+
+## Finanz-/Verpflichtungsreview v3-Editor und Check-in-Regel (Claude, #8, 16.10.)
+
+Ausgangsstand `5149343` (CI 38804178390 grün). Review von `v3logic.js`, `v3forms.js`, `v3editor.js` und den App-Mutatoren (`setTransport`, `cancelEntry`, `addRefund`, `uncancel`, `commitmentIssues`, `cost`, `openCosts`) gegen die Projektregeln. Vier Funde behoben, alle mit Test, der vor dem Fix rot war:
+
+1. **Zusatzposten entfernen:** Ein ungebundener Zusatzposten mit Planwert im Buchungsbuch (z. B. Sitzplatz „offen“, 25 €) ließ sich nicht entfernen; `setTransport` räumte nur nach Abschnitts-ID auf, die Referenzprüfung brach mit „verweist auf keinen Anreise-Abschnitt“ ab. Jetzt Aufräumen nach vollem Schlüssel `tr:<abschnitt>[:<zusatz>]`; Einträge mit Buchung, Zahlung, Fälligkeit, Storno oder Erstattung bleiben wie bisher.
+2. **Mietwagen ohne Sprit:** Mit Mietpreis wurden die eigenen km ignoriert, der Kraftstoff fehlte in der Summe. Jetzt zwei Zeilen: „Miete“ (Buchungsbuch `tr:<id>`) und „Sprit“ aus eigenen km × Verbrauch × Preis, ohne Buchungsschlüssel. Ohne km bleibt der Sprit sichtbar offen statt 0 €. `auto` unverändert (Preis oder sonst Sprit aus km).
+3. **Stornierte aktive Unterkunft:** zählte nur ihre Gebühr, ohne Hinweis, dass die Unterkunft nun fehlt; die Reise wirkte günstiger. `openCosts` meldet jetzt „Unterkunft storniert: neue Unterkunft fehlt, Kosten offen“, damit keine sichere Budgetaussage entsteht.
+4. **Parken/Maut:** Hinweis auch, wenn Auto oder Mietwagen nur als v3-Abschnitt vorkommt.
+
+**Check-in-Regel (offene Frage von ChatGPT, entschieden):** Online-Check-in (`checkin.opens`/`note`) ist Information vom Anbieter und darf bei gebuchten Abschnitten nachgetragen oder geändert werden. Abfahrt/Ankunft, Strecke, Verkehrsmittel, Preis, Preisbasis, km, Anbieter und Nummer bleiben geschützt; gebuchte Zusatzposten ebenso. Umsetzung: `segSig` in `commitmentIssues` ignoriert `checkin`.
+
+Ohne Befund geprüft: Storno-/Erstattungsrechnung (Cent, keine Verrechnung, unbekannte Gebühr nie abgeschlossen), Rücknahme behält Erstattungen, Kandidaten verändern die Quelle nicht, Vorschau/Übernahme mit Quellstand-, Bereichs- und Rechteprüfung, Reihenfolgeschutz gebundener Abschnitte.
+
+Tests (ausgeführt): `npm test` grün (neu in `tests/v3app.cjs`, angepasst in `tests/v3editor.cjs` auf die neue Check-in-Regel), `npm run test:browser` grün (Chromium Desktop, mobil, 320 px dunkel, v3-Editorwege), `npm run build`, `check:artifact`, `git diff --check`. Service Worker `reiseplaner-v10`. Kein iPhone-/Safari-Test, keine DB-Änderung.
+
+Grenzen und nächster Schritt: `V3_EDIT` bleibt `false`. Aus Sicht des Reviews steht der Freischaltung nichts mehr entgegen; sie wartet auf Philipps Sichtprüfung. Danach P0.4/P0.3 aus [PLAN_IOS_APP.md](PLAN_IOS_APP.md).
 
 ## Plan iOS-App, Fotos und Reisebücher (Claude, #8)
 
