@@ -73,6 +73,9 @@ async function page(browser, name) {
   return { ctx, p };
 }
 const syncText = p => p.textContent('#sync');
+/* Schlüssel der IndexedDB-Zweitkopie (rpstore.js, P0.4); erst aufrufen, nachdem die App die Datenbank angelegt hat */
+const idbKeys = p => p.evaluate(() => new Promise(res => { const r = indexedDB.open('reiseplaner'); r.onerror = () => res(null); r.onsuccess = () => { const db = r.result; if (!db.objectStoreNames.contains('kv')) { db.close(); res([]); return; } const g = db.transaction('kv').objectStore('kv').getAllKeys(); g.onsuccess = () => { db.close(); res(g.result); }; }; }));
+async function idbUntil(p, fn, what) { let k; for (let i = 0; i < 80; i++) { k = await idbKeys(p); if (k && fn(k)) return k; await sleep(100); } throw new Error(what + ' (IndexedDB-Schlüssel: ' + JSON.stringify(k) + ')'); }
 const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(document.querySelector('#sync').textContent), re.source, { timeout: ms || 15000 });
 
 (async () => {
@@ -158,11 +161,13 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     const bRows = (await bApi.from('trips').select('id')).data; assert.equal((bRows || []).length, 0, 'API bestätigt: kein Zugriff');
 
     /* Abmelden: keine Kontodaten mehr sichtbar, Gastdaten wieder da */
+    await idbUntil(A.p, k => k.some(x => x.startsWith('rp-u:')), 'Kontocache vor dem Abmelden in der IndexedDB-Kopie');
     await A.p.goto(BASE + '#konto'); await A.p.click('[data-acc="signout"]');
     await waitSync(A.p, /Gast/);
     await A.p.goto(BASE + '#reisen'); view = await A.p.textContent('#view');
     assert(view.includes('Gast-Reise ' + run), 'Gast-Reise lokal erhalten');
     assert(!(await A.p.evaluate(() => Object.keys(localStorage).some(k => k.startsWith('rp-u:')))), 'Kontocache nach Abmelden entfernt');
+    await idbUntil(A.p, k => !k.some(x => x.startsWith('rp-u:')) && k.includes('rp-trips'), 'IndexedDB-Kopie des Kontos nach Abmelden entfernt, Gastdaten erhalten');
 
     /* Anmeldung per E-Mail-Code (P0.7): unbekannte Adresse gleich angezeigt, kein Konto angelegt; falscher Code,
        erneut senden (alter Code ungültig), richtiger Code → Konto geladen wie nach Passwort-Anmeldung */
@@ -235,6 +240,7 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await A.p.click('form[data-acc-form="delete-account"] button[type="submit"]');
     await waitSync(A.p, /Gast/, 20000);
     assert(!(await A.p.evaluate(() => Object.keys(localStorage).some(k => k.startsWith('rp-u:')))), 'Kontocache nach Löschung entfernt');
+    await idbUntil(A.p, k => !k.some(x => x.startsWith('rp-u:')) && k.includes('rp-trips'), 'IndexedDB-Kopie des Kontos nach Löschung entfernt, Gastdaten erhalten');
     assert((await A.p.textContent('#view')).includes('Gast-Reise ' + run), 'Gastdaten im Browser unberührt');
     assert((await api().auth.signInWithPassword({ email: aMail, password: 'Anna-NEU-' + run })).error, 'gelöschtes Konto kann sich nicht anmelden');
     const kept = (await bApi.from('trips').select('id,owner_id').eq('id', tid)).data;

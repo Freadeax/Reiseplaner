@@ -495,6 +495,7 @@ ul.rp-rates>li{display:flex;flex-direction:column;gap:6px;min-width:0}
 <script src="v3forms.js"></script>
 <script src="v3editor.js"></script>
 <script src="v3journal.js"></script>
+<script src="rpstore.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1534,31 +1535,90 @@ function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/
      bestätigte Serverversion und Rolle, queue die noch nicht bestätigten Änderungen und Löschungen.
    Beim Wechsel des Bereichs wird der Arbeitsspeicher geleert, damit nie Daten eines anderen Kontos sichtbar bleiben. */
 const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
+  /* Zweitkopie in IndexedDB über rpstore.js (P0.4). localStorage bleibt Commit-Punkt: jeder Stand wird wie bisher
+     synchron dorthin geschrieben und erst danach nach IndexedDB durchgeschrieben; Strategie und Abgleichsregeln im Kopf
+     von rpstore.js. backend: null = ohne RPStore (Node-Tests, Datei fehlt; Verhalten wie bisher), 'laden' bis zum
+     ersten Abgleich, 'idb', 'local' = Rückfall nur localStorage mit sichtbarem Hinweis (backendNote).
+     startRaw: localStorage-Text beim Laden des Bereichs; null heißt leer, nur dann wird aus der Kopie wiederhergestellt. */
+  backend:null,backendNote:'',idbBackup:null,backendGen:0,startRaw:undefined,loadingShown:false,
   key(){return this.scope==='guest'?'rp-trips':'rp-u:'+this.scope},
   historyKey(){return this.scope==='guest'?'rp-history':'rp-u:'+this.scope+':history'},
   isAccount(){return this.scope!=='guest'},
-  setScope(scope){this.scope=scope||'guest';this.trips={};this.meta={};this.queue={};this.lastRaw=undefined;this.conflict=false;this.localError=false;this.corruptRaw=null;this.loadLocal()},
+  setScope(scope){this.scope=scope||'guest';this.trips={};this.meta={};this.queue={};this.lastRaw=undefined;this.conflict=false;this.localError=false;this.corruptRaw=null;this.idbBackup=null;this.loadLocal();this.syncBackend()},
   serialize(){return this.scope==='guest'?JSON.stringify(this.trips):JSON.stringify({v:1,trips:this.trips,meta:this.meta,queue:this.queue})},
+  /* Bereichstext prüfen und lesen, ohne den Zustand zu ändern (Laden, Wiederherstellen, Prüfung vor dem Kopieren) */
+  parse(raw,guest){
+    if(guest){const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');Object.values(s).forEach(t=>{if(t&&typeof t==='object')validateExtras(t);});return {trips:s,meta:{},queue:{}}}
+    const s=JSON.parse(raw||'{"v":1,"trips":{},"meta":{},"queue":{}}');if(!s||s.v!==1||[s.trips,s.meta,s.queue].some(x=>!x||typeof x!=='object'||Array.isArray(x)))throw new Error('Ungültiger Kontospeicher');Object.values(s.trips).forEach(t=>validateExtras(t));return s},
+  validRaw(k,raw){try{if(/^(rp-history|rp-u:[^:]+:history)$/.test(k))return Array.isArray(JSON.parse(raw));if(k==='rp-trips'||/^rp-u:[^:]+$/.test(k)){this.parse(raw,k==='rp-trips');return true}}catch(e){}return false},
   loadLocal(){
     let raw;
-    try{raw=localStorage.getItem(this.key());
-      if(this.scope==='guest'){const s=JSON.parse(raw||'{}');if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('Ungültige gespeicherte Reisen');Object.values(s).forEach(t=>{if(t&&typeof t==='object')validateExtras(t);});this.trips=s;}
-      else{const s=JSON.parse(raw||'{"v":1,"trips":{},"meta":{},"queue":{}}');if(!s||s.v!==1||[s.trips,s.meta,s.queue].some(x=>!x||typeof x!=='object'||Array.isArray(x)))throw new Error('Ungültiger Kontospeicher');Object.values(s.trips).forEach(t=>validateExtras(t));this.trips=s.trips;this.meta=s.meta;this.queue=s.queue;}
-      this.lastRaw=raw;this.corruptRaw=null;this.localError=false}
-    catch(e){this.trips={};this.meta={};this.queue={};this.localError=true;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
+    try{raw=localStorage.getItem(this.key());const s=this.parse(raw,this.scope==='guest');this.trips=s.trips;if(this.isAccount()){this.meta=s.meta;this.queue=s.queue}
+      this.lastRaw=raw;this.startRaw=raw;this.corruptRaw=null;this.localError=false}
+    catch(e){this.trips={};this.meta={};this.queue={};this.localError=true;this.startRaw=raw;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
   },
   saveLocal(){
     if(this.corruptRaw!==null){this.localError=true;setSync('storage-error');return false}
     try{const raw=this.serialize(),previous=localStorage.getItem(this.key());
       if(this.lastRaw!==undefined&&previous!==this.lastRaw){this.localError=true;this.conflict=true;setSync('storage-error');alertMsg('Eine andere Ansicht hat neuere Daten gespeichert. Eigene Änderungen als Datei sichern und neu laden.');return false;}
-      if(previous&&previous!==raw){try{let h=JSON.parse(localStorage.getItem(this.historyKey())||'[]');if(!Array.isArray(h))throw new Error('Sicherungspunkte ungültig');h.unshift({at:new Date().toISOString(),raw:previous});localStorage.setItem(this.historyKey(),JSON.stringify(h.slice(0,5)));this.historyError=false;}catch(e){this.historyError=true;}}
-      localStorage.setItem(this.key(),raw);this.lastRaw=raw;this.conflict=false;this.localError=false;setSync();return true}
+      if(previous&&previous!==raw)this.addHistory(previous);
+      localStorage.setItem(this.key(),raw);this.lastRaw=raw;this.mirror(this.key(),raw);this.conflict=false;this.localError=false;setSync();return true}
     catch(e){this.localError=true;setSync('storage-error');return false}
   },
+  /* Sicherungspunkt (fünf vorherige Stände). Scheitert er, nur Hinweis; dedupe: Stand nur ergänzen, wenn er noch fehlt. */
+  addHistory(raw,at,dedupe){try{const k=this.historyKey();let h=JSON.parse(localStorage.getItem(k)||'[]');if(!Array.isArray(h))throw new Error('Sicherungspunkte ungültig');if(dedupe&&h.some(x=>x&&x.raw===raw))return;h.unshift({at:at||new Date().toISOString(),raw});const hr=JSON.stringify(h.slice(0,5));localStorage.setItem(k,hr);this.mirror(k,hr);this.historyError=false;}catch(e){this.historyError=true;}},
   resetCorrupt(){
     if(this.corruptRaw===null)return false;
-    try{localStorage.removeItem(this.key());this.corruptRaw=null;this.trips={};this.meta={};this.queue={};this.lastRaw=null;this.localError=false;setSync('local');return true}
+    try{const dropped=this.corruptRaw;localStorage.removeItem(this.key());this.corruptRaw=null;this.trips={};this.meta={};this.queue={};this.lastRaw=null;this.startRaw=null;this.idbBackup=null;this.localError=false;setSync('local');
+      /* beschädigter Text verschwindet auch aus der Kopie; eine lesbare ältere Kopie wird danach wiederhergestellt */
+      this.syncBackend({drop:dropped});return true}
     catch(e){this.localError=true;setSync('storage-error');return false}
+  },
+  rp(){return this.backend&&typeof window!=='undefined'&&window.RPStore||null},
+  mirror(k,raw){const R=this.rp();if(!R||this.backend==='local')return;R.write(k,raw).then(r=>{if(r&&!r.ok)this.backendFailed(r.reason)},e=>this.backendFailed(e&&e.message))},
+  /* Start: IndexedDB öffnen, beim ersten Mal alle Bereiche kopieren, zurücklesen, vergleichen und Marker setzen, dann abgleichen. */
+  bootBackend(){
+    const R=typeof window!=='undefined'&&window.RPStore;if(!R||this.backend)return this.backendReady||Promise.resolve(null);
+    this.backend='laden';
+    R.onStatus(s=>{if(s&&s.mode==='local')this.backendFailed(s.reason)});
+    /* Fremdänderung über BroadcastChannel (ergänzt das storage-Ereignis): nur melden, wenn localStorage wirklich anders ist */
+    R.onRemote(m=>{if(!m||m.key!==this.key()||this.conflict)return;let now;try{now=localStorage.getItem(m.key)}catch(e){}if(now!==this.lastRaw){this.conflict=true;setSync('conflict');alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.')}});
+    return this.backendReady=R.init({valid:(k,raw)=>this.validRaw(k,raw)}).then(s=>s&&s.mode==='idb'?this.syncBackend():(this.backendFailed(s&&s.reason),null),e=>{this.backendFailed(e&&e.message);return null});
+  },
+  async syncBackend(o){
+    const R=this.rp();if(!R||this.backend==='local')return null;
+    const gen=++this.backendGen,scope=this.scope,key=this.key(),hk=this.historyKey();
+    try{
+      const d=await R.reconcile(key,{absentAtStart:this.startRaw===null,lsValid:this.corruptRaw===null,drop:o&&o.drop});
+      if(gen!==this.backendGen||scope!==this.scope)return d; /* Bereich inzwischen gewechselt */
+      if(d.state==='local'){this.backendFailed(d.reason);return d}
+      if(d.state==='restore')this.applyRestore(d.rec);
+      else if(d.state==='adopt'&&d.rec)this.addHistory(d.rec.raw,d.rec.at,true);
+      else if(d.state==='backup'){this.idbBackup={at:d.rec.at||''};if(typeof render==='function')remoteChanged()}
+      let hNow=null;try{hNow=localStorage.getItem(hk)}catch(e){}
+      await R.reconcile(hk,{absentAtStart:hNow===null,autoRestore:true});
+      if(gen===this.backendGen&&this.backend==='laden'){this.backend='idb';if(this.loadingShown){this.loadingShown=false;if(typeof render==='function'&&UI.view==='reisen')remoteChanged()}}
+      return d;
+    }catch(e){this.backendFailed(e&&e.message);return null}
+  },
+  /* localStorage war beim Laden leer, die Kopie stammt aus einer früheren Sitzung: zurückholen. In dieser Sitzung schon
+     angelegte Reisen behalten Vorrang (Vereinigung), es wird nichts verworfen. */
+  applyRestore(rec){
+    let s;try{s=this.parse(rec.raw,this.scope==='guest')}catch(e){this.backendNote='Die Zweitkopie in IndexedDB ist nicht lesbar und wurde nicht übernommen; sie bleibt unverändert.';if(typeof render==='function')remoteChanged();return false}
+    if(!Object.keys(s.trips).length&&!Object.keys(s.queue).length)return false;
+    this.trips=Object.assign(s.trips,this.trips);if(this.isAccount()){this.meta=Object.assign(s.meta,this.meta);this.queue=Object.assign(s.queue,this.queue)}
+    const ok=this.saveLocal(),when=rec.at?new Date(rec.at).toLocaleString('de-DE'):'';if(ok)this.startRaw=this.lastRaw;
+    alertMsg(ok?'Reisen aus der Zweitkopie (IndexedDB'+(when?', Stand '+when:'')+') wiederhergestellt.':'Reisen aus der Zweitkopie angezeigt, aber nicht in den Browser-Speicher zurückgeschrieben. Bitte als Datei sichern.');
+    if(this.isAccount())Sync.schedule(0);if(typeof render==='function')remoteChanged();return ok;
+  },
+  backendFailed(why){if(!this.backend||this.backend==='local')return;this.backend='local';this.loadingShown=false;this.backendNote='Zweitkopie in IndexedDB nicht verfügbar'+(why?' ('+String(why).slice(0,200)+')':'')+'. Reisen werden wie bisher nur im Browser-Speicher (localStorage) gesichert.';alertMsg(this.backendNote);if(typeof render==='function')remoteChanged()},
+  /* Kontobereich von diesem Gerät entfernen (Abmelden ohne Ausstehendes, Kontolöschung): localStorage sofort, IndexedDB mit
+     Löschmarke, damit ein Abbruch beim nächsten Start nachgeholt wird. Gastdaten (rp-trips, rp-history) nie. */
+  forgetScope(scope){
+    if(!scope||scope==='guest')return Promise.resolve(false);
+    const keys=['rp-u:'+scope,'rp-u:'+scope+':history'];try{keys.forEach(k=>localStorage.removeItem(k))}catch(e){}
+    const R=typeof window!=='undefined'&&window.RPStore;if(!R||!this.backend)return Promise.resolve(true);
+    return R.remove(keys).then(ok=>{if(!ok)alertMsg('Die Zweitkopie dieses Kontos in IndexedDB konnte noch nicht entfernt werden. Sie wird beim nächsten Start gelöscht und nicht wiederhergestellt.');return ok},()=>false);
   },
   list(){return Object.values(this.trips).sort((a,b)=>(a.start||a.month||'9999').localeCompare(b.start||b.month||'9999'))},
   get(id){return this.trips[id]||null},
@@ -1733,8 +1793,8 @@ const Auth={user:null,ready:false,recovery:false,gen:0,
     if(Store.pending()&&!force){UI.confirm='logout';UI.view='konto';render();return}
     const scope=Store.scope,keep=Store.pending()>0;
     try{await Sync.cloud().signOut()}catch(e){alertMsg(e.message);return}
-    if(!keep){try{localStorage.removeItem('rp-u:'+scope);localStorage.removeItem('rp-u:'+scope+':history')}catch(e){}}
-    this.switchTo(null);UI.view='reisen';render();
+    const forget=keep?null:Store.forgetScope(scope); /* localStorage und IndexedDB-Kopie des Kontobereichs, Gastdaten bleiben */
+    this.switchTo(null);UI.view='reisen';render();if(forget)await forget;
   }
 };
 /* Gast-Reisen dieses Browsers lesen (nur lesend), um sie bewusst ins Konto zu übernehmen. */
@@ -1878,7 +1938,11 @@ function tripSpotlight(row){
  if(!row)return '';const t=row.trip;
  return '<aside class="trip-spotlight"><div><span class="eyebrow">'+(row.key==='current'?'Gerade unterwegs':'Eure nächste Auszeit')+'</span><h2>'+esc(t.title)+'</h2><p class="small muted">'+esc(rangeText(t))+' · '+esc(phaseText(row.phase))+'</p></div><button type="button" class="btn" data-go="r-'+esc(t.id)+'-'+(row.key==='current'?'plan':'ueber')+'">'+(row.key==='current'?'Zum Tagesplan':'Weiterplanen')+' <span aria-hidden="true">↗</span></button></aside>';
 }
-function storageRecoveryBlock(){if(Store.corruptRaw===null)return '';return '<section class="block" data-storage-recovery><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p><div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>'}
+function storageRecoveryBlock(){if(Store.corruptRaw===null)return '';return '<section class="block" data-storage-recovery><div class="note" role="alert"><h2>Gespeicherte Reisen konnten nicht gelesen werden</h2><p>Die ursprünglichen Daten wurden nicht überschrieben. Lade zuerst die Rohdaten herunter und bewahre sie auf. Bis zur Entscheidung sind Änderungen gesperrt.</p>'+(Store.idbBackup?'<p>Eine lesbare Zweitkopie in IndexedDB'+(Store.idbBackup.at?' vom '+esc(new Date(Store.idbBackup.at).toLocaleString('de-DE')):'')+' ist vorhanden. „Speicher zurücksetzen“ entfernt nur die beschädigte Kopie und holt danach diesen Stand zurück.</p>':'')+'<div class="row"><button type="button" class="btn" data-act="corrupt-download">Rohdaten sichern</button><button type="button" class="btn ghost" data-act="corrupt-confirm">Speicher zurücksetzen</button></div>'+(UI.confirm==='corrupt-reset'?'<p>Nur fortfahren, wenn die Rohdaten gesichert sind. Das Zurücksetzen entfernt die beschädigte lokale Kopie von diesem Gerät.</p><div class="row"><button type="button" class="btn warn" data-act="corrupt-reset">Ja, lokale Daten entfernen</button><button type="button" class="btn ghost" data-act="corrupt-cancel">Abbrechen</button></div>':'')+'</div></section>'}
+/* Speicherhinweise (P0.4): Rückfall ohne IndexedDB-Zweitkopie sichtbar machen; Ladezustand statt „keine Reise“, solange
+   bei leerem Browser-Speicher die Zweitkopie noch geprüft wird. */
+function storageNotice(){return Store.backendNote?'<section class="block" data-storage-backend><div class="note" role="status"><b>Speicherhinweis:</b> '+esc(Store.backendNote)+' Wichtige Reisen zusätzlich als Datei sichern.</div></section>':''}
+function emptyShelf(){if(Store.backend==='laden'&&Store.startRaw===null){Store.loadingShown=true;return '<div class="empty" role="status" data-storage-loading><b>Gespeicherte Reisen werden geladen …</b><span>Der Browser-Speicher wird geprüft.</span></div>'}return '<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>'}
 function vReisen(){
   const list=Store.list(),shelf=tripShelf(list,{filter:UI.tripFilter,query:UI.tripQuery,sort:UI.tripSort});
   const card=t=>{const c=cost(t),ph=tripPhase(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
@@ -1886,11 +1950,11 @@ function vReisen(){
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
     (ph?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
     '<div class="between trip-price"><span><span class="small muted">Planwert gesamt</span><br><span class="price num">'+eur(c.total)+'</span></span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+(openCosts(t).length?'<span class="small" style="color:var(--warn)">Weitere Kosten sind noch offen</span>':'')+'<span class="trip-open"><span>Reise öffnen</span><span aria-hidden="true">↗</span></span></button>'};
-  return unreadableShelf()+
+  return unreadableShelf()+storageNotice()+
    '<section class="block home-hero"><svg class="hero-art" viewBox="0 0 280 280" fill="none" aria-hidden="true"><circle cx="140" cy="140" r="120" stroke="currentColor"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="2"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg><span class="eyebrow">Dein nächstes schönes Stück Auszeit</span><h1>Die Vorfreude beginnt hier.</h1><p class="lead muted">Ideen sammeln, gemeinsam abwägen und entspannt losfahren. Alles für eure Reise an einem Ort.</p><div class="hero-meta"><span>'+list.length+(list.length===1?' gespeicherte Reise':' gespeicherte Reisen')+'</span><span>Ausflug · Wochenende · Urlaub</span></div>'+
    (Store.isAccount()&&guestPendingCount()?'<div class="note"><b>'+guestPendingCount()+' Reise(n) ohne Konto in diesem Browser.</b><p>Sie werden nicht automatisch übertragen.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und ins Konto übernehmen</button></div></div>':'')+(!Store.isAccount()&&Sync.cloud()?'<p class="small muted">Gastmodus: Reisen nur in diesem Browser. <button type="button" class="lnk" data-go="konto">Anmelden für Online-Speicherung und Teilen</button></p>':'')+
    '<div class="row"><button type="button" class="btn" data-go="neu">+ Neue Reise</button><button type="button" class="btn ghost" data-go="entdecken">Ziele im Umkreis entdecken</button></div><details class="panel"'+(list.length?'':' open')+'><summary><b>Mit einer Vorlage starten</b></summary><p class="small muted">Vorlagen bereiten Reiseart, Dauer und passende Aufgaben vor. In der Vorschau seht ihr, was enthalten ist. Das Silvester-Beispiel enthält eine geplante Reise mit Schätzwerten.</p>'+tplButtons()+'</details></section>'+
-   '<section class="block"><div class="section-heading"><h2>Meine Reisen</h2><p>Eure Pläne, ein Griff entfernt.</p></div>'+(list.length?(!shelf.query&&shelf.filter==='all'?tripSpotlight(shelf.spotlight):'')+tripShelfTools(shelf)+(shelf.rows.length?'<div class="grid wide">'+shelf.rows.map(r=>card(r.trip)).join('')+'</div>':'<div class="empty"><b>Keine Reise passt zu dieser Ansicht</b><span>Suchwort oder Zeitgruppe ändern. Eure Reisen wurden nicht gelöscht.</span><button type="button" class="btn ghost" data-act="trip-reset">Alle Reisen zeigen</button></div>'):'<div class="empty"><b>Noch keine Reise angelegt</b><span>Legt eine neue Reise an oder startet mit einer Vorlage.</span></div>')+'</section>'+
+   '<section class="block"><div class="section-heading"><h2>Meine Reisen</h2><p>Eure Pläne, ein Griff entfernt.</p></div>'+(list.length?(!shelf.query&&shelf.filter==='all'?tripSpotlight(shelf.spotlight):'')+tripShelfTools(shelf)+(shelf.rows.length?'<div class="grid wide">'+shelf.rows.map(r=>card(r.trip)).join('')+'</div>':'<div class="empty"><b>Keine Reise passt zu dieser Ansicht</b><span>Suchwort oder Zeitgruppe ändern. Eure Reisen wurden nicht gelöscht.</span><button type="button" class="btn ghost" data-act="trip-reset">Alle Reisen zeigen</button></div>'):emptyShelf())+'</section>'+
    '<section class="block"><h2>Reisen sichern & übertragen</h2><p class="small muted">Eine JSON-Datei enthält eure Reisepläne einschließlich Notizen. Bewahrt sie privat auf. Die Datei kann auf dem anderen Gerät importiert werden; das ist eine manuelle Übertragung, keine automatische Synchronisation.</p><div class="row"><button type="button" class="btn ghost sm" data-act="backup-all"'+(list.length?'':' disabled')+'>Alle Reisen sichern</button><button type="button" class="btn ghost sm" data-act="import-open">Sicherung importieren</button><input id="import-file" type="file" accept=".json,application/json" hidden aria-label="Reiseplaner-Sicherung wählen"></div></section>'+
    '<details class="panel home-support"><summary><b>Neu hier? So funktioniert’s</b></summary><div class="grid"><div class="card"><h4>1 · Reise anlegen</h4><p class="small">Art, Zeitraum, Personen, Budget. Datum fest, flexibel oder offen.</p></div><div class="card"><h4>2 · Angebot oder frei planen</h4><p class="small">Fertiges Paket übernehmen oder Ort, Unterkunft und Unternehmungen selbst wählen.</p></div><div class="card"><h4>3 · Tagesplan & Kosten</h4><p class="small">Jeden Tag in vier Zeitfenstern füllen, Kosten und Spartipps live.</p></div><div class="card"><h4>4 · Abhaken</h4><p class="small">Buchungen und Packliste entstehen aus eurem Plan.</p></div></div></details>';
 }
@@ -3146,7 +3210,7 @@ async function deleteAccountDo(email){
   if(JSON.stringify(left)!==JSON.stringify(agreed)){UI.delSummary=null;throw new Error('Inzwischen hat sich eine geteilte Reise geändert. Bitte die Übersicht neu öffnen. Übergaben sind bereits erfolgt.')}
   const res=await c.deleteAccount(email.trim(),agreed.length>0),scope=Store.scope;
   try{await c.signOut()}catch(e){}
-  try{localStorage.removeItem('rp-u:'+scope);localStorage.removeItem('rp-u:'+scope+':history')}catch(e){}
+  Store.forgetScope(scope); /* Kontocache in localStorage und IndexedDB entfernen, Gastdaten bleiben */
   UI.delSummary=null;closeSheet();Auth.switchTo(null);UI.view='reisen';render();
   alertMsg('Konto gelöscht ('+res.deleted_trips+' eigene Reise'+(res.deleted_trips===1?'':'n')+').');
 }
@@ -4113,7 +4177,7 @@ document.addEventListener('click',e=>{
 });
 
 /* ================= Start ================= */
-Store.loadLocal();
+Store.loadLocal();Store.bootBackend();
 window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCheck,moduleGuide,areaPicker,MODULE_INFO,APPEARANCES,appearanceValue,applyAppearance,appearanceSheet,vReisen,vReise,routeCalc,routeApply,routePoints,routeBlock,tzOffsetMin,zonedToUtc,tzDiffMin,validTz,outboundMin,favMerge,favExportData,favText,favClean,transferGaps,actGeo,arrivalMin,slotForTime,timeMin,sortedItems,activityGaps,catCompareSheet,planningNextSteps,nextStepsBlock,openHoursText,costEntryFromForm,costEntryPreview,applyCostEntry,stayChangePreview,applyStayChange,protectedPlanChange,catOpenById,catShareUrl,reorderLegs,legStarts,legsBlock,activityCommitted,activityChangePreview,applyActivityChange,catYear,customActFromForm,tUnternehmen,catComboBlock,rainSwap,dayLoad,driveByDay,dayRouteUrl,swapDays,planFillApply,catTourPlan,catFavs,catFavToggle,catFind,catMap,catSeasonStrip,actHours,stayCommitted,commitmentIssues,savingPreview,applySavingPreview,sheetSaving,costScenarios,scenarioSection,tKosten,catalogQuery,catApply,catTripType,catState,vEntdecken,actCost,openCosts,Sync,Auth,guestPreview,adoptGuestTrips,tripSyncState,guestPendingCount,vKonto,conflictBlock,validateLedger,ledgerRows,financeSummary,setLedger,ledgerSection,sampleAge,stayNight,tripSeason,seasonOfMd,PRICE_SAMPLES,encryptBackup,decryptBackup,validateSecureBackup,importPreview,readBackupFile,hasBackupCrypto,MAX_BACKUP_BYTES,MAX_SECURE_FILE_BYTES,holidayStay,planBasis,TEMPLATES,applyType,providerUrl,searchDefaults,searchState,offerAmounts,offerCurrent,offerEvaluation,filteredOffers,validateOffer,validateSearch,migrateTrip,activeOffer,tSuche,comparisonTable,applyOffer,offerForecast,offerFinance,PROVIDERS,rainIdeas,fitsDay,tripPhase,phaseText,icsData,icsFold,tripText,todayBlock,tMappe,backupData,validateBackup,importTrips,setField,pd,routeKm,resetStay,openCosts,actCost,Store,UI,cost,checks,checklist,savingTips,PKGS,ACTS,STAYS,PLACES,silvesterTemplate,applyPkg,newTrip,go,daysOf,nightsOf,render};
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});

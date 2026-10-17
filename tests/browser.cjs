@@ -1064,6 +1064,61 @@ async function journalFlow(browser,base,name,ctxOpts){
  assert(await p.isVisible('#journal-delete'));await p.click('[data-journal-act="delete"]');
  const after=await trip();assert.equal(after.journal,undefined);assert.equal(after.schemaVersion,3);assert.equal(after.ratings[actId],3);
  await ctx.close();console.log(name+': Reisetagebuch (Entwurf, Bestätigung Format 3, Bewertung per Antippen, Mappe, Löschen) geprüft.');
+/* Speicheradapter (P0.4): Bestand einer App-Version ohne rpstore.js wird beim ersten Start nach IndexedDB kopiert,
+   Neuladen nach Migration zeigt dieselben Reisen und rp-trips bleibt; Zurückrollen auf die alte Version und zurück ohne
+   Verlust; nur localStorage geräumt → Wiederherstellung; ohne IndexedDB sichtbarer Hinweis. Kein Safari-/iPhone-Test. */
+async function storageAdapter(browser,base,name,ctxOpts){
+ const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8'),tag='<script src="rpstore.js"></script>\n';
+ assert(html.includes(tag),'index.html lädt rpstore.js');const oldHtml=html.replace(tag,'');
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Speicheradapter: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ const oldApp=()=>p.route(base+'/index.html',r=>r.fulfill({status:200,contentType:'text/html',body:oldHtml})),newApp=()=>p.unroute(base+'/index.html');
+ const ready=()=>p.waitForFunction(()=>window.__app&&window.__app.Store.backend==='idb');
+ const ls=()=>p.evaluate(()=>localStorage.getItem('rp-trips'));
+ const copy=()=>p.evaluate(()=>new Promise((res,rej)=>{const r=indexedDB.open('reiseplaner');r.onerror=()=>rej(r.error);r.onsuccess=()=>{const db=r.result,out={},tx=db.transaction(['kv','meta'],'readonly');
+  tx.objectStore('kv').get('rp-trips').onsuccess=e=>{out.raw=e.target.result?e.target.result.raw:null};tx.objectStore('meta').get('marker').onsuccess=e=>{out.marker=e.target.result||null};tx.oncomplete=()=>{db.close();res(out)}}}));
+ const until=async(fn,what)=>{for(let i=0;i<100;i++){if(await fn())return;await p.waitForTimeout(50)}assert.fail(name+': '+what)};
+ /* 1. Bisherige Version: Reisen nur in localStorage */
+ await oldApp();await p.goto(base+'/index.html');
+ assert.equal(await p.evaluate(()=>typeof window.RPStore),'undefined',name+': alte Version ohne Adapter');
+ await p.evaluate(()=>{const a=window.__app;['Migration Wien','Migration Prag'].forEach((title,i)=>a.Store.put(Object.assign(a.newTrip({title,dateMode:'fix',start:'2027-0'+(i+6)+'-01',end:'2027-0'+(i+6)+'-03'}),{id:'tmig'+i}),true));a.go('reisen')});
+ const before=await ls();assert(before.includes('Migration Prag'));
+ assert(!(await p.evaluate(async()=>(await indexedDB.databases()).map(d=>d.name))).includes('reiseplaner'),name+': noch keine IndexedDB-Kopie');
+ /* 2. Neue Version: erster Start kopiert, liest zurück und setzt den Marker */
+ await newApp();await p.reload();await ready();
+ let c=await copy();assert.equal(c.raw,before,name+': Kopie gleich rp-trips');assert.equal(c.marker.version,1,name+': Migrationsmarker');
+ assert.equal(await ls(),before,name+': rp-trips bleibt unverändert');
+ /* 3. Neuladen nach Migration zeigt dieselben Reisen, rp-trips noch vorhanden */
+ await p.reload();await ready();
+ let txt=await viewText(p);assert(txt.includes('Migration Wien')&&txt.includes('Migration Prag'),name+': dieselben Reisen nach Neuladen');
+ assert.equal(await ls(),before,name+': rp-trips nach Neuladen vorhanden');
+ /* 4. Änderung wird nach localStorage und IndexedDB geschrieben */
+ await p.evaluate(()=>{const a=window.__app,t=a.Store.get('tmig0');t.title='Migration Wien geändert';a.Store.put(t,true)});
+ assert((await ls()).includes('Migration Wien geändert'),name+': localStorage sofort');
+ await until(async()=>(await copy()).raw===await ls(),'Änderung in IndexedDB');
+ /* 5. Zurückrollen auf die alte Version und zurück: nichts geht verloren */
+ await oldApp();await p.reload();
+ assert((await viewText(p)).includes('Migration Wien geändert'),name+': alte Version sieht den aktuellen Stand');
+ await p.evaluate(()=>{const a=window.__app,t=a.Store.get('tmig1');t.title='Prag von alter Version';a.Store.put(t,true)});
+ const fromOld=await ls();assert.notEqual((await copy()).raw,fromOld);
+ await newApp();await p.reload();await ready();
+ assert.equal((await copy()).raw,fromOld,name+': Änderung der alten Version übernommen');assert((await viewText(p)).includes('Prag von alter Version'));
+ /* 6. Nur localStorage geräumt: Wiederherstellung aus der Kopie */
+ await p.evaluate(()=>localStorage.removeItem('rp-trips'));await p.reload();await ready();
+ await until(async()=>(await viewText(p)).includes('Prag von alter Version'),'Wiederherstellung sichtbar');
+ assert.equal(await ls(),fromOld,name+': rp-trips zurückgeschrieben');await noOverflow(p,name+' Speicheradapter');
+ await ctx.close();
+ /* 7. Ohne IndexedDB: sichtbarer Hinweis, Speichern wie bisher */
+ const ctx2=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),q=await ctx2.newPage();
+ q.on('pageerror',e=>errors.push(name+' ohne IndexedDB: '+e.message));
+ await q.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await q.addInitScript(()=>{Object.defineProperty(window,'indexedDB',{configurable:true,get(){return undefined}})});
+ await q.goto(base+'/index.html');await q.waitForSelector('[data-storage-backend]');
+ assert((await q.textContent('[data-storage-backend]')).includes('localStorage'),name+': Rückfall benannt');await noOverflow(q,name+' Speicherhinweis');
+ await q.evaluate(()=>{const a=window.__app;a.Store.put(a.newTrip({title:'Ohne IndexedDB',dateMode:'fix',start:'2027-08-01',end:'2027-08-02'}),true)});
+ await q.reload();await q.waitForSelector('[data-storage-backend]');assert((await viewText(q)).includes('Ohne IndexedDB'),name+': Speichern ohne IndexedDB');
+ await ctx2.close();console.log(name+': Speicheradapter Migration, Neuladen (rp-trips bleibt), Durchschreiben, Zurückrollen, Wiederherstellung und Rückfall ohne IndexedDB geprüft.');
 }
 
 (async () => {
@@ -1101,6 +1156,8 @@ async function journalFlow(browser,base,name,ctxOpts){
     await v3EditorFlow(browser,base,'v3-320',{viewport:{width:320,height:640},colorScheme:'dark'});
     await journalFlow(browser,base,'tagebuch-desktop',{viewport:{width:1280,height:900}});
     await journalFlow(browser,base,'tagebuch-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
+    await storageAdapter(browser,base,'speicher-desktop',{viewport:{width:1280,height:900}});
+    await storageAdapter(browser,base,'speicher-320',{viewport:{width:320,height:640},colorScheme:'dark'});
     await offline(browser, base);
   } finally {
     await browser.close();
