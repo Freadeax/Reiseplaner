@@ -1064,6 +1064,7 @@ async function journalFlow(browser,base,name,ctxOpts){
  assert(await p.isVisible('#journal-delete'));await p.click('[data-journal-act="delete"]');
  const after=await trip();assert.equal(after.journal,undefined);assert.equal(after.schemaVersion,3);assert.equal(after.ratings[actId],3);
  await ctx.close();console.log(name+': Reisetagebuch (Entwurf, Bestätigung Format 3, Bewertung per Antippen, Mappe, Löschen) geprüft.');
+}
 /* Speicheradapter (P0.4): Bestand einer App-Version ohne rpstore.js wird beim ersten Start nach IndexedDB kopiert,
    Neuladen nach Migration zeigt dieselben Reisen und rp-trips bleibt; Zurückrollen auf die alte Version und zurück ohne
    Verlust; nur localStorage geräumt → Wiederherstellung; ohne IndexedDB sichtbarer Hinweis. Kein Safari-/iPhone-Test. */
@@ -1119,6 +1120,7 @@ async function storageAdapter(browser,base,name,ctxOpts){
  await q.evaluate(()=>{const a=window.__app;a.Store.put(a.newTrip({title:'Ohne IndexedDB',dateMode:'fix',start:'2027-08-01',end:'2027-08-02'}),true)});
  await q.reload();await q.waitForSelector('[data-storage-backend]');assert((await viewText(q)).includes('Ohne IndexedDB'),name+': Speichern ohne IndexedDB');
  await ctx2.close();console.log(name+': Speicheradapter Migration, Neuladen (rp-trips bleibt), Durchschreiben, Zurückrollen, Wiederherstellung und Rückfall ohne IndexedDB geprüft.');
+}
 /* P0.2a Mitreisende und Ausgaben auf der Produktionsdatei: v2-Reise wird erst nach Vorschau Format 3, Fehler im Dialog,
    Dezimalkomma, Gewichte, Zurück erhält Eingaben, Saldo mit Vorzeichen und Wort, Zahler einer bezahlten Buchung,
    Neuladen und gesperrtes Entfernen einer beteiligten Person. Nur Testdaten. */
