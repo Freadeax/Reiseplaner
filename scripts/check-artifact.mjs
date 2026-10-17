@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ALLOWED = new Set(['index.html', '404.html', '.nojekyll', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
-  'cloud.js', 'config.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'catalog-data.js', 'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt']);
+  'cloud.js', 'config.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'v3split.js', 'catalog-data.js', 'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt']);
 const SECRET = [
   [/sb_secret_[A-Za-z0-9_-]{8,}/, 'Supabase Secret Key'],
   [/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]*cm9sZSI6InNlcnZpY2Vfcm9sZS[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+/, 'service_role-JWT'],
@@ -23,7 +23,7 @@ export async function checkArtifact(dir) {
     const text = await fs.readFile(path.join(dir, f), 'utf8');
     for (const [re, label] of SECRET) if (re.test(text)) problems.push(label + ' in ' + f);
   }
-  for (const must of ['index.html', 'config.js', 'cloud.js', 'sw.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'catalog-data.js', 'catalog/index.js']) if (!files.includes(must)) problems.push('fehlt: ' + must);
+  for (const must of ['index.html', 'config.js', 'cloud.js', 'sw.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'v3split.js', 'catalog-data.js', 'catalog/index.js']) if (!files.includes(must)) problems.push('fehlt: ' + must);
   return problems;
 }
 

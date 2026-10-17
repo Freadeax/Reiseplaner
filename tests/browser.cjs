@@ -1119,6 +1119,58 @@ async function storageAdapter(browser,base,name,ctxOpts){
  await q.evaluate(()=>{const a=window.__app;a.Store.put(a.newTrip({title:'Ohne IndexedDB',dateMode:'fix',start:'2027-08-01',end:'2027-08-02'}),true)});
  await q.reload();await q.waitForSelector('[data-storage-backend]');assert((await viewText(q)).includes('Ohne IndexedDB'),name+': Speichern ohne IndexedDB');
  await ctx2.close();console.log(name+': Speicheradapter Migration, Neuladen (rp-trips bleibt), Durchschreiben, Zurückrollen, Wiederherstellung und Rückfall ohne IndexedDB geprüft.');
+/* P0.2a Mitreisende und Ausgaben auf der Produktionsdatei: v2-Reise wird erst nach Vorschau Format 3, Fehler im Dialog,
+   Dezimalkomma, Gewichte, Zurück erhält Eingaben, Saldo mit Vorzeichen und Wort, Zahler einer bezahlten Buchung,
+   Neuladen und gesperrtes Entfernen einer beteiligten Person. Nur Testdaten. */
+async function splitFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Aufteilung: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.extraCosts=[{id:'xcsplit',t:'Split-Testposten',c:200}];t.ledger={'xc:xcsplit':{status:'gebucht',amount:200,paid:200,due:''}};a.Store.put(t);a.go('r-'+t.id+'-kosten');return t.id});
+ const sec=()=>p.locator('[data-split]'),version=()=>p.evaluate(id=>window.__app.Store.get(id).schemaVersion,id);
+ assert((await sec().textContent()).includes('auf Format 3 umgestellt'),name+': Hinweis vor der ersten Person');
+ await sec().locator('[data-split-action="person-add"]').click();
+ await p.fill('[data-split-sheet] [name="name"]','Anna');await p.click('[data-split-act="preview"]');
+ assert((await p.textContent('[data-split-preview]')).includes('Format 3 umgestellt'),name+': nie still Format 3');
+ assert.notEqual(await version(),3,name+': Vorschau speichert nichts');
+ await noOverflow(p,name+' Personenvorschau');await p.click('[data-split-act="apply"]');
+ assert.equal(await version(),3);
+ await sec().locator('[data-split-action="person-add"]').click();await p.fill('[data-split-sheet] [name="name"]','Ben');await p.click('[data-split-act="preview"]');await p.click('[data-split-act="apply"]');
+ await sec().locator('[data-split-action="person-add"]').click();await p.fill('[data-split-sheet] [name="name"]',' anna ');await p.click('[data-split-act="preview"]');
+ assert((await p.textContent('#split-error')).includes('gibt es schon'));assert.equal(await p.evaluate(()=>document.activeElement.id),'split-error');
+ await p.keyboard.press('Escape');assert.equal(await p.locator('[data-split-sheet]').count(),0);
+ await sec().locator('[data-split-action="expense-add"]').click();
+ await p.fill('[data-split-sheet] [name="label"]','Pizza');await p.fill('[data-split-sheet] [name="amount"]','1.234,00');
+ await p.selectOption('[data-split-sheet] [name="paidBy"]',{label:'Anna'});await p.click('[data-split-act="preview"]');
+ assert((await p.textContent('#split-error')).includes('Tausendertrennzeichen'));
+ await p.fill('[data-split-sheet] [name="amount"]','30,00');
+ assert.equal(await p.locator('[data-split-sheet] [data-split-weight]:visible').count(),0,name+': Gewichte erst bei Aufteilung nach Gewichten');
+ await p.selectOption('[data-split-sheet] [name="mode"]','shares');
+ assert.equal(await p.locator('[data-split-sheet] [data-split-weight]:visible').count(),2);
+ await p.locator('[data-split-sheet] [name^="w."]').first().fill('2');
+ await p.click('[data-split-act="preview"]');
+ const pv=await p.textContent('[data-split-preview]');assert(/Anna 20,00\s€/.test(pv)&&/Ben 10,00\s€/.test(pv),name+': Anteile 2 : 1 in der Vorschau');
+ await noOverflow(p,name+' Ausgabenvorschau');
+ await p.click('[data-split-act="back"]');
+ assert.equal(await p.inputValue('[data-split-sheet] [name="amount"]'),'30,00');assert.equal(await p.inputValue('[data-split-sheet] [name="mode"]'),'shares');
+ assert.equal(await p.locator('[data-split-sheet] [data-split-weight]:visible').count(),2,name+': Gewichte nach Zurück sichtbar');
+ await p.click('[data-split-act="preview"]');await p.click('[data-split-act="apply"]');
+ let txt=await sec().textContent();
+ assert(/Ben zahlt an Anna: 10,00\s€/.test(txt),name+': Ausgleichsvorschlag');
+ assert(/\+10,00\s€ \(bekommt\)/.test(txt)&&/−10,00\s€ \(zahlt\)/.test(txt),name+': Saldo mit Vorzeichen und Wort');
+ await sec().locator('[data-split-action="payer"]').first().click();
+ await p.selectOption('[data-split-sheet] [name="paidBy"]',{label:'Ben'});await p.click('[data-split-act="preview"]');
+ assert((await p.textContent('[data-split-preview]')).includes('200,00'));await p.click('[data-split-act="apply"]');
+ const ledger=await p.evaluate(id=>window.__app.Store.get(id).ledger['xc:xcsplit'],id);
+ assert.deepEqual([ledger.status,ledger.amount,ledger.paid],['gebucht',200,200],name+': Buchung unverändert');
+ await p.reload();
+ txt=await sec().textContent();assert(/Anna zahlt an Ben: 90,00\s€/.test(txt),name+': nach Neuladen erhalten');
+ await sec().locator('[data-split-action="person-remove"]').first().click();
+ assert((await p.textContent('[data-split-sheet]')).includes('Entfernen nicht möglich'));
+ assert.equal(await p.locator('[data-split-sheet] [data-split-act="preview"]').count(),0);
+ await p.keyboard.press('Escape');await noOverflow(p,name+' Aufteilung');
+ await ctx.close();console.log(name+': Mitreisende, Ausgaben, Aufteilung nach Gewichten, Zahler, Ausgleich, Neuladen und Löschschutz geprüft.');
 }
 
 (async () => {
@@ -1158,6 +1210,8 @@ async function storageAdapter(browser,base,name,ctxOpts){
     await journalFlow(browser,base,'tagebuch-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await storageAdapter(browser,base,'speicher-desktop',{viewport:{width:1280,height:900}});
     await storageAdapter(browser,base,'speicher-320',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await splitFlow(browser,base,'aufteilung-desktop',{viewport:{width:1280,height:900}});
+    await splitFlow(browser,base,'aufteilung-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await offline(browser, base);
   } finally {
     await browser.close();
