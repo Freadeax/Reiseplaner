@@ -51,6 +51,16 @@ async function mailLink(to, re, after) {
   }
   throw new Error('Keine E-Mail an ' + to);
 }
+/* Anmeldecode (P0.7) aus der lokalen Vorlage supabase/templates/magic_link.html */
+async function mailCode(to, after) {
+  for (let i = 0; i < 60; i++) {
+    const r = await (await fetch(MAIL + '/api/v1/search?query=' + encodeURIComponent('to:' + to))).json();
+    const m = (r.messages || []).filter(x => /Anmeldecode/.test(x.Subject) && (!after || new Date(x.Created) > after))[0];
+    if (m) { const full = await (await fetch(MAIL + '/api/v1/message/' + m.ID)).json(); const c = (full.Text || '').match(/^\s*(\d{6,10})\s*$/m); if (c) return c[1]; }
+    await sleep(250);
+  }
+  throw new Error('Kein Anmeldecode an ' + to);
+}
 const run = Date.now().toString(36);
 const errors = [];
 async function page(browser, name) {
@@ -154,6 +164,51 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     assert(view.includes('Gast-Reise ' + run), 'Gast-Reise lokal erhalten');
     assert(!(await A.p.evaluate(() => Object.keys(localStorage).some(k => k.startsWith('rp-u:')))), 'Kontocache nach Abmelden entfernt');
 
+    /* Anmeldung per E-Mail-Code (P0.7): unbekannte Adresse gleich angezeigt, kein Konto angelegt; falscher Code,
+       erneut senden (alter Code ungültig), richtiger Code → Konto geladen wie nach Passwort-Anmeldung */
+    const nobody = 'niemand.' + run + '@example.test';
+    await A.p.goto(BASE + '#konto'); await A.p.click('[data-acc="mode"][data-val="code"]');
+    await A.p.fill('#acc-email', nobody); await A.p.click('form[data-acc-form="code-send"] button[type="submit"]');
+    await A.p.waitForSelector('#acc-code');
+    const sentUnknown = (await A.p.textContent('form[data-acc-form="code-verify"]')).replace(nobody, '<ADRESSE>');
+    assert.equal(await A.p.evaluate(() => document.activeElement && document.activeElement.id), 'acc-code', 'Fokus im Codefeld');
+    assert.equal(await A.p.getAttribute('#acc-code', 'autocomplete'), 'one-time-code'); assert.equal(await A.p.getAttribute('#acc-code', 'inputmode'), 'numeric');
+    await A.p.click('[data-acc="code-back"]');
+    const codeFrom = new Date(Date.now() - 1000);
+    await A.p.fill('#acc-email', aMail); await A.p.click('form[data-acc-form="code-send"] button[type="submit"]');
+    await A.p.waitForSelector('#acc-code');
+    assert.equal((await A.p.textContent('form[data-acc-form="code-verify"]')).replace(aMail, '<ADRESSE>'), sentUnknown, 'Anzeige verrät nicht, ob ein Konto existiert');
+    const code1 = await mailCode(aMail, codeFrom);
+    assert.equal(((await (await fetch(MAIL + '/api/v1/search?query=' + encodeURIComponent('to:' + nobody))).json()).messages || []).length, 0, 'keine E-Mail an unbekannte Adresse');
+    const sAdmin = globalThis.__sbLib.createClient(env.API_URL, env.SERVICE_ROLE_KEY || env.SECRET_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+    const allUsers = (await sAdmin.auth.admin.listUsers({ perPage: 1000 })).data.users || [];
+    assert(!allUsers.some(u => u.email === nobody), 'kein Konto per Code angelegt');
+    await A.p.fill('#acc-code', code1 === '000000' ? '111111' : '000000'); await A.p.click('form[data-acc-form="code-verify"] button[type="submit"]');
+    await A.p.waitForSelector('#acc-code-err'); assert(/stimmt nicht oder ist abgelaufen/.test(await A.p.textContent('#acc-code-err')), 'falscher Code abgelehnt');
+    assert(/Gast/.test(await syncText(A.p)), 'nach falschem Code nicht angemeldet');
+    assert(await A.p.isDisabled('[data-acc="code-resend"]'), 'erneut senden erst nach Wartezeit');
+    await sleep(1500); /* lokale Mindestpause zwischen E-Mails (max_frequency 1 s) */
+    await A.p.evaluate(() => { window.__app.UI.otp.sentAt -= 61000; });
+    await A.p.waitForFunction(() => !document.querySelector('[data-acc="code-resend"]').disabled, null, { timeout: 5000 });
+    const resendFrom = new Date(Date.now() - 500);
+    await A.p.click('[data-acc="code-resend"]'); await A.p.waitForSelector('text=ist ein neuer Code unterwegs');
+    const code2 = await mailCode(aMail, resendFrom);
+    if (code2 !== code1) {
+      await A.p.fill('#acc-code', code1); await A.p.click('form[data-acc-form="code-verify"] button[type="submit"]');
+      await A.p.waitForSelector('text=stimmt nicht oder ist abgelaufen'); assert(/Gast/.test(await syncText(A.p)), 'alter Code nach erneutem Senden ungültig');
+    }
+    await A.p.fill('#acc-code', code2); await A.p.click('form[data-acc-form="code-verify"] button[type="submit"]');
+    await waitSync(A.p, /Online gespeichert/, 20000);
+    const aUser = (await aApi.auth.getUser()).data.user;
+    assert.equal(await A.p.evaluate(() => window.__app.Store.key()), 'rp-u:' + aUser.id, 'Kontobereich nach Code-Anmeldung');
+    assert(await A.p.evaluate(id => !!(window.__app.Store.meta[id] && window.__app.Store.meta[id].version), tid), 'Kontoreise online geladen');
+    assert((await A.p.textContent('#view')).includes(aMail), 'Kontoansicht zeigt die Adresse');
+    assert(!(await A.p.url()).includes('code='), 'keine Codes in der Adresse');
+    await A.p.goto(BASE + '#konto'); await A.p.click('[data-acc="signout"]'); await waitSync(A.p, /Gast/);
+    assert.equal(await A.p.evaluate(() => window.__app.UI.authMode), 'signin', 'nach Abmelden wieder Passwort-Anmeldung');
+    await A.p.goto(BASE + '#reisen'); assert((await A.p.textContent('#view')).includes('Gast-Reise ' + run), 'Gast-Reise nach Code-Anmeldung und Abmelden erhalten');
+    await sleep(1500); /* Code und Reset-Link teilen sich die Mindestpause je Adresse (lokal 1 s) */
+
     /* Passwort vergessen über die Oberfläche */
     const before = new Date(Date.now() - 1000);
     await A.p.goto(BASE + '#konto'); await A.p.click('[data-acc="mode"][data-val="reset"]');
@@ -187,5 +242,5 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await A.ctx.close(); await B.ctx.close();
   } finally { await browser.close(); server.close(); execSync('node scripts/build.mjs', { cwd: ROOT, stdio: 'ignore' }); }
   if (errors.length) { console.error('Fehler im Browser:\n' + errors.join('\n')); process.exit(1); }
-  console.log('E2E (Chromium, lokaler Supabase, /Reiseplaner/): Pfade/Direktlinks/404, Umkreis-Katalog aus der Datenbank, Registrierung+Bestätigung, Gast-Übernahme mit Vorschau, Online-Bestätigung, Neuladen, Einladung, zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden, Passwort-Reset, Kontolöschung mit Übergabe geprüft.');
+  console.log('E2E (Chromium, lokaler Supabase, /Reiseplaner/): Pfade/Direktlinks/404, Umkreis-Katalog aus der Datenbank, Registrierung+Bestätigung, Gast-Übernahme mit Vorschau, Online-Bestätigung, Neuladen, Einladung, zweites Konto, Offline-Konflikt ohne Überschreiben, Entzug, Abmelden, Anmeldung per E-Mail-Code (unbekannte Adresse gleich, kein Konto angelegt, falscher/alter Code, erneut senden), Passwort-Reset, Kontolöschung mit Übergabe geprüft.');
 })().catch(async e => { console.error(e); try { server.close(); execSync('node scripts/build.mjs', { cwd: ROOT, stdio: 'ignore' }); } catch (x) {} process.exit(1); });

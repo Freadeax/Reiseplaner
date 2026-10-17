@@ -13,7 +13,7 @@ import { checkArtifact } from './check-artifact.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public');
-const FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'catalog-data.js',
+const FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3journal.js', 'catalog-data.js',
   'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt'];
 /* Kachel-Katalog: Index und Kacheln (nicht die Quelle catalog/src) */
 FILES.push('catalog/index.js', ...(await fs.readdir(path.join(root, 'catalog'))).filter(f => /^t-[a-z0-9]+\.js$/.test(f)).sort().map(f => 'catalog/' + f));

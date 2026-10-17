@@ -46,6 +46,18 @@
     return ready;
   }
   function need() { if (!sb) throw new Error('Online-Konto nicht verfügbar'); return sb; }
+
+  /* ---------- Anmeldung per E-Mail-Code (OTP, P0.7) ----------
+     Bewusst KEIN Konto-Anlegen per Code (shouldCreateUser:false): Neue Konten entstehen nur über
+     „Registrieren“ mit Passwort und Bestätigung. Sonst legte ein Tippfehler in der Adresse still ein
+     neues, leeres Konto an. Die Oberfläche verrät nicht, ob es ein Konto gibt: Für unbekannte Adressen
+     meldet Supabase „Signups not allowed for otp“ (422); das wird wie ein Versand behandelt. */
+  var CODE_WAIT_S = 60; /* Supabase-Standard: frühestens nach 60 s eine weitere E-Mail an dieselbe Adresse */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function codeNet(e) { return !!e && (e.name === 'AuthRetryableFetchError' || e.name === 'TypeError' || e.status === 0 || /fetch|network|Failed to/i.test(e.message || '')); }
+  function codeErr(msg, kind, extra) { var x = new Error(msg); x.code = kind; if (kind === 'network') x.network = true; return Object.assign(x, extra || {}); }
+  function waitSeconds(e) { var m = /after (\d+) seconds?/i.exec(e && e.message || ''); return m ? Math.max(1, Number(m[1])) : 0; }
+  function cleanCode(token) { return String(token == null ? '' : token).replace(/[\s-]/g, ''); }
   function unwrap(r, fallback) { if (r.error) throw err(r.error, fallback); return r.data; }
 
   var TRIP_COLS = 'id,data,version,owner_id,deleted_at,updated_at,updated_by';
@@ -71,6 +83,40 @@
     exportAccount: async function () { return unwrap(await need().rpc('export_my_account'), 'Kontodaten nicht geladen'); },
     transferTrip: async function (tripId, userId) { unwrap(await need().rpc('transfer_trip_ownership', { p_trip: tripId, p_new_owner: userId }), 'Reise nicht übergeben'); },
     deleteAccount: async function (email, deleteShared) { return unwrap(await need().rpc('delete_my_account', { p_confirm_email: email, p_delete_shared: !!deleteShared }), 'Konto nicht gelöscht'); },
+    /* Rückgabe {email, wait, throttled}: wait = Sekunden bis zu einem weiteren Code. throttled = kurz zuvor
+       wurde schon ein Code gesendet, der weiter gilt (gleiche Anzeige wie ein Versand). */
+    sendCode: async function (email) {
+      email = String(email == null ? '' : email).trim();
+      if (!EMAIL_RE.test(email)) throw codeErr('Bitte eine gültige E-Mail-Adresse eingeben.', 'email');
+      var r = await need().auth.signInWithOtp({ email: email, options: { shouldCreateUser: false, emailRedirectTo: siteUrl() } });
+      var e = r.error;
+      if (!e) return { email: email, wait: CODE_WAIT_S, throttled: false };
+      if (e.code === 'otp_disabled' || /signups not allowed/i.test(e.message || '')) return { email: email, wait: CODE_WAIT_S, throttled: false };
+      if (codeNet(e)) throw codeErr('Keine Verbindung zum Server. Bitte Netz prüfen und erneut versuchen.', 'network');
+      if (e.status === 429 || /rate.?limit/i.test(String(e.code) + ' ' + e.message)) {
+        var s = waitSeconds(e);
+        if (s) return { email: email, wait: s, throttled: true };
+        throw codeErr('Gerade können keine weiteren E-Mails versendet werden. Bitte später erneut versuchen.', 'rate', { wait: CODE_WAIT_S });
+      }
+      if (e.code === 'email_address_invalid' || e.code === 'validation_failed') throw codeErr('Bitte eine gültige E-Mail-Adresse eingeben.', 'email');
+      throw codeErr('Der Code konnte nicht gesendet werden. Bitte später erneut versuchen.', 'send', { detail: e.message || '' });
+    },
+    /* Gleiche Meldung für falschen, abgelaufenen oder unbekannten Code bzw. Adresse. */
+    verifyCode: async function (email, token) {
+      email = String(email == null ? '' : email).trim(); token = cleanCode(token);
+      if (!EMAIL_RE.test(email)) throw codeErr('Bitte eine gültige E-Mail-Adresse eingeben.', 'email');
+      if (!/^\d{6,10}$/.test(token)) throw codeErr('Bitte den Code aus der E-Mail vollständig eingeben (nur Ziffern).', 'format');
+      var r = await need().auth.verifyOtp({ email: email, token: token, type: 'email' });
+      var e = r.error;
+      if (e) {
+        if (codeNet(e)) throw codeErr('Keine Verbindung zum Server. Bitte Netz prüfen und erneut versuchen.', 'network');
+        if (e.status === 429 || /rate.?limit/i.test(String(e.code) + ' ' + e.message)) throw codeErr('Zu viele Versuche. Bitte einige Minuten warten und dann erneut versuchen.', 'rate');
+        throw codeErr('Der Code stimmt nicht oder ist abgelaufen. Bitte prüfen oder einen neuen Code anfordern.', 'invalid');
+      }
+      var u = r.data && (r.data.user || (r.data.session && r.data.session.user));
+      if (!u || !(r.data && r.data.session)) throw codeErr('Anmeldung nicht abgeschlossen. Bitte erneut versuchen.', 'session');
+      return { id: u.id, email: u.email };
+    },
 
     /* ---------- Reisen ---------- */
     listTrips: async function (userId) {

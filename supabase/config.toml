@@ -246,6 +246,13 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Anmeldung per E-Mail-Code (P0.7): Die eingebaute Vorlage des lokalen Auth-Dienstes enthält nur den Link,
+# keinen Code. Diese Vorlage enthält {{ .Token }}. Gilt nur lokal; in der Produktion wird die Vorlage
+# „Magic Link“ im Dashboard gepflegt (Authentication → Emails → Templates).
+[auth.email.template.magic_link]
+subject = "Euer Anmeldecode für den Reiseplaner"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

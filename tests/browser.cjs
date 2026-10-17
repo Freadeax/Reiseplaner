@@ -999,6 +999,73 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': v3-Editorweg auf der freigegebenen Produktionsdatei (Storno/Refund/Rücknahme/Transport/Quellstand) und gesperrter Rückfall geprüft.');
 }
 
+/* Reisetagebuch und Bewertungen (P0.2b): Entwurf übersteht Schließen und Bereichswechsel, erste Angabe
+   erst nach Bestätigung in Format 3, Sterne per Antippen mit Textalternative, Mappe, Löschen. */
+async function journalFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Tagebuch: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.title='Tagebuch-Test';a.Store.put(t);a.go('r-'+t.id+'-plan');return t.id});
+ const trip=()=>p.evaluate(id=>window.__app.Store.get(id),id),raw=()=>p.evaluate(()=>localStorage.getItem('rp-trips'));
+ const before=await trip();assert.notEqual(before.schemaVersion,3);
+ const sec='[data-journal="plan"]',openPlan=async()=>{if(!await p.locator(sec+' details[data-journal-details="plan"]').evaluate(d=>d.open))await p.click(sec+' details[data-journal-details="plan"] > summary')};
+ await openPlan();
+ const day='2026-12-30',write=sec+' [data-journal-act="open"][data-key="'+day+'"]';
+ await p.click(write);assert(await p.isVisible('#journal-text'));
+ assert((await p.textContent('[data-journal-sheet]')).includes('Format 3'));
+ await p.fill('#journal-text','Endlich angekommen.\nSchnee bis zum Knie.');
+ await p.locator('[data-journal-sheet] label.opt').filter({hasText:'4 · gut'}).click();
+ assert.equal(await p.textContent('#journal-count'),'40 von 2000 Zeichen');
+ await noOverflow(p,name+' Tagebuchblatt');
+ /* Schließen und Bereich wechseln: Entwurf bleibt, gespeichert ist nichts */
+ await p.keyboard.press('Escape');assert.equal(await p.locator('[data-journal-sheet]').count(),0);
+ await tripTab(p,'ueber');await tripTab(p,'plan');await openPlan();
+ assert((await p.textContent(sec)).includes('Entwurf, noch nicht gespeichert'));
+ assert.deepEqual(await trip(),before,'Entwurf speichert nichts');
+ await p.click(write);
+ assert((await p.textContent('[data-journal-sheet]')).includes('Ungespeicherter Entwurf wiederhergestellt'));
+ assert.equal(await p.inputValue('#journal-text'),'Endlich angekommen.\nSchnee bis zum Knie.');
+ assert.equal(await p.locator('input[name="journal-mood"][value="4"]').isChecked(),true);
+ /* Erste Angabe: Rückfrage, dann Format 3; alle anderen Felder unverändert */
+ const rawBefore=await raw();
+ await p.click('[data-journal-act="save"]');
+ assert(await p.isVisible('[data-journal-confirm]'));const ask=await p.textContent('[data-journal-confirm]');
+ assert(ask.includes('Reise auf Format 3 umstellen?')&&ask.includes('Ältere App-Versionen'));
+ assert.equal(await raw(),rawBefore,'Rückfrage speichert nichts');await noOverflow(p,name+' Rückfrage Format 3');
+ await p.click('[data-journal-act="back"]');assert.equal(await p.inputValue('#journal-text'),'Endlich angekommen.\nSchnee bis zum Knie.','Zurück behält den Text');
+ await p.click('[data-journal-act="save"]');await p.click('[data-journal-act="confirm"]');
+ assert.equal(await p.locator('[data-journal-confirm]').count(),0);
+ const v3=await trip();assert.equal(v3.schemaVersion,3);
+ assert.deepEqual(v3.journal,{[day]:{text:'Endlich angekommen.\nSchnee bis zum Knie.',mood:4}});
+ const rest=x=>{const c=JSON.parse(JSON.stringify(x));['journal','ratings','schemaVersion','updated'].forEach(k=>delete c[k]);return c};
+ assert.deepEqual(rest(v3),rest(before),'Feldtreue im Browser');
+ assert.equal(await p.evaluate(()=>document.activeElement&&document.activeElement.getAttribute('data-key')),day,'Fokus zurück auf den Tag');
+ const shown=await p.textContent(sec);assert(shown.includes('Schnee bis zum Knie.')&&shown.includes('4 von 5 · gut'));
+ /* Bewertung: Antippen speichert direkt, Bereich bleibt offen, Zustand auch als Text */
+ await p.click(sec+' details[data-journal-details="rates"] > summary');
+ const firstRate=p.locator(sec+' [data-journal-rate]').first(),actId=await firstRate.getAttribute('data-journal-rate');
+ const star=firstRate.locator('[data-stars="3"]');const box=await star.boundingBox();assert(box.width>=44&&box.height>=44,'Sterne mindestens 44 px');
+ await star.click();
+ assert.equal((await trip()).ratings[actId],3);
+ assert(await p.locator(sec+' details[data-journal-details="rates"]').evaluate(d=>d.open),'Bewertungen bleiben aufgeklappt');
+ const rated=p.locator(sec+' [data-journal-rate="'+actId+'"]');
+ assert.equal(await rated.locator('[data-stars="3"]').getAttribute('aria-pressed'),'true');
+ assert((await rated.textContent()).includes('3 von 5 Sternen'));
+ assert.equal(await p.evaluate(()=>document.activeElement&&document.activeElement.getAttribute('data-stars')),'3','Fokus bleibt auf dem Stern');
+ await noOverflow(p,name+' Bewertungen');
+ /* Neuladen und Mappe (nur auf Wunsch) */
+ await p.reload();assert.equal((await trip()).journal[day].mood,4);
+ await tripTab(p,'mappe');assert.equal(await p.locator('[data-journal-mappe]').count(),0,'Mappe ohne Tagebuch, solange nicht gewählt');
+ await p.check('#mappe-journal');assert((await p.textContent('[data-journal-mappe]')).includes('Schnee bis zum Knie.'));
+ assert((await p.textContent('[data-journal-mappe-ratings]')).includes('3 von 5 Sternen'));await noOverflow(p,name+' Mappe');
+ /* Löschen mit Rückfrage; leeres Tagebuch fällt weg, Format 3 bleibt */
+ await tripTab(p,'plan');await openPlan();await p.click(write);await p.click('[data-journal-act="delete-ask"]');
+ assert(await p.isVisible('#journal-delete'));await p.click('[data-journal-act="delete"]');
+ const after=await trip();assert.equal(after.journal,undefined);assert.equal(after.schemaVersion,3);assert.equal(after.ratings[actId],3);
+ await ctx.close();console.log(name+': Reisetagebuch (Entwurf, Bestätigung Format 3, Bewertung per Antippen, Mappe, Löschen) geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -1032,6 +1099,8 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
     await layoutStructure(browser,base,'struktur-mobil',{viewport:{width:320,height:640},colorScheme:'dark'});
     await v3EditorFlow(browser,base,'v3-desktop',{viewport:{width:1280,height:900}});
     await v3EditorFlow(browser,base,'v3-320',{viewport:{width:320,height:640},colorScheme:'dark'});
+    await journalFlow(browser,base,'tagebuch-desktop',{viewport:{width:1280,height:900}});
+    await journalFlow(browser,base,'tagebuch-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await offline(browser, base);
   } finally {
     await browser.close();
