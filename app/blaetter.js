@@ -58,10 +58,12 @@ function fieldHidden(rect,vv,margin){
  const top=Number(vv.offsetTop)||0,bottom=top+(Number(vv.height)||0);
  return rect.bottom>bottom-margin||rect.top<top+margin;
 }
-function keepFieldVisible(){
+function keepFieldVisible(onlyVars){
  if(typeof window==='undefined'||!window.visualViewport||typeof document==='undefined')return false;
  const vv=window.visualViewport,root=document.documentElement;
  if(root&&root.style&&root.style.setProperty){root.style.setProperty('--rp-vvh',Math.round(vv.height)+'px');root.style.setProperty('--rp-vvtop',Math.round(vv.offsetTop)+'px')}
+ /* Wer hineinzoomt und verschiebt, will woanders hinsehen: dann nie zurückholen. */
+ if(onlyVars===true||(vv.scale!=null&&Math.abs(Number(vv.scale)-1)>0.01))return false;
  const el=document.activeElement;
  if(!el||!el.matches||!el.matches('input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]),textarea,select,[contenteditable="true"]'))return false;
  if(!fieldHidden(el.getBoundingClientRect(),vv))return false;
@@ -69,9 +71,14 @@ function keepFieldVisible(){
  return true;
 }
 try{if(typeof window!=='undefined'&&window.visualViewport&&window.visualViewport.addEventListener){
- let vvTimer=0;const vvRun=()=>{clearTimeout(vvTimer);vvTimer=setTimeout(keepFieldVisible,60)};
- window.visualViewport.addEventListener('resize',vvRun);window.visualViewport.addEventListener('scroll',vvRun);
- document.addEventListener('focusin',()=>setTimeout(keepFieldVisible,300));
+ /* Nur wenn der sichtbare Bereich schrumpft (Tastatur kommt) oder nach dem Fokus bei wahrscheinlicher Bildschirmtastatur
+    wird gerollt; Verschieben (scroll) aktualisiert nur die Maße. */
+ const vv=window.visualViewport;let vvTimer=0,lastH=Number(vv.height)||0;
+ const vvRun=only=>{clearTimeout(vvTimer);vvTimer=setTimeout(()=>keepFieldVisible(only),60)};
+ vv.addEventListener('resize',()=>{const h=Number(vv.height)||0,shrank=h<lastH-40;lastH=h;vvRun(!shrank)});
+ vv.addEventListener('scroll',()=>vvRun(true));
+ const keyboardLikely=()=>{try{if(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)return true}catch(e){}return !!(window.innerHeight&&vv.height<window.innerHeight*0.85)};
+ document.addEventListener('focusin',()=>setTimeout(()=>keepFieldVisible(!keyboardLikely()),300));
 }}catch(e){}
 function closeSheet(){
  if(v3Editor)v3Editor.close();

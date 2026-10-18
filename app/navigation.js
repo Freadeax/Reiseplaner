@@ -50,8 +50,15 @@ function navHeight(){
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',navHeight);
 
 /* ---------- Sprungziel nach dem Wechsel in einen Reisebereich ---------- */
+/* Geschlossene Aufklapper werden geöffnet; landet der Fokus nicht (z. B. gesperrter Knopf), gilt das nächste Ziel, zuletzt der Inhalt. */
 function navFocus(selectors){
- for(const s of String(selectors||'').split('|')){const el=s&&document.querySelector(s);if(el){try{el.scrollIntoView({block:'center'})}catch(e){}try{el.focus({preventScroll:true})}catch(e){}return el}}
+ for(const s of String(selectors||'').split('|')){
+  const el=s&&document.querySelector(s);if(!el||el.disabled)continue;
+  for(let d=el.closest&&el.closest('details:not([open])');d;d=d.parentElement&&d.parentElement.closest('details:not([open])'))d.open=true;
+  try{el.scrollIntoView({block:'center'})}catch(e){}try{el.focus({preventScroll:true})}catch(e){}
+  if(document.activeElement===el)return el;
+ }
+ const view=document.querySelector('#view');if(view&&selectors)try{view.focus({preventScroll:true})}catch(e){}
  return null;
 }
 if(typeof document!=='undefined')document.addEventListener('click',e=>{

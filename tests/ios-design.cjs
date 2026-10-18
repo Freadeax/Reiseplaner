@@ -69,6 +69,12 @@ assert.equal(app.fieldHidden({ top: 0, bottom: 10 }, null), false);
   field.scrolled = null; field.getBoundingClientRect = () => ({ top: 100, bottom: 140 });
   env.ctx.document.activeElement = field;
   assert.equal(env.app.keepFieldVisible(), false); assert.equal(field.scrolled, null, 'sichtbares Feld bleibt stehen');
+  /* Prüfung 18.10.: gezoomt oder nur Maße aktualisieren → nie zurückrollen */
+  field.getBoundingClientRect = () => ({ top: 500, bottom: 540 });
+  assert.equal(env.app.keepFieldVisible(true), false); assert.equal(field.scrolled, null, 'nur Maße');
+  env.ctx.window.visualViewport.scale = 2;
+  assert.equal(env.app.keepFieldVisible(), false); assert.equal(field.scrolled, null, 'gezoomt: kein Zurückholen');
+  env.ctx.window.visualViewport.scale = 1;
 }
 
 /* 6. Stylesheet: Schrift skaliert mit der Grundschrift, sichere Bereiche, reduzierte Bewegung. */

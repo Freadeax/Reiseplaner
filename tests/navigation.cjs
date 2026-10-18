@@ -28,7 +28,7 @@ function load() {
     setTimeout: () => 0, clearTimeout() {}, console, alert() {}
   };
   vm.createContext(ctx); vm.runInContext(code, ctx);
-  return { a: win.__app, dom };
+  return { a: win.__app, dom, ctx };
 }
 const at = s => new Date(s + 'T12:00:00'); // lokale Mittagszeit
 const keys = items => items.map(x => x.key).join(',');
@@ -162,5 +162,20 @@ const keys = items => items.map(x => x.key).join(',');
   vm.createContext(ctx); vm.runInContext(code, ctx);
   const h = win.__app.vErinnerungen([]);
   assert(h.includes('kann Tagebücher nicht anzeigen'));
+}
+/* ---------- Sprungziel: geschlossener Aufklapper wird geöffnet, gesperrter Knopf übersprungen, sonst Inhalt fokussiert (Prüfung 18.10.) ---------- */
+{
+  const { a, dom, ctx } = load();
+  const doc = ctx.document;
+  const el = (name, extra) => Object.assign({ name, scrollIntoView() {}, focus() { if (!this.disabled) doc.activeElement = this; }, closest() { return null; } }, extra || {});
+  const details = { open: false, parentElement: null };
+  const hidden = el('schreiben', { closest: s => s === 'details:not([open])' && !details.open ? details : null });
+  const off = el('ausgabe', { disabled: true }), head = el('kopf'), view = el('view');
+  dom['#view'] = Object.assign(dom['#view'], { focus() { doc.activeElement = view; } });
+  const map = { '[data-x="tb"]': hidden, '[data-x="off"]': off, '[data-x="head"]': head };
+  const orig = doc.querySelector; doc.querySelector = s => map[s] || orig(s);
+  assert.equal(a.navFocus('[data-x="tb"]|[data-x="head"]'), hidden); assert.equal(details.open, true, 'Aufklapper geöffnet');
+  assert.equal(a.navFocus('[data-x="off"]|[data-x="head"]'), head, 'gesperrter Knopf übersprungen');
+  doc.activeElement = null; assert.equal(a.navFocus('[data-x="off"]|[data-x="fehlt"]'), null); assert.equal(doc.activeElement, view, 'Fokus nie auf body');
 }
 console.log('Navigation (P0.5): Einträge mit/ohne laufende Reise (feste Uhrzeit), aktiver Eintrag, Routing #heute/#erinnerungen/#konto, Sprungziele, Heute (leer, nächste Reise, laufend, zwei Reisen), Erinnerungen (Gruppierung, Reihenfolge, Sterne als Text, Maskierung, nur lesend, ohne Modul) geprüft. Kein Browser-/iPhone-Test.');
