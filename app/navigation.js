@@ -33,7 +33,7 @@ function navHtml(items,active){
 /* Knöpfe nur neu aufbauen, wenn sich die Einträge ändern (Fokus bleibt sonst erhalten); aria-current immer setzen. */
 let navKeys='';
 function renderNav(now){
- const nav=typeof document!=='undefined'&&document.querySelector?document.querySelector('#app-nav'):null;if(!nav)return;
+ const nav=typeof document!=='undefined'&&document.querySelector?document.querySelector('#app-nav'):null;if(!nav||typeof nav.querySelectorAll!=='function')return;
  const items=navItems(now),keys=items.map(x=>x.key).join(','),active=navActive(UI.view);
  if(keys!==navKeys||!nav.querySelector('[data-go]')){nav.innerHTML=navHtml(items,active);navKeys=keys}
  nav.querySelectorAll('[data-go]').forEach(b=>{if(b.getAttribute('data-go')===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});

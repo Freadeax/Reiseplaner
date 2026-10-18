@@ -79,12 +79,15 @@ function icsData(t,now,opts){
 function tripText(t,opts){
   const o=opts||{},days=daysOf(t),pl=placeOf(t),st=stayOf(t),c=cost(t),L=[];
   L.push(t.title,rangeText(t)+' · '+c.P+(c.P===1?' Person':' Personen'));
+  if(tripTooLong(t))L.push('Hinweis: Zeitraum prüfen, '+tripDayCount(t).toLocaleString('de-DE')+' Tage sind vermutlich ein Tippfehler im Datum.');
   L.push('Ziel: '+(pl?pl.name:(t.dest||'noch offen')));
   L.push('Unterkunft: '+(st?st.name+(st.ort?' ('+st.ort+')':''):'noch offen'));
   if(Array.isArray(t.legs)&&t.legs.length)L.push('Etappen: '+t.legs.map(l=>l.name+' ('+num(l.nights,1)+' N.)').join(' → '));
   L.push('','Tagesplan:');
   let any=false;
-  days.forEach(d=>{const its=dayItems(t,d.i);if(!its.length)return;any=true;
+  /* Nur Tage mit Punkten (einmal gruppiert): auch sehr lange Reisen bleiben schnell und vollständig */
+  const byDay=new Map();sortedItems(t).forEach(it=>{if(it.day>=0&&it.day<days.length&&actOf(t,it.act)){if(!byDay.has(it.day))byDay.set(it.day,[]);byDay.get(it.day).push(it)}});
+  [...byDay.keys()].sort((x,y)=>x-y).map(i=>days[i]).forEach(d=>{const its=byDay.get(d.i);any=true;
     L.push('• '+d.label+': '+its.map(it=>(it.time||SLOTNAME[it.slot])+' '+actOf(t,it.act).t).join(' · '));const ru=dayRouteUrl(t,d.i);if(ru)L.push('  Route: '+ru)});
   if(!any)L.push('• noch nichts eingeplant');
   const late=sortedItems(t).filter(it=>it.day>=days.length&&actOf(t,it.act)).length;

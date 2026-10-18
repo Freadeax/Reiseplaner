@@ -4,18 +4,45 @@
 "use strict";
 /* ================= Reise-Logik ================= */
 function nightsOf(t){if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b&&b>=a)return Math.round((b-a)/864e5)}return Math.max(0,Math.round(num(t.nights,3)))}
+/* Reisedauer (Paket 1, 18.10.): Eingabe und Bearbeitung höchstens MAX_TRIP_DAYS Reisetage (365 Nächte).
+   Gespeicherte längere Reisen (z. B. Tippfehler im Jahr) werden weiter geladen, angezeigt und exportiert, nie gekürzt;
+   sie tragen den Hinweis „Zeitraum prüfen“. Rechenintensive Ansichten bauen höchstens VIEW_DAYS Tage auf (viewDays).
+   daysOf() liefert weiterhin alle Tage (Kosten, Zuordnung der Punkte) und merkt sich die letzten Ergebnisse je Zeitraum
+   (auch für Kopien einer Reise), damit wiederholte Aufrufe nicht jedes Mal tausende Tage neu erzeugen.
+   Das gelieferte Feld und seine Tage nicht verändern. */
+const MAX_TRIP_DAYS=366, VIEW_DAYS=366, DAYS_CACHE=new Map();
 function daysOf(t){
+  const key=[t.dateMode,t.start,t.end,t.nights].join('|');
+  if(DAYS_CACHE.has(key))return DAYS_CACHE.get(key);
   const n=nightsOf(t)+1, out=[], a=pd(t.start);
   for(let i=0;i<n;i++){
     if(t.dateMode==='fix'&&a){const d=new Date(a.getTime()+i*864e5);out.push({i,date:d,label:fmtD(d),md:iso(d).slice(5)})}
     else out.push({i,date:null,label:'Tag '+(i+1),md:''});
   }
+  if(DAYS_CACHE.size>=16)DAYS_CACHE.delete(DAYS_CACHE.keys().next().value);
+  DAYS_CACHE.set(key,out);
   return out;
 }
+function tripDayCount(t){return nightsOf(t)+1}
+function tripTooLong(t){return tripDayCount(t)>MAX_TRIP_DAYS}
+/* Eingabeprüfung für neue Reisen und Eckdaten: Fehlermeldung oder '' */
+function tripLengthError(t){
+  if(!tripTooLong(t))return '';
+  return 'Eine Reise kann höchstens '+MAX_TRIP_DAYS+' Tage dauern ('+(MAX_TRIP_DAYS-1)+' Nächte). Eingegeben sind '+tripDayCount(t).toLocaleString('de-DE')+' Tage. Bitte '+(t.dateMode==='fix'?'An- und Abreisedatum, besonders das Jahr,':'die Zahl der Nächte')+' prüfen.';
+}
+/* Für Ansichten: höchstens VIEW_DAYS Tage, dazu ein sichtbarer Hinweis, wenn Tage fehlen */
+function viewDays(t){const all=daysOf(t);return all.length>VIEW_DAYS?all.slice(0,VIEW_DAYS):all}
+function longTripNote(t,what){
+  if(!tripTooLong(t))return '';
+  const n=tripDayCount(t);
+  return '<div class="note" role="note" data-trip-long><b>Zeitraum prüfen:</b> Diese Reise dauert '+n.toLocaleString('de-DE')+' Tage, vermutlich ein Tippfehler im Datum. '+
+   (what?esc(what)+' zeigt nur die ersten '+VIEW_DAYS+' Tage. ':'')+'Gespeicherte Angaben bleiben vollständig erhalten. Unter „Eckdaten“ den Zeitraum korrigieren.</div>';
+}
 function rangeText(t){
-  if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b)return fmtLong(a)+' – '+fmtLong(b)+' · '+nightsOf(t)+' Nächte'}
-  if(t.dateMode==='flex'){const m=t.month?MONTHS[+t.month.slice(5,7)-1]+' '+t.month.slice(0,4):'Zeitraum offen';return m+' · '+nightsOf(t)+' Nächte (flexibel)'}
-  return 'Datum noch offen · '+nightsOf(t)+' Nächte geplant';
+  const chk=tripTooLong(t)?' · Zeitraum prüfen':'';
+  if(t.dateMode==='fix'){const a=pd(t.start),b=pd(t.end);if(a&&b)return fmtLong(a)+' – '+fmtLong(b)+' · '+nightsOf(t)+' Nächte'+chk}
+  if(t.dateMode==='flex'){const m=t.month?MONTHS[+t.month.slice(5,7)-1]+' '+t.month.slice(0,4):'Zeitraum offen';return m+' · '+nightsOf(t)+' Nächte (flexibel)'+chk}
+  return 'Datum noch offen · '+nightsOf(t)+' Nächte geplant'+chk;
 }
 const placeOf=t=>t.catalog==='allgaeu'?PLACES[t.place]||null:null;
 function stayOf(t){if(!t.stayId)return null;const st=STAYS.find(s=>s.id===t.stayId)||(t.customStays||[]).find(s=>s.id===t.stayId)||null;const o=activeOffer(t);return o&&st?Object.assign({},st,{name:o.name,ort:o.location,breakfast:o.features.breakfast==='yes',sauna:o.features.sauna==='yes',kitchen:o.features.kitchen==='yes',url:o.url}):st}

@@ -86,7 +86,9 @@ function journalSection(t,mode){
  const edit=journalCanEdit(t);if(!edit&&!journalHas(t))return '';
  const L=journalLayout(t),ph=tripPhase(t);
  const intro='<p class="small muted">Je Reisetag ein Eintrag mit optionaler Stimmung von 1 bis 5. '+esc(journalPrivacy())+'</p>';
- const days='<ul class="plain rp-jdays">'+L.days.map(d=>journalRow(t,d,edit)).join('')+'</ul>';
+ /* Sehr lange Reisen (Zeitraum prüfen): nur die ersten VIEW_DAYS Tage als Zeilen, Tage mit Eintrag immer */
+ const shown=L.days.filter((d,n)=>n<VIEW_DAYS||d.entry||d.extra.length),hidden=L.days.length-shown.length;
+ const days=(hidden?longTripNote(t,'Das Tagebuch'):'')+'<ul class="plain rp-jdays">'+shown.map(d=>journalRow(t,d,edit)).join('')+'</ul>'+(hidden?'<p class="small muted">'+hidden.toLocaleString('de-DE')+' weitere Tage ohne Eintrag ausgeblendet.</p>':'');
  let orphans=L.orphans.length?'<details class="panel" open data-journal-orphans><summary><b>'+L.orphans.length+(L.orphans.length===1?' Eintrag':' Einträge')+' ohne zugehörigen Tag</b></summary><p class="small muted">Sie passen zu keinem aktuellen Reisetag, etwa nach einer Änderung von Zeitraum oder Dauer, und bleiben unverändert gespeichert.</p><ul class="plain rp-jdays">'+L.orphans.map(o=>journalRow(t,{key:o.key,label:o.label+(o.kind==='index'?' (ohne festes Datum)':''),entry:o.entry,extra:[]},edit)).join('')+'</ul></details>':'';
  const lost=edit?journalLostDrafts(t,L):[];
  if(lost.length)orphans+='<details class="panel" open data-journal-lost><summary><b>'+lost.length+(lost.length===1?' ungespeicherter Entwurf':' ungespeicherte Entwürfe')+' ohne zugehörigen Tag</b></summary><p class="small muted">Der Tag gehört nach einer Änderung von Zeitraum oder Dauer nicht mehr zur Reise. Fortsetzen und speichern legt den Eintrag unter seinem bisherigen Tag ab, oder ihr verwerft den Entwurf.</p><ul class="plain rp-jdays">'+lost.map(k=>journalRow(t,{key:k,label:VJ().keyLabel(k),entry:null,extra:[]},edit)).join('')+'</ul></details>';

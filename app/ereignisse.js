@@ -43,7 +43,7 @@ document.addEventListener('click',async e=>{
   if(pm){const o=pm[1]==='d'?UI.draft:UI.edit;const k={type:'type',dm:'dateMode',travel:'travel',catalog:'catalog'}[pm[2]];if(k==='type')applyType(o,val);else o[k]=val;
     if(k==='dateMode'&&val==='fix'&&!o.start){const n=new Date();o.start=iso(new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()+30)));o.end=iso(new Date(pd(o.start).getTime()+864e5*Math.max(o.type==='tag'?0:1,num(o.nights,3))))}
     const host=pm[1]==='d'?$('#draft'):$('#editform');if(pm[1]==='d'){render()}else host.innerHTML=tripForm(o,'e-');return}
-  if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>=pd(d.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
+  if(act==='create'){const d=UI.draft;if(d.dateMode==='fix'&&!(pd(d.start)&&pd(d.end)&&pd(d.end)>=pd(d.start))){alertMsg('Bitte gültige Daten wählen: Abreise nicht vor Anreise.');return}if(tripLengthError(d)){alertMsg(tripLengthError(d));return}d.id=uid('t');save(d,true);UI.draft=null;go('r-'+d.id+'-'+(d.catalog==='allgaeu'?'angebote':'unterkunft'));return}
   if(act==='tpl-silvester'||act==='tpl'){try{sheetTemplate(act==='tpl'?val:'silvester')}catch(err){alertMsg(err.message)}return}
   if(act==='tpl-apply'){try{const r=commitTemplatePreview(val);UI.draft=null;closeSheet();go(r.route)}catch(err){const el=$('#template-error');if(el)el.textContent=err.message;else alertMsg(err.message)}return}
   if(!t) return;
@@ -56,7 +56,7 @@ document.addEventListener('click',async e=>{
      try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
      try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
    case 'edit-trip': sheetEdit(t);return;
-   case 'edit-save':{try{if(UI.editSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Eckdaten bitte erneut öffnen.');const c=protectedPlanChange(t,'edit',{draft:UI.edit}),d=routeEndpointPreview(t,c);if(d){render();sheetRouteEndpoint(t,d);return}adoptPlanChange(t,c);save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
+   case 'edit-save':{try{if(UI.editSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Eckdaten bitte erneut öffnen.');if(tripLengthError(UI.edit))throw new Error(tripLengthError(UI.edit));const c=protectedPlanChange(t,'edit',{draft:UI.edit}),d=routeEndpointPreview(t,c);if(d){render();sheetRouteEndpoint(t,d);return}adoptPlanChange(t,c);save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'route-endpoint-apply':{try{applyRouteEndpointChange(t,UI.routeEndpointDraft);UI.routeEndpointDraft=null;UI.routeDraft=null;save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
    case 'del': UI.confirm='del';render();return;

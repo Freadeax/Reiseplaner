@@ -16,13 +16,20 @@ function driveByDay(t){
   if(n===1){out[0]=one+back;return out}
   out[0]=one;out[n-1]+=back;return out;
 }
+/* Tageslast: Punkte einmal je Tag gruppiert (linear statt Tage × Punkte). Ergebnis je Reiseobjekt gemerkt, solange sich
+   die Reise nicht ändert (Schlüssel = gespeicherte Form); Ansichten rufen dayLoad(t)[i] oft je Tag auf. */
+const LOAD_CACHE=new WeakMap();
 function dayLoad(t){
-  const days=daysOf(t),drive=driveByDay(t);
-  return days.map(d=>{let planned=0,unknown=0;
-    (t.items||[]).filter(it=>it.day===d.i).forEach(it=>{const a=actOf(t,it.act);if(!a||a.transit)return;const h=actHours(a);if(h==null)unknown++;else planned+=h});
+  const key=JSON.stringify(t),hit=LOAD_CACHE.get(t);if(hit&&hit.key===key)return hit.load;
+  const days=daysOf(t),drive=driveByDay(t),byDay=new Map();
+  (t.items||[]).forEach(it=>{if(!byDay.has(it.day))byDay.set(it.day,[]);byDay.get(it.day).push(it)});
+  const load=days.map(d=>{let planned=0,unknown=0;
+    (byDay.get(d.i)||[]).forEach(it=>{const a=actOf(t,it.act);if(!a||a.transit)return;const h=actHours(a);if(h==null)unknown++;else planned+=h});
     const cap=Math.max(0,DAY_HOURS-drive[d.i]/60);
     return {day:d.i,planned:Math.round(planned*10)/10,unknown,drive:drive[d.i],cap:Math.round(cap*10)/10,over:planned>cap+0.25};
   });
+  LOAD_CACHE.set(t,{key,load});
+  return load;
 }
 /* Kartenlink mit allen Stationen eines Tages (Reihenfolge wie im Plan), Start und Ziel = Unterkunft bzw. Reiseziel */
 function dayRouteUrl(t,day){
@@ -34,9 +41,9 @@ function dayRouteUrl(t,day){
 }
 function swapDays(t,a,b){const c=clone(t);(c.items||[]).forEach(it=>{if(it.day===a)it.day=b;else if(it.day===b)it.day=a});c.packageId='';return c}
 function sheetSwap(t,day){
-  const days=daysOf(t);
+  const days=daysOf(t),pick=viewDays(t);
   openSheet('<h2>'+esc(days[day].label)+' tauschen</h2><p class="small muted">Alle Punkte dieses Tages wechseln mit einem anderen Tag, z. B. wenn das Wetter umschlägt. Gebuchte oder bezahlte Termine werden nicht verschoben. Anreise- und Abreisetag behalten ihre Fahrten.</p>'+
-   '<div class="checks-list">'+days.filter(d=>d.i!==day).map(d=>{const n=(t.items||[]).filter(it=>it.day===d.i).length;return '<button type="button" class="chk info" style="cursor:pointer;text-align:left" data-act="day-swap" data-val="'+day+'|'+d.i+'"><span><strong>mit '+esc(d.label)+'</strong> <span class="small muted">'+n+' Punkt(e)</span></span></button>'}).join('')+'</div>');
+   longTripNote(t,'Die Auswahl')+'<div class="checks-list">'+pick.filter(d=>d.i!==day).map(d=>{const n=(t.items||[]).filter(it=>it.day===d.i).length;return '<button type="button" class="chk info" style="cursor:pointer;text-align:left" data-act="day-swap" data-val="'+day+'|'+d.i+'"><span><strong>mit '+esc(d.label)+'</strong> <span class="small muted">'+n+' Punkt(e)</span></span></button>'}).join('')+'</div>');
 }
 async function planFillSheet(t){
   const g=t.destGeo;if(!g||!CATX)return;
