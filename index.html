@@ -898,7 +898,7 @@ document.addEventListener('click',e=>{
   v3Sheet();
  }catch(err){const box=$('#v3-editor-error');if(box){box.textContent=err.message;box.hidden=false;box.focus()}else alertMsg(err.message)}
 });
-const V3_LOCK_TXT='Diese Reise nutzt Anreise-Abschnitte oder Storno (Format 3). Diese App-Version zeigt sie nur an, Änderungen werden nicht gespeichert.';
+const V3_LOCK_TXT='Diese Reise nutzt Angaben des Formats 3 (Anreise-Abschnitte, Storno, Mitreisende/Ausgaben oder Tagebuch). Diese App-Version zeigt sie nur an, Änderungen werden nicht gespeichert.';
 function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=f.v3||{};
   return '<section class="block"><div class="note" role="status"><b>Nur ansehen: Format 3</b><p>'+esc(V3_LOCK_TXT)+' Kosten berücksichtigen Anreise-Abschnitte und Storno. Erstattungen und Stornogebühren stehen getrennt, ohne Verrechnung.</p>'+
    (v.refundOpen||v.feeOpen||v.unknownFee?'<p class="small">'+[v.refundOpen?'Erstattungen offen: '+eur(v.refundOpen):'',v.feeOpen?'Stornogebühren offen: '+eur(v.feeOpen):'',v.unknownFee?v.unknownFee+'× Stornogebühr unbekannt':''].filter(Boolean).join(' · ')+'</p>':'')+'</div></section>'}
@@ -971,7 +971,7 @@ function setTransport(t,transport){
   return v3Candidate(t,c=>{c.transport=tr;
     /* Planwerte entfernter Abschnitte ohne Historie verschwinden; Geld-/Stornohistorie bleibt immer am ursprünglichen Posten */
     Object.keys(c.ledger||{}).forEach(k=>{if(!k.startsWith('tr:')||keep.has(k))return;const e=c.ledger[k];
-      if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||e.cancel||(e.refunds&&e.refunds.length)))delete c.ledger[k]})});
+      if(!(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due||e.cancel||(e.refunds&&e.refunds.length)||e.paidBy!=null))delete c.ledger[k]})});
 }
 /* ================= P0.2a Mitreisende, Ausgaben unterwegs und Aufteilung (Claude, #8; SCHEMA_V3 §3) =================
    Regeln, Rechnung und Bestätigungs-Controller stehen in v3split.js (window.RPV3S). Hier nur die Anbindung:
@@ -994,7 +994,7 @@ function splitPostings(t){
   const out=[],lg=t.ledger||{},base=cost(Object.assign({},t,{ledger:{}})).lines,act=activeOffer(t);
   ledgerRows(t).forEach(r=>{const e=lg[r.key]||{};
     if(r.orphan&&!(num(e.paid,0)>0||e.paidBy!=null||e.cancel||(e.refunds&&e.refunds.length)))return;
-    const openPrice=base.some(l=>l.key===r.key&&l.open);
+    const ca=r.key.indexOf('act:')===0&&(t.customActs||[]).find(a=>'act:'+a.id===r.key),openPrice=base.some(l=>l.key===r.key&&l.open)||!!(ca&&ca.costOpen&&!num(ca.cost,0)); /* Preis offen ist nie 0 € */
     out.push({key:'ledger:'+r.key,target:{kind:'ledger',key:r.key},label:r.label,entry:e,planCost:r.amount!=null?r.amount:openPrice?null:r.plan,detached:!!r.orphan})});
   (t.offers||[]).forEach(o=>{const active=!!act&&act.id===o.id;if(!active&&!o.cancel&&!(num(o.paid,0)>0)&&o.paidBy==null)return;const oa=offerAmounts(o);
     out.push({key:'offer:'+o.id,target:{kind:'offer',id:o.id},label:'Unterkunft: '+o.name+(active?'':o.cancel?' (storniert)':' (nicht ausgewählt)'),entry:o,planCost:active&&!oa.unknown.length?oa.total:null,detached:!active&&!o.cancel})});
@@ -1083,7 +1083,7 @@ function splitPreview(t,next,s){
   if(s.action==='person-add')what='<p>Neue Person: <b>'+nm(next,s.newId)+'</b></p>';
   else if(s.action==='person-rename')what='<p><b>'+nm(t,a.id)+'</b> heißt danach <b>'+nm(next,a.id)+'</b>. Zahlungen und Anteile bleiben bei der Person.</p>';
   else if(s.action==='person-remove')what='<p><b>'+nm(t,a.id)+'</b> wird aus den Mitreisenden entfernt.</p>';
-  else if(s.action==='payer'){const key=JSON.stringify(a),p=splitPostings(t).find(x=>JSON.stringify(x.target)===key),q=splitPostings(next).find(x=>JSON.stringify(x.target)===key)||p;
+  else if(s.action==='payer'){const key=JSON.stringify(a),p=splitPostings(t).find(x=>JSON.stringify(x.target)===key),q=splitPostings(next).find(x=>JSON.stringify(x.target)===key)||{entry:(()=>{try{return v3Ref(next,a).entry}catch(e){return null}})()||{}}; /* Zahler danach immer aus dem Kandidaten */
     what='<p><b>'+esc(p.label)+'</b></p><dl class="facts"><dt>Netto bezahlt</dt><dd>'+esc(V3S.fmt(V3.cancelMath(p.entry,p.planCost).netPaid))+'</dd><dt>Zahler bisher</dt><dd>'+(p.entry.paidBy?nm(t,p.entry.paidBy):'keine Angabe')+'</dd><dt>Zahler danach</dt><dd>'+(q.entry.paidBy?nm(next,q.entry.paidBy):'keine Angabe · zählt nicht im Ausgleich')+'</dd></dl>'}
   else{const id=s.action==='expense-add'?s.newId:a.id,old=(t.expenses||[]).find(x=>x.id===id),neu=(next.expenses||[]).find(x=>x.id===id);
     what=old&&neu?'<h3>Bisher</h3>'+splitExpenseFacts(t,old,before)+'<h3>Danach</h3>'+splitExpenseFacts(next,neu,after):neu?splitExpenseFacts(next,neu,after):'<p>Entfernt wird:</p>'+splitExpenseFacts(t,old,before)}
@@ -1869,6 +1869,9 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
           catch(e){if(String(e.code)!=='23505')throw e;
             /* Idempotenz: Anlegen kam evtl. schon an, nur die Antwort ging verloren → eigene Zeile übernehmen statt doppelt anlegen */
             const mine=await c.getTrip(id);if(Store.scope!==scope)return changed;
+            /* Nur wenn seit dem Anlegen niemand geändert hat (Version 1). Sonst Konflikt statt Überschreiben, z. B. bei einer
+               wiederhergestellten Zweitkopie mit altem Eintrag in der Warteschlange (Review 17.10.). */
+            if(mine&&mine.owner_id===Store.scope&&!mine.deleted_at&&mine.version>1){Store.meta[id]=Object.assign(m,{conflict:{op:'update',remote:mine}});changed=true;continue}
             if(mine&&mine.owner_id===Store.scope&&!mine.deleted_at){this.apply(mine,'owner');Store.meta[id].version=mine.version;const r2=await c.updateTrip(id,data,mine.version);if(r2)this.apply(r2,'owner');if(Store.queue[id]&&Store.queue[id].at===q.at)delete Store.queue[id];changed=true;continue}
             if(this.reassign(id)){changed=true;continue}throw e}
           if(Store.scope!==scope)return changed;this.apply(row,'owner');
@@ -1962,8 +1965,10 @@ const Auth={user:null,ready:false,recovery:false,gen:0,
     catch(e){try{sessionStorage.removeItem('rp-invite')}catch(x){}UI.invitePending=false;alertMsg(e.message);render()}
   },
   async signOut(force){
-    if(Store.pending()&&!force){UI.confirm='logout';UI.view='konto';render();return}
-    const scope=Store.scope,keep=Store.pending()>0;
+    /* Unlesbarer Kontocache oder vorhandene Zweitkopie: Ausstehendes unbekannt, also nie als „nichts offen“ behandeln (Review 17.10.) */
+    const unsure=Store.isAccount()&&(Store.corruptRaw!=null||!!Store.idbBackup);
+    if((Store.pending()||unsure)&&!force){UI.confirm='logout';UI.view='konto';render();return}
+    const scope=Store.scope,keep=Store.pending()>0||unsure;
     try{await Sync.cloud().signOut()}catch(e){alertMsg(e.message);return}
     const forget=keep?null:Store.forgetScope(scope); /* localStorage und IndexedDB-Kopie des Kontobereichs, Gastdaten bleiben */
     this.switchTo(null);UI.view='reisen';render();if(forget)await forget;
@@ -3347,7 +3352,7 @@ function vKonto(){
   const n=Store.pending(),gp=guestPendingCount();
   return head+f+'<section class="block"><dl class="facts"><dt>Angemeldet</dt><dd>'+esc(Auth.user.email||'')+'</dd><dt>Speicher</dt><dd>'+esc($('#sync')?$('#sync').textContent:'')+'</dd>'+(Sync.last?'<dt>Letzter Abgleich</dt><dd>'+esc(new Date(Sync.last).toLocaleString('de-DE'))+'</dd>':'')+(Sync.notice?'<dt>Hinweis</dt><dd>'+esc(Sync.notice)+'</dd>':'')+'</dl>'+
     '<div class="row"><button type="button" class="btn sm" data-acc="sync">Jetzt synchronisieren</button><button type="button" class="btn ghost sm" data-acc="signout">Abmelden</button></div>'+
-    (UI.confirm==='logout'?'<div class="note" role="alert"><b>'+n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.</b><p>Beim Abmelden bleiben sie in diesem Browser für dieses Konto liegen und werden nach der nächsten Anmeldung übertragen. Sichert sie zusätzlich als Datei, falls ihr das Gerät wechselt.</p><div class="row"><button type="button" class="btn sm" data-acc="sync">Erst synchronisieren</button><button type="button" class="btn ghost sm" data-act="backup-all">Als Datei sichern</button><button type="button" class="btn warn sm" data-acc="signout-force">Trotzdem abmelden</button></div></div>':'')+
+    (UI.confirm==='logout'?'<div class="note" role="alert"><b>'+(n?n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.':'Kontospeicher dieses Browsers nicht lesbar: ob Änderungen offen sind, ist unbekannt.')+'</b><p>Beim Abmelden bleiben sie in diesem Browser für dieses Konto liegen und werden nach der nächsten Anmeldung übertragen. Sichert sie zusätzlich als Datei, falls ihr das Gerät wechselt.</p><div class="row"><button type="button" class="btn sm" data-acc="sync">Erst synchronisieren</button><button type="button" class="btn ghost sm" data-act="backup-all">Als Datei sichern</button><button type="button" class="btn warn sm" data-acc="signout-force">Trotzdem abmelden</button></div></div>':'')+
     '<p class="small muted">Lokaler Speicher ist keine Datensicherung. Der kostenlose Supabase-Tarif enthält keine automatischen Backups; sichert wichtige Reisen zusätzlich als Datei.</p></section>'+
     (gp?'<section class="block"><h2>Reisen ohne Konto in diesem Browser</h2><p>'+gp+' Reise'+(gp===1?'':'n')+' aus dem Gastmodus. Sie werden nicht automatisch übertragen.</p><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und übernehmen</button></section>':'')+
     '<section class="block"><h2>Meine Daten</h2><p class="small">Kontodaten enthalten alle Reisen, auf die ihr online Zugriff habt, mit eurer Rolle und euren Einladungen. Zum Wiederherstellen in der App dient die Reisesicherung.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="export">Kontodaten herunterladen</button><button type="button" class="btn ghost sm" data-act="backup-all">Reisen als Sicherung speichern</button></div>'+

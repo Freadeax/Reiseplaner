@@ -131,6 +131,18 @@ const run = () => Sync.run();
   assert.equal(Object.values(S.rows).filter(r => r.data.title === 'Antwort verloren').length, 1, 'kein doppeltes Anlegen');
   assert.equal(Store.pending(), 0); assert.equal(a.tripSyncState(t7.id), 'online');
 
+  /* Antwort verloren und inzwischen auf dem Server weiterbearbeitet (z. B. wiederhergestellte Zweitkopie mit altem
+     Warteschlangeneintrag): Konflikt statt stillem Überschreiben (Review 17.10.) */
+  const t8 = trip('Alt lokal'); Store.put(t8, true);
+  S.api.insertTrip = async (id, d) => { await origInsert(id, d); const e = new Error('Failed to fetch'); e.network = true; throw e; };
+  await run(); S.api.insertTrip = origInsert;
+  S.remoteEdit(t8.id, d => { d.title = 'Neuer vom Handy'; });
+  await run();
+  assert.equal(S.rows[t8.id].data.title, 'Neuer vom Handy', 'Serverstand nicht überschrieben');
+  assert(Store.meta[t8.id].conflict && Store.meta[t8.id].conflict.remote.version === 2, 'Konflikt angezeigt');
+  assert.equal(Store.get(t8.id).title, 'Alt lokal', 'lokaler Stand bleibt zur Wahl');
+  Sync.resolve(t8.id, 'server'); await run(); assert.equal(Store.get(t8.id).title, 'Neuer vom Handy'); assert.equal(Store.pending(), 0);
+
   /* ID bereits vergeben (anderes Konto) → neue ID statt Überschreiben */
   S.rows.tbelegt = { id: 'tbelegt', data: { id: 'tbelegt', title: 'fremd' }, version: 1, owner: 'uX', deleted_at: null, members: { uX: 'owner' } };
   const t5 = Object.assign(trip('Kollision'), { id: 'tbelegt' }); Store.put(t5, true); await run(); await run();

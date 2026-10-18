@@ -196,7 +196,11 @@
       /* Offene Beträge je Posten, ohne Verrechnung. Entfernte Posten ohne Storno werden nur als Hinweis geführt. */
       if (p.detached && !e.cancel) { if (n > 0) detached.push({ key: p.key, label: p.label, netPaid: euro(n) }); }
       else if (m.unknown) unknownOpen.push({ key: p.key, label: p.label });
-      else { providerOpen += cents(m.open || 0); refundOpen += cents(m.refundOpen || 0); }
+      else {
+        providerOpen += cents(m.open || 0);
+        /* Erwartete Erstattung nur bei Storno oder erfassten Erstattungen, wie ledgerRows/financeSummary; eine gesunkene Planzahl ist keine Forderung an den Anbieter. */
+        if (e.cancel || (e.refunds && e.refunds.length)) refundOpen += cents(m.refundOpen || 0);
+      }
       if (n <= 0) return;
       const flow = { source: 'posting', key: p.key, label: p.label, amount: euro(n) };
       if (e.paidBy == null || !people.has(e.paidBy)) { unassigned.push(Object.assign(flow, { reason: e.paidBy == null ? 'payer' : 'party' })); return; }

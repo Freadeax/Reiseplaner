@@ -155,6 +155,12 @@
     const ls = () => { const s = env.localStorage && env.localStorage(); if (!s) throw new Error('localStorage nicht verfügbar'); return s; };
     const st = { mode: 'init', reason: '', opened: false, unsupported: false, marker: null, migrated: [], skipped: [] };
     const statusFns = [], remoteFns = [], queues = {};
+    /* Erst nach dem ersten Abgleich eines Schlüssels in dieser Sitzung darf write() ihn in IndexedDB überschreiben.
+       Sonst würde ein Speichern während des Ladens die Kopie einer früheren Sitzung ersetzen, bevor reconcile() über
+       eine Wiederherstellung entscheiden kann (Review 17.10.). */
+    const gates = {};
+    const gate = key => gates[key] || (gates[key] = (() => { let open; const p = new Promise(r => { open = r; }); return { p, open, done: false }; })());
+    const openGate = key => { const g = gate(key); if (!g.done) { g.done = true; g.open(); } };
     let db = null, be = null, initP = null, chan = null;
     let valid = (k, raw) => { try { JSON.parse(raw); return true; } catch (e) { return false; } };
 
@@ -162,7 +168,7 @@
     function setMode(mode, why) {
       if (st.mode === 'local') return; /* Rückfall gilt für die ganze Sitzung und wird nur einmal gemeldet */
       st.mode = mode; st.reason = why || '';
-      if (mode === 'local') { be = null; if (db) { try { db.close(); } catch (e) {} db = null; } }
+      if (mode === 'local') { be = null; if (db) { try { db.close(); } catch (e) {} db = null; } Object.keys(gates).forEach(openGate); }
       statusFns.forEach(f => { try { f(status()); } catch (e) {} });
     }
     const post = m => { try { if (chan) chan.postMessage(Object.assign({ from: id }, m)); } catch (e) {} };
@@ -226,6 +232,7 @@
     }
     async function drain(key, q) {
       await init();
+      if (st.mode === 'idb') await gate(key).p;
       while (q.next !== undefined) {
         const raw = q.next, ws = q.waiters; q.next = undefined; q.waiters = [];
         let r;
@@ -253,7 +260,7 @@
       o = o || {};
       await init();
       if (st.mode !== 'idb' || !be) return { state: 'local', reason: st.reason };
-      await settled(key);
+      if (gate(key).done) await settled(key); /* vor dem ersten Abgleich wartet ein Schreibvorgang auf diesen hier */
       try {
         if (drops().includes(key)) { await be.remove(key); setDrops(drops().filter(k => k !== key)); post({ type: 'remove', key }); return { state: 'dropped' }; }
         let lsRaw; try { lsRaw = ls().getItem(key); } catch (e) { return { state: 'local', reason: 'localStorage nicht lesbar' }; }
@@ -261,6 +268,13 @@
         const lsValid = o.lsValid === undefined ? lsRaw == null || valid(key, lsRaw) : o.lsValid;
         const state = decide(lsRaw, rec, { absentAtStart: !!o.absentAtStart, lsValid, drop: o.drop, self: id });
         const out = { state, rec, lsRaw };
+        if (state === 'restore' && !o.autoRestore) {
+          /* Die App vereinigt die Kopie mit dem Sitzungsstand und speichert danach selbst; ein vorher eingereihter
+             Teilstand darf die Kopie nicht mehr ersetzen. */
+          const q = queues[key];
+          if (q && q.next !== undefined) { const ws = q.waiters; q.next = undefined; q.waiters = []; ws.forEach(w => w({ ok: true, deferred: true })); }
+        }
+        openGate(key);
         if (state === 'migrate' || state === 'adopt') {
           const w = await write(key, lsRaw);
           if (!w.ok) return { state: 'local', reason: w.reason, rec };
@@ -285,7 +299,11 @@
         if (st.unsupported) { setDrops(drops().filter(k => !keys.includes(k))); return true; } /* nie eine Kopie gehabt */
         if (st.mode !== 'idb' || !be) return false; /* Marke bleibt, nächster Start löscht */
         try {
-          for (const k of keys) { await settled(k); await be.remove(k); post({ type: 'remove', key: k }); }
+          for (const k of keys) {
+            const q = queues[k];
+            if (q && q.next !== undefined) { const ws = q.waiters; q.next = undefined; q.waiters = []; ws.forEach(w => w({ ok: false, reason: 'Bereich entfernt' })); }
+            openGate(k); await settled(k); await be.remove(k); post({ type: 'remove', key: k });
+          }
           setDrops(drops().filter(k => !keys.includes(k)));
           return true;
         } catch (e) { setMode('local', 'Löschen in IndexedDB fehlgeschlagen: ' + reason(e)); return false; }

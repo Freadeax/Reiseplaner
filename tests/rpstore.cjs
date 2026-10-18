@@ -137,6 +137,8 @@ function app(w, opts) {
   return { a, Store: a.Store, R, msg, view, ready: a.Store.backendReady };
 }
 
+let finished = false;
+process.on('exit', () => { if (!finished) { console.error('tests/rpstore.cjs: nicht bis zum Ende gelaufen (hängendes Promise?)'); process.exitCode = 1; } });
 (async () => {
   /* 1. Abgleichsregel */
   const d = L.decide, rec = (raw, by) => ({ raw, rev: 1, by: by || 'alt' });
@@ -234,7 +236,7 @@ function app(w, opts) {
 
   /* 7. Durchschreiben: nur was localStorage enthält, zusammengefasst, veraltetes verworfen, Kontingent ohne falschen Erfolg */
   {
-    const w = world(), R = store(w); await R.init();
+    const w = world(), R = store(w); await R.init(); await R.reconcile('rp-trips'); /* write() erst nach dem ersten Abgleich */
     w.ls.setItem('rp-trips', '{"a":1}'); const p1 = R.write('rp-trips', '{"a":1}');
     w.ls.setItem('rp-trips', '{"a":2}'); const p2 = R.write('rp-trips', '{"a":2}');
     w.ls.setItem('rp-trips', '{"a":3}'); const p3 = R.write('rp-trips', '{"a":3}');
@@ -250,9 +252,27 @@ function app(w, opts) {
     w.idb.failCommit = null; assert.equal((await R.write('rp-trips', '{"a":4}')).ok, false, 'Rückfall gilt für die Sitzung');
   }
 
+  /* 7b. Speichern während des Ladens (Review 17.10.): ein write() vor dem ersten Abgleich ersetzt die Kopie einer früheren
+     Sitzung nicht; reconcile() entscheidet auf dem alten Stand („restore“) und verwirft den eingereihten Teilstand. */
+  {
+    const w = world(), old = store(w, { id: 'alt' }); await old.init(); await old.reconcile('rp-trips');
+    w.ls.setItem('rp-trips', '{"wien":1,"prag":1}'); assert((await old.write('rp-trips', '{"wien":1,"prag":1}')).ok);
+    w.ls.removeItem('rp-trips'); /* Browser räumt nur localStorage */
+    const R = store(w, { id: 'neu' });
+    w.ls.setItem('rp-trips', '{"neu":1}'); const early = R.write('rp-trips', '{"neu":1}'); /* noch beim Laden */
+    await R.init(); await new Promise(r => setImmediate(r));
+    assert.equal(w.idb.raw('rp-trips'), '{"wien":1,"prag":1}', 'Kopie vor dem Abgleich unverändert');
+    const d = await R.reconcile('rp-trips', { absentAtStart: true });
+    assert.equal(d.state, 'restore'); assert.equal(d.rec.raw, '{"wien":1,"prag":1}');
+    assert((await early).deferred, 'eingereihter Teilstand verworfen'); assert.equal(w.idb.raw('rp-trips'), '{"wien":1,"prag":1}');
+    w.ls.setItem('rp-trips', '{"neu":1,"wien":1,"prag":1}'); assert((await R.write('rp-trips', '{"neu":1,"wien":1,"prag":1}')).ok);
+    assert.equal(w.idb.raw('rp-trips'), '{"neu":1,"wien":1,"prag":1}', 'danach normales Durchschreiben');
+  }
+
   /* 8. Zwei Tabs: Benachrichtigung, älterer Text überschreibt keinen neueren */
   {
     const w = world(), A = store(w, { id: 'A' }), B = store(w, { id: 'B' }); await A.init(); await B.init();
+    await A.reconcile('rp-trips'); await B.reconcile('rp-trips');
     const seen = []; B.onRemote(m => seen.push(m));
     w.ls.setItem('rp-trips', '{"v":"A1"}'); await A.write('rp-trips', '{"v":"A1"}'); await until(() => seen.length, 'Broadcast');
     assert.equal(seen[0].key, 'rp-trips'); assert.equal(seen[0].from, 'A'); assert.equal(seen[0].type, 'put');
@@ -401,5 +421,6 @@ function app(w, opts) {
     assert(/Store\.forgetScope\(scope\)/.test(del) && /Store\.forgetScope\(scope\)/.test(so), 'Abmelden und Kontolöschung nutzen forgetScope');
     assert(!/removeItem\('rp-u:'/.test(del + so), 'kein Kontolöschweg nur an localStorage vorbei');
   }
+  finished = true;
   console.log('RPStore: Abgleichsregel, gleiche Semantik localStorage/IndexedDB, Migration mit Rücklesevergleich und Marker (rp-trips bleibt), Abbruch/Zeitüberschreitung/kein IndexedDB/Kontingent ohne falschen Erfolg, zwei Tabs, Wiederherstellung, Zurückrollen, beschädigter Speicher, Abmelden/Kontolöschung mit Löschmarke geprüft (Node, In-Memory-IndexedDB).');
 })().catch(e => { console.error(e); process.exit(1); });

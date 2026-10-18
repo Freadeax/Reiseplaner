@@ -329,7 +329,7 @@
     Object.keys(t.ledger || {}).forEach(function (k) {
       if (k.indexOf('tr:') !== 0) return;
       if (!/^tr:[a-z][a-z0-9]{3,40}(:[a-z][a-z0-9]{3,40})?$/.test(k)) fail('Buchungsbuch: ungültiger Anreise-Schlüssel.');
-      var e = t.ledger[k], hist = (+e.paid || 0) > 0 || (e.refunds && e.refunds.length) || e.cancel || e.status === 'gebucht';
+      var e = t.ledger[k], hist = (+e.paid || 0) > 0 || (e.refunds && e.refunds.length) || e.cancel || e.status === 'gebucht' || e.paidBy != null; /* Zahler-Angabe ist nie „leer“ (§5 Feldtreue) */
       if (!own(known, k) && !hist) fail('Buchungsbuch: „' + k + '“ verweist auf keinen Anreise-Abschnitt.');
     });
     return true;

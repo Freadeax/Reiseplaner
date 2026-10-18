@@ -439,4 +439,41 @@ assert(r.open.provider > 0, 'restliche Planposten noch an Anbieter offen'); asse
   assert.doesNotThrow(() => a.validateExtras(Object.assign(J(v2), { party: [], expenses: [] })), 'leere Felder bleiben Format 2');
   assert.equal(a.toServer(Object.assign(J(v2), { party: [], expenses: [] })).party, undefined, 'Format 2 schreibt keine leeren v3-Felder');
 }
+/* Review 17.10.: offener Preis nie 0 €, gesunkener Planwert ist keine erwartete Erstattung, Vorschau zeigt den echten Zahler */
+{
+  const { a } = load(); a.Store.setScope('guest');
+  let t = a.silvesterTemplate(); t.schemaVersion = 3; t.party = [{ id: 'panna', name: 'Anna' }, { id: 'pben', name: 'Ben' }];
+  t.customActs = (t.customActs || []).concat([{ id: 'cboot', custom: true, t: 'Bootstour', cat: 'ausflug', cost: 0, costOpen: true, per: 'grp', slot: 'nachm' }]);
+  t.items = (t.items || []).concat([{ uid: 'iboot', act: 'cboot', day: 1, slot: 'nachm' }]);
+  a.validateExtras(t);
+  const post = a.splitPostings(t).find(p => p.key === 'ledger:act:cboot');
+  assert(post && post.planCost === null, 'eingeplante Unternehmung ohne Preis: Betrag unbekannt');
+  assert(a.splitResult(t).open.unknown.some(u => u.key === 'ledger:act:cboot'), 'erscheint unter unbekannten Beträgen');
+
+  t = a.silvesterTemplate(); t.schemaVersion = 3; t.party = [{ id: 'panna', name: 'Anna' }, { id: 'pben', name: 'Ben' }];
+  a.validateExtras(t); a.setLedger(t, 'kurs', 'paid', '120'); a.setLedger(t, 'kurs', 'status', 'gebucht'); t.ledger.kurs.paidBy = 'panna';
+  a.setField(t, 'persons', '1');
+  assert.equal(a.splitResult(t).open.refunds, 0, 'ohne Storno keine erwartete Erstattung');
+  assert(!a.splitSection(t).includes('Erwartete Erstattungen'), 'kein erfundener Erstattungshinweis');
+
+  t = a.silvesterTemplate(); t.schemaVersion = 3; t.party = [{ id: 'panna', name: 'Anna' }, { id: 'pben', name: 'Ben' }];
+  const o = { id:'osplit', stayId:t.stayId, name:'Alt-Hütte', location:'Testort', provider:'direkt', type:'hotel', start:t.start, end:t.end, persons:t.persons, price:900, basis:'stay', url:'https://example.org/split', checkedAt:'2026-10-15', availability:'available', terms:'', paid:0, deposit:0, booked:false,
+ features:Object.fromEntries(['sauna','kitchen','breakfast','cancel','quiet','accessible','parking'].map(k=>[k,'unknown'])), fees:Object.fromEntries(['tax','cleaning','parking','wellness','mandatory'].map(k=>[k,{state:'included',amount:0}])), paidBy:'panna'};
+  t.offers = [o]; t.activeOfferId = null;
+  a.validateExtras(t); a.Store.put(t); const ed = a.splitController();
+  assert(a.splitSection(a.Store.get(t.id)).includes('Alt-Hütte'));
+  let st = ed.begin(t.id, 'payer', { kind: 'offer', id: 'osplit' }); st = ed.preview({ paidBy: '' });
+  assert(/Zahler danach<\/dt><dd>keine Angabe/.test(st.preview), 'Vorschau zeigt den Zahler nach der Änderung');
+  ed.apply(st.token); assert.equal(a.Store.get(t.id).offers[0].paidBy, undefined);
+}
+/* Review 17.10.: Abschnitt entfernen behält einen Buchungsbuch-Eintrag, der nur den Zahler trägt (Feldtreue §5) */
+{
+  const { a } = load(); a.Store.setScope('guest');
+  const t = a.silvesterTemplate(); t.schemaVersion = 3; t.party = [{ id: 'panna', name: 'Anna' }];
+  a.setTransport(t, { out: [{ id: 'sbahn', mode: 'bahn', cost: 40, per: 'pp' }], back: [] });
+  t.ledger = Object.assign({}, t.ledger, { 'tr:sbahn': { status: 'offen', paid: 0, paidBy: 'panna' } }); a.validateExtras(t);
+  a.setTransport(t, { out: [], back: [] });
+  assert.deepEqual(J(t.ledger['tr:sbahn']), { status: 'offen', paid: 0, paidBy: 'panna' }, 'Zahler-Angabe bleibt am ursprünglichen Posten');
+  assert.doesNotThrow(() => a.validateExtras(t), 'als Historie gültig');
+}
 console.log('Aufteilung (P0.2a): Verteilung nach größtem Rest (Eigenschaften), P1–P6, Ausgleich mit höchstens n−1 Überweisungen, getrennte offene Beträge und Erstattungen, Grenzen/IDs/Cent/__proto__/Referenzen, Personen nur ohne Zahlungen/Anteile entfernbar, Eingaben mit Dezimalkomma, Controller (Vorschau, Token, Bereich, Rechte, Quellstand, Speicherfehler), App-Weg v2→Format 3 mit Vorschau, Zahler bei Buchung und Angebot ohne Verpflichtungsänderung, Rückblick, Teilen-Text/Mappe ohne Namen, Feldtreue (setField, setLedger, Termine, toServer, Sicherung, Importkopie, Neuladen), gesperrter Rückfall und fehlendes Modul geprüft.');
