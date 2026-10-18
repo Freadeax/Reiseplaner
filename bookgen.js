@@ -1,6 +1,6 @@
 /* Reiseplaner · Erstentwurf eines Reisebuchs (docs/PLAN_IOS_APP.md §7.2, Paket 3).
    Reine, deterministische Funktionen ohne Speicher-, DOM-, Uhr- oder Zufallszugriff: dieselbe Reise mit denselben
-   Angaben ergibt denselben Entwurf (Zeitpunkt nur über opts.at). Tagebuch und Bewertungen werden ausschließlich über
+   Angaben ergibt denselben Entwurf. Ein Zeitpunkt kommt nur vom Aufrufer (opts.at, UTC), nie aus der Uhr. Tagebuch und Bewertungen werden ausschließlich über
    v3journal.js (RPV3J) gelesen, nie verändert.
    Aufbau: Titelseite · Übersicht · je Reisetag ein Kapitel · weitere Einträge ohne zugehörigen Tag · Highlights ·
    „Zahlen der Reise“ (nur mit opts.numbers) · Schlussseite. Ohne Fotos entsteht ein Textbuch.
@@ -15,22 +15,27 @@
                  aus derselben Kostenrechnung wie alle anderen Ansichten; bookgen rechnet keine Kosten
      ctx.map     [{label, lat, lon}] geplante Orte für die schematische Karte (keine Fotostandorte)
    Seiten tragen die Felder aus SCHEMA §5.2 (id, layout, slots, text, day) und zusätzlich kind, heading, sub, items.
-   Die Abstimmung mit dem Format-4-Vertrag (Paket 2) erfolgt beim Zusammenführen.
+   Das Ergebnis besteht RPV4.normalizeBook(book, {now, media}) (docs/SCHEMA_V4.md §3): IDs, Seitenarten, Layouts aus
+   RPV4.LAYOUTS, Zeitstempel, höchstens 200 Seiten. updatedAt setzt normalizeBook aus now, solange opts.at fehlt. Ist v4logic.js geladen, werden Texte mit hartem Datenschutztreffer (gültige IBAN, Kartennummer) nicht
+   übernommen und in info.blocked gemeldet, statt das ganze Buch scheitern zu lassen.
    UMD wie v3journal.js: window.RPBook im Browser, module.exports in Node. */
 (function (root, factory) {
-  var J = typeof module === 'object' && module.exports ? require('./v3journal.js') : root.RPV3J;
-  var api = factory(J);
+  var node = typeof module === 'object' && module.exports, J = node ? require('./v3journal.js') : root.RPV3J, V4 = null;
+  if (node) { try { V4 = require('./v4logic.js'); } catch (e) { V4 = null; } } else V4 = root.RPV4 || null;
+  var api = factory(J, V4);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.RPBook = api;
-})(typeof self !== 'undefined' ? self : this, function (J) {
+})(typeof self !== 'undefined' ? self : this, function (J, V4) {
   'use strict';
   if (!J) throw new Error('bookgen.js braucht v3journal.js (RPV3J).');
 
   var RULE = 'bookgen-1';
   var THEMES = ['klassisch', 'polaroid', 'magazin', 'minimal', 'kinder'];
   var FORMATS = ['a5-quer', 'a4-hoch', 'quadrat-21'];
-  var LIMITS = { title: 120, subtitle: 200, text: 2000, caption: 500, photosPerDay: 4, highlights: 5, highlightMin: 4, mapStops: 50, label: 80 };
-  var ID = /^[a-z][a-z0-9]{3,40}$/, MEDIA_ID = /^[A-Za-z0-9_-]{1,60}$/, DATE = /^\d{4}-\d{2}-\d{2}$/;
+  var LIMITS = { title: 120, subtitle: 200, text: 2000, caption: 500, pages: 200, photosPerDay: 4, highlights: 5, highlightMin: 4, mapStops: 50, label: 80 };
+  /* Wie SCHEMA_V4: IDs (auch Foto-IDs), Kennungen für Layouts, Maschinenzeitstempel in UTC */
+  var ID = /^[a-z][a-z0-9]{3,40}$/, DATE = /^\d{4}-\d{2}-\d{2}$/;
+  var STAMP = /^(\d{4}-\d{2}-\d{2})T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d{3})?Z$/;
   var WEEKDAYS = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 
   var own = function (o, k) { return o != null && Object.prototype.hasOwnProperty.call(o, k); };
@@ -103,7 +108,7 @@
     var keyOf = {}, seen = {};
     days.forEach(function (d) { keyOf[J.dayKey(d)] = d.i; if (d.date) keyOf['d' + d.i] = d.i; });
     return t.media.filter(function (m) {
-      if (!plain(m) || m.kind !== 'photo' || m.hidden === true || typeof m.id !== 'string' || !MEDIA_ID.test(m.id) || own(seen, m.id)) return false;
+      if (!plain(m) || m.kind !== 'photo' || m.hidden === true || typeof m.id !== 'string' || !ID.test(m.id) || own(seen, m.id)) return false;
       seen[m.id] = 1; return true;
     }).map(function (m, n) {
       var w = finite(m.w) && m.w > 0 ? m.w : null, h = finite(m.h) && m.h > 0 ? m.h : null;
@@ -138,7 +143,8 @@
     if (THEMES.indexOf(theme) < 0) fail('Reisebuch: unbekanntes Thema.');
     if (FORMATS.indexOf(format) < 0) fail('Reisebuch: unbekanntes Format.');
     if (opts.id != null && (typeof opts.id !== 'string' || !ID.test(opts.id))) fail('Reisebuch: ungültige ID.');
-    if (opts.at != null && (typeof opts.at !== 'string' || isNaN(Date.parse(opts.at)))) fail('Reisebuch: ungültiger Zeitpunkt.');
+    var st = opts.at == null ? null : typeof opts.at === 'string' && STAMP.exec(opts.at);
+    if (opts.at != null && (!st || !validDate(st[1]))) fail('Reisebuch: ungültiger Zeitpunkt (UTC, z. B. new Date().toISOString()).');
 
     var v3 = t.schemaVersion >= 3;
     var days = readDays(t, ctx), acts = readActs(t, ctx), actById = {};
@@ -244,9 +250,32 @@
     var note = str(opts.closingNote, LIMITS.text);
     pages.push({ id: 'pgschluss', kind: 'schluss', layout: last ? (note ? 'text-foto' : '1-gross') : 'nur-text', slots: last ? [slot(last)] : [], heading: 'Zum Schluss', sub: '', text: note, items: [] });
 
+    /* Vertragsgrenze 200 Seiten (lange Reisen): zuerst Tage ohne Text und Fotos, dann Einträge ohne Tag, dann die letzten
+       Tage weglassen. Nichts davon wird gelöscht; info.omittedPages nennt die fehlenden Seiten. */
+    info.omittedPages = [];
+    var drop = function (test) {
+      for (var k = pages.length - 1; k >= 0 && pages.length > LIMITS.pages; k--) if (test(pages[k])) info.omittedPages.unshift(pages.splice(k, 1)[0].id);
+    };
+    drop(function (p) { return p.kind === 'tag' && !p.text && !p.slots.length; });
+    drop(function (p) { return p.kind === 'weitere'; });
+    drop(function (p) { return p.kind === 'tag'; });
+    /* Zahlungsdaten (SCHEMA_V4 §3.3): Texte mit hartem Treffer werden nicht übernommen, sondern gemeldet */
+    info.blocked = [];
+    var hard = function (s) { return !!V4 && typeof s === 'string' && !!s && V4.privacyFindings({ title: s }).some(function (f) { return f.hard; }); };
+    var guard = function (o, k, where, repl) { if (hard(o[k])) { info.blocked.push({ where: where, field: k }); o[k] = repl == null ? '' : repl; } };
+    pages.forEach(function (p) {
+      ['heading', 'sub', 'text'].forEach(function (k) { guard(p, k, p.id); });
+      p.slots.forEach(function (sl, j) { guard(sl, 'caption', p.id + ':' + j); });
+      (p.map || []).forEach(function (mp, j) { guard(mp, 'label', p.id + ':karte' + j); });
+      p.items.forEach(function (it, j) { ['title', 'label', 'text', 'value'].forEach(function (k) { if (own(it, k)) guard(it, k, p.id + ':' + j, k === 'title' ? 'Unternehmung' : ''); }); });
+    });
+    var tb = { title: title, subtitle: subtitle };
+    guard(tb, 'title', 'buch', 'Unsere Reise'); guard(tb, 'subtitle', 'buch');
+    used = {}; if (cover) used[cover.id] = 1;
+    pages.forEach(function (p) { p.slots.forEach(function (sl) { used[sl.mediaId] = 1; }); });
     info.unusedMedia = media.filter(function (m) { return !own(used, m.id); }).length;
     var tid = typeof t.id === 'string' ? t.id : '';
-    var book = { id: opts.id || ('bk' + fnv(tid + '|' + RULE)), title: title, subtitle: subtitle, theme: theme, format: format,
+    var book = { id: opts.id || ('bk' + fnv(tid + '|' + RULE)), title: tb.title, subtitle: tb.subtitle, theme: theme, format: format,
       cover: { mediaId: cover ? cover.id : null }, pages: pages, draft: { rule: RULE, at: opts.at == null ? null : opts.at }, updatedAt: opts.at == null ? null : opts.at };
     return { book: book, info: info };
   }

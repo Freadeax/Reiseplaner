@@ -16,6 +16,7 @@
   var LIMITS = Object.freeze({
     media: 2000, caption: 500, side: 20000, bytes: 25 * 1024 * 1024,
     books: 20, title: 120, subtitle: 200, pages: 200, slots: 12, text: 2000, rule: 40,
+    heading: 120, sub: 200, items: 100, itemLabel: 200, itemValue: 80, itemTitle: 120, glyphs: 10, map: 50, mapLabel: 80,
     archiveEntries: 2 * 2000 * 20 + 2
   });
   var KINDS = ['photo'];
@@ -24,8 +25,13 @@
   var FITS = ['cover', 'contain'];
   var MEDIA_KEYS = ['id', 'kind', 'takenAt', 'lat', 'lon', 'w', 'h', 'bytes', 'sha256', 'caption', 'day', 'actId', 'spotId', 'by', 'fav', 'hidden', 'cloud'];
   var BOOK_KEYS = ['id', 'title', 'subtitle', 'theme', 'format', 'cover', 'pages', 'draft', 'updatedAt'];
-  var PAGE_KEYS = ['id', 'layout', 'slots', 'text', 'day'];
-  var SLOT_KEYS = ['mediaId', 'crop', 'fit'];
+  var PAGE_KEYS = ['id', 'kind', 'layout', 'slots', 'heading', 'sub', 'text', 'items', 'map', 'day'];
+  var SLOT_KEYS = ['mediaId', 'crop', 'fit', 'caption'];
+  /* Seitenarten und Layouts des Erstentwurfs (bookgen.js, Regel bookgen-1); „frei“ für selbst angelegte Seiten. */
+  var PAGE_KINDS = ['titel', 'uebersicht', 'tag', 'weitere', 'highlights', 'zahlen', 'schluss', 'frei'];
+  var LAYOUTS = ['nur-text', 'text-foto', '1-gross', '2-nebeneinander', '2-gestapelt', '3-mosaik', '4-raster', 'karte'];
+  var ITEM_KINDS = ['fakt', 'stimmung', 'eintrag', 'bewertung', 'plan'];
+  var ITEM_KEYS = ['kind', 'label', 'value', 'title', 'text', 'actId', 'stars', 'glyphs'];
 
   var ID = /^[a-z][a-z0-9]{3,40}$/, DATE = /^\d{4}-\d{2}-\d{2}$/, INDEX = /^d(0|[1-9]\d{0,3})$/;
   var SHA = /^[0-9a-f]{64}$/, ACT = /^[A-Za-z0-9_-]{1,60}$/, SPOT = /^[a-z0-9][a-z0-9-]{0,79}$/, NAME = /^[a-z][a-z0-9-]{1,39}$/;
@@ -95,7 +101,14 @@
   ];
   function bookTexts(b) {
     var out = [{ field: 'title', text: b && b.title }, { field: 'subtitle', text: b && b.subtitle }];
-    (b && Array.isArray(b.pages) ? b.pages : []).forEach(function (p, i) { out.push({ field: 'pages[' + i + '].text', text: p && p.text }); });
+    (b && Array.isArray(b.pages) ? b.pages : []).forEach(function (p, i) {
+      if (!p) return;
+      var at = 'pages[' + i + ']';
+      ['heading', 'sub', 'text'].forEach(function (k) { out.push({ field: at + '.' + k, text: p[k] }); });
+      (Array.isArray(p.slots) ? p.slots : []).forEach(function (s, j) { out.push({ field: at + '.slots[' + j + '].caption', text: s && s.caption }); });
+      (Array.isArray(p.items) ? p.items : []).forEach(function (it, j) { ['label', 'value', 'title', 'text'].forEach(function (k) { out.push({ field: at + '.items[' + j + '].' + k, text: it && it[k] }); }); });
+      (Array.isArray(p.map) ? p.map : []).forEach(function (m, j) { out.push({ field: at + '.map[' + j + '].label', text: m && m.label }); });
+    });
     return out.filter(function (x) { return typeof x.text === 'string' && x.text; });
   }
   /* Alle Treffer eines Buchs als [{field, kind, hard}]; hard = würde von validateBooks abgelehnt. */
@@ -211,7 +224,38 @@
       if (!plain(p)) fail(w + ': ungültig.');
       onlyKeys(p, PAGE_KEYS, w);
       useId(pageIds, p.id, w);
-      if (typeof p.layout !== 'string' || !NAME.test(p.layout)) fail(w + ': Layout ungültig.');
+      if (own(p, 'kind') && PAGE_KINDS.indexOf(p.kind) < 0) fail(w + ': Seitenart unbekannt.');
+      if (LAYOUTS.indexOf(p.layout) < 0) fail(w + ': Layout unbekannt.');
+      if (own(p, 'heading')) str(p.heading, LIMITS.heading, w + ' Überschrift');
+      if (own(p, 'sub')) str(p.sub, LIMITS.sub, w + ' Unterzeile');
+      if (own(p, 'items')) {
+        if (!Array.isArray(p.items) || p.items.length > LIMITS.items) fail(w + ': höchstens ' + LIMITS.items + ' Angaben.');
+        p.items.forEach(function (it, j) {
+          var wi = w + ' Angabe ' + (j + 1);
+          if (!plain(it)) fail(wi + ': ungültig.');
+          onlyKeys(it, ITEM_KEYS, wi);
+          if (ITEM_KINDS.indexOf(it.kind) < 0) fail(wi + ': Art unbekannt.');
+          if (own(it, 'label')) str(it.label, LIMITS.itemLabel, wi + ' Bezeichnung');
+          if (own(it, 'value')) str(it.value, LIMITS.itemValue, wi + ' Wert');
+          if (own(it, 'title')) str(it.title, LIMITS.itemTitle, wi + ' Titel');
+          if (own(it, 'text')) str(it.text, LIMITS.text, wi + ' Text');
+          if (own(it, 'glyphs')) str(it.glyphs, LIMITS.glyphs, wi + ' Sternzeichen');
+          if (own(it, 'actId') && (typeof it.actId !== 'string' || !ACT.test(it.actId) || RESERVED.indexOf(it.actId) >= 0)) fail(wi + ': ungültige Unternehmung.');
+          if (own(it, 'stars') && !int(it.stars, 1, 5)) fail(wi + ': Sterne müssen eine ganze Zahl von 1 bis 5 sein.');
+        });
+      }
+      /* Karte: geplante Orte aus Plan/Katalog, keine Fotostandorte; stripLocation betrifft sie deshalb nicht (SCHEMA_V4 §3.1). */
+      if (own(p, 'map')) {
+        if (!Array.isArray(p.map) || p.map.length > LIMITS.map) fail(w + ': höchstens ' + LIMITS.map + ' Kartenorte.');
+        p.map.forEach(function (m, j) {
+          var wm = w + ' Kartenort ' + (j + 1);
+          if (!plain(m)) fail(wm + ': ungültig.');
+          onlyKeys(m, ['label', 'lat', 'lon'], wm);
+          if (typeof m.label !== 'string') fail(wm + ': Bezeichnung fehlt (leerer Text erlaubt).');
+          str(m.label, LIMITS.mapLabel, wm + ' Bezeichnung');
+          if (!num(m.lat, -90, 90) || !num(m.lon, -180, 180)) fail(wm + ': Koordinaten ungültig.');
+        });
+      }
       if (!Array.isArray(p.slots) || p.slots.length > LIMITS.slots) fail(w + ': höchstens ' + LIMITS.slots + ' Bildplätze.');
       p.slots.forEach(function (s, j) {
         var ws = w + ' Platz ' + (j + 1);
@@ -222,6 +266,7 @@
         if (!own(s, 'crop')) fail(ws + ': Ausschnitt fehlt (null = ganzes Bild).');
         validateCrop(s.crop, ws);
         if (FITS.indexOf(s.fit) < 0) fail(ws + ': Einpassung muss cover oder contain sein.');
+        if (own(s, 'caption')) str(s.caption, LIMITS.caption, ws + ' Bildunterschrift');
       });
       if (typeof p.text !== 'string') fail(w + ': Text fehlt (leerer Text erlaubt).');
       if (p.text.length > LIMITS.text) fail(w + ': Text höchstens ' + LIMITS.text + ' Zeichen.');
@@ -231,7 +276,7 @@
       if (!plain(b.draft)) fail(what + ': Entwurfsangabe ungültig.');
       onlyKeys(b.draft, ['rule', 'at'], what + ' Entwurf');
       if (typeof b.draft.rule !== 'string' || !NAME.test(b.draft.rule) || b.draft.rule.length > LIMITS.rule) fail(what + ': Entwurfsregel ungültig.');
-      if (!stamp(b.draft.at)) fail(what + ': Entwurfszeit ungültig (UTC, ISO 8601).');
+      if (b.draft.at !== null && !stamp(b.draft.at)) fail(what + ': Entwurfszeit ungültig (UTC, ISO 8601 oder null).');
     }
     if (!stamp(b.updatedAt)) fail(what + ': Änderungszeit ungültig (UTC, ISO 8601).');
     var hard = privacyFindings(b).filter(function (f) { return f.hard; });
@@ -269,8 +314,7 @@
           if (!plain(s)) return s;
           var r = copy(s); if (!own(r, 'mediaId')) r.mediaId = null; if (!own(r, 'crop')) r.crop = null; if (!own(r, 'fit')) r.fit = 'cover'; return r;
         }), text: p.text == null ? '' : p.text };
-        Object.keys(p).forEach(function (k) { if (PAGE_KEYS.indexOf(k) < 0) q[k] = p[k]; });
-        if (own(p, 'day')) q.day = p.day;
+        Object.keys(p).forEach(function (k) { if (!own(q, k)) q[k] = copy(p[k]); });
         return q;
       }),
       draft: input.draft == null ? null : copy(input.draft),
@@ -418,7 +462,7 @@
   }
 
   return {
-    LIMITS: LIMITS, FORMATS: FORMATS, CLOUD: CLOUD, V4_FIELDS: V4_FIELDS, SCHEMA_MAX: SCHEMA_MAX,
+    LIMITS: LIMITS, FORMATS: FORMATS, LAYOUTS: LAYOUTS, PAGE_KINDS: PAGE_KINDS, ITEM_KINDS: ITEM_KINDS, CLOUD: CLOUD, V4_FIELDS: V4_FIELDS, SCHEMA_MAX: SCHEMA_MAX,
     ARCHIVE: { format: ARCHIVE_FORMAT, version: ARCHIVE_VERSION },
     validateMedia: validateMedia, normalizeMedia: normalizeMedia, stripLocation: stripLocation,
     validateBooks: validateBooks, normalizeBook: normalizeBook, bookWarnings: bookWarnings, privacyFindings: privacyFindings,

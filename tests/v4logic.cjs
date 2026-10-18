@@ -10,7 +10,7 @@ const sha = c => c.repeat(64);
 const photo = (id, s, extra) => Object.assign({ id, kind: 'photo', takenAt: '2026-12-31T23:41:05', w: 2048, h: 1536, bytes: 412345, sha256: sha(s),
   caption: '', day: '2026-12-31', fav: false, hidden: false, cloud: { state: 'none' } }, extra || {});
 const book = extra => Object.assign({ id: 'buch1', title: 'Winter im Allgäu', subtitle: '30.12.2026 – 03.01.2027', theme: 'standard', format: 'a5-quer',
-  cover: { mediaId: 'foto1' }, pages: [{ id: 'seite1', layout: 'eins-gross', slots: [{ mediaId: 'foto1', crop: { x: 0, y: 0.1, w: 1, h: 0.8 }, fit: 'cover' }],
+  cover: { mediaId: 'foto1' }, pages: [{ id: 'seite1', layout: '1-gross', slots: [{ mediaId: 'foto1', crop: { x: 0, y: 0.1, w: 1, h: 0.8 }, fit: 'cover' }],
   text: 'Silvester am Alpsee.', day: '2026-12-31' }], draft: { rule: 'bookgen-1', at: '2026-10-18T14:00:00Z' }, updatedAt: '2026-10-18T14:05:00.000Z' }, extra || {});
 const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion: 4, party: [{ id: 'pers1', name: 'A' }],
   media: [photo('foto1', 'a', { by: 'pers1', lat: 47.55, lon: 10.32, fav: true }), photo('foto2', 'b', { day: 'd2', takenAt: null })], books: [book()] }, extra || {});
@@ -80,10 +80,10 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   assert(V.validateBooks(t.books, t.media));
   assert(V.validateBooks(null) && V.validateBooks([]));
   assert(V.validateBooks([book({ cover: { mediaId: null }, draft: null, pages: [] })], t.media), 'leeres Buch ohne Titelbild');
-  assert(V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'text', slots: [], text: '' }] })], t.media), 'Seite ohne Tag und Bild');
-  assert(V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'zwei', slots: [{ mediaId: null, crop: null, fit: 'contain' }], text: 'x', day: 'd3' }] })], t.media));
+  assert(V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'nur-text', slots: [], text: '' }] })], t.media), 'Seite ohne Tag und Bild');
+  assert(V.validateBooks([book({ pages: [{ id: 'seite1', layout: '2-nebeneinander', slots: [{ mediaId: null, crop: null, fit: 'contain' }], text: 'x', day: 'd3' }] })], t.media));
   const badB = (extra, re, msg) => assert.throws(() => V.validateBooks([book(extra)], t.media), re, msg);
-  const page = (p, s) => ({ pages: [Object.assign({ id: 'seite1', layout: 'eins', slots: [Object.assign({ mediaId: 'foto1', crop: null, fit: 'cover' }, s || {})], text: '' }, p || {})] });
+  const page = (p, s) => ({ pages: [Object.assign({ id: 'seite1', layout: '1-gross', slots: [Object.assign({ mediaId: 'foto1', crop: null, fit: 'cover' }, s || {})], text: '' }, p || {})] });
   badB({ title: 'x'.repeat(121) }, /120/); assert(V.validateBooks([book({ title: 'x'.repeat(120) })], t.media));
   badB({ title: '   ' }, /Titel fehlt/); badB({ subtitle: 'x'.repeat(201) }, /200/);
   badB(page({ text: 'x'.repeat(2001) }), /2000/, 'Seitentext > 2000');
@@ -99,10 +99,10 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   badB(page({ day: '2026-02-30' }), /Tag/); badB(page({ layout: '' }), /Layout/);
   badB({ draft: { rule: 'bookgen-1', at: '2026-10-18T14:00:00+02:00' } }, /Entwurfszeit/);
   badB({ updatedAt: '2026-10-18' }, /Änderungszeit/);
-  badB({ pages: [{ id: 'seite1', layout: 'a1', slots: [], text: '' }, { id: 'seite1', layout: 'a1', slots: [], text: '' }] }, /doppelte ID/);
+  badB({ pages: [{ id: 'seite1', layout: 'nur-text', slots: [], text: '' }, { id: 'seite1', layout: 'nur-text', slots: [], text: '' }] }, /doppelte ID/);
   const slots = []; for (let i = 0; i < 13; i++) slots.push({ mediaId: null, crop: null, fit: 'cover' });
-  badB({ pages: [{ id: 'seite1', layout: 'raster', slots, text: '' }] }, /12/);
-  const pages = []; for (let i = 0; i < 201; i++) pages.push({ id: 'seite' + i, layout: 'text', slots: [], text: '' });
+  badB({ pages: [{ id: 'seite1', layout: '4-raster', slots, text: '' }] }, /12/);
+  const pages = []; for (let i = 0; i < 201; i++) pages.push({ id: 'seite' + i, layout: 'nur-text', slots: [], text: '' });
   badB({ pages }, /200 Seiten/); pages.pop(); assert(V.validateBooks([book({ pages })], t.media), '200 Seiten erlaubt');
   const books = []; for (let i = 0; i < 21; i++) books.push(book({ id: 'buch' + i }));
   assert.throws(() => V.validateBooks(books, t.media), /20/); books.pop(); assert(V.validateBooks(books, t.media));
@@ -115,10 +115,10 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   /* keine Felder dafür, weder am Buch noch an Seite oder Platz */
   for (const f of ['bookingRef', 'bookingNo', 'paid', 'amount', 'iban', 'ledger', 'offers', 'notes'])
     assert.throws(() => V.validateBooks([book({ [f]: 'x' })], t.media), /unbekanntes Feld/, 'Buchfeld ' + f);
-  assert.throws(() => V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'a1', slots: [], text: '', paid: 120 }] })], t.media), /unbekanntes Feld/);
-  assert.throws(() => V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'a1', slots: [{ mediaId: null, crop: null, fit: 'cover', price: 3 }], text: '' }] })], t.media), /unbekanntes Feld/);
+  assert.throws(() => V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'nur-text', slots: [], text: '', paid: 120 }] })], t.media), /unbekanntes Feld/);
+  assert.throws(() => V.validateBooks([book({ pages: [{ id: 'seite1', layout: 'nur-text', slots: [{ mediaId: null, crop: null, fit: 'cover', price: 3 }], text: '' }] })], t.media), /unbekanntes Feld/);
   /* harte Treffer im Text: gültige IBAN, Kartennummer */
-  const withText = s => book({ pages: [{ id: 'seite1', layout: 'text', slots: [], text: s }] });
+  const withText = s => book({ pages: [{ id: 'seite1', layout: 'nur-text', slots: [], text: s }] });
   assert.throws(() => V.validateBooks([withText('Anzahlung an DE89 3704 0044 0532 0130 00 und fertig')], t.media), /Zahlungsdaten \(IBAN/);
   assert.throws(() => V.validateBooks([withText('DE89370400440532013000')], t.media), /IBAN/);
   assert.throws(() => V.validateBooks([book({ subtitle: 'Karte 4111 1111 1111 1111' })], t.media), /Kartennummer in subtitle/);
@@ -137,11 +137,11 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
 /* ---------- 6. Normalisierung neuer Bücher, Hinweise, Verweise ---------- */
 {
   const t = trip();
-  const b = V.normalizeBook({ id: 'buch2', title: ' Jahresbuch ', pages: [{ id: 'seite1', layout: 'eins', slots: [{ mediaId: 'foto2' }] }] }, { now: '2026-10-18T15:00:00Z', media: t.media });
+  const b = V.normalizeBook({ id: 'buch2', title: ' Jahresbuch ', pages: [{ id: 'seite1', layout: '1-gross', slots: [{ mediaId: 'foto2' }] }] }, { now: '2026-10-18T15:00:00Z', media: t.media });
   assert.deepStrictEqual(b, { id: 'buch2', title: 'Jahresbuch', subtitle: '', theme: 'standard', format: 'a5-quer', cover: { mediaId: null },
-    pages: [{ id: 'seite1', layout: 'eins', slots: [{ mediaId: 'foto2', crop: null, fit: 'cover' }], text: '' }], draft: null, updatedAt: '2026-10-18T15:00:00Z' });
+    pages: [{ id: 'seite1', layout: '1-gross', slots: [{ mediaId: 'foto2', crop: null, fit: 'cover' }], text: '' }], draft: null, updatedAt: '2026-10-18T15:00:00Z' });
   assert.throws(() => V.normalizeBook({ id: 'buch2', title: 'x' }), /Änderungszeit/, 'ohne now und updatedAt keine erfundene Zeit');
-  assert.throws(() => V.normalizeBook({ id: 'buch2', title: 'x', pages: [{ id: 'seite1', layout: 'a1', booking: 'x' }] }, { now: '2026-10-18T15:00:00Z' }), /unbekanntes Feld/);
+  assert.throws(() => V.normalizeBook({ id: 'buch2', title: 'x', pages: [{ id: 'seite1', layout: 'nur-text', booking: 'x' }] }, { now: '2026-10-18T15:00:00Z' }), /unbekanntes Feld/);
   const hidden = C(t); hidden.media[0].hidden = true;
   const w = V.bookWarnings(hidden.books[0], hidden.media);
   assert(w.some(x => x.kind === 'ausgeblendet' && x.where === 'cover') && w.some(x => x.kind === 'ausgeblendet' && x.where === 'pages[0].slots[0]'));
@@ -227,4 +227,93 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   assert.throws(() => V.checkArchive(new Array(V.LIMITS.archiveEntries + 1).fill('x'), p.manifest, p.trips), /zu viele/);
 }
 
-console.log('v4logic: alle Prüfungen bestanden' + (V3 ? ' (mit v3logic.needsV3)' : ' (needsV3 als Attrappe, v3logic.js nicht neben dem Modul)'));
+/* ---------- 10. Seitenfelder des Erstentwurfs (bookgen.js): kind, heading, sub, items, map, slots[].caption ---------- */
+{
+  const t = trip();
+  const pg = p => book({ pages: [Object.assign({ id: 'seite1', kind: 'tag', layout: 'text-foto', slots: [{ mediaId: 'foto1', crop: { x: 0, y: 0, w: 1, h: 1 }, fit: 'cover', caption: 'Alpsee' }],
+    heading: 'Tag 2 · Do., 31.12.2026', sub: 'Immenstadt', text: 'x', items: [], day: '2026-12-31' }, p || {})] });
+  assert(V.validateBooks([pg()], t.media));
+  for (const k of V.PAGE_KINDS) assert(V.validateBooks([pg({ kind: k })], t.media), 'Seitenart ' + k);
+  for (const l of ['nur-text', 'text-foto', '1-gross', '2-nebeneinander', '2-gestapelt', '3-mosaik', '4-raster', 'karte']) assert(V.validateBooks([pg({ layout: l })], t.media), 'Layout ' + l);
+  const badP = (p, re, msg) => assert.throws(() => V.validateBooks([pg(p)], t.media), re, msg);
+  badP({ kind: 'kosten' }, /Seitenart/); badP({ layout: 'eins-gross' }, /Layout/); badP({ layout: '5-raster' }, /Layout/);
+  badP({ heading: 'x'.repeat(121) }, /120/); assert(V.validateBooks([pg({ heading: 'x'.repeat(120) })], t.media));
+  badP({ sub: 'x'.repeat(201) }, /200/); badP({ heading: 5 }, /Text/);
+  badP({ slots: [{ mediaId: 'foto1', crop: null, fit: 'cover', caption: 'x'.repeat(501) }] }, /500/, 'Platz-Bildunterschrift > 500');
+  assert(V.validateBooks([pg({ slots: [{ mediaId: 'foto1', crop: null, fit: 'cover', caption: 'x'.repeat(500) }] })], t.media));
+  /* items */
+  const items = [{ kind: 'fakt', label: 'Reisetage', value: '5' }, { kind: 'stimmung', text: 'Stimmung: großartig' },
+    { kind: 'eintrag', label: 'Früherer Eintrag für Tag 3 (vor dem Festlegen der Daten)', text: 'Schneeschuhwandern' },
+    { kind: 'bewertung', actId: 'act_alpsee', title: 'Alpsee-Rundweg', stars: 5, glyphs: '★★★★★', text: '5 von 5 Sternen' },
+    { kind: 'plan', title: 'Therme', text: 'Auf dem Plan: Therme' }];
+  assert(V.validateBooks([pg({ items })], t.media));
+  badP({ items: [{ kind: 'zahlung', label: 'x' }] }, /Art unbekannt/);
+  badP({ items: [{ label: 'x' }] }, /Art unbekannt/);
+  badP({ items: [{ kind: 'fakt', label: 'Buchung', bookingRef: 'X1' }] }, /unbekanntes Feld/, 'kein Feld für Buchungsnummern in items');
+  badP({ items: [{ kind: 'fakt', amount: 12 }] }, /unbekanntes Feld/);
+  for (const n of [0, 6, 2.5, '5']) badP({ items: [{ kind: 'bewertung', stars: n }] }, /Sterne/, 'Sterne ' + n);
+  badP({ items: [{ kind: 'bewertung', actId: '__proto__' }] }, /Unternehmung/);
+  badP({ items: [{ kind: 'fakt', label: 'x'.repeat(201) }] }, /200/); badP({ items: [{ kind: 'fakt', value: 'x'.repeat(81) }] }, /80/);
+  badP({ items: [{ kind: 'plan', title: 'x'.repeat(121) }] }, /120/); badP({ items: [{ kind: 'eintrag', text: 'x'.repeat(2001) }] }, /2000/);
+  badP({ items: [{ kind: 'bewertung', glyphs: '★'.repeat(11) }] }, /10/);
+  badP({ items: Array.from({ length: 101 }, () => ({ kind: 'fakt', label: 'a', value: '1' })) }, /100 Angaben/);
+  assert(V.validateBooks([pg({ items: Array.from({ length: 100 }, () => ({ kind: 'fakt', label: 'a', value: '1' })) })], t.media), '100 Angaben erlaubt');
+  badP({ items: {} }, /Angaben/);
+  /* map: geplante Orte, ≤ 50 */
+  const map = [{ label: 'Immenstadt', lat: 47.56, lon: 10.22 }, { label: '', lat: -90, lon: 180 }];
+  assert(V.validateBooks([pg({ layout: 'karte', map })], t.media));
+  badP({ map: Array.from({ length: 51 }, () => ({ label: 'a', lat: 1, lon: 1 })) }, /50 Kartenorte/);
+  assert(V.validateBooks([pg({ map: Array.from({ length: 50 }, () => ({ label: 'a', lat: 1, lon: 1 })) })], t.media));
+  badP({ map: [{ label: 'x'.repeat(81), lat: 1, lon: 1 }] }, /80/); badP({ map: [{ label: 'a', lat: 91, lon: 1 }] }, /Koordinaten/);
+  badP({ map: [{ lat: 1, lon: 1 }] }, /Bezeichnung/); badP({ map: [{ label: 'a', lat: 1, lon: 1, mediaId: 'foto1' }] }, /unbekanntes Feld/);
+  /* stripLocation betrifft nur Fotos, nicht die Kartenorte */
+  const tt = trip({ books: [pg({ layout: 'karte', map })] });
+  const a = V.archivePlan([tt], { stripLocation: true });
+  assert(!('lat' in a.trips[0].media[0]) && a.trips[0].books[0].pages[0].map[0].lat === 47.56, 'Kartenorte bleiben');
+  /* Datenschutzprüfung greift auf alle Texte: items, heading, sub, Platz-Bildunterschrift, Kartenort */
+  const iban = 'DE89 3704 0044 0532 0130 00';
+  badP({ items: [{ kind: 'fakt', label: 'Konto', value: 'DE89370400440532013000' }] }, /IBAN in pages\[0\]\.items\[0\]\.value/);
+  badP({ items: [{ kind: 'eintrag', text: 'Bezahlt mit 4111 1111 1111 1111' }] }, /Kartennummer in pages\[0\]\.items\[0\]\.text/);
+  badP({ heading: iban }, /IBAN in pages\[0\]\.heading/); badP({ sub: iban }, /IBAN in pages\[0\]\.sub/);
+  badP({ slots: [{ mediaId: 'foto1', crop: null, fit: 'cover', caption: iban }] }, /IBAN in pages\[0\]\.slots\[0\]\.caption/);
+  badP({ map: [{ label: '4111111111111111', lat: 1, lon: 1 }] }, /Kartennummer/);
+  const f = V.privacyFindings(pg({ items: [{ kind: 'eintrag', label: 'Reservierungsnummer', text: 'kommt per Mail' }] }));
+  assert(f.some(x => x.field === 'pages[0].items[0].label' && x.kind === 'buchungsnummer' && !x.hard));
+  /* Zahlenseite aus bookgen: Beträge sind keine Zahlungsdetails */
+  assert(V.validateBooks([pg({ kind: 'zahlen', layout: 'nur-text', slots: [], items: [{ kind: 'fakt', label: 'Gesamtkosten (mindestens)', value: '1.234,56 €' }, { kind: 'fakt', label: 'Anteil A', value: '617,28 €' }] })], t.media));
+  /* Entwurf ohne Zeitpunkt: draft.at null erlaubt, updatedAt nur aus now */
+  assert(V.validateBooks([book({ draft: { rule: 'bookgen-1', at: null } })], t.media));
+  /* normalizeBook übernimmt die neuen Felder als Kopie */
+  const nb = V.normalizeBook({ id: 'buch3', title: 'x', pages: [{ id: 'seite1', kind: 'uebersicht', layout: 'karte', heading: 'Überblick', items: [items[0]], map }] }, { now: '2026-10-18T15:00:00Z', media: t.media });
+  assert.deepStrictEqual(nb.pages[0], { id: 'seite1', layout: 'karte', slots: [], text: '', kind: 'uebersicht', heading: 'Überblick', items: [items[0]], map });
+  assert(nb.pages[0].map !== map, 'Kopie, keine geteilte Referenz');
+}
+
+/* ---------- 11. Abgleich mit bookgen.js (nur wenn bookgen.js und v3journal.js neben v4logic.js liegen) ---------- */
+let BG = null; try { BG = require('../bookgen.js'); } catch (e) { /* im Paketordner nicht vorhanden */ }
+if (BG) {
+  const media = [];
+  for (let i = 0; i < 9; i++) media.push(photo('foto' + i, 'a', { sha256: (i + 1).toString(16).padStart(64, '0'), day: '2026-12-' + String(30 + (i % 2)).padStart(2, '0'), takenAt: '2026-12-3' + (i % 2) + 'T1' + i + ':00:00', actId: i < 3 ? 'actalpsee' : undefined, fav: i === 4, h: i % 2 ? 3000 : 1000, caption: 'Bild ' + i }));
+  media.forEach(m => { if (m.actId === undefined) delete m.actId; });
+  const t = { id: 'tripbg', title: 'Winter im Allgäu', dest: 'Immenstadt', schemaVersion: 4, dateMode: 'fix', start: '2026-12-30', end: '2027-01-03',
+    party: [{ id: 'pers1', name: 'A' }, { id: 'pers2', name: 'B' }],
+    journal: { '2026-12-30': { text: 'Anreise im Schnee.', mood: 4 }, '2026-12-31': { text: 'Silvester am Alpsee.' }, d7: { text: 'alter Eintrag', mood: 2 } },
+    ratings: { actalpsee: 5, acttherme: 4 }, media };
+  const ctx = { acts: [{ id: 'actalpsee', title: 'Alpsee-Rundweg', days: [1] }, { id: 'acttherme', title: 'Therme', days: [2] }, { id: 'actrodeln', title: 'Rodeln', days: [3] }],
+    km: 412, numbers: { total: 1234.56, unknown: 1, perPerson: 617.28, shares: [{ partyId: 'pers1', amount: 617.28 }] },
+    map: [{ label: 'Hattenhofen', lat: 48.66, lon: 9.57 }, { label: 'Immenstadt', lat: 47.56, lon: 10.22 }] };
+  for (const opts of [{ at: '2026-10-18T15:00:00Z', numbers: true, party: true }, { at: '2026-10-18T15:00:00Z', theme: 'polaroid', format: 'a4-hoch' }, {}]) {
+    const r = BG.draft(t, ctx, opts);
+    const b = V.normalizeBook(r.book, { now: '2026-10-18T15:30:00Z', media: t.media });
+    assert(V.validateV4(Object.assign({}, t, { books: [b] })), 'bookgen-Entwurf ist gültiges Format 4');
+    assert.deepStrictEqual(V.privacyFindings(b).filter(x => x.hard), []);
+    const kinds = b.pages.map(p => p.kind);
+    assert(kinds[0] === 'titel' && kinds.includes('uebersicht') && kinds.includes('tag') && kinds[kinds.length - 1] === 'schluss');
+    if (opts.numbers) assert(kinds.includes('zahlen'));
+  }
+  /* auch ohne Fotos und ohne Version 3/4: reines Textbuch */
+  const plainBook = BG.draft({ id: 'tripbg2', title: 'Kurztrip', schemaVersion: 2, nights: 1 }, {}, { at: '2026-10-18T15:00:00Z' }).book;
+  assert(V.validateBooks([V.normalizeBook(plainBook, { media: [] })], []));
+}
+
+console.log('v4logic: alle Prüfungen bestanden' + (V3 ? ' (mit v3logic.needsV3)' : ' (needsV3 als Attrappe, v3logic.js nicht neben dem Modul)') + (BG ? ', Abgleich mit bookgen.js ' + BG.RULE : ', ohne bookgen.js-Abgleich'));
