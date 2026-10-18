@@ -7,7 +7,7 @@ Stand 14.10.2026 · Issue #6. Website und Daten sind getrennt: Die Website beste
 | | Wert |
 | --- | --- |
 | Build-Befehl | `npm run build` (Node ≥ 20, `.node-version` = 22, keine Abhängigkeiten) |
-| Ausgabeordner | `public/` (nur `index.html`, `404.html`, `sw.js`, `config.js`, `cloud.js`, Manifest, Icons, `vendor/supabase-js-*.js` + Lizenz) |
+| Ausgabeordner | `public/` (nur die Dateien aus `FILES` in `scripts/build.mjs`: `index.html`, `app.css`, `app/*.js`, die Skripte im Hauptordner, Katalogkacheln, `404.html`, `sw.js`, `config.js`, Manifest, Icons, `vendor/supabase-js-*.js` + Lizenz) |
 | Öffentliche Variablen | `RP_SUPABASE_URL`, `RP_SUPABASE_PUBLISHABLE_KEY`, optional `RP_SITE_URL`, `RP_BASE_PATH` |
 | Routing | Hash-Routing (`#reisen`, `#r-<id>-<reiter>`, `#konto`). Direkte Links und Neuladen funktionieren ohne Server-Regeln. `404.html` leitet unbekannte Pfade zur App. Supabase-Rückkehr über `?code=`, Einladungen über `?einladung=` |
 | Prüfung | `npm run check:artifact`: nur erlaubte Dateien, keine Secret-/service_role-Schlüssel, keine Datenbank-Passwörter |

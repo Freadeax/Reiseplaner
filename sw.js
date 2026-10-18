@@ -14,13 +14,16 @@ self.addEventListener('activate', e => {
     .then(keys => Promise.all(keys.filter(k => k.startsWith('reiseplaner-') && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
+/* Ein Eintrag je Datei: Der Build hängt ?v=<Hash> an (P0.6). Gespeichert und gesucht wird ohne Abfrageteil, damit
+   jede Online-Antwort die vorige Kopie ersetzt und offline nie eine ältere Installationskopie neben neuem index.html landet. */
+const cacheKey = req => { const u = new URL(req.url); u.search = ''; return u.href; };
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(fetch(req).then(res => {
-    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(cacheKey(req), copy)); }
     return res;
-  }).catch(() => caches.match(req, { ignoreSearch: true })
+  }).catch(() => caches.match(cacheKey(req))
     .then(hit => hit || (req.mode === 'navigate' ? caches.match('./index.html') : undefined))
     .then(hit => hit || Response.error())));
 });
