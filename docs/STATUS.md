@@ -1,6 +1,24 @@
 # Projektstand · 18.10.2026
 
-## P0.5 Modul A: Hauptnavigation, Heute, Erinnerungen (Claude, 18.10., Branch `p05-nav`, lokal)
+## P0.5 fertig und drei parallele Pakete zusammengeführt (Claude, 18.10. abends, lokal)
+
+Auf Philipps Wunsch parallel gearbeitet: P0.5 in zwei Modulen (Navigation, Gestaltungsregeln), dazu drei eigene Threads (Paket 1 Reisedauer direkt im Ordner, Paket 2 Format 4 und Paket 3 Reisebuch in der Cloud). Zusammengeführt und gemeinsam getestet im Integrationsstand; Einzelheiten der Module in den Abschnitten darunter.
+
+- **P0.5 (§4.2/§4.3):** Tab-Leiste unten am Handy, oben am Desktop; Heute und Erinnerungen; Blätter mit Zieh-Griff und Schließen-Knopf; Tastatur hält das Feld sichtbar; sichere Bereiche; Schrift bis 200 %. Beim Zusammenführen behoben: Schriftzug im Kopf verbreiterte bei 200 % auf 320 px die Seite um 12 px; die Tab-Leiste bricht bei großer Schrift zweizeilig um, der Seitenabstand unten folgt jetzt ihrer echten Höhe.
+- **Prüfung danach (unabhängige Prüfer, je Fund ein Test, der vorher rot war):** Sprung aus „Heute“ ließ den Fokus auf der Seite stehen, wenn das Ziel in einem zugeklappten Bereich lag oder gesperrt war; das Nachführen bei Tastatur holte hineingezoomte Nutzer beim Verschieben immer wieder zum Feld zurück und rollte am Desktop nach Mausklick. Beides korrigiert.
+- **Paket 1 Reisedauer:** Eingabe und Eckdaten höchstens 366 Tage, sonst Meldung mit Tageszahl, Entwurf bleibt. Gespeicherte längere Reisen werden nie abgelehnt oder gekürzt, laden und exportieren vollständig und zeigen „Zeitraum prüfen“. Tagesplan, Reisemappe, Tagebuch und Tagestausch zeigen höchstens 366 Tage mit sichtbarem Hinweis. Ursache der Hänger: `dayLoad` baute je Tag alle Tage neu (quadratisch); jetzt linear, `daysOf` zwischengespeichert. Eine Reise über 45 Jahre rendert alle Ansichten in unter 2 s (Node).
+- **Paket 2 Format 4 (Entwurf):** `docs/SCHEMA_V4.md` und `v4logic.js` (Fotos und Reisebücher als Verweise, Prüfung, Grenzen, keine Rückstufung, Datenschutzprüfung). **Nicht** an die App angebunden, keine Datenbankmigration; offene Fragen an Philipp in SCHEMA_V4 §8.
+- **Paket 3 Reisebuch (`bookgen.js`):** deterministischer Erstentwurf aus Tagebuch, Bewertungen und Plan; Buchungsnummern, Zahlungsdaten und Notizen erscheinen nie, Mitreisende nur auf Wunsch, „Zahlen der Reise“ standardmäßig aus. Ergebnisse bestehen den Format-4-Vertrag. Nicht an die App angebunden.
+
+Service Worker `reiseplaner-v14`, App jetzt 18 Teile (neu `app/navigation.js`). Speicherformat `rp-trips` unverändert.
+
+Tests (18.10. abends, Cloud-Container, Integrationsstand): `npm test` (34 Testdateien) grün; lokal mit Supabase `REQUIRE_DB=1 npm run test:db` und `npm run test:e2e` grün; `npm run build` und `check:artifact` bestanden; `npm run test:browser` grün (Chromium Desktop, mobil, 320 px dunkel, Navigation 320/390/Desktop, 200 % Schrift auf 320/390 px mit und ohne reduzierte Bewegung). **Nicht getestet:** iPhone, Safari/WebKit, Philipps Windows-Rechner, Produktion.
+
+Grenzen: Tagesauswahlen in Blättern (`app/blaetter.js`) zeigen bei überlangen Reisen noch alle Tage. „Heute“ erscheint nach dem nächsten Neuaufbau, nicht automatisch um Mitternacht. Innerhalb einer Reise noch keine Unterseiten mit Zurück-Geste (§4.2 Absatz 2). Format 4 und Reisebuch sind nur Logik, ohne Oberfläche.
+
+Nächster Schritt: Philipps Sichtprüfung (`py -m http.server 8000`), danach iPhone. Weiter: Unterseiten in einer Reise (§4.2), Reisebuch-Vorschau in „Erinnerungen“, Format 4 nach Philipps Entscheidungen (§8).
+
+## P0.5 Modul A: Hauptnavigation, Heute, Erinnerungen (Claude, 18.10., lokal)
 
 Implementiert (PLAN_IOS_APP §4.2), neuer App-Teil `app/navigation.js` zwischen `tagebuch.js` und `start.js` (jetzt 18 Teile):
 
@@ -13,8 +31,8 @@ Tests (18.10., Cloud-Container): `npm test` (28 Dateien, neu `tests/navigation.c
 
 Grenzen: Ob „Heute“ erscheint, wird bei jedem Neuaufbau der Ansicht entschieden, nicht automatisch um Mitternacht. Innerhalb einer Reise gibt es noch keine Unterseiten mit Zurück-Geste (§4.2 Absatz 2). Blätter, Zieh-Griffe, Schriftskalierung und allgemeine Touchziele bearbeitet ein paralleles Modul.
 
-Nächster Schritt: Sichtprüfung auf dem iPhone (Home-Indikator, Tastatur über der Tab-Leiste), danach Zusammenführung mit dem parallelen P0.5-Modul.
-## P0.5 Modul B: iOS-Gestaltungsregeln ohne Hauptnavigation (Claude, 18.10., Branch `p05-design`, lokal)
+Nächster Schritt: Sichtprüfung auf dem iPhone (Home-Indikator, Tastatur über der Tab-Leiste).
+## P0.5 Modul B: iOS-Gestaltungsregeln ohne Hauptnavigation (Claude, 18.10., lokal)
 
 Umgesetzt nach [PLAN_IOS_APP.md](PLAN_IOS_APP.md) §4.3; Kopfleiste und Hauptnavigation (`.top`, `.app-nav`, Tab-Leiste) baut Modul A parallel und sind hier nicht angefasst.
 
@@ -27,9 +45,9 @@ Umgesetzt nach [PLAN_IOS_APP.md](PLAN_IOS_APP.md) §4.3; Kopfleiste und Hauptnav
 
 Tests: neu `tests/ios-design.cjs` (in `npm test`), neu `iosDesign` in `tests/browser.cjs` (320 px dunkel mit reduzierter Bewegung, 390 px mobil, 390 px mit reduzierter Bewegung): bei 200 % Schrift kein seitliches Scrollen und keine abgeschnittenen Knöpfe/Überschriften in Reisen, Neue Reise, Überblick, Kosten, Tagesplan, Entdecken, Konto und zwei offenen Blättern; Griff und Knopf ≥ 44 px; Ziehen; Feld bleibt nach Verkleinern des sichtbaren Bereichs sichtbar; kein Übergang bei reduzierter Bewegung. Ausgeführt: siehe Abschlussbericht des Pakets (`npm test`, `npm run test:browser`, eingeschränkte UI-Prüfung).
 
-Grenzen: Die Kopfleiste läuft bei 200 % Schrift auf 320 px noch 12 px über (Logo-Schriftzug); sie wird im Browsertest ausgeblendet, weil Modul A sie ersetzt – nach dem Zusammenführen erneut prüfen. Nicht prüfbar ohne iPhone/WebKit: echte sichere Bereiche (Chromium setzt `env()` auf 0), echte Bildschirmtastatur, Dynamic Type des Systems (die Web-App folgt der Browser-/Seitenschrift, nicht automatisch der iOS-Textgröße; in der Capacitor-Hülle wäre `-apple-system-body` oder eine Brücke nötig), VoiceOver-Ansage, Silbentrennung in Safari, Ziehen mit dem Finger. Haptik nicht umgesetzt (nur ergänzend erlaubt). Service Worker nicht hochgezählt (Netz zuerst; Modul A zählt hoch).
+Grenzen: Die Kopfleiste lief bei 200 % Schrift auf 320 px 12 px über; beim Zusammenführen behoben und im Browsertest mitgeprüft (siehe oben). Nicht prüfbar ohne iPhone: echte sichere Bereiche, Bildschirmtastatur, Dynamic Type.
 
-Nächster Schritt: Zusammenführen mit Modul A, danach Gesamtprüfung bei 200 % inklusive neuer Tab-Leiste und Test auf einem iPhone.
+Nächster Schritt: zusammengeführt (siehe oben); Test auf einem iPhone.
 
 ## P0.6: App-Code aus index.html aufgeteilt (Claude, 18.10., lokal)
 

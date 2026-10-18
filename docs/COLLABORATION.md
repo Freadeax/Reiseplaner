@@ -10,8 +10,8 @@ Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in 
 - **Zuletzt erledigt (Claude, 17./18.10., nicht veröffentlicht):** P0.2a Mitreisende/Ausgaben/Aufteilung (`v3split.js`), P0.2b Tagebuch/Bewertungen (`v3journal.js`), P0.4 Speicheradapter (`rpstore.js`), P0.7 E-Mail-Code (`cloud.js`), zwei Prüfrunden mit Korrekturen (u. a. Zahlungsbuch: Bezahlt nie unter den Erstattungen). Service Worker v12.
 - **Tests:** `npm test`, `test:browser`, lokal `test:db` und `test:e2e` grün, Build und Artefaktprüfung bestanden. Kein iPhone-/Safari-Test.
 - **P0.6 erledigt (18.10., lokal):** App-Code aus `index.html` in `app/*.js` (17 Teile) und `app.css` verschoben, inhaltlich unverändert; Service Worker v13; Build hängt `?v=<Hash>` an.
-- **P0.5 Modul A Navigation (18.10., Branch `p05-nav`, lokal):** Tab-Leiste unten am Handy, Heute, Erinnerungen, neuer Teil `app/navigation.js`; Service Worker v14.
-- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). P0.5 Restmodule (Blätter, Schrift, Touchziele) und iPhone-Prüfung.
+- **P0.5 und Pakete 1–3 erledigt (18.10. abends, lokal):** Tab-Leiste, Heute, Erinnerungen (`app/navigation.js`), iOS-Gestaltungsregeln, Obergrenze Reisedauer, Format-4-Entwurf (`v4logic.js`, `docs/SCHEMA_V4.md`), Reisebuch-Logik (`bookgen.js`); Service Worker v14. `v4logic.js` und `bookgen.js` sind noch nicht in `index.html` eingebunden.
+- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). iPhone-Prüfung, Entscheidungen Format 4 (SCHEMA_V4 §8).
 
 ## Verbindlicher Ablauf für jede Änderung
 

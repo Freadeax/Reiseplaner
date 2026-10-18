@@ -144,6 +144,8 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | `app/*.js` | App-Code in 18 Teilen (seit P0.6, 18.10.; `navigation` seit P0.5): `basis` … `start`. Klassische Skripte ohne Bundler, gemeinsamer globaler Bereich, Ladereihenfolge aus `index.html`; ein Teil darf beim Laden nur auf frühere Teile zugreifen. Tests laden sie über `tests/app-code.cjs` |
 | `cloud.js` | Einziger Supabase-Zugriff (Auth, Reisen, Freigaben, Katalogsuche) |
 | `catalog.js` | Rechenregeln des Umkreis-Katalogs (Entfernung, Bereich, Bewertung, Stopps, Tagesgerüst) |
+| `v4logic.js` | Entwurf Format 4 (Fotos, Reisebücher): Prüfung und Grenzen, noch nicht eingebunden ([SCHEMA_V4](docs/SCHEMA_V4.md)) |
+| `bookgen.js` | Reisebuch-Erstentwurf, rein und deterministisch, noch nicht eingebunden |
 | `catalog-data.js` | Katalogdaten, einzige Quelle; daraus erzeugt `scripts/catalog-sql.mjs` die Seed-Migration |
 | `config.js` | Öffentliche Konfiguration. Leer bedeutet Gastmodus, der Build erzeugt sie aus Umgebungsvariablen |
 | `vendor/` | supabase-js 2.117.2 (MIT), lokal statt CDN |
