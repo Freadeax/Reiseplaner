@@ -442,3 +442,28 @@ ul.rp-rates>li{display:flex;flex-direction:column;gap:6px;min-width:0}
 .rp-mood .opt{display:inline-flex;align-items:center;gap:8px}
 .rp-mood .opt:has(input:checked){border-color:var(--spruce);box-shadow:inset 0 0 0 2px var(--spruce)}
 .rp-mood input{width:20px;height:20px;flex:none;accent-color:var(--spruce)}
+/* Hauptnavigation (P0.5, PLAN_IOS_APP §4.2): Desktop oben im Kopf, Handy als Tab-Leiste unten.
+   Symbol nur zur Zierde (aria-hidden), Beschriftung immer sichtbar, aktive Seite zusätzlich mit aria-current und Rahmen. */
+@media screen{
+ .app-nav .nav-item{min-height:44px;gap:6px}
+ .app-nav .nav-ico{display:none;flex:none}
+ .top-appearance{min-height:44px;background:transparent;border-color:transparent}
+ .heute-links{gap:8px}.heute-links .btn{min-height:44px}
+ .memory-trip h2,.memory-trip li b,.heute-trip h2,[data-heute-empty] b{overflow-wrap:anywhere}
+}
+@media screen and (max-width:760px){
+ :root{--tabbar-h:64px}
+ html{scroll-padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 8px)}
+ body{padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 8px)}
+ .app-nav{position:fixed;left:0;right:0;bottom:0;z-index:15;order:0;width:auto;margin:0;display:flex;gap:2px;
+  padding:4px max(4px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px));
+  background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px #182b2310}
+ .app-nav .nav-item{flex:1 1 auto;min-width:44px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:4px 2px;border:2px solid transparent;border-radius:12px;font-size:.72rem;line-height:1.15;text-align:center;color:var(--muted);background:transparent;box-shadow:none}
+ .app-nav .nav-item .nav-ico{display:block;width:24px;height:24px}
+ .app-nav .nav-item .nav-txt{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .app-nav .nav-item[aria-current=page]{color:var(--spruce);background:var(--spruce-soft);border-color:var(--spruce);font-weight:700}
+ .top-appearance{padding:6px 8px;font-size:.8rem}
+ #msg{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 16px)!important}
+}
+@media screen and (max-width:360px){.app-nav{gap:0}.app-nav .nav-item{font-size:.66rem;padding-inline:0}}

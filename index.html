@@ -36,7 +36,8 @@ Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell
 <a class="skip-link" href="#view">Zum Inhalt</a><div class="wrap">
   <header class="top">
     <button type="button" class="brand" data-go="reisen" aria-label="Reiseplaner – Meine Reisen"><span class="brand-mark" aria-hidden="true">↗</span><span class="brand-copy"><b>Reiseplaner</b><small>Mehr Vorfreude. Weniger Hin und Her.</small></span></button>
-    <nav class="app-nav" aria-label="Hauptnavigation"><button type="button" class="lnk" data-go="reisen">Meine Reisen</button><button type="button" class="lnk" data-go="entdecken">Entdecken</button><button type="button" class="lnk" data-act="appearance-open">Darstellung</button></nav>
+    <nav class="app-nav" id="app-nav" aria-label="Hauptnavigation"><button type="button" class="lnk nav-item" data-go="reisen">Reisen</button><button type="button" class="lnk nav-item" data-go="entdecken">Entdecken</button><button type="button" class="lnk nav-item" data-go="erinnerungen">Erinnerungen</button><button type="button" class="lnk nav-item" data-go="konto">Konto</button></nav>
+    <button type="button" class="lnk top-appearance" data-act="appearance-open">Darstellung</button>
     <button type="button" class="sync" id="sync" data-go="konto" aria-label="Konto und Speicherstatus"><i></i><span>Nur in diesem Browser</span></button>
   </header>
   <main id="view" tabindex="-1"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
@@ -69,6 +70,7 @@ Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell
 <script src="app/entdecken.js"></script>
 <script src="app/tagesplan.js"></script>
 <script src="app/tagebuch.js"></script>
+<script src="app/navigation.js"></script>
 <script src="app/start.js"></script>
 
 </body></html>

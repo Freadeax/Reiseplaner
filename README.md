@@ -18,9 +18,13 @@ Unter Windows im Ordner der App (z. B. `F:\LMNT\Reiseplaner`): `py -m http.serve
 
 Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, merkt sich die App ihre Dateien und startet danach auch ohne Netz. Auf dem iPhone lässt sie sich über „Zum Home-Bildschirm“ wie eine App ablegen. Als Datei geöffnet gibt es keinen Offline-Start. Eine Dateivorschau innerhalb der ChatGPT-iPhone-App kann die interaktive Oberfläche nicht zuverlässig ausführen. Der HTML-Anhang in ChatGPT ist daher kein App-Link.
 
+## Navigation
+
+Am Handy liegt die Hauptnavigation als Leiste unten, am Desktop oben: **Reisen**, **Entdecken**, **Heute** (nur während einer laufenden Reise: Tag x von n, heutiger Plan und Schnellzugriffe), **Erinnerungen** (Tagebuch und Bewertungen aller Reisen, nur lesend) und **Konto**.
+
 ## Darstellung wählen
 
-Oben über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (warm und großzügig), **Planungsstudio** (klare Arbeitsbereiche, Seitennavigation am Desktop) und **Kompakt** (weniger Abstand für schnelle Orientierung). Alle nutzen dieselben Reisen und Funktionen. Die Auswahl bleibt in diesem Browser; Hell-/Dunkelmodus folgt dem Gerät.
+Oben oder im Konto über **Darstellung** zwischen drei Oberflächen wechseln: **Reisebuch** (warm und großzügig), **Planungsstudio** (klare Arbeitsbereiche, Seitennavigation am Desktop) und **Kompakt** (weniger Abstand für schnelle Orientierung). Alle nutzen dieselben Reisen und Funktionen. Die Auswahl bleibt in diesem Browser; Hell-/Dunkelmodus folgt dem Gerät.
 
 **Vorlagen:** Kurzreisen, Urlaub & Auszeit, Flugvorbereitung und ausgefülltes Beispiel sind getrennt gruppiert. Eine Vorschau zeigt Umfang und Vorbereitung, ohne etwas zu speichern. Erst „Als neue Reise anlegen“ erstellt euren Plan; beim Schließen bleibt ein offener eigener Entwurf erhalten. Flugvorlagen bereiten Aufgaben vor, enthalten aber keine geprüften Flugverbindungen.
 
@@ -137,7 +141,7 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | --- | --- |
 | `index.html` | Seitengerüst; lädt Stylesheet und Skripte in fester Reihenfolge |
 | `app.css` | Gesamtes Stylesheet der App |
-| `app/*.js` | App-Code in 17 Teilen (seit P0.6, 18.10.): `basis` … `start`. Klassische Skripte ohne Bundler, gemeinsamer globaler Bereich, Ladereihenfolge aus `index.html`; ein Teil darf beim Laden nur auf frühere Teile zugreifen. Tests laden sie über `tests/app-code.cjs` |
+| `app/*.js` | App-Code in 18 Teilen (seit P0.6, 18.10.; `navigation` seit P0.5): `basis` … `start`. Klassische Skripte ohne Bundler, gemeinsamer globaler Bereich, Ladereihenfolge aus `index.html`; ein Teil darf beim Laden nur auf frühere Teile zugreifen. Tests laden sie über `tests/app-code.cjs` |
 | `cloud.js` | Einziger Supabase-Zugriff (Auth, Reisen, Freigaben, Katalogsuche) |
 | `catalog.js` | Rechenregeln des Umkreis-Katalogs (Entfernung, Bereich, Bewertung, Stopps, Tagesgerüst) |
 | `catalog-data.js` | Katalogdaten, einzige Quelle; daraus erzeugt `scripts/catalog-sql.mjs` die Seed-Migration |
