@@ -14,7 +14,7 @@
   /* Grenzen (SCHEMA_V4 §4). media/books halten die Reise klein: ein Medieneintrag hat etwa 300 Byte,
      2000 Einträge also rund 0,6 MB JSON. Die Bilddateien zählen hier nicht mit. */
   var LIMITS = Object.freeze({
-    media: 2000, caption: 500, side: 20000, bytes: 25 * 1024 * 1024,
+    media: 2000, cloudPerTrip: 300, caption: 500, side: 20000, bytes: 25 * 1024 * 1024,
     books: 20, title: 120, subtitle: 200, pages: 200, slots: 12, text: 2000, rule: 40,
     heading: 120, sub: 200, items: 100, itemLabel: 200, itemValue: 80, itemTitle: 120, glyphs: 10, map: 50, mapLabel: 80,
     archiveEntries: 2 * 2000 * 20 + 2
@@ -184,6 +184,16 @@
     if (typeof m.id !== 'string' || !ID.test(m.id)) fail('Foto: ungültige ID.');
     validateMediaEntry(m, 'Foto');
     return m;
+  }
+  /* Cloud über Geräte (Entscheidung Philipp 18.10.2026): nur „done“ mit Pfad gilt als in der Cloud. „queued“ und „error“
+     beschreiben das hochladende Gerät; andere Geräte zeigen sie als „nicht in der Cloud“ und schreiben das Feld unverändert zurück. */
+  function inCloud(m) { return !!(m && m.cloud && m.cloud.state === 'done' && typeof m.cloud.path === 'string'); }
+  /* Cloud-Kontingent je Reise (Entscheidung 18.10.2026: 300 Arbeitskopien). Zählt, was hochgeladen ist oder hochgeladen
+     werden soll; lokal bleiben bis zu 2000 Fotos möglich. canQueue sagt, ob n weitere Fotos in die Warteschlange dürfen. */
+  function cloudQuota(t, n) {
+    var used = (t && Array.isArray(t.media) ? t.media : []).filter(function (m) { return m && m.cloud && (m.cloud.state === 'done' || m.cloud.state === 'queued'); }).length;
+    var want = n == null ? 1 : n;
+    return { used: used, limit: LIMITS.cloudPerTrip, free: Math.max(0, LIMITS.cloudPerTrip - used), canQueue: used + want <= LIMITS.cloudPerTrip };
   }
   /* Für geteilte oder exportierte Reisebücher: Standort entfernen (PLAN_IOS_APP §6.3). Gibt Kopien zurück. */
   function stripLocation(list) {
@@ -412,17 +422,18 @@
   var ARCHIVE_FORMAT = 'reiseplaner-archiv', ARCHIVE_VERSION = 1;
   var PATH = /^(media|thumbs)\/([a-z][a-z0-9]{3,40})\.jpg$/;
   /* Plant den Inhalt der ZIP-Datei; das Packen und das Lesen der Bilddateien macht die App.
-     trips: Reiseliste (wie der JSON-Export). opt.stripLocation entfernt Koordinaten aus den exportierten Kopien.
+     trips: Reiseliste (wie der JSON-Export). Fotokoordinaten werden standardmäßig aus den exportierten Kopien entfernt
+     (Entscheidung Philipp 18.10.2026); nur opt.keepLocation === true (ausdrückliche Wahl im Exportdialog) behält sie.
      opt.now: Zeitstempel. Gleiche Foto-ID in zwei Reisen (z. B. Konfliktkopie) ist erlaubt, wenn die Prüfsumme gleich ist;
      dann gibt es die Datei nur einmal. Gleiche ID mit anderer Prüfsumme wird abgelehnt. */
   function archivePlan(trips, opt) {
     if (!Array.isArray(trips)) fail('Export: Reiseliste fehlt.');
-    var out = copy(trips), seen = Object.create(null), files = [], maxV = 2;
+    var out = copy(trips), seen = Object.create(null), files = [], maxV = 2, keep = !!(opt && opt.keepLocation === true);
     out.forEach(function (t, i) {
       if (!plain(t)) fail('Export: Reise ' + (i + 1) + ' ungültig.');
       validateV4(t);
       if (typeof t.schemaVersion === 'number') maxV = Math.max(maxV, t.schemaVersion);
-      if (opt && opt.stripLocation && Array.isArray(t.media)) t.media = stripLocation(t.media);
+      if (!keep && Array.isArray(t.media)) t.media = stripLocation(t.media);
       (t.media || []).forEach(function (m) {
         if (own(seen, m.id)) { if (seen[m.id] !== m.sha256) fail('Export: Foto-ID „' + m.id + '“ steht für zwei verschiedene Bilder.'); return; }
         seen[m.id] = m.sha256;
@@ -431,7 +442,7 @@
       });
     });
     var manifest = { format: ARCHIVE_FORMAT, archiveVersion: ARCHIVE_VERSION, createdAt: opt && opt.now || null, trips: out.length, schemaMax: maxV,
-      locationStripped: !!(opt && opt.stripLocation), files: files.map(function (f) { return { path: f.path, kind: f.kind, mediaId: f.mediaId, bytes: f.bytes, sha256: f.sha256 }; }) };
+      locationStripped: !keep, files: files.map(function (f) { return { path: f.path, kind: f.kind, mediaId: f.mediaId, bytes: f.bytes, sha256: f.sha256 }; }) };
     return { manifest: manifest, trips: out, entries: [{ path: 'manifest.json', kind: 'manifest' }, { path: 'trips.json', kind: 'trips' }].concat(files) };
   }
   /* Import: Dateinamen der ZIP prüfen, bevor etwas entpackt wird. Unbekannte Pfade, Pfade mit Ordnerwechsel und zu viele
@@ -464,7 +475,7 @@
   return {
     LIMITS: LIMITS, FORMATS: FORMATS, LAYOUTS: LAYOUTS, PAGE_KINDS: PAGE_KINDS, ITEM_KINDS: ITEM_KINDS, CLOUD: CLOUD, V4_FIELDS: V4_FIELDS, SCHEMA_MAX: SCHEMA_MAX,
     ARCHIVE: { format: ARCHIVE_FORMAT, version: ARCHIVE_VERSION },
-    validateMedia: validateMedia, normalizeMedia: normalizeMedia, stripLocation: stripLocation,
+    validateMedia: validateMedia, normalizeMedia: normalizeMedia, stripLocation: stripLocation, inCloud: inCloud, cloudQuota: cloudQuota,
     validateBooks: validateBooks, normalizeBook: normalizeBook, bookWarnings: bookWarnings, privacyFindings: privacyFindings,
     validateReferences4: validateReferences4, mediaUses: mediaUses, removeMedia: removeMedia,
     needsV4: needsV4, targetVersion: targetVersion, assertNoDowngrade: assertNoDowngrade, serializeTrip4: serializeTrip4,

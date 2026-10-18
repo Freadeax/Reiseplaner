@@ -214,10 +214,13 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   const p = V.archivePlan([t, copyTrip, { id: 't3', schemaVersion: 2 }], { now: '2026-10-18T15:00:00Z' });
   assert.deepStrictEqual(p.entries.map(e => e.path), ['manifest.json', 'trips.json', 'media/foto1.jpg', 'thumbs/foto1.jpg', 'media/foto2.jpg', 'thumbs/foto2.jpg'], 'Konfliktkopie teilt die Datei');
   assert.strictEqual(p.manifest.format, 'reiseplaner-archiv'); assert.strictEqual(p.manifest.schemaMax, 4); assert.strictEqual(p.manifest.trips, 3);
-  assert.strictEqual(p.trips[0].media[0].lat, 47.55, 'Sicherung behält Standort ohne ausdrückliche Wahl');
-  assert(p.trips[0] !== t);
-  const s = V.archivePlan([t], { stripLocation: true });
-  assert(!('lat' in s.trips[0].media[0]) && s.manifest.locationStripped && t.media[0].lat === 47.55);
+  /* Entscheidung 18.10.: Standort standardmäßig entfernt, nur mit ausdrücklicher Wahl behalten */
+  assert(!('lat' in p.trips[0].media[0]) && !('lon' in p.trips[0].media[0]) && p.manifest.locationStripped === true, 'Standard: ohne Standort');
+  assert(p.trips[0] !== t && t.media[0].lat === 47.55, 'Original unverändert');
+  const k = V.archivePlan([t], { keepLocation: true });
+  assert(k.trips[0].media[0].lat === 47.55 && k.manifest.locationStripped === false, 'ausdrückliche Wahl behält Standort');
+  for (const v of [1, 'ja', {}]) assert(!('lat' in V.archivePlan([t], { keepLocation: v }).trips[0].media[0]), 'nur true behält: ' + JSON.stringify(v));
+  assert(!('lat' in V.archivePlan([t], { stripLocation: false }).trips[0].media[0]), 'alte Option schaltet das Entfernen nicht ab');
   const clash = C(copyTrip); clash.media[0].sha256 = sha('c');
   assert.throws(() => V.archivePlan([t, clash]), /zwei verschiedene Bilder/);
   assert.throws(() => V.archivePlan([{ schemaVersion: 3, media: [photo('foto1', 'a')] }]), /Format 4/);
@@ -276,7 +279,7 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   badP({ map: [{ lat: 1, lon: 1 }] }, /Bezeichnung/); badP({ map: [{ label: 'a', lat: 1, lon: 1, mediaId: 'foto1' }] }, /unbekanntes Feld/);
   /* stripLocation betrifft nur Fotos, nicht die Kartenorte */
   const tt = trip({ books: [pg({ layout: 'karte', map })] });
-  const a = V.archivePlan([tt], { stripLocation: true });
+  const a = V.archivePlan([tt]);
   assert(!('lat' in a.trips[0].media[0]) && a.trips[0].books[0].pages[0].map[0].lat === 47.56, 'Kartenorte bleiben');
   /* Datenschutzprüfung greift auf alle Texte: items, heading, sub, Platz-Bildunterschrift, Kartenort */
   const iban = 'DE89 3704 0044 0532 0130 00';
@@ -322,6 +325,24 @@ if (BG) {
   /* auch ohne Fotos und ohne Version 3/4: reines Textbuch */
   const plainBook = BG.draft({ id: 'tripbg2', title: 'Kurztrip', schemaVersion: 2, nights: 1 }, {}, { at: '2026-10-18T15:00:00Z' }).book;
   assert(V.validateBooks([V.normalizeBook(plainBook, { media: [] })], []));
+}
+
+/* ---------- 12. Cloud über Geräte und Kontingent (Entscheidungen 18.10.2026) ---------- */
+{
+  assert(V.inCloud(photo('foto1', 'a', { cloud: { state: 'done', path: 't1/foto1.jpg' } })));
+  for (const st of ['none', 'queued', 'error']) assert(!V.inCloud(photo('foto1', 'a', { cloud: { state: st } })), st + ' gilt nicht als in der Cloud');
+  assert(!V.inCloud(null) && !V.inCloud({}));
+  /* Feldtreue: fremder Zustand „queued“ bleibt beim Speichern unverändert */
+  const q = trip(); q.media[1].cloud = { state: 'queued' };
+  assert.deepStrictEqual(V.serializeTrip4(q).media[1].cloud, { state: 'queued' });
+  assert.strictEqual(V.LIMITS.cloudPerTrip, 300);
+  const big = { media: [] };
+  for (let i = 0; i < 305; i++) big.media.push({ cloud: { state: i < 200 ? 'done' : i < 299 ? 'queued' : i < 302 ? 'error' : 'none' } });
+  assert.deepStrictEqual(V.cloudQuota(big), { used: 299, limit: 300, free: 1, canQueue: true });
+  assert.strictEqual(V.cloudQuota(big, 2).canQueue, false, 'zweites Foto passt nicht mehr');
+  assert.deepStrictEqual(V.cloudQuota({}), { used: 0, limit: 300, free: 300, canQueue: true });
+  big.media.push({ cloud: { state: 'queued' } });
+  assert.deepStrictEqual(V.cloudQuota(big), { used: 300, limit: 300, free: 0, canQueue: false });
 }
 
 console.log('v4logic: alle Prüfungen bestanden' + (V3 ? ' (mit v3logic.needsV3)' : ' (needsV3 als Attrappe, v3logic.js nicht neben dem Modul)') + (BG ? ', Abgleich mit bookgen.js ' + BG.RULE : ', ohne bookgen.js-Abgleich'));

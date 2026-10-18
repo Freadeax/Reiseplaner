@@ -58,7 +58,8 @@ t.media = [{ id, kind:'photo', takenAt:ISO|null, lat?, lon?, w, h, bytes, sha256
 | `fav`, `hidden` | ja | `true`/`false`. `hidden` blendet in Ansichten und Buchentwürfen aus, löscht nichts |
 | `cloud` | ja | `state` aus der Liste; `path` nur und genau bei `done`, Form `<Reise>/<Foto-ID>.jpg` |
 
-- **Grenzen:** höchstens 2000 Fotos je Reise (rund 0,6 MB JSON). Das Cloud-Kontingent (PLAN_IOS_APP §6.4) ist eine eigene, niedrigere Zahl und noch offen.
+- **Grenzen:** höchstens 2000 Fotos je Reise (rund 0,6 MB JSON). Das **Cloud-Kontingent ist 300 Arbeitskopien je Reise** (Entscheidung Philipp 18.10.2026, `LIMITS.cloudPerTrip`, `cloudQuota`). Es zählt, was hochgeladen ist oder in der Warteschlange steht. Ein großes Sammelbuch braucht kein eigenes Kontingent, weil es auf die Fotos der einzelnen Reisen verweist (§3.4); seine Kapazität wächst also mit jeder Reise um bis zu 300.
+- **Cloud über Geräte** (Entscheidung 18.10.2026): Nur `done` mit Pfad gilt als „in der Cloud“ (`inCloud`). `queued` und `error` beschreiben das hochladende Gerät; andere Geräte zeigen sie als „nicht in der Cloud“ und schreiben das Feld trotzdem unverändert zurück (Feldtreue).
 - **Neue Einträge** laufen durch `normalizeMedia`: Standardwerte (`kind`, `caption ''`, `day null`, `fav/hidden false`, `cloud none`),
   Prüfsumme klein geschrieben, Bildunterschrift an den Rändern gekürzt, danach strenge Prüfung. **Gespeicherte Einträge** werden
   nur geprüft (`validateMedia`), nie still umgeschrieben.
@@ -87,7 +88,7 @@ item = { kind:'fakt'|'stimmung'|'eintrag'|'bewertung'|'plan', label?, value?, ti
 | `kind` | optional, Seitenart: `titel`, `uebersicht`, `tag`, `weitere` (Tagebucheintrag ohne zugehörigen Reisetag), `highlights`, `zahlen`, `schluss`, `frei` (selbst angelegt) |
 | `heading` / `sub` | optional, Überschrift ≤ 120, Unterzeile ≤ 200 |
 | `items` | optional, höchstens 100 Angaben je Seite. `kind` Pflicht (`fakt`, `stimmung`, `eintrag`, `bewertung`, `plan`); `label` ≤ 200, `value` ≤ 80, `title` ≤ 120, `text` ≤ 2000, `glyphs` ≤ 10 (Sternzeichen, nur Anzeige), `actId` wie bei Fotos, `stars` ganze Zahl 1–5. Keine weiteren Felder (keine Beträge, Buchungsnummern, Zahler) |
-| `map` | optional, höchstens 50 Orte `{label ≤ 80, lat, lon}` für die schematische Karte. **Das sind geplante Orte aus Plan und Katalog, keine Fotostandorte**; `stripLocation` und der Export mit `stripLocation` lassen sie deshalb stehen |
+| `map` | optional, höchstens 50 Orte `{label ≤ 80, lat, lon}` für die schematische Karte. **Das sind geplante Orte aus Plan und Katalog, keine Fotostandorte**; das Entfernen der Fotostandorte und der Export lassen sie deshalb stehen |
 | `slots[].caption` | optional, Bildunterschrift im Buch ≤ 500 (bookgen übernimmt sie aus dem Foto; danach unabhängig vom Foto änderbar) |
 | `format` | `a5-quer`, `a4-hoch` oder `quadrat-21` |
 | `cover.mediaId` | Foto-ID der Reise oder `null` (Pflichtfeld) |
@@ -99,8 +100,8 @@ item = { kind:'fakt'|'stimmung'|'eintrag'|'bewertung'|'plan', label?, value?, ti
 | `updatedAt` | UTC-Zeitstempel `JJJJ-MM-TTThh:mm:ss[.mmm]Z`. `normalizeBook` setzt ihn nur aus einem übergebenen `now`, nie aus einer erfundenen Zeit |
 
 - **Grenzen:** höchstens 20 Bücher je Reise.
-- **Verweise:** Alle `mediaId` müssen in `t.media` derselben Reise existieren (`validateReferences4`). Ein Jahresbuch über
-  mehrere Reisen ist in v4 **nicht** abgebildet; es wäre ein eigenes, reiseübergreifendes Objekt (offene Frage 3).
+- **Verweise:** Alle `mediaId` müssen in `t.media` derselben Reise existieren (`validateReferences4`). Ein Sammelbuch über
+  mehrere Reisen liegt nicht in `t.books`, sondern ist ein eigenes Objekt (§3.4).
 - **Hinweise ohne Ablehnung** (`bookWarnings`): ausgeblendetes Foto im Buch, leerer Platz, kein Titelbild, weiche Datenschutztreffer.
 
 ### 3.2 Abhängigkeit `bookgen.js` (Paket 3)
@@ -118,6 +119,16 @@ Tagebuch, Bewertungen, Plan und Katalog, aber **nie** `ledger`, `offers`, Notize
 3. **Hinweis vor Teilen und Export:** Wörter wie „Buchungsnummer“, „Reservierungs-Nr.“, „Bestätigungscode“, „PNR“,
    „Booking reference“, „IBAN“, „Kartennummer“. Die Nummer selbst ist nicht erkennbar; der Text gehört den Nutzern, deshalb
    nur ein Hinweis (`privacyFindings`, `hard: false`).
+
+### 3.4 Einzelbuch und großes Sammelbuch (Entscheidung Philipp 18.10.2026)
+
+Es soll beides geben: ein **Reisebuch je Reise** (`t.books`, dieser Vertrag) und ein **großes Sammelbuch mit allen oder ausgewählten
+Reisen** (z. B. Jahresbuch). Das Sammelbuch gehört keiner einzelnen Reise und bekommt deshalb einen **eigenen, späteren Vertrag**
+außerhalb der Reisedaten. Geplante Eckpunkte, noch nicht umgesetzt und nicht in `v4logic.js`:
+- eigene Liste neben den Reisen (lokal und im Konto), gleiche Seitenform wie §3.1;
+- Fotoverweise als `{tripId, mediaId}` statt nur `mediaId`; es kopiert keine Fotos, deshalb kein eigenes Cloud-Kontingent;
+- fehlt eine Reise oder ein Foto (gelöscht, nicht geteilt), bleibt der Platz leer mit Hinweis, nichts wird still entfernt;
+- bei Kontoreisen nur Reisen, auf die die Person Zugriff hat; Freigaben anderer Mitglieder werden nicht erweitert.
 
 ## 4 · Grenzen auf einen Blick
 
@@ -145,11 +156,12 @@ media/<id>.jpg    Arbeitskopie
 thumbs/<id>.jpg   Vorschaubild 400 px
 ```
 
-- `archivePlan(trips, {now, stripLocation})` plant den Inhalt; das Packen (ZIP-Bibliothek oder native Funktion) und das Lesen der
+- `archivePlan(trips, {now, keepLocation})` plant den Inhalt; das Packen (ZIP-Bibliothek oder native Funktion) und das Lesen der
   Dateien macht die App. Jede Reise wird vorher mit `validateV4` geprüft.
 - **Gleiche Foto-ID in zwei Reisen** (Konfliktkopie) ergibt eine Datei, wenn die Prüfsumme gleich ist; andere Prüfsumme bricht ab.
-- **Standort:** Die vollständige Sicherung behält `lat/lon` der Fotos (sie ist eine Sicherung eigener Daten). Mit `stripLocation` werden sie
-  in den exportierten Kopien entfernt, das Manifest vermerkt es. Für geteilte Reisebücher ist das Entfernen Pflicht (§2).
+- **Standort** (Entscheidung Philipp 18.10.2026): Auch die vollständige Sicherung **entfernt `lat/lon` der Fotos standardmäßig**.
+  Nur eine ausdrückliche Wahl im Exportdialog (`keepLocation: true`, kein anderer Wert) behält sie. Das Manifest vermerkt den Zustand
+  (`locationStripped`). Die Reise selbst bleibt unverändert. Für geteilte Reisebücher ist das Entfernen immer Pflicht (§2).
 - **Import** (`checkArchive(names, manifest, trips)`), **bevor** etwas entpackt wird: nur `manifest.json`, `trips.json`,
   `media/<id>.jpg`, `thumbs/<id>.jpg` (keine Ordnerwechsel, keine absoluten Pfade, keine Rückstriche, keine Doppelungen),
   höchstens die Archivgrenze. Neuere `archiveVersion` wird abgelehnt. **Fehlende Bilddateien brechen nicht ab, sondern werden
@@ -173,14 +185,16 @@ thumbs/<id>.jpg   Vorschaubild 400 px
 - **Node, umgesetzt (`tests/v4logic.cjs`):** gültige und ungültige Foto- und Bucheinträge, alle Grenzen aus §4 an der Kante,
   Doppelimport über Prüfsumme, Normalisierung ohne erfundene Felder, Standortentfernung nur in Kopien, Verweise auf Fotos und
   Personen, Entfernen mit Bestätigung, `needsV4`, Zielversion, keine Rückstufung, `serializeTrip4`, `readable`,
-  Archivplan inklusive Konfliktkopie, Import-Pfadprüfung, fehlende Dateien, keine Buchungsnummern oder Zahlungsdetails in Büchern (auch in `items`, Überschriften, Bildunterschriften und Kartenorten), Seitenarten, Layouts, `items`- und `map`-Grenzen, Kartenorte bleiben bei `stripLocation`, Abgleich mit echten `bookgen.js`-Entwürfen (§11).
+  Archivplan inklusive Konfliktkopie, Import-Pfadprüfung, fehlende Dateien, keine Buchungsnummern oder Zahlungsdetails in Büchern (auch in `items`, Überschriften, Bildunterschriften und Kartenorten), Seitenarten, Layouts, `items`- und `map`-Grenzen, Kartenorte bleiben beim Entfernen des Standorts, Standort im Export standardmäßig entfernt, `inCloud` und `cloudQuota`, Abgleich mit echten `bookgen.js`-Entwürfen (§11).
 - **Bei Anbindung nötig:** Feldtreue durch jede v2/v3-Bearbeitung, Export/Import, Konfliktkopie, Wiederherstellung und `toServer`
   (wie v3 §7); `sync-unreadable` mit v4-Zeile in einem v3-Client; DB-Tests (CHECK 4 erlaubt, 5 abgelehnt, 4→3 abgelehnt auch für
   Eigentümer); Browser-Klickweg und echter iPhone-Test für Kamera, Import und Export.
 
-## 8 · Offene Fragen an Philipp
+## 8 · Entscheidungen Philipp (18.10.2026)
 
-1. **Cloud-Zustand über Geräte:** `queued`/`error` beschreiben eigentlich das hochladende Gerät. Vorschlag: Andere Geräte behandeln alles außer `done` als „nicht in der Cloud“, das Feld wird trotzdem unverändert zurückgeschrieben.
-2. **Standort in der vollständigen Sicherung:** behalten (Vorschlag, Sicherung eigener Daten) oder standardmäßig entfernen?
-3. **Jahresbuch über mehrere Reisen:** eigenes Objekt außerhalb der Reisen (späterer Vertrag) oder vorerst nicht?
-4. **Kontingent** der Fotos je Reise in der Cloud (PLAN_IOS_APP §6.4: z. B. 300) festlegen.
+1. **Cloud-Zustand über Geräte:** wie vorgeschlagen. Nur `done` gilt als in der Cloud, das Feld wird unverändert zurückgeschrieben (§2, `inCloud`).
+2. **Standort in der vollständigen Sicherung:** standardmäßig entfernen, behalten nur auf ausdrückliche Wahl (§5, `keepLocation`).
+3. **Reisebücher:** einzelnes Reisebuch je Reise (dieser Vertrag) und großes Sammelbuch mit allen Reisen (eigener späterer Vertrag, §3.4).
+4. **Cloud-Kontingent:** um die 300 Arbeitskopien je Reise, festgelegt auf 300 (§2, `cloudQuota`). Das Sammelbuch verweist auf diese Fotos und braucht kein zusätzliches Kontingent.
+
+Offen bleibt: Prüfung des Speicherbedarfs von 300 Arbeitskopien je Reise gegen das tatsächliche Supabase-Kontingent (PLAN_IOS_APP §6.4, Preisseite **prüfen**). Ein bezahlter Plan braucht einen eigenen Auftrag.
