@@ -1177,6 +1177,94 @@ async function splitFlow(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': Mitreisende, Ausgaben, Aufteilung nach Gewichten, Zahler, Ausgleich, Neuladen und Löschschutz geprüft.');
 }
 
+/* Hauptnavigation (P0.5): Tab-Leiste unten am Handy, oben am Desktop; Heute nur während einer laufenden Reise;
+   Heute und Erinnerungen per Tippen erreichbar; nichts unter der Leiste versteckt. Feste Uhrzeit 01.01.2027. */
+async function navFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Navigation: '+e.message));
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.clock.setFixedTime(new Date('2027-01-01T10:00:00'));
+ await p.goto(base+'/index.html#heute');
+ const phone=ctxOpts.viewport.width<=760;
+ const keys=()=>p.$$eval('#app-nav [data-go]',bs=>bs.map(b=>b.getAttribute('data-go')).join(','));
+ const current=()=>p.$$eval('#app-nav [aria-current="page"]',bs=>bs.map(b=>b.getAttribute('data-go')).join(','));
+ /* Ohne Reise: #heute direkt aufrufbar, leerer Zustand, kein Heute-Eintrag */
+ assert((await viewText(p)).includes('Gerade läuft keine Reise'),name+': Heute leer');
+ assert.equal(await keys(),'reisen,entdecken,erinnerungen,konto',name+': ohne laufende Reise kein Heute');
+ assert.equal(await p.locator('nav[aria-label="Hauptnavigation"]').count(),1);
+ /* Laufende Reise mit Tagebuch und Bewertung (Format 3) */
+ await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.id='navtrip';t.title='Silvester <img src=x onerror="window.__xss=1">';
+  a.Store.put(t);const actId=t.items.map(i=>i.act).find(id=>a.ACTS[id]&&!a.ACTS[id].transit);
+  const v=JSON.parse(JSON.stringify(t));v.schemaVersion=3;v.journal={'2026-12-31':{text:'<img src=x onerror="window.__xss=2"> Feuerwerk am See',mood:4}};v.ratings={[actId]:4};a.Store.put(v);});
+ await p.reload();
+ assert.equal(await keys(),'reisen,entdecken,heute,erinnerungen,konto',name+': Heute während der Reise');
+ const nav=await p.$eval('#app-nav',n=>{const r=n.getBoundingClientRect(),cs=getComputedStyle(n);return {pos:cs.position,top:r.top,bottom:r.bottom,display:cs.display,visible:r.width>0&&r.height>0}});
+ if(phone){
+  assert(nav.visible&&nav.pos==='fixed'&&Math.abs(nav.bottom-ctxOpts.viewport.height)<=1,name+': Tab-Leiste unten '+JSON.stringify(nav));
+  const sizes=await p.$$eval('#app-nav [data-go]',bs=>bs.map(b=>{const r=b.getBoundingClientRect(),t=b.querySelector('.nav-txt');return {w:r.width,h:r.height,txt:t&&t.getBoundingClientRect().width>0&&t.scrollWidth<=t.clientWidth+1,ico:b.querySelector('svg[aria-hidden="true"]')&&b.querySelector('svg').getBoundingClientRect().width>0}}));
+  assert(sizes.every(x=>x.w>=44&&x.h>=44),name+': Tab-Ziele mindestens 44 px '+JSON.stringify(sizes));
+  assert(sizes.every(x=>x.txt&&x.ico),name+': Symbol und vollständig sichtbare Beschriftung '+JSON.stringify(sizes));
+ }else{
+  assert(nav.visible&&nav.pos!=='fixed'&&nav.top<150,name+': Navigation oben im Kopf '+JSON.stringify(nav));
+  assert.equal(await p.locator('#app-nav .nav-ico:visible').count(),0,name+': keine Tab-Symbole am Desktop');
+ }
+ assert(await p.isVisible('header [data-act="appearance-open"]'),name+': Darstellung im Kopf');
+ await noOverflow(p,name+' Navigation Start');
+ /* Letzter Inhalt nicht unter der Leiste */
+ const notCovered=async where=>{
+  await p.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
+  const r=await p.evaluate(()=>{const nav=document.querySelector('#app-nav').getBoundingClientRect(),dock=document.querySelector('#dock');
+   /* optisch unterstes sichtbares Element im Inhalt (nicht die DOM-Reihenfolge) und die Kostenleiste einer Reise */
+   const els=[document.querySelector('#view'),...document.querySelectorAll('#view *')].filter(e=>{const b=e.getBoundingClientRect(),d=e.closest('details:not([open])');
+    /* Inhalt geschlossener Aufklapper ist nicht zu sehen (Chromium meldet trotzdem Maße) */
+    return b.height>0&&getComputedStyle(e).visibility!=='hidden'&&!(d&&d!==e&&!e.closest('summary'))});
+   if(dock&&!dock.hidden)els.push(dock);
+   let low=els[0];els.forEach(e=>{if(e.getBoundingClientRect().bottom>low.getBoundingClientRect().bottom)low=e});
+   return {navTop:nav.top,bottom:low.getBoundingClientRect().bottom,low:low.outerHTML.slice(0,120),atEnd:Math.abs(window.scrollY+innerHeight-document.documentElement.scrollHeight)<=1}});
+  assert(r.atEnd,name+' '+where+': nicht bis zum Ende gescrollt');
+  if(phone)assert(r.bottom<=r.navTop+0.5,name+' '+where+': letzter Inhalt von der Tab-Leiste verdeckt '+JSON.stringify(r));
+ };
+ /* Heute antippen */
+ await p.click('#app-nav [data-go="reisen"]');await notCovered('Reisen');
+ await p.click('#app-nav [data-go="heute"]');
+ assert.equal(await current(),'heute');assert.equal(p.url().split('#')[1],'heute');
+ let txt=await viewText(p);
+ assert(txt.includes('Tag 3 von 5')&&txt.includes('Silvester <img src=x'),name+': Heute mit Tag x von n und maskiertem Titel');
+ for(const l of ['Tagesplan','Ausgabe erfassen','Notizen','Tagebuch heute','Checkliste'])assert(await p.locator('[data-heute-trip="navtrip"] .heute-links button',{hasText:l}).count()===1,name+': Schnellzugriff '+l);
+ await noOverflow(p,name+' Heute');await notCovered('Heute');
+ if(phone){const hs=await p.$$eval('.heute-links button',bs=>bs.map(b=>b.getBoundingClientRect().height));assert(hs.every(h=>h>=44),name+': Schnellzugriffe 44 px')}
+ /* Schnellzugriff Tagesplan: heutiger Tag, Reise zählt als Reisen */
+ await p.click('[data-heute-trip="navtrip"] .heute-links button:has-text("Tagesplan")');
+ assert(p.url().endsWith('#r-navtrip-plan'));assert.equal(await current(),'reisen',name+': Reise zählt als Reisen');
+ assert.equal(await p.evaluate(()=>window.__app.UI.planDay),2,name+': heutiger Tag im Tagesplan');
+ await noOverflow(p,name+' Reise aus Heute');await notCovered('Reise');
+ /* Ausgabe erfassen springt in die Kosten */
+ await p.click('#app-nav [data-go="heute"]');
+ await p.click('[data-heute-trip="navtrip"] .heute-links button:has-text("Ausgabe erfassen")');
+ assert(p.url().endsWith('#r-navtrip-kosten'));assert(await p.isVisible('[data-split]'),name+': Aufteilung sichtbar');
+ /* Erinnerungen antippen */
+ await p.click('#app-nav [data-go="erinnerungen"]');
+ assert.equal(await current(),'erinnerungen');
+ txt=await viewText(p);
+ assert(txt.includes('Feuerwerk am See')&&txt.includes('<img src=x onerror')&&txt.includes('4 von 5 Sternen')&&txt.includes('Stimmung: 4 von 5'),name+': Erinnerungen mit Text, Stimmung und Sternen als Text');
+ assert.equal(await p.evaluate(()=>window.__xss),undefined,name+': kein Skript aus Nutzertext');
+ assert.equal(await p.locator('#view img').count(),0);
+ await noOverflow(p,name+' Erinnerungen');await notCovered('Erinnerungen');
+ await p.click('[data-memory-trip="navtrip"] button:has-text("Tagebuch im Tagesplan")');
+ assert(p.url().endsWith('#r-navtrip-plan'));
+ /* Konto mit Darstellung */
+ await p.click('#app-nav [data-go="konto"]');assert.equal(await current(),'konto');
+ assert(await p.isVisible('[data-konto-darstellung] [data-act="appearance-open"]'));
+ await p.click('[data-konto-darstellung] [data-act="appearance-open"]');assert(await p.isVisible('.sheet'));
+ if(phone){const z=await p.evaluate(()=>{const s=document.querySelector('.sheet').getBoundingClientRect(),n=document.querySelector('#app-nav').getBoundingClientRect();const el=document.elementFromPoint(n.left+n.width/2,n.top+n.height/2);return !!(el&&el.closest('.sheet-bg'))});assert(z,name+': Blatt liegt über der Tab-Leiste')}
+ await p.keyboard.press('Escape');await notCovered('Konto');
+ /* Nach der Reise kein Heute mehr; #heute bleibt erreichbar und nennt keine Reise als laufend */
+ await p.clock.setFixedTime(new Date('2027-02-01T10:00:00'));await p.goto(base+'/index.html#heute');
+ assert.equal(await keys(),'reisen,entdecken,erinnerungen,konto');
+ assert((await viewText(p)).includes('Gerade läuft keine Reise'));
+ await ctx.close();console.log(name+': Hauptnavigation ('+(phone?'Tab-Leiste unten':'oben')+'), Heute, Erinnerungen, Konto/Darstellung und Verdeckung geprüft.');
+}
+
 (async () => {
   const srv = await serve();
   const base = 'http://127.0.0.1:' + srv.address().port;
@@ -1216,6 +1304,9 @@ async function splitFlow(browser,base,name,ctxOpts){
     await storageAdapter(browser,base,'speicher-320',{viewport:{width:320,height:640},colorScheme:'dark'});
     await splitFlow(browser,base,'aufteilung-desktop',{viewport:{width:1280,height:900}});
     await splitFlow(browser,base,'aufteilung-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
+    await navFlow(browser,base,'navigation-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
+    await navFlow(browser,base,'navigation-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await navFlow(browser,base,'navigation-desktop',{viewport:{width:1280,height:900}});
     await offline(browser, base);
   } finally {
     await browser.close();

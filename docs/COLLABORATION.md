@@ -10,7 +10,8 @@ Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in 
 - **Zuletzt erledigt (Claude, 17./18.10., nicht veröffentlicht):** P0.2a Mitreisende/Ausgaben/Aufteilung (`v3split.js`), P0.2b Tagebuch/Bewertungen (`v3journal.js`), P0.4 Speicheradapter (`rpstore.js`), P0.7 E-Mail-Code (`cloud.js`), zwei Prüfrunden mit Korrekturen (u. a. Zahlungsbuch: Bezahlt nie unter den Erstattungen). Service Worker v12.
 - **Tests:** `npm test`, `test:browser`, lokal `test:db` und `test:e2e` grün, Build und Artefaktprüfung bestanden. Kein iPhone-/Safari-Test.
 - **P0.6 erledigt (18.10., lokal):** App-Code aus `index.html` in `app/*.js` (17 Teile) und `app.css` verschoben, inhaltlich unverändert; Service Worker v13; Build hängt `?v=<Hash>` an.
-- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). Als Nächstes P0.5 (Claude).
+- **P0.5 Modul A Navigation (18.10., Branch `p05-nav`, lokal):** Tab-Leiste unten am Handy, Heute, Erinnerungen, neuer Teil `app/navigation.js`; Service Worker v14.
+- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). P0.5 Restmodule (Blätter, Schrift, Touchziele) und iPhone-Prüfung.
 
 ## Verbindlicher Ablauf für jede Änderung
 

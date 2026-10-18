@@ -1,5 +1,20 @@
 # Projektstand · 18.10.2026
 
+## P0.5 Modul A: Hauptnavigation, Heute, Erinnerungen (Claude, 18.10., Branch `p05-nav`, lokal)
+
+Implementiert (PLAN_IOS_APP §4.2), neuer App-Teil `app/navigation.js` zwischen `tagebuch.js` und `start.js` (jetzt 18 Teile):
+
+- **Hauptnavigation** aus einer Funktion `navItems(now)`: Reisen, Entdecken, Heute (nur solange eine Reise mit festem Datum läuft, `tripPhase().phase==='unterwegs'`), Erinnerungen, Konto. `aria-current="page"` am aktiven Eintrag; eine Reise und „Neue Reise“ zählen als Reisen. Am Handy (bis 760 px) feste Tab-Leiste unten mit Symbol (`aria-hidden`) und sichtbarer Beschriftung, Ziele ≥ 44 px, `env(safe-area-inset-bottom)`, Seitenabstand unten, damit nichts verdeckt wird; Blätter liegen darüber. Am Desktop bleibt die Navigation oben im Kopf (auch im Planungsstudio). **Darstellung** steht im Kopf und zusätzlich in der Kontoansicht.
+- **Heute (`#heute`):** je laufender Reise Titel, „Tag x von n“, Schnellzugriffe (Tagesplan am heutigen Tag, Ausgabe erfassen in der Aufteilung bzw. Kosten, Notizen, Tagebuch heute, Checkliste) und der bestehende Heute-Block (`todayBlock`). Ohne laufende Reise: Hinweis mit der nächsten kommenden Reise oder „Neue Reise“. Keine neuen Daten, keine Live-Angaben.
+- **Erinnerungen (`#erinnerungen`):** Tagebucheinträge (Tag, Stimmung als Text, Auszug) und Bewertungen („4 von 5 Sternen“, Symbole nur zusätzlich und verborgen) aller Reisen, gruppiert, neueste Reisen zuerst, nur lesend, mit Link zum Tagebuch im Tagesplan. Reisen ohne Format-3-Angaben werden gezählt, nicht gezeigt. Fotos und Reisebücher gibt es noch nicht und werden nicht vorgetäuscht.
+- Die Kostenleiste (`#dock`) erscheint nur noch in einer Reise. Speicherformat `rp-trips` unverändert. Service Worker `reiseplaner-v14`.
+
+Tests (18.10., Cloud-Container): `npm test` (28 Dateien, neu `tests/navigation.cjs`: Einträge mit/ohne laufende Reise bei fester Uhrzeit, aktiver Eintrag, Routing, Sprungziele, Heute leer/kommend/laufend/zwei Reisen, Erinnerungen mit Gruppierung, Reihenfolge, Maskierung von `<img onerror>`, nur lesend, ohne Modul) grün; `npm run test:browser` grün (Chromium, neu `navFlow` bei 320 px dunkel, 390 px und Desktop: Tab-Leiste unten, kein horizontales Überlaufen, Ziele ≥ 44 px, Beschriftung vollständig sichtbar, unterster Inhalt nach Scrollen nicht verdeckt, Heute/Erinnerungen/Konto per Tippen, Blatt über der Leiste, Desktop ohne untere Leiste). Nicht getestet: iPhone, Safari/WebKit, Schriftgröße 200 %.
+
+Grenzen: Ob „Heute“ erscheint, wird bei jedem Neuaufbau der Ansicht entschieden, nicht automatisch um Mitternacht. Innerhalb einer Reise gibt es noch keine Unterseiten mit Zurück-Geste (§4.2 Absatz 2). Blätter, Zieh-Griffe, Schriftskalierung und allgemeine Touchziele bearbeitet ein paralleles Modul.
+
+Nächster Schritt: Sichtprüfung auf dem iPhone (Home-Indikator, Tastatur über der Tab-Leiste), danach Zusammenführung mit dem parallelen P0.5-Modul.
+
 ## P0.6: App-Code aus index.html aufgeteilt (Claude, 18.10., lokal)
 
 `index.html` ist jetzt nur noch das Seitengerüst (≈ 6 KB). Das Stylesheet liegt in `app.css`, der App-Code in 17 Teilen unter `app/` (Grundlagen, Reise, v3, Aufteilung, Kosten, Unterwegs, Zahlungsbuch, Speicher, Routing, Ansichten, Blätter, Ereignisse, Konto, Entdecken, Tagesplan, Tagebuch, Start). Kein Bundler: gewöhnliche Skripte mit `"use strict"`, gemeinsamer globaler Bereich statt der bisherigen umschließenden Funktion, Ladereihenfolge aus `index.html`. Inhalt unverändert: Die Teile ergeben zusammengesetzt genau den bisherigen Code; vorab geprüft, dass beim Laden kein Teil auf einen späteren zugreift und keine Namen mit Browser-Globalen oder anderen Skripten kollidieren. Speicherformat und `window.__app` unverändert.

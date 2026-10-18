@@ -20,6 +20,7 @@ Object.assign(window.__app,{ledgerBalanceText});
 Object.assign(window.__app,{TEMPLATE_GROUPS,templateGroups,tplButtons,templatePreview,templatePreviewHtml,sheetTemplate,commitTemplatePreview});
 Object.assign(window.__app,{catDbAll,catalogQuery,CAT_RANK_MAX});
 Object.assign(window.__app,{V3S,splitValidate,splitPostings,splitResult,splitSection,splitRetro,splitCheck,splitCandidate,splitPreview,splitController,splitForm,splitSheet});
+Object.assign(window.__app,{NAV_DEF,runningTrips,navItems,navActive,navHtml,renderNav,navFocus,heuteLinks,vHeute,memoriesData,vErinnerungen,kontoDarstellung}); /* Navigation P0.5 */
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

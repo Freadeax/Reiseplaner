@@ -592,8 +592,8 @@ function rainBlock(t,i){
   const ideas=rainIdeas(t,i,3);if(!ideas.length)return '';
   return '<details class="panel"><summary><b>Plan B bei schlechtem Wetter</b> <small class="muted">'+ideas.length+' Ideen drinnen</small></summary><ul class="plain">'+ideas.map(a=>'<li>'+esc(a.t)+' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>'+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(a.warn?'<br><small class="muted">! '+esc(a.warn)+'</small>':'')+' <button type="button" class="lnk noprint" data-act="rain-plan" data-val="'+esc(a.id)+'|'+i+'">Einplanen</button></li>').join('')+'</ul><p class="small muted">Nur Ideen aus dem Katalog mit Merkmal „drinnen“. Öffnung und Wetter selbst prüfen.</p></details>';
 }
-function todayBlock(t){
-  const ph=tripPhase(t);if(!ph||ph.phase!=='unterwegs')return '';
+function todayBlock(t,now){
+  const ph=tripPhase(t,now);if(!ph||ph.phase!=='unterwegs')return '';
   const days=daysOf(t),d=days[ph.day],next=days[ph.day+1],last=days.length-1;
   const L=dayLoad(t)[ph.day],ru=dayRouteUrl(t,ph.day);
   /* Draußen-Ideen aus dem Katalog: direkter Weg zum Regenzwilling im Punkt-Blatt (Tausch dort geschützt) */
@@ -642,8 +642,8 @@ function vReise(){
 function render(){
   const v=$('#view');
   try{
-    v.innerHTML=storageRecoveryBlock()+(UI.view==='neu'?vNeu():UI.view==='reise'?vReise():UI.view==='konto'?vKonto():UI.view==='entdecken'?vEntdecken():vReisen());
-    document.querySelectorAll&&document.querySelectorAll('.app-nav [data-go]').forEach(b=>{if(b.getAttribute('data-go')===(UI.view==='entdecken'?'entdecken':UI.view==='konto'?'konto':'reisen'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+    v.innerHTML=storageRecoveryBlock()+(UI.view==='neu'?vNeu():UI.view==='reise'?vReise():UI.view==='konto'?vKonto()+kontoDarstellung():UI.view==='entdecken'?vEntdecken():UI.view==='heute'?vHeute():UI.view==='erinnerungen'?vErinnerungen():vReisen());
+    renderNav();
     renderDock();
   }catch(err){
     console.error('Reiseplaner: Ansicht konnte nicht aufgebaut werden',err);
@@ -652,7 +652,7 @@ function render(){
   }
 }
 function renderDock(){
-  const t=cur(), d=$('#dock');
+  const t=UI.view==='reise'?cur():null, d=$('#dock');
   if(!t){d.hidden=true;return}
   const c=cost(t), b=num(t.budget,0);
   d.hidden=false;$('#dock-nm').textContent=t.title;$('#dock-sum').textContent=eur(c.total)+(b?' / '+eur(b):'');
