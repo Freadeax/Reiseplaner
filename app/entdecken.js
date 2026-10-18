@@ -213,7 +213,7 @@ function catMap(list,origin){
   return '<figure class="catmap"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Lage der Ziele rund um den Abfahrtsort; Nummern wie in der Liste">'+
    L.rings.map(r=>'<circle cx="'+L.origin.x+'" cy="'+L.origin.y+'" r="'+r.r.toFixed(1)+'" class="ring"/><text x="'+(L.origin.x+3)+'" y="'+(L.origin.y-r.r+11).toFixed(1)+'" class="rl">'+r.km+' km</text>').join('')+
    '<circle cx="'+L.origin.x+'" cy="'+L.origin.y+'" r="5" class="home"/>'+
-   L.points.map((q,i)=>'<a href="#cat-card-'+esc(q.id)+'" data-act="cat-open" data-val="'+esc(q.id)+'"><circle cx="'+q.x+'" cy="'+q.y+'" r="9" class="pt"/><text x="'+q.x+'" y="'+(q.y+3.5)+'" class="pn">'+(i+1)+'</text></a>').join('')+
+   L.points.map((q,i)=>'<a href="#cat-card-'+esc(q.id)+'" data-act="cat-open" data-val="'+esc(q.id)+'" aria-label="'+esc((i+1)+': '+((list[i]&&list[i].place&&list[i].place.name)||'Ziel')+' öffnen')+'"><circle cx="'+q.x+'" cy="'+q.y+'" r="9" class="pt"/><text x="'+q.x+'" y="'+(q.y+3.5)+'" class="pn">'+(i+1)+'</text></a>').join('')+
    '</svg><figcaption class="small muted">Luftlinien-Kreise um euren Start (●). Nummer antippen öffnet das Ziel.'+(more?' Die Karte zeigt die ersten 20 Ziele der Liste.':'')+'</figcaption></figure>';
 }
 /* Zwölf Monate mit Text, nicht nur Farbe */

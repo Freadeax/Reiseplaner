@@ -20,6 +20,7 @@ Object.assign(window.__app,{ledgerBalanceText});
 Object.assign(window.__app,{TEMPLATE_GROUPS,templateGroups,tplButtons,templatePreview,templatePreviewHtml,sheetTemplate,commitTemplatePreview});
 Object.assign(window.__app,{catDbAll,catalogQuery,CAT_RANK_MAX});
 Object.assign(window.__app,{V3S,splitValidate,splitPostings,splitResult,splitSection,splitRetro,splitCheck,splitCandidate,splitPreview,splitController,splitForm,splitSheet});
+Object.assign(window.__app,{sheetDragDecision,sheetGripBind,fieldHidden,keepFieldVisible}); /* P0.5 iOS-Gestaltungsregeln */
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

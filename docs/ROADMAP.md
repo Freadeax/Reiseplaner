@@ -1,5 +1,9 @@
 # Roadmap
 
+## P0.5 Modul B iOS-Gestaltungsregeln · 18.10.2026
+
+Lokal auf Branch `p05-design`: Blätter mit Zieh-Griff und Schließen-Knopf, Tastatur hält das Feld sichtbar, sichere Bereiche auch seitlich, Schrift bis 200 % ohne seitliches Scrollen (Chromium geprüft), Namen für Kartenpunkte. Offen: Zusammenführen mit Modul A (Navigation), Kopfleiste bei 200 % erneut prüfen, iPhone-/WebKit-Test (sichere Bereiche, Tastatur, VoiceOver, Dynamic Type).
+
 ## Lokaler Ordner statt Git · 18.10.2026
 
 Seit 17.10. entwickelt Claude direkt in `F:\LMNT\Reiseplaner` (Philipp: Actions-Kontingent aufgebraucht), ohne Commits und Pushes, und allein ohne ChatGPT. Fertig und geprüft, aber nicht veröffentlicht: P0.2a Mitreisende/Ausgaben/Aufteilung, P0.2b Reisetagebuch und Bewertungen, P0.4 Speicheradapter mit IndexedDB-Zweitkopie, P0.7 Anmeldung per E-Mail-Code, dazu zwei Prüfrunden mit Korrekturen (Details in STATUS). Nächste Schritte: (1) Philipps Sichtprüfung im Browser, (2) Vorlage „Magic Link“ in der Produktion um `{{ .Token }}` ergänzen, (3) nach Freigabe von Git Commit auf `main` und CI, (4) P0.5 iOS-Navigation/Gestaltungsregeln, (5) Obergrenze der Reisedauer prüfen. P0.6 (`index.html` in `app/*.js` und `app.css` aufgeteilt) ist am 18.10. lokal erledigt.

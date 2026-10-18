@@ -3,7 +3,7 @@
 .season{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;max-width:420px}.season span{text-align:center;font:600 .72rem var(--f-mono);padding:4px 0;border-radius:4px;background:var(--surface-2);color:var(--muted);display:flex;flex-direction:column;line-height:1.1}.season span.on{background:var(--spruce-soft);color:var(--spruce);outline:1px solid var(--spruce)}.season i{font-style:normal;font-size:.62rem}
 .cmp th[scope=row]{text-align:left;font-weight:600;white-space:nowrap;position:sticky;left:0;background:var(--bg);z-index:1}.cmp td,.cmp th{vertical-align:top;min-width:9rem}.yearbar{display:inline-block;height:8px;border-radius:4px;background:var(--spruce);vertical-align:middle;opacity:.55}.dhead{flex-wrap:wrap}.dload{flex-basis:100%;font:600 .68rem var(--f-mono);color:var(--muted);line-height:1.35}.dload.over{color:var(--bad)}.dtools{flex-basis:100%;display:flex;gap:4px;flex-wrap:wrap}.dtools .lnk{min-height:32px;padding:4px 8px;font-size:.8rem}
 .finder-hero{background:var(--spruce-soft);padding:24px;border:1px solid var(--line);border-radius:var(--r)}.criteria{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:16px 0}.profile-chip{display:inline-flex;gap:4px}.tbl td{max-width:260px;overflow-wrap:anywhere}.finder-hero .badge{white-space:normal}input,select,textarea{max-width:100%}.sheet .form{margin-bottom:12px}
-:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:.875rem -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 /* Layout: App mit Kopfleiste. Reise-Bereiche als Wegweiser-Reiter. Raster für Unterkünfte, Unternehmungen und Tagesplan. Details öffnen als Blatt von unten. */
 :root{
   --bg:#F7F4EE; --surface:#FFFEFB; --surface-2:#EDEBE2; --surface-3:#DDDCD0;
@@ -33,7 +33,7 @@
   --c1:#8CC2CF; --c2:#5FA3B5; --c3:#E0B93A; --c4:#A79BE0; --c5:#5CC487; --c6:#E8925F; --c7:#7E8D99; color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.5;margin:0}
 .wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:12px 110px}
 h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.05;margin:0}
 h1{font-size:clamp(2.2rem,7vw,3.4rem);font-weight:700}
@@ -442,3 +442,28 @@ ul.rp-rates>li{display:flex;flex-direction:column;gap:6px;min-width:0}
 .rp-mood .opt{display:inline-flex;align-items:center;gap:8px}
 .rp-mood .opt:has(input:checked){border-color:var(--spruce);box-shadow:inset 0 0 0 2px var(--spruce)}
 .rp-mood input{width:20px;height:20px;flex:none;accent-color:var(--spruce)}
+/* P0.5 iOS-Gestaltungsregeln (PLAN_IOS_APP.md §4.3): sichere Bereiche, Zieh-Griff, Tippflächen, Schrift bis 200 %.
+   Kopfleiste und Hauptnavigation (.top, .app-nav) sind bewusst nicht Teil dieses Abschnitts. */
+:root{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+body{overflow-wrap:break-word}
+h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
+.sheet-bg{top:var(--rp-vvtop,0px);bottom:auto;height:var(--rp-vvh,100%)}
+.sheet{position:relative;max-height:calc(var(--rp-vvh,100vh) * .88);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.sheet-grip{display:flex;justify-content:center;align-items:center;align-self:stretch;flex:none;height:28px;margin:-14px 0 -12px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.sheet-grip span{display:block;width:40px;height:5px;border-radius:3px;background:var(--muted);opacity:.6}
+.sheet.dragging{transition:none!important}
+.sheet .x{min-height:44px;min-width:44px;font-size:.8rem}
+@media (prefers-reduced-motion:no-preference){.sheet{transition:transform .18s ease-out}}
+@media (min-width:760px){.sheet-grip{display:none}.sheet{max-height:calc(var(--rp-vvh,100vh) * .84)}}
+/* Das Dock steht auf dem Bildschirm im Seitenfluss und erbt damit die seitlichen Abstände von :root; als feste Leiste (Grundregel) eigene Abstände. */
+.dock{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media screen{
+ .dock .in{min-width:0}.dock .sum{white-space:normal;min-width:0}.dock .nm{min-width:0}
+ .kpi{min-width:0}.kpi small,.kpi b{overflow-wrap:anywhere}
+ .trip-content .kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))}
+ .mood-preset b,.mood-preset small{overflow-wrap:anywhere}
+ .template-heading>div{min-width:0}
+ .area-picker{flex-wrap:wrap}.area-picker select{flex:1 1 10rem}
+}
+@media screen and (min-width:601px){.trip-content .kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr))}}
+@media screen and (max-width:600px){.trip-actions{grid-template-columns:repeat(auto-fit,minmax(min(100%,4.5rem),1fr))}}
