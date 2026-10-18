@@ -2,7 +2,7 @@
    Node-Prüfung; sichtbare Bedienung wird in tests/browser.cjs geprüft. */
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const C=require('../catalog.js');
-const code=fs.readFileSync(__dirname+'/../index.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);",'');
+const code=require("./app-code.cjs")(fs.readFileSync(__dirname+'/../index.html','utf8')).replace("go(location.hash||'reisen',true);",'');
 const dataCtx={window:{}};vm.createContext(dataCtx);vm.runInContext(fs.readFileSync(__dirname+'/../catalog-data.js','utf8'),dataCtx);
 const DATA=dataCtx.window.RP_CATALOG;
 function load(values={}){

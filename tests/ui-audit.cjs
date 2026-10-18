@@ -23,7 +23,7 @@ const pw = loadPlaywright();
 if (!pw) { console.log('UI-Prüfung übersprungen: Playwright nicht installiert.'); process.exit(0); }
 const ROOT = path.join(__dirname, '..');
 const OUT = process.env.SHOT_DIR || '';
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.json': 'application/json' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.json': 'application/json' };
 
 function serve() {
   return new Promise(resolve => {

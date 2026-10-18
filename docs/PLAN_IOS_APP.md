@@ -257,7 +257,7 @@ Grundregel für die Aufteilung (wie bisher):
 | P0.3 | Kontolöschung und Kontoexport (Datenbankfunktion, Eigentümerwechsel oder Löschung geteilter Reisen) | Claude | test:db und e2e, App-Store-Anforderung erfüllt |
 | P0.4 | Speicheradapter `RPStore` mit IndexedDB und Migration von `rp-trips` | Claude | Migrationstests, Browser-Test, `rp-trips` bleibt erhalten |
 | P0.5 | iOS-Gestaltungsregeln §4.3 und Navigation §4.2 im Web | ChatGPT | 320/390 px, Schrift 200 %, WebKit-Test |
-| P0.6 | `index.html` schrittweise in Dateien teilen (ohne Bundler, gleiche `window.__app`-Schnittstelle) | beide, je eigener Bereich | alle Tests unverändert grün |
+| P0.6 | `index.html` schrittweise in Dateien teilen (ohne Bundler, gleiche `window.__app`-Schnittstelle) | beide, je eigener Bereich | alle Tests unverändert grün · **18.10. lokal erledigt:** `app.css` und 17 Teile in `app/*.js` |
 | P0.7 | E-Mail-Code-Anmeldung (OTP) zusätzlich zum Link | Claude | e2e mit lokalem Supabase |
 
 ### P1 · App-Hülle (braucht Apple-Konto erst für TestFlight)

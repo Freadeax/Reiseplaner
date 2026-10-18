@@ -4,7 +4,7 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-const code = html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);", '');
+const code = require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);", '');
 
 /* Nachgebildeter Server */
 function fakeServer() {

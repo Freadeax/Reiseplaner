@@ -115,8 +115,8 @@ async function until(fn, what, ms) { const end = Date.now() + (ms || 2000); whil
 
 /* ---------- echte App (index.html) mit RPStore im vm-Kontext, wie tests/sync.cjs ---------- */
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-const code = html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);", '');
-assert(/<script src="rpstore\.js"><\/script>\s*<script>/.test(html), 'rpstore.js wird vor dem App-Skript geladen');
+const code = require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);", '');
+assert(/<script src="rpstore\.js"><\/script>\s*<script src="app\//.test(html), 'rpstore.js wird vor dem App-Code geladen');
 function app(w, opts) {
   opts = opts || {};
   const R = store(w, opts.env);
@@ -417,7 +417,7 @@ process.on('exit', () => { if (!finished) { console.error('tests/rpstore.cjs: ni
     assert.equal(K.Store.list().length, 0); assert.equal(wa.ls.getItem('rp-u:uK'), null);
     /* forgetScope (genutzt von Abmelden und Kontolöschung) lehnt den Gastbereich ab */
     assert.equal(await K.Store.forgetScope('guest'), false); assert(wa.ls.getItem('rp-trips'));
-    const del = html.match(/async function deleteAccountDo[\s\S]*?\n}\n/)[0], so = html.match(/async signOut\(force\)\{[\s\S]*?\n  \}/)[0];
+    const del = code.match(/async function deleteAccountDo[\s\S]*?\n}\n/)[0], so = code.match(/async signOut\(force\)\{[\s\S]*?\n  \}/)[0];
     assert(/Store\.forgetScope\(scope\)/.test(del) && /Store\.forgetScope\(scope\)/.test(so), 'Abmelden und Kontolöschung nutzen forgetScope');
     assert(!/removeItem\('rp-u:'/.test(del + so), 'kein Kontolöschweg nur an localStorage vorbei');
   }

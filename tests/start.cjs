@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm');
-const s=fs.readFileSync(__dirname+'/../index.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
+const s=require("./app-code.cjs")(fs.readFileSync(__dirname+'/../index.html','utf8'));
 const els=Object.fromEntries(['#view','#sheet-root','#dock','#sync','#dock-nm','#dock-sum','#dock-bar'].map(k=>[k,{innerHTML:'',style:{},querySelector(){return {textContent:'',style:{}}}}]));
 const ctx={window:{addEventListener(){},scrollTo(){}},location:{hash:''},history:{replaceState(){}},document:{addEventListener(){},querySelector(k){return els[k]||null},createElement(){return {setAttribute(){},style:{}}},body:{appendChild(){}}},localStorage:{getItem(){return null},setItem(){}},setTimeout,clearTimeout,console};
 vm.createContext(ctx);vm.runInContext(s,ctx);
@@ -37,7 +37,8 @@ assert.equal(app.appearanceValue('<script>'),'book');
 assert.equal(app.appearanceValue(null),'book');
 // Reload reads the saved preference before the first route render.
 ctx.localStorage.getItem=key=>key==='rp-appearance'?'studio':null;
-vm.runInContext(s,ctx);
+/* Neuladen = neuer globaler Bereich (seit P0.6 liegen die App-Namen global); window, document und Speicher bleiben dieselben Objekte. */
+const reload=vm.createContext(Object.assign({},ctx));vm.runInContext(s,reload);
 assert.equal(ctx.document.documentElement['data-layout'],'studio');
 const fresh=ctx.window.__app;
 fresh.appearanceSheet();

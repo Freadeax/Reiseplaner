@@ -8,7 +8,7 @@ Ein Reiseplaner für alle, für Ausflüge, Wochenenden und längere Reisen. Er v
 
 **Website:** online unter `https://freadeax.github.io/Reiseplaner/`, verbunden mit dem Supabase-Projekt. Am 14.10.2026 abends geprüft: Live-`config.js` mit `.supabase.co`, Katalog kommt aus der Datenbank. Philipp bestätigt einen erfolgreichen eigenen iPhone-Test. SMTP und konkrete externe Kontoabnahme bleiben offen. Aktuelle Betriebsgrenzen stehen in [docs/STATUS.md](docs/STATUS.md).
 
-Die App bleibt buildlos: `index.html` plus `config.js` und `cloud.js`. Lokal im Browser öffnen oder einen kleinen Webserver starten:
+Die App bleibt buildlos: `index.html` lädt `app.css`, `config.js`, `cloud.js`, die Fachmodule und den App-Code in `app/*.js` als gewöhnliche Skripte. Lokal im Browser öffnen oder einen kleinen Webserver starten:
 
 ```bash
 python3 -m http.server 8000
@@ -135,7 +135,9 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 
 | Pfad | Inhalt |
 | --- | --- |
-| `index.html` | Aktuelle App, einschließlich CSS und JavaScript (Fachlogik, Speicher, Abgleich, Oberfläche) |
+| `index.html` | Seitengerüst; lädt Stylesheet und Skripte in fester Reihenfolge |
+| `app.css` | Gesamtes Stylesheet der App |
+| `app/*.js` | App-Code in 17 Teilen (seit P0.6, 18.10.): `basis` … `start`. Klassische Skripte ohne Bundler, gemeinsamer globaler Bereich, Ladereihenfolge aus `index.html`; ein Teil darf beim Laden nur auf frühere Teile zugreifen. Tests laden sie über `tests/app-code.cjs` |
 | `cloud.js` | Einziger Supabase-Zugriff (Auth, Reisen, Freigaben, Katalogsuche) |
 | `catalog.js` | Rechenregeln des Umkreis-Katalogs (Entfernung, Bereich, Bewertung, Stopps, Tagesgerüst) |
 | `catalog-data.js` | Katalogdaten, einzige Quelle; daraus erzeugt `scripts/catalog-sql.mjs` die Seed-Migration |

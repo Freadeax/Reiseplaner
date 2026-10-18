@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const {webcrypto}=require('crypto');
-const script=fs.readFileSync(__dirname+'/../index.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
+const script=require("./app-code.cjs")(fs.readFileSync(__dirname+'/../index.html','utf8')).replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
 const memory=new Map();const ctx={crypto:webcrypto,TextEncoder,TextDecoder,btoa,atob,window:{addEventListener(){}},document:{addEventListener(){},querySelector(){return null;},createElement(){return {style:{},setAttribute(){}}},body:{appendChild(){}}},localStorage:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)},setTimeout:()=>0,clearTimeout(){},console};
 vm.createContext(ctx);vm.runInContext(script,ctx);const a=ctx.window.__app;
 (async()=>{

@@ -6,7 +6,7 @@ const vm = require('vm');
 const assert = require('assert');
 const cloudSrc = fs.readFileSync(__dirname + '/../cloud.js', 'utf8');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-const appSrc = html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);", '');
+const appSrc = require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);", '');
 
 const apiErr = (msg, status, code) => Object.assign(new Error(msg), { name: 'AuthApiError', status, code });
 const netErr = () => Object.assign(new Error('Failed to fetch'), { name: 'AuthRetryableFetchError', status: 0 });

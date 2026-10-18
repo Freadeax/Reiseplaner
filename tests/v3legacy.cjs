@@ -2,7 +2,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const html=fs.readFileSync(__dirname+'/../index.html','utf8');
 function load(enabled){
- let code=html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
+ let code=require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
  code=code.replace('function render(){','function render(){return;').replace('function closeSheet(){','function closeSheet(){return;');
  code=code.replace('const V3_EDIT=true;','const V3_EDIT=false;'); /* produktiv true seit 16.10.; gesperrter Rückfall wird weiter geprüft */
  if(enabled)code=code.replace('const V3_EDIT=false;','const V3_EDIT=true;');

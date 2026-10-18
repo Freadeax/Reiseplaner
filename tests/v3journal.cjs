@@ -110,7 +110,7 @@ const C = x => JSON.parse(JSON.stringify(x));
 /* ---------- 2. App: index.html in Node ---------- */
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 assert(html.includes('<script src="v3journal.js"></script>'), 'Skript eingebunden');
-const main = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const main = require("./app-code.cjs")(html);
 function load(opt = {}) {
   let code = main.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '')
     .replace('function render(){', 'function render(){window.__renders=(window.__renders||0)+1;return;')

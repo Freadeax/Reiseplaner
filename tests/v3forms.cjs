@@ -49,7 +49,7 @@ const view={label:'Test',math:{cost:null,netPaid:0,open:null,refundOpen:null,ref
 const preview=F.financialPreview(view,view);assert(preview.includes('unbekannt'));assert(preview.includes('0,00'));assert(!preview.includes('<script>'));
 /* Eingaben durch die echten App-Kandidaten führen, ohne Speichern oder Freischaltung. */
 const fs=require('fs'),vm=require('vm');
-let code=fs.readFileSync(__dirname+'/../index.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
+let code=require("./app-code.cjs")(fs.readFileSync(__dirname+'/../index.html','utf8'));
 code=code.replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','').replace('const V3_EDIT=true;','const V3_EDIT=false;'); /* gesperrtes Rückfall-Gate */
 const cache=new Map(),ctx={
  window:{addEventListener(){},RPV3:require('../v3logic.js'),RPCatalog:require('../catalog.js')},

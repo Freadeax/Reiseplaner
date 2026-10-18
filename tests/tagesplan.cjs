@@ -6,7 +6,7 @@ const path = require('path');
 const assert = require('assert');
 const C = require('../catalog.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+let code = require("./app-code.cjs")(html);
 code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 const win = { addEventListener() {}, RPCatalog: C };
 const ctx = { window: win, document: { addEventListener() {}, querySelector() { return null; }, querySelectorAll() { return []; }, createElement() { return { setAttribute() {}, style: {} }; }, body: { appendChild() {} }, head: { appendChild() {} } },

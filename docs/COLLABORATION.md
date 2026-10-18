@@ -9,7 +9,8 @@ Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in 
 - **Arbeitsmodus seit 17.10.2026 (Philipp):** Claude arbeitet allein; ChatGPT pausiert. Entwickelt wird direkt im Ordner `F:\LMNT\Reiseplaner` auf Philipps Rechner, **ohne Git** (Actions-Kontingent aufgebraucht). Der Ordner ist damit neuer als `main` (Ausgangsstand `1a468de`); bis Git wieder freigegeben ist, nicht von `main` aus weiterarbeiten.
 - **Zuletzt erledigt (Claude, 17./18.10., nicht veröffentlicht):** P0.2a Mitreisende/Ausgaben/Aufteilung (`v3split.js`), P0.2b Tagebuch/Bewertungen (`v3journal.js`), P0.4 Speicheradapter (`rpstore.js`), P0.7 E-Mail-Code (`cloud.js`), zwei Prüfrunden mit Korrekturen (u. a. Zahlungsbuch: Bezahlt nie unter den Erstattungen). Service Worker v12.
 - **Tests:** `npm test`, `test:browser`, lokal `test:db` und `test:e2e` grün, Build und Artefaktprüfung bestanden. Kein iPhone-/Safari-Test.
-- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). Danach P0.5 und P0.6, beide jetzt bei Claude.
+- **P0.6 erledigt (18.10., lokal):** App-Code aus `index.html` in `app/*.js` (17 Teile) und `app.css` verschoben, inhaltlich unverändert; Service Worker v13; Build hängt `?v=<Hash>` an.
+- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). Als Nächstes P0.5 (Claude).
 
 ## Verbindlicher Ablauf für jede Änderung
 
@@ -24,7 +25,7 @@ Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in 
 
 - GitHub-Issues sind der asynchrone Abstimmungskanal für Arbeitspakete, Fragen und Konflikte. Keine privaten Reisedaten, Zugangsdaten oder Sicherungsdateien posten; das Repo ist öffentlich.
 - `docs/STATUS.md` beschreibt den überprüften Ist-Stand; `docs/ROADMAP.md` die nächsten Vorhaben. Nicht erledigte Punkte nicht als fertig markieren.
-- `index.html` ist die maßgebliche App-Datei. Ein Chat-Anhang ist erst dann neuer Projektstand, wenn sein Unterschied geprüft, getestet und auf `main` committed wurde.
+- `index.html` mit `app.css` und `app/*.js` ist die maßgebliche App (seit P0.6 aufgeteilt; Bereiche siehe README). Ein Chat-Anhang ist erst dann neuer Projektstand, wenn sein Unterschied geprüft, getestet und auf `main` committed wurde.
 - Wer eine Änderung beginnt, verantwortet ihren Test, Push und eine lesbare Übergabe. Philipp entscheidet bei Produkt- oder Prioritätskonflikten.
 
 Diese Regeln koordinieren parallele Arbeit, garantieren aber keine automatische Echtzeit-Kommunikation zwischen den KI-Diensten. Wer Claude oder ChatGPT eine neue Aufgabe gibt, verweist auf dieses Dokument und das betreffende GitHub-Issue.

@@ -9,13 +9,16 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { checkArtifact } from './check-artifact.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public');
-const FILES = ['index.html', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3split.js', 'rpstore.js', 'v3journal.js', 'catalog-data.js',
+const FILES = ['index.html', 'app.css', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3split.js', 'rpstore.js', 'v3journal.js', 'catalog-data.js',
   'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt'];
 /* Kachel-Katalog: Index und Kacheln (nicht die Quelle catalog/src) */
+/* App-Code seit P0.6 in app/*.js */
+FILES.push(...(await fs.readdir(path.join(root, 'app'))).filter(f => /^[a-z0-9-]+\.js$/.test(f)).sort().map(f => 'app/' + f));
 FILES.push('catalog/index.js', ...(await fs.readdir(path.join(root, 'catalog'))).filter(f => /^t-[a-z0-9]+\.js$/.test(f)).sort().map(f => 'catalog/' + f));
 
 const env = process.env;
@@ -42,6 +45,7 @@ if (!/^\/([A-Za-z0-9._-]+\/)*$/.test(base)) fail('RP_BASE_PATH muss mit / beginn
 await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(path.join(out, 'vendor'), { recursive: true });
 await fs.mkdir(path.join(out, 'catalog'), { recursive: true });
+await fs.mkdir(path.join(out, 'app'), { recursive: true });
 for (const f of FILES) await fs.copyFile(path.join(root, f), path.join(out, f));
 
 const commit = (env.GITHUB_SHA || '').slice(0, 12);
@@ -49,6 +53,19 @@ await fs.writeFile(path.join(out, 'config.js'),
   '/* Erzeugt von scripts/build.mjs. Nur öffentliche Werte. */\n' +
   'window.RP_CONFIG = ' + JSON.stringify({ supabaseUrl: url, supabaseKey: key, siteUrl: site || undefined }, null, 2) + ';\n' +
   'window.RP_BUILD = ' + JSON.stringify({ commit, builtAt: new Date().toISOString() }) + ';\n');
+/* Cache-Bust: Lokale Skripte und das Stylesheet bekommen ?v=<Inhaltshash>, damit Browser- und CDN-Caches
+   nach einer neuen Version keine alten Einzeldateien mit neuen mischen (seit P0.6 besteht die App aus vielen Dateien). */
+{
+  const idx = path.join(out, 'index.html');
+  let html = await fs.readFile(idx, 'utf8');
+  const hashes = new Map();
+  for (const m of html.matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)="([^"#?:]+\.(?:js|css))"/g)) {
+    if (hashes.has(m[1])) continue;
+    hashes.set(m[1], createHash('sha256').update(await fs.readFile(path.join(out, m[1]))).digest('hex').slice(0, 10));
+  }
+  html = html.replace(/(<(?:script|link)\b[^>]*?\b(?:src|href)=")([^"#?:]+\.(?:js|css))"/g, (all, pre, f) => pre + f + '?v=' + hashes.get(f) + '"');
+  await fs.writeFile(idx, html);
+}
 /* GitHub Pages: keine Jekyll-Verarbeitung. Unbekannte Pfade zurück zur App (Hash-Routing). */
 await fs.writeFile(path.join(out, '.nojekyll'), '');
 await fs.writeFile(path.join(out, '404.html'),

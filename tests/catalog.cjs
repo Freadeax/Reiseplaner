@@ -217,7 +217,7 @@ assert(DATA.places.length >= 80 && countries.size >= 10, 'Katalog v2: mehr Ziele
 
 /* App: Übernahme in eine Reise, Kosten „Preis offen“, Plan-Check, Sicherung bleibt gültig */
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+let code = require("./app-code.cjs")(html);
 code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 const win = { addEventListener() {}, RPCatalog: C, RP_CATALOG: DATA };
 /* Skript-Nachladen (Index, Kacheln) wie im Browser: Datei im selben Kontext ausführen, dann onload/onerror.

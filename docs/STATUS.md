@@ -1,5 +1,15 @@
 # Projektstand · 18.10.2026
 
+## P0.6: App-Code aus index.html aufgeteilt (Claude, 18.10., lokal)
+
+`index.html` ist jetzt nur noch das Seitengerüst (≈ 6 KB). Das Stylesheet liegt in `app.css`, der App-Code in 17 Teilen unter `app/` (Grundlagen, Reise, v3, Aufteilung, Kosten, Unterwegs, Zahlungsbuch, Speicher, Routing, Ansichten, Blätter, Ereignisse, Konto, Entdecken, Tagesplan, Tagebuch, Start). Kein Bundler: gewöhnliche Skripte mit `"use strict"`, gemeinsamer globaler Bereich statt der bisherigen umschließenden Funktion, Ladereihenfolge aus `index.html`. Inhalt unverändert: Die Teile ergeben zusammengesetzt genau den bisherigen Code; vorab geprüft, dass beim Laden kein Teil auf einen späteren zugreift und keine Namen mit Browser-Globalen oder anderen Skripten kollidieren. Speicherformat und `window.__app` unverändert.
+
+Mitgezogen: `tests/app-code.cjs` setzt die Teile für die Node-Tests in derselben Reihenfolge zusammen (24 Testdateien umgestellt; `tests/start.cjs` nutzt für das Neuladen einen frischen globalen Bereich wie der Browser). Browsertest prüft neu, dass `app.css` geladen und angewendet wird. Service Worker `reiseplaner-v13` mit den neuen Dateien. `scripts/build.mjs` kopiert `app.css` und `app/` und hängt an lokale Skripte und das Stylesheet `?v=<Inhaltshash>`, damit nach einer neuen Version keine alten Einzeldateien mit neuen gemischt werden. `check-artifact.mjs` prüft, dass jede eingebundene lokale Datei im Artefakt liegt.
+
+Tests (18.10., Cloud-Container): `npm test` (27 Dateien), `npm run test:browser` (Chromium), lokal `REQUIRE_DB=1 npm run test:db` und `npm run test:e2e`, `npm run build`, `check:artifact` grün. Nicht getestet: iPhone, Safari/WebKit, Philipps Windows-Rechner.
+
+Hinweis für Entwicklung: Neue App-Funktionen in den passenden Teil unter `app/` schreiben; ein Teil darf beim Laden nur auf frühere Teile zugreifen. Die App direkt als Datei (`file://`) zu öffnen bleibt möglich, empfohlen ist `py -m http.server 8000`.
+
 ## Vier Pakete lokal fertig, noch nicht veröffentlicht (Claude, 17./18.10.)
 
 **Arbeitsmodus (Philipp, 17.10.):** Entwicklung direkt im Ordner `F:\LMNT\Reiseplaner` auf Philipps Rechner, ohne Git und GitHub, weil das Actions-Kontingent des Monats aufgebraucht ist. Ausgangsstand `1a468de`. Nichts davon ist committet, gepusht oder auf GitHub Pages; die Website zeigt weiter den alten Stand. ChatGPT pausiert, Claude arbeitet allein und in parallelen Modulen.

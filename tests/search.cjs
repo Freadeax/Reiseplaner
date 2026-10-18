@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const html=fs.readFileSync(__dirname+'/../index.html','utf8');
-let code=html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
+let code=require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','');
 const memory=new Map(),callbacks={},elements={};
 const ctx={window:{addEventListener(){}},document:{addEventListener(k,fn){(callbacks[k]||=[]).push(fn)},querySelector(k){return elements[k]||null},createElement(){return {style:{},setAttribute(){}}},body:{appendChild(){}}},localStorage:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)},console,setTimeout:()=>0,clearTimeout(){}};
 vm.createContext(ctx);vm.runInContext(code,ctx);const a=ctx.window.__app;

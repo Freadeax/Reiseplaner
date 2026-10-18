@@ -1,6 +1,6 @@
 /* Isolierter Controller gegen echte App-Kandidaten, keine produktive Freigabe. */
 const assert=require('assert'),fs=require('fs'),vm=require('vm'),E=require('../v3editor.js');
-let code=fs.readFileSync(__dirname+'/../index.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
+let code=require("./app-code.cjs")(fs.readFileSync(__dirname+'/../index.html','utf8'));
 /* Seit 16.10. ist V3_EDIT produktiv true; der erste Kontext prüft das gesperrte Rückfall-Gate, der zweite den freigegebenen Weg. */
 code=code.replace("go(location.hash||'reisen',true);",'').replace('if(Store.corruptRaw===null)Store.connect();','').replace('const V3_EDIT=true;','const V3_EDIT=false;');
 const ctx={window:{addEventListener(){},RPV3:require('../v3logic.js'),RPCatalog:require('../catalog.js')},document:{addEventListener(){},querySelector(){return null},querySelectorAll(){return []}},localStorage:{getItem(){return null}},setTimeout:()=>0,clearTimeout(){},console,alert(){}};

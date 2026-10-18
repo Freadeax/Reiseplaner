@@ -4,7 +4,7 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+let code = require("./app-code.cjs")(html);
 /* Seit 16.10. ist V3_EDIT produktiv true. Dieser Test prüft Rechnung, Rundlauf und den Rückfall-Schreibschutz mit gesperrtem Gate. */
 code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '').replace('const V3_EDIT=true;','const V3_EDIT=false;');
 const store = new Map(), alerts = [];

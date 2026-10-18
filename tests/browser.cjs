@@ -16,7 +16,7 @@ const pw = loadPlaywright();
 if (!pw) { console.log('Browser-Klicktest übersprungen: Playwright nicht installiert.'); process.exit(0); }
 
 const ROOT = path.join(__dirname, '..');
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.json': 'application/json' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.json': 'application/json' };
 function serve() {
   return new Promise(resolve => {
     const srv = http.createServer((req, res) => {
@@ -63,6 +63,8 @@ async function entdecken(browser, base, name, ctxOpts) {
   let geoCalls = 0;
   await p.route(/nominatim\.openstreetmap\.org/, r => { geoCalls++; r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([{ display_name: 'Göppingen, Landkreis Göppingen, Baden-Württemberg, Deutschland', lat: '48.7035', lon: '9.6522' }]) }); });
   await p.goto(base + '/index.html');
+  /* P0.6: Das Stylesheet liegt in app.css und muss geladen und angewendet sein (falscher MIME-Typ ließe es still fallen). */
+  assert(await p.evaluate(() => [...document.styleSheets].some(s => /\/app\.css(\?|$)/.test(s.href || '') && s.cssRules.length > 100) && getComputedStyle(document.querySelector('.skip-link')).position !== 'static'), name + ': app.css angewendet');
   await p.click('header [data-go="entdecken"]');
   await p.waitForSelector('text=Wohin von hier aus?');
   assert.equal(await p.isDisabled('[data-act="cat-search"]'), true, name + ': Suche ohne Abfahrtsort gesperrt');
@@ -916,7 +918,7 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
  p.on('pageerror',e=>errors.push(name+' v3Editor: '+e.message));
  await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
- const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');assert(html.includes('const V3_EDIT=true;'));
+ const v3src=fs.readFileSync(path.join(ROOT,'app','v3.js'),'utf8');assert(v3src.includes('const V3_EDIT=true;'));
  await p.goto(base+'/index.html');
  const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.extraCosts=[{id:'xceditor',t:'Editor-Testposten',c:200}];t.ledger={'xc:xceditor':{status:'gebucht',amount:200,paid:200,due:''}};a.Store.put(t);a.go('r-'+t.id+'-kosten');return t.id});
  const row=()=>p.locator('.ledger').filter({hasText:'Editor-Testposten'});
@@ -985,7 +987,7 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  assert.equal(await p.evaluate(id=>window.__app.Store.get(id).offers[0].refunds.length,id),1);
  /* Rückfall mit gesperrtem Gate (V3_EDIT=false): gelesene v3-Reisen bleiben auch
     in den alten Such-/Angebotshandlern schreibgeschützt und behalten Version 3. */
- await p.route(base+'/index.html',r=>r.fulfill({status:200,contentType:'text/html',body:html.replace('const V3_EDIT=true;','const V3_EDIT=false;')}));await p.reload();assert.equal(await p.evaluate(()=>window.__app.V3_EDIT),false);
+ await p.route(/\/app\/v3\.js(\?|$)/,r=>r.fulfill({status:200,contentType:'text/javascript',body:v3src.replace('const V3_EDIT=true;','const V3_EDIT=false;')}));await p.reload();assert.equal(await p.evaluate(()=>window.__app.V3_EDIT),false);
  await tripTab(p,'suche');const lockedRaw=await p.evaluate(()=>localStorage.getItem('rp-trips'));
  await p.fill('[data-search="destination"]','Nicht speichern');await p.locator('[data-search="destination"]').press('Tab');
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);

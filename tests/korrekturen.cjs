@@ -8,7 +8,7 @@ const J = x => JSON.parse(JSON.stringify(x));
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 function load(opt) {
   opt = opt || {};
-  let code = html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
+  let code = require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
   code = code.replace('function render(){', 'function render(){return;').replace('function openSheet(html){', 'function openSheet(html){window.__sheets.push(html);return;').replace('function closeSheet(){', 'function closeSheet(){return;');
   const memory = new Map(opt.memory || []), dom = {};
   const win = { addEventListener() {}, RPV3: V, RPV3S: S, RPV3J: JM, RPCatalog: require('../catalog.js'), RPV3Forms: require('../v3forms.js'), RPV3Editor: require('../v3editor.js'), __sheets: [] };
@@ -80,7 +80,7 @@ function load(opt) {
   a.Store.setScope('guest'); const g = a.silvesterTemplate(); a.Store.put(g); const y = a.Store.get(g.id); y.title = 'G2'; a.Store.put(y);
   assert.equal(a.historyTrips(JSON.parse(memory.get(a.Store.historyKey()))[0].raw, true).length, 1, 'Gastbereich wie bisher');
   assert.throws(() => a.historyTrips('{"v":2}', false), /Sicherungspunkt ungültig/);
-  assert(/historyTrips\(h\.raw,Store\.scope==='guest'\)/.test(html), 'Download nutzt die Bereichsform');
+  assert(/historyTrips\(h\.raw,Store\.scope==='guest'\)/.test(require('./app-code.cjs')(html)), 'Download nutzt die Bereichsform');
 }
 
 /* ---------- Code-Anmeldung: Schritt gehört zur vorherigen Anmeldung ---------- */

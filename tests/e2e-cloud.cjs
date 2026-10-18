@@ -28,7 +28,7 @@ const PORT = 8080, BASE = 'http://127.0.0.1:' + PORT + '/Reiseplaner/';
 /* Build wie für GitHub Pages, aber mit lokaler Supabase-Konfiguration */
 execSync('node scripts/build.mjs', { cwd: ROOT, env: Object.assign({}, process.env, { RP_SUPABASE_URL: env.API_URL, RP_SUPABASE_PUBLISHABLE_KEY: KEY, RP_BASE_PATH: '/Reiseplaner/' }), stdio: 'ignore' });
 const PUB = path.join(ROOT, 'public');
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.txt': 'text/plain' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.txt': 'text/plain' };
 /* Verhält sich wie GitHub Pages: nur unter /Reiseplaner/, sonst 404.html mit Status 404 */
 const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');

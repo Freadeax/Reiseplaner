@@ -248,7 +248,7 @@ const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 assert(html.includes('<script src="v3split.js"></script>'), 'Skript eingebunden');
 function load(opts) {
   opts = opts || {};
-  let code = html.match(/<script>([\s\S]*?)<\/script>/)[1].replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
+  let code = require("./app-code.cjs")(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
   if (opts.locked) code = code.replace('const V3_EDIT=true;', 'const V3_EDIT=false;');
   const memory = new Map(), win = { addEventListener() {}, RPV3: V, RPCatalog: require('../catalog.js') };
   if (!opts.noModule) win.RPV3S = S;

@@ -4,7 +4,7 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-let code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+let code = require("./app-code.cjs")(html);
 code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 const store = new Map();
 const context = {
