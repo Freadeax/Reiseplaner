@@ -123,6 +123,14 @@ const trip = extra => Object.assign({ id: 't1', title: 'Allgäu', schemaVersion:
   assert.throws(() => V.validateBooks([withText('DE89370400440532013000')], t.media), /IBAN/);
   assert.throws(() => V.validateBooks([book({ subtitle: 'Karte 4111 1111 1111 1111' })], t.media), /Kartennummer in subtitle/);
   assert.throws(() => V.validateBooks([withText('4111111111111111')], t.media), /Kartennummer/);
+  /* weitere verbreitete Formate (Prüfbefund 18.10.) */
+  for (const [txt, re] of [['Amex 3782 822463 10005', /Kartennummer/], ['Amex 378282246310005', /Kartennummer/], ['Diners 3056 930902 5904', /Kartennummer/],
+    ['MC 2221000000000009', /Kartennummer/], ['MC 2221 0000 0000 0009', /Kartennummer/], ['DE89-3704-0044-0532-0130-00', /IBAN/], ['Konto de89 3704 0044 0532 0130 00.', /IBAN/]])
+    assert.throws(() => V.validateBooks([withText(txt)], t.media), re, 'abgelehnt: ' + txt);
+  /* Gegentests Telefonnummern in verschiedenen Schreibweisen (auch Luhn-gültige Ziffernfolgen außerhalb der Kartenformen) */
+  const luhnPhone = '07161 123456 7'; /* Ziffern 071611234567 sind kein Kartenformat */
+  for (const s of ['Tel. +49 7161 1234567', '+49-7161-1234567', '0049 7161 12345678', '07161/123456', luhnPhone, '+43 512 123456789', '(0711) 2222 1000 0000'])
+    assert(V.validateBooks([withText(s)], t.media), 'Telefonnummer nicht gesperrt: ' + s);
   /* keine Fehlalarme: falsche Prüfziffer, Telefonnummer, Datum, Preise */
   for (const s of ['DE89 3704 0044 0532 0130 01', 'Tel. +49 7161 1234567890', '30.12.2026 bis 03.01.2027', 'Eintritt 24,50 €, 2 Personen', '4111 1111 1111 1112'])
     assert(V.validateBooks([withText(s)], t.media), 'kein Fehlalarm: ' + s);

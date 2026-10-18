@@ -114,9 +114,20 @@
       var w = finite(m.w) && m.w > 0 ? m.w : null, h = finite(m.h) && m.h > 0 ? m.h : null;
       return { id: m.id, n: n, day: typeof m.day === 'string' && own(keyOf, m.day) ? keyOf[m.day] : null,
         actId: J.isActId(m.actId) ? m.actId : null, fav: m.fav === true, caption: str(m.caption, LIMITS.caption),
-        takenAt: typeof m.takenAt === 'string' && !isNaN(Date.parse(m.takenAt)) ? new Date(Date.parse(m.takenAt)).toISOString() : null,
+        takenAt: takenKey(m.takenAt),
         orient: w && h ? (h > w ? 'hoch' : 'quer') : 'unbekannt' };
     });
+  }
+  /* Aufnahmezeit als Sortierschlüssel, unabhängig von der Zeitzone des Geräts (Date.parse würde eine Ortszeit ohne
+     Versatz als Gerätezeit lesen). Mit Versatz: echter Zeitpunkt in UTC. Ohne Versatz (Kamera-Ortszeit, SCHEMA_V4 §2):
+     fest als UTC ausgelegt. Grenze: Mischt eine Reise beide Arten, kann sich die Reihenfolge um den Versatz verschieben. */
+  var TAKEN = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d)(?:\.(\d{1,3}))?)?(Z|([+-])(0\d|1[0-4]):([0-5]\d))?$/;
+  function takenKey(v) {
+    var x = typeof v === 'string' && TAKEN.exec(v);
+    if (!x || !validDate(x[1] + '-' + x[2] + '-' + x[3])) return null;
+    var ms = Date.UTC(+x[1], +x[2] - 1, +x[3], +x[4], +x[5], +(x[6] || 0), +((x[7] || '0') + '00').slice(0, 3));
+    if (x[9]) ms -= (x[9] === '-' ? -1 : 1) * (+x[10] * 60 + +x[11]) * 60000;
+    return new Date(ms).toISOString();
   }
   /* Feste Reihenfolge: Aufnahmezeit (bekannte zuerst), dann Position in t.media */
   function byTime(a, b) {
@@ -143,6 +154,8 @@
     if (THEMES.indexOf(theme) < 0) fail('Reisebuch: unbekanntes Thema.');
     if (FORMATS.indexOf(format) < 0) fail('Reisebuch: unbekanntes Format.');
     if (opts.id != null && (typeof opts.id !== 'string' || !ID.test(opts.id))) fail('Reisebuch: ungültige ID.');
+    var bookIds = {}; (Array.isArray(t.books) ? t.books : []).forEach(function (b) { if (b && typeof b.id === 'string') bookIds[b.id] = 1; });
+    if (opts.id != null && own(bookIds, opts.id)) fail('Reisebuch: Die ID „' + opts.id + '“ gibt es in dieser Reise schon.');
     var st = opts.at == null ? null : typeof opts.at === 'string' && STAMP.exec(opts.at);
     if (opts.at != null && (!st || !validDate(st[1]))) fail('Reisebuch: ungültiger Zeitpunkt (UTC, z. B. new Date().toISOString()).');
 
@@ -275,7 +288,10 @@
     pages.forEach(function (p) { p.slots.forEach(function (sl) { used[sl.mediaId] = 1; }); });
     info.unusedMedia = media.filter(function (m) { return !own(used, m.id); }).length;
     var tid = typeof t.id === 'string' ? t.id : '';
-    var book = { id: opts.id || ('bk' + fnv(tid + '|' + RULE)), title: tb.title, subtitle: tb.subtitle, theme: theme, format: format,
+    /* Buch-ID deterministisch aus Reise und Laufnummer: der erste freie Platz neben den vorhandenen t.books */
+    var bookId = opts.id, k = 1;
+    while (!bookId) { var cand = 'bk' + fnv(tid + '|' + RULE + (k > 1 ? '|' + k : '')); if (!own(bookIds, cand)) bookId = cand; else k++; }
+    var book = { id: bookId, title: tb.title, subtitle: tb.subtitle, theme: theme, format: format,
       cover: { mediaId: cover ? cover.id : null }, pages: pages, draft: { rule: RULE, at: opts.at == null ? null : opts.at }, updatedAt: opts.at == null ? null : opts.at };
     return { book: book, info: info };
   }
@@ -283,7 +299,7 @@
   /* ---------- Vorschau als HTML (alles escaped; Bilder nur über eine vom Aufrufer gelieferte, geprüfte Adresse) ---------- */
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function safeUrl(u) { return typeof u === 'string' && /^(https:|blob:|data:image\/(jpeg|png|webp);)/i.test(u) && !/[\s"'<>]/.test(u) ? u : null; }
-  function para(text) { return String(text).split(/\n{2,}/).map(function (p) { return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>'; }).join(''); }
+  function para(text) { if (text == null || text === '') return ''; return String(text).split(/\n{2,}/).map(function (p) { return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>'; }).join(''); }
   function renderHtml(book, opts) {
     opts = opts || {};
     if (!book || !Array.isArray(book.pages)) fail('Reisebuch fehlt.');

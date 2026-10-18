@@ -64,7 +64,7 @@
 
   /* ---------- Zahlungsdetails und Buchungsnummern (SCHEMA_V4 §3.3) ---------- */
   function ibanOk(raw) {
-    var s = raw.replace(/\s+/g, '').toUpperCase();
+    var s = raw.replace(/[\s-]+/g, '').toUpperCase();
     if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s)) return false;
     var r = s.slice(4) + s.slice(0, 4), rest = 0;
     for (var i = 0; i < r.length; i++) {
@@ -84,13 +84,13 @@
     var hits = [];
     if (typeof s !== 'string' || !s) return hits;
     /* Der Treffer kann in folgende Wörter hineinreichen; deshalb von hinten Wortgruppen abnehmen, bis die Prüfziffer passt. */
-    (s.match(/\b[A-Za-z]{2}\d{2}(?:[ ]?[A-Za-z0-9]){11,30}\b/g) || []).forEach(function (m) {
-      var parts = m.split(' ');
+    (s.match(/\b[A-Za-z]{2}\d{2}(?:[ -]?[A-Za-z0-9]){11,30}\b/g) || []).forEach(function (m) {
+      var parts = m.split(/[ -]/);
       for (var n = parts.length; n >= 1; n--) if (ibanOk(parts.slice(0, n).join(' '))) { hits.push('iban'); return; }
     });
-    /* Kartennummern nur in typischer Form (Vierergruppen oder 13–19 Ziffern am Stück ab 3–6), damit Telefonnummern
-       nicht zufällig über die Luhn-Prüfung abgelehnt werden. */
-    (s.match(/\b(?:\d{4}[ -]){3}\d{1,7}\b|\b[3-6]\d{12,18}\b/g) || []).forEach(function (m) { var d = m.replace(/\D/g, ''); if (d.length >= 13 && d.length <= 19 && luhnOk(d)) hits.push('karte'); });
+    /* Kartennummern nur in typischer Form (Vierergruppen, Amex/Diners 4-6-5 bzw. 4-6-4, oder 13–19 Ziffern am Stück ab 2–6,
+       inkl. Mastercard-2er-Serie), damit Telefonnummern nicht zufällig über die Luhn-Prüfung abgelehnt werden. */
+    (s.match(/\b(?:\d{4}[ -]){3}\d{1,7}\b|\b\d{4}[ -]\d{6}[ -]\d{4,5}\b|\b[2-6]\d{12,18}\b/g) || []).forEach(function (m) { var d = m.replace(/\D/g, ''); if (d.length >= 13 && d.length <= 19 && luhnOk(d)) hits.push('karte'); });
     return hits;
   }
   /* Weiche Treffer: Hinweiswörter auf Buchungs- oder Zahlungsangaben. Die Nummer selbst ist nicht erkennbar, deshalb

@@ -237,6 +237,38 @@ const ctx = { numbers: { total: 1234.5, unknown: 0, perPerson: 617.25, shares: [
   assert.strictEqual(rf.info.omittedPages[0], 'pgtagd197'); assert(rf.info.omittedPages.includes('pgtagd399'));
 }
 
+/* ---------- 6b. Prüffunde 18.10. abends ---------- */
+{
+  /* Zeitzone des Geräts ändert den Entwurf nicht (Unterprozesse mit TZ) */
+  const { execFileSync } = require('child_process');
+  const code = `const B=require(${JSON.stringify(path.join(__dirname, '..', 'bookgen.js'))});
+    const t={id:'ttz1',title:'TZ',dateMode:'fix',start:'2026-12-31',end:'2026-12-31',schemaVersion:4,media:[
+      {id:'fotoaaaa',kind:'photo',takenAt:'2026-12-31T10:00:00',day:'2026-12-31',fav:false,hidden:false},
+      {id:'fotobbbb',kind:'photo',takenAt:'2026-12-31T08:30:00Z',day:'2026-12-31',fav:false,hidden:false},
+      {id:'fotocccc',kind:'photo',takenAt:'2026-12-31T11:00:00+02:00',day:'2026-12-31',fav:false,hidden:false}]};
+    process.stdout.write(JSON.stringify(B.draft(t,{},{at:'2026-10-18T12:00:00Z'})));`;
+  const run = tz => execFileSync(process.execPath, ['-e', code], { env: Object.assign({}, process.env, { TZ: tz }) }).toString();
+  const utc = run('UTC'), tokyo = run('Asia/Tokyo'), ny = run('America/New_York');
+  assert.strictEqual(utc, tokyo, 'UTC = Tokio'); assert.strictEqual(utc, ny, 'UTC = New York');
+  const rz = JSON.parse(utc);
+  assert.strictEqual(rz.book.cover.mediaId, 'fotobbbb', '08:30Z vor 09:00Z (11:00+02:00) vor 10:00 ohne Versatz (als UTC)');
+  assert.deepStrictEqual(rz.book.pages.find(p => p.kind === 'tag').slots.map(s => s.mediaId), ['fotocccc', 'fotoaaaa']);
+  /* Zweiter Entwurf derselben Reise bekommt eine eigene, deterministische ID */
+  const first = draft(trip, ctx), t2 = C(trip); t2.books = [first.book];
+  const second = draft(t2, ctx), t3 = C(t2); t3.books.push(second.book);
+  assert.notStrictEqual(second.book.id, first.book.id);
+  assert.strictEqual(draft(C(t2), ctx).book.id, second.book.id, 'deterministisch');
+  const third = draft(t3, ctx); assert(![first.book.id, second.book.id].includes(third.book.id));
+  assert.match(second.book.id, /^[a-z][a-z0-9]{3,40}$/);
+  assert.strictEqual(draft(t2, ctx, { id: 'bkeigen1' }).book.id, 'bkeigen1');
+  assert.throws(() => B.draft(t2, ctx, { id: first.book.id }), /gibt es in dieser Reise schon/);
+  if (V4) assert(V4.validateBooks([first.book, second.book, third.book].map(b => V4.normalizeBook(C(b), { now: AT, media: trip.media })), trip.media), 'drei Bücher nebeneinander gültig');
+  /* Vorschau: fehlende Felder leer statt „undefined“ */
+  const html = B.renderHtml({ theme: 'klassisch', format: 'a5-quer', pages: [{ id: 'pgfrei1', kind: 'frei', layout: 'nur-text', slots: [{ mediaId: null, crop: null, fit: 'cover' }], text: '',
+    items: [{ kind: 'eintrag' }, { kind: 'eintrag', label: 'nur Titel' }, { kind: 'fakt' }, { kind: 'bewertung', stars: 3 }, { kind: 'plan' }, { kind: 'stimmung' }] }] });
+  assert(!/undefined|null/.test(html), 'kein undefined/null im HTML: ' + html);
+}
+
 /* ---------- 7. Format-4-Vertrag (RPV4.normalizeBook/validateBooks) ---------- */
 if (V4) {
   /* Zahlungsdaten in eigenem Text: Text wird nicht übernommen, Buch bleibt gültig */

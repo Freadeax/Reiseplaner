@@ -105,7 +105,7 @@ item = { kind:'fakt'|'stimmung'|'eintrag'|'bewertung'|'plan', label?, value?, ti
 
 ### 3.2 Abhängigkeit `bookgen.js` (Paket 3)
 
-`bookgen.js` erzeugt ein Buch in genau dieser Form und gibt es durch `normalizeBook(input, {now, media})`. Der Test
+`bookgen.js` erzeugt ein Buch in genau dieser Form, ruft `normalizeBook` aber selbst nicht auf. Das übernimmt der Aufrufer in der App: Er gibt das Ergebnis von `draft()` vor dem Speichern durch `normalizeBook(book, {now, media})`. Der Test
 `tests/v4logic.cjs` §11 erzeugt echte Entwürfe mit `bookgen.js` (mit und ohne Fotos, Zahlenseite, Mitreisende) und prüft sie
 gegen diesen Vertrag, sobald `bookgen.js` und `v3journal.js` neben `v4logic.js` liegen. Es liest Fotos,
 Tagebuch, Bewertungen, Plan und Katalog, aber **nie** `ledger`, `offers`, Notizen oder Zahlungsfelder (§3.3).
@@ -114,7 +114,7 @@ Tagebuch, Bewertungen, Plan und Katalog, aber **nie** `ledger`, `offers`, Notize
 
 1. **Keine Felder dafür.** Buch, Seite und Platz haben feste Feldlisten; `bookingRef`, `paid`, `amount`, `iban`, `notes` usw. werden abgelehnt.
 2. **Harte Ablehnung im Text** (Titel, Untertitel und je Seite `heading`, `sub`, `text`, `slots[].caption`, `items[].label/value/title/text`, `map[].label`): eine IBAN mit gültiger Prüfziffer oder eine Kartennummer
-   (Vierergruppen oder 13–19 Ziffern ab 3–6, mit Luhn-Prüfung). Telefonnummern, Daten und Preise lösen das nicht aus (Tests).
+   (Vierergruppen, Gruppen 4-6-5/4-6-4 wie bei Amex und Diners oder 13–19 Ziffern am Stück ab 2–6, mit Luhn-Prüfung; IBAN auch mit Leerzeichen oder Bindestrichen). Telefonnummern, Daten und Preise lösen das nicht aus (Tests).
 3. **Hinweis vor Teilen und Export:** Wörter wie „Buchungsnummer“, „Reservierungs-Nr.“, „Bestätigungscode“, „PNR“,
    „Booking reference“, „IBAN“, „Kartennummer“. Die Nummer selbst ist nicht erkennbar; der Text gehört den Nutzern, deshalb
    nur ein Hinweis (`privacyFindings`, `hard: false`).
