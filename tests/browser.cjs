@@ -1263,11 +1263,13 @@ async function navFlow(browser,base,name,ctxOpts){
  assert.equal(await keys(),'reisen,entdecken,erinnerungen,konto');
  assert((await viewText(p)).includes('Gerade läuft keine Reise'));
  await ctx.close();console.log(name+': Hauptnavigation ('+(phone?'Tab-Leiste unten':'oben')+'), Heute, Erinnerungen, Konto/Darstellung und Verdeckung geprüft.');
+}
+
 /* P0.5 iOS-Gestaltungsregeln (PLAN_IOS_APP.md §4.3) in Chromium: Schrift 200 % ohne seitliches Scrollen und ohne
    abgeschnittene Knöpfe/Überschriften, Blatt mit Zieh-Griff und Schließen-Knopf ≥ 44 px, Ziehen schließt nur weit genug,
    reduzierte Bewegung ohne Übergang, Feld bleibt bei kleinerem sichtbaren Bereich sichtbar. Kein iPhone-/WebKit-Test:
    env(safe-area-inset-*) und die echte Bildschirmtastatur lassen sich in Chromium nicht nachstellen.
-   Die Kopfleiste (.top/.app-nav) baut Modul A (Navigation) parallel um; sie wird hier ausgeblendet und separat geprüft. */
+   Kopfleiste und Tab-Leiste (.top/.app-nav) werden mitgeprüft. */
 async function iosDesign(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
  p.on('pageerror',e=>errors.push(name+' iOS-Regeln: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
@@ -1277,17 +1279,17 @@ async function iosDesign(browser,base,name,ctxOpts){
  const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);return t.id});
  const check=async where=>{
   const r=await p.evaluate(()=>{
-   const top=document.querySelector('header.top');if(top)top.style.display='none';
    const overflow=document.documentElement.scrollWidth-document.documentElement.clientWidth,clipped=[];
    const scope=document.querySelector('.sheet')||document.querySelector('#view');
-   for(const el of scope.querySelectorAll('button,a.btn,a.lnk,label,h1,h2,h3,h4,summary,.kpi,.badge')){
+   for(const el of [...scope.querySelectorAll('button,a.btn,a.lnk,label,h1,h2,h3,h4,summary,.kpi,.badge'),...(document.querySelector('.sheet')?[]:document.querySelectorAll('header.top button'))]){
     const r=el.getBoundingClientRect();if(!r.width||el.closest('[hidden],details:not([open])>:not(summary)'))continue;
     let sc=el.parentElement,scroller=false;while(sc&&sc!==document.body){const o=getComputedStyle(sc).overflowX;if(o==='auto'||o==='scroll'){scroller=true;break}sc=sc.parentElement}
     if(!scroller&&el.scrollWidth>el.clientWidth+2)clipped.push(el.tagName+'.'+el.className+' „'+el.textContent.trim().slice(0,30)+'“ '+el.scrollWidth+'/'+el.clientWidth);
    }
-   if(top)top.style.display='';
-   return {overflow,clipped:clipped.slice(0,5)};
+   const nav=document.querySelector('#app-nav'),fixed=nav&&getComputedStyle(nav).position==='fixed';
+   return {overflow,clipped:clipped.slice(0,5),pad:fixed?parseFloat(getComputedStyle(document.body).paddingBottom)-nav.getBoundingClientRect().height:0};
   });
+  assert(r.pad>=0,name+' '+where+': Tab-Leiste höher als der Seitenabstand unten ('+r.pad+' px)');
   assert(r.overflow<=0,name+' '+where+': Seite bei 200 % Schrift '+r.overflow+' px zu breit');
   assert.deepEqual(r.clipped,[],name+' '+where+': abgeschnittener Text bei 200 %');
  };
@@ -1312,10 +1314,13 @@ async function iosDesign(browser,base,name,ctxOpts){
  assert.equal(vis.root.trim(),Math.round(vis.h)+'px',name+': Blatt kennt die sichtbare Höhe');
  await p.setViewportSize(vp);await p.waitForTimeout(200);await p.$eval('.sheet',e=>{e.scrollTop=0});await p.locator('.sheet .x').focus();
  /* Ziehen: kurz bleibt offen, weit schließt; Schließen-Knopf bleibt die gleichwertige Alternative */
- const g=await p.locator('.sheet .sheet-grip').boundingBox(),gx=g.x+g.width/2,gy=g.y+g.height/2;
+ /* Griff erst nach Ende von Übergängen messen (ohne reduzierte Bewegung gleitet das Blatt noch) */
+ const gripAt=async()=>{await p.waitForTimeout(300);const g=await p.locator('.sheet .sheet-grip').boundingBox();return [g.x+g.width/2,g.y+g.height/2]};
+ let [gx,gy]=await gripAt();
  await p.mouse.move(gx,gy);await p.mouse.down();await p.mouse.move(gx,gy+15,{steps:3});await p.mouse.up();
  assert.equal(await p.locator('.sheet').count(),1,name+': kurzes Ziehen schließt nicht');
  assert.equal(await p.$eval('.sheet',e=>e.style.transform),'',name+': Blatt springt zurück');
+ [gx,gy]=await gripAt();
  await p.mouse.move(gx,gy);await p.mouse.down();await p.mouse.move(gx,gy+220,{steps:6});await p.mouse.up();
  assert.equal(await p.locator('.sheet').count(),0,name+': weites Ziehen schließt');
  await p.evaluate(()=>window.__app.appearanceSheet());await check('Blatt Darstellung');

@@ -453,8 +453,8 @@ ul.rp-rates>li{display:flex;flex-direction:column;gap:6px;min-width:0}
 }
 @media screen and (max-width:760px){
  :root{--tabbar-h:64px}
- html{scroll-padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 8px)}
- body{padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 8px)}
+ html{scroll-padding-bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 8px)}
+ body{padding-bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 8px)}
  .app-nav{position:fixed;left:0;right:0;bottom:0;z-index:15;order:0;width:auto;margin:0;display:flex;gap:2px;
   padding:4px max(4px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px));
   background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px #182b2310}
@@ -464,7 +464,7 @@ ul.rp-rates>li{display:flex;flex-direction:column;gap:6px;min-width:0}
  .app-nav .nav-item .nav-txt{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  .app-nav .nav-item[aria-current=page]{color:var(--spruce);background:var(--spruce-soft);border-color:var(--spruce);font-weight:700}
  .top-appearance{padding:6px 8px;font-size:.8rem}
- #msg{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 16px)!important}
+ #msg{bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 16px)!important}
 }
 @media screen and (max-width:360px){.app-nav{gap:0}.app-nav .nav-item{font-size:.66rem;padding-inline:0}}
 /* P0.5 iOS-Gestaltungsregeln (PLAN_IOS_APP.md §4.3): sichere Bereiche, Zieh-Griff, Tippflächen, Schrift bis 200 %.
@@ -492,3 +492,5 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
 }
 @media screen and (min-width:601px){.trip-content .kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr))}}
 @media screen and (max-width:600px){.trip-actions{grid-template-columns:repeat(auto-fit,minmax(min(100%,4.5rem),1fr))}}
+/* P0.5 Zusammenführung: Schriftzug im Kopf bricht bei großer Schrift auf schmalen Geräten um statt die Seite zu verbreitern. */
+@media screen and (max-width:760px){.top .brand{flex:1 1 auto}.brand-copy{min-width:0}.brand b{font-size:clamp(1.1rem,6vw,1.5rem);overflow-wrap:anywhere;hyphens:auto}}

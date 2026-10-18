@@ -37,7 +37,17 @@ function renderNav(now){
  const items=navItems(now),keys=items.map(x=>x.key).join(','),active=navActive(UI.view);
  if(keys!==navKeys||!nav.querySelector('[data-go]')){nav.innerHTML=navHtml(items,active);navKeys=keys}
  nav.querySelectorAll('[data-go]').forEach(b=>{if(b.getAttribute('data-go')===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+ navHeight();
 }
+/* Bei großer Schrift bricht die Tab-Leiste zweizeilig um: Der Seitenabstand unten folgt ihrer echten Höhe (inklusive Home-Indikator). */
+function navHeight(){
+ try{
+  const nav=document.querySelector('#app-nav'),root=document.documentElement;if(!nav||!root||!root.style||typeof getComputedStyle!=='function')return;
+  if(getComputedStyle(nav).position==='fixed')root.style.setProperty('--tabbar-real',Math.ceil(nav.getBoundingClientRect().height)+'px');
+  else root.style.removeProperty('--tabbar-real');
+ }catch(e){}
+}
+if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',navHeight);
 
 /* ---------- Sprungziel nach dem Wechsel in einen Reisebereich ---------- */
 function navFocus(selectors){
