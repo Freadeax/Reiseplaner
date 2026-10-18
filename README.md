@@ -14,6 +14,8 @@ Die App bleibt buildlos: `index.html` plus `config.js` und `cloud.js`. Lokal im 
 python3 -m http.server 8000
 ```
 
+Unter Windows im Ordner der App (z. B. `F:\LMNT\Reiseplaner`): `py -m http.server 8000`.
+
 Dann `http://localhost:8000` im Browser öffnen. Über http/https ausgeliefert, merkt sich die App ihre Dateien und startet danach auch ohne Netz. Auf dem iPhone lässt sie sich über „Zum Home-Bildschirm“ wie eine App ablegen. Als Datei geöffnet gibt es keinen Offline-Start. Eine Dateivorschau innerhalb der ChatGPT-iPhone-App kann die interaktive Oberfläche nicht zuverlässig ausführen. Der HTML-Anhang in ChatGPT ist daher kein App-Link.
 
 ## Darstellung wählen

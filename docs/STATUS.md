@@ -1,4 +1,27 @@
-# Projektstand · 16.10.2026
+# Projektstand · 18.10.2026
+
+## Vier Pakete lokal fertig, noch nicht veröffentlicht (Claude, 17./18.10.)
+
+**Arbeitsmodus (Philipp, 17.10.):** Entwicklung direkt im Ordner `F:\LMNT\Reiseplaner` auf Philipps Rechner, ohne Git und GitHub, weil das Actions-Kontingent des Monats aufgebraucht ist. Ausgangsstand `1a468de`. Nichts davon ist committet, gepusht oder auf GitHub Pages; die Website zeigt weiter den alten Stand. ChatGPT pausiert, Claude arbeitet allein und in parallelen Modulen.
+
+Implementiert (Format 3, `docs/SCHEMA_V3.md`; Speicherformat der Reisen unverändert, deshalb keine neue Migration und keine Datenbankänderung):
+
+1. **Mitreisende, Ausgaben unterwegs, Aufteilung (P0.2a, `v3split.js`, `window.RPV3S`):** `party`, `expenses`, `paidBy` an Buchungsposten und Angeboten. Verteilung in Cent nach dem größten Rest, Salden je Person mit Summe 0, Ausgleich mit höchstens n−1 Überweisungen. Verteilt wird nur geflossenes Geld (netto bezahlt laut `RPV3.cancelMath`); noch an Anbieter offene Beträge, erwartete Erstattungen und unbekannte Beträge stehen getrennt. Jede Änderung mit Vorschau und ausdrücklicher Übernahme; die erste Person oder Ausgabe stellt eine Format-2-Reise erst nach Bestätigung auf Format 3 um.
+2. **Reisetagebuch und Bewertungen (P0.2b, `v3journal.js`, `window.RPV3J`, Schalter `V3_JOURNAL`):** ein Eintrag je Reisetag (Schlüssel Datum oder Tagesindex), Stimmung 1–5 optional, Sterne 1–5 je Unternehmung. Keine Umschlüsselung: Einträge ohne passenden Tag bleiben und erscheinen als „ohne zugehörigen Tag“. Entwürfe bleiben im Arbeitsspeicher (Neuladen verwirft sie). Anzeige im Tagesplan, unterwegs („Tagebuch heute“), im Rückblick und optional in der Mappe.
+3. **Speicheradapter `RPStore` (P0.4, `rpstore.js`):** IndexedDB als durchgeschriebene Zweitkopie, `localStorage` bleibt der Speicherpunkt, `rp-trips` bleibt erhalten und wird weiter geschrieben (ältere App-Versionen sehen alles). Abgleich beim Laden: Kopie zurückholen, wenn nur `localStorage` geräumt wurde; beschädigter Speicher lässt die Kopie als Rückhalt stehen; ohne IndexedDB Rückfall mit Hinweis; Löschmarke beim Abmelden und bei der Kontolöschung. Mehr Speicherplatz bringt dieser Schritt bewusst nicht.
+4. **Anmeldung per E-Mail-Code (P0.7, `cloud.js` `sendCode`/`verifyCode`):** ohne Konto-Anlegen (`shouldCreateUser:false`), gleiche Anzeige für unbekannte Adressen, Wartezeit 60 s, erneut senden, Zurück. Lokale Vorlage `supabase/templates/magic_link.html` mit `{{ .Token }}`. **In der Produktion fehlt der Code in der E-Mail, bis Philipp die Vorlage „Magic Link“ ergänzt** ([SUPABASE_SETUP.md](SUPABASE_SETUP.md#anmeldung-per-e-mail-code-p07-1810)); bis dahin kommt nur der Link.
+
+Service Worker `reiseplaner-v12` (neue Dateien im Offline-Cache).
+
+**Zwei Prüfrunden** mit unabhängigen Prüfern, jeder Fund nachgestellt, jede Korrektur mit Test, der vorher rot war:
+- Runde 1 (17.10.): offener Preis in der Aufteilung als unbekannt statt 0 €, Zahlervorschau, keine erfundene Erstattung ohne Storno, Zahler-Angabe bleibt beim Entfernen eines Abschnitts erhalten, Synchronisation bei verlorener Einfüge-Antwort mit anschließender Serveränderung als Konflikt statt Überschreiben, Abmelden bei unlesbarem Kontospeicher oder vorhandener Zweitkopie nur nach Rückfrage, Speichern während des Ladens ersetzt die Kopie einer früheren Sitzung nicht mehr.
+- Runde 2 (18.10., `tests/korrekturen.cjs`, `tests/rpstore.cjs` 19–21): **Zahlungsbuch** lehnte „Bezahlt“ unter den erfassten Erstattungen nicht ab; die gespeicherte Reise war danach ungültig und nach dem Neuladen war der ganze Speicherbereich gesperrt (vorbestehend). Jetzt Ablehnung mit Hinweis und Prüfung der ganzen Reise vor dem Speichern; stornierte Posten (z. B. bezahlt 200, Gebühr 50) lassen sich wieder bearbeiten. Weiter: eigene Unternehmung ohne Preis zeigte „Vollständig bezahlt“; Abmelden in einem Tab mit veraltetem Stand hätte Ausstehendes eines anderen Tabs gelöscht; Sicherungspunkt im Kontobereich ließ sich nicht herunterladen (vorbestehend); Code-Schritt blieb nach Konto-Wechsel stehen; Tagebuch brach den Tagesplan bei Reisen über 9999 Tage (Tippfehler im Jahr); ungespeicherter Entwurf wurde nach Verkürzen der Reise unerreichbar; leere Zweitkopie ließ IndexedDB veraltet; neue Sicherungspunkte während des Ladens verdrängten ältere aus der Kopie; Importvorschau nannte Zahlungsbuch und Format-3-Angaben nicht.
+
+**Tests (18.10., im Cloud-Container auf genau den übertragenen Dateien ausgeführt):** `npm test` (27 Testdateien) grün; `npm run test:browser` grün (Chromium Desktop, mobil, 320 px dunkel; neu Tagebuch, Speicheradapter, Aufteilung je Desktop und 320 px); lokaler Supabase-Stack (Docker): `REQUIRE_DB=1 npm run test:db` und `npm run test:e2e` grün, E2E mit Code-Anmeldung über die lokale Mail; `npm run build` und `check:artifact` bestanden. **Nicht getestet:** iPhone, Safari/WebKit, Philipps Windows-Rechner, Produktions-Supabase.
+
+Grenzen: nicht veröffentlicht, solange Git pausiert. Produktion braucht für den Code die Vorlagenänderung. Tagebuch-Entwürfe überleben kein Neuladen. Reisen über viele Jahre (etwa ein Tippfehler im Jahr) bleiben sehr langsam: Ein Node-Lauf aller Ansichten für 45 Jahre kam in 120 s nicht zum Ende. Eine Obergrenze der Reisedauer fehlt weiterhin (vorbestehend, Kandidat für ein eigenes Paket).
+
+Nächster Schritt: Philipp prüft im Browser (`py -m http.server 8000` im Ordner, dann `http://localhost:8000`). Nach Freigabe von Git: Stand als Commit auf `main`, CI abwarten. Danach P0.5 (iOS-Navigation/Gestaltungsregeln) und P0.6 (`index.html` aufteilen), beide jetzt bei Claude.
 
 ## Format-3-Bearbeitung freigeschaltet (Claude, #8, 16.10.)
 

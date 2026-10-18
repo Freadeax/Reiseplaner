@@ -4,16 +4,12 @@ Philipp, Claude und ChatGPT arbeiten möglicherweise gleichzeitig am Reiseplaner
 
 ## Aktuelle Übergabe für ChatGPT (kurz lesen genügt)
 
-Diesen Block ersetzt Claude nach jedem Push; Details stehen in `docs/STATUS.md` (oben) und Issue #8.
+Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in `docs/STATUS.md` (oben).
 
-- **Arbeitsmodus seit 16.10.2026 (Philipp):** Claude bringt App und offene Punkte vorerst allein voran. ChatGPT pausiert und wird hier informiert, um bei Bedarf direkt einsteigen zu können.
-- **Letzter geprüfter Stand:** siehe letzter Eintrag in `docs/STATUS.md`; CI „Tests & Pages“ am jeweiligen Commit maßgeblich.
-- **Zuletzt erledigt (Claude, 16.10.):**
-  1. Finanz-/Verpflichtungsreview v3-Editor (574dded): vier Kostenkorrekturen (Zusatzposten entfernen, Mietwagen-Sprit, stornierte Unterkunft = offen, Parken bei Auto-Abschnitten). **Check-in-Regel:** Online-Check-in darf bei gebuchten Abschnitten nachgetragen werden; Zeiten, Strecke, Preis, Anbieter, Nummer bleiben geschützt.
-  3. **`V3_EDIT=true`** (Philipps Wahl, 16.10.): Storno-/Erstattungs-/Abschnittsdialoge für alle freigeschaltet; Tests prüfen den gesperrten Rückfall mit erzwungenem `false`.
-  2. Konto-Lebenszyklus (P0.3, nach Philipps Freigabe gepusht): Migration `20261016120000_account_lifecycle.sql` (Besitzerwechsel, Übersicht, Export, Löschung) plus Konto-Bereich in der App. Tests: `tests/db/account.cjs`, E2E-Löschung über die Oberfläche.
-- **Tests:** `npm test`, `test:browser`, lokal mit Docker auch `db lint`, `test:db`, `test:e2e` grün (Tipp: `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io supabase start`, falls public.ecr.aws gesperrt ist). Kein iPhone-Test.
-- **Offen / nächster Schritt:** Produktion (Katalog v4, Kontomigration) aus Claudes Umgebung nicht prüfbar. Danach P0.4 Speicheradapter. Dein unveröffentlichtes Paket „Planungswege/Register-UI“ vom 15.10. abends ist nicht auf `main`; bei Wiedereinstieg bitte von `main` neu ansetzen.
+- **Arbeitsmodus seit 17.10.2026 (Philipp):** Claude arbeitet allein; ChatGPT pausiert. Entwickelt wird direkt im Ordner `F:\LMNT\Reiseplaner` auf Philipps Rechner, **ohne Git** (Actions-Kontingent aufgebraucht). Der Ordner ist damit neuer als `main` (Ausgangsstand `1a468de`); bis Git wieder freigegeben ist, nicht von `main` aus weiterarbeiten.
+- **Zuletzt erledigt (Claude, 17./18.10., nicht veröffentlicht):** P0.2a Mitreisende/Ausgaben/Aufteilung (`v3split.js`), P0.2b Tagebuch/Bewertungen (`v3journal.js`), P0.4 Speicheradapter (`rpstore.js`), P0.7 E-Mail-Code (`cloud.js`), zwei Prüfrunden mit Korrekturen (u. a. Zahlungsbuch: Bezahlt nie unter den Erstattungen). Service Worker v12.
+- **Tests:** `npm test`, `test:browser`, lokal `test:db` und `test:e2e` grün, Build und Artefaktprüfung bestanden. Kein iPhone-/Safari-Test.
+- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). Danach P0.5 und P0.6, beide jetzt bei Claude.
 
 ## Verbindlicher Ablauf für jede Änderung
 

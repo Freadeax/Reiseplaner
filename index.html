@@ -898,7 +898,7 @@ document.addEventListener('click',e=>{
   v3Sheet();
  }catch(err){const box=$('#v3-editor-error');if(box){box.textContent=err.message;box.hidden=false;box.focus()}else alertMsg(err.message)}
 });
-const V3_LOCK_TXT='Diese Reise nutzt Angaben des Formats 3 (Anreise-Abschnitte, Storno, Mitreisende/Ausgaben oder Tagebuch). Diese App-Version zeigt sie nur an, Änderungen werden nicht gespeichert.';
+const V3_LOCK_TXT='Diese Reise nutzt Angaben aus Format 3 (Anreise-Abschnitte, Storno, Mitreisende/Ausgaben oder Tagebuch). Diese App-Version zeigt sie nur an, Änderungen werden nicht gespeichert.';
 function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=f.v3||{};
   return '<section class="block"><div class="note" role="status"><b>Nur ansehen: Format 3</b><p>'+esc(V3_LOCK_TXT)+' Kosten berücksichtigen Anreise-Abschnitte und Storno. Erstattungen und Stornogebühren stehen getrennt, ohne Verrechnung.</p>'+
    (v.refundOpen||v.feeOpen||v.unknownFee?'<p class="small">'+[v.refundOpen?'Erstattungen offen: '+eur(v.refundOpen):'',v.feeOpen?'Stornogebühren offen: '+eur(v.feeOpen):'',v.unknownFee?v.unknownFee+'× Stornogebühr unbekannt':''].filter(Boolean).join(' · ')+'</p>':'')+'</div></section>'}
@@ -938,8 +938,7 @@ function v3Ref(t,target){
     const row=ledgerRows(t).find(r=>r.key===target.key);
     if(!row)throw new Error('Posten nicht gefunden.');
     const e=(t.ledger||{})[target.key]||{status:'offen',amount:null,paid:0,due:''};
-    const openPrice=cost(Object.assign({},t,{ledger:{}})).lines.some(l=>l.key===target.key&&l.open);
-    return {label:row.label,entry:e,planCost:row.amount!=null?row.amount:openPrice?null:row.plan,
+    return {label:row.label,entry:e,planCost:row.amount!=null?row.amount:row.planOpen||row.orphan?null:row.plan,
       get:c=>{c.ledger=c.ledger||{};if(!c.ledger[target.key])c.ledger[target.key]={status:'offen',amount:null,paid:0,due:''};return c.ledger[target.key]},
       restore:(c,src)=>{c.ledger=c.ledger||{};if(src.ledger&&src.ledger[target.key])c.ledger[target.key]=clone(src.ledger[target.key]);else delete c.ledger[target.key]}}}
   throw new Error('Unbekannter Posten.');
@@ -991,11 +990,11 @@ function splitValidate(t){
    planCost wie v3Ref: gebuchter Betrag, sonst Planwert, bei offenem Preis unbekannt (null). Ohne Angebot zählt der
    Unterkunfts-Planwert nur für „noch an Anbieter offen“ (Zahlung dafür lässt sich nicht erfassen). */
 function splitPostings(t){
-  const out=[],lg=t.ledger||{},base=cost(Object.assign({},t,{ledger:{}})).lines,act=activeOffer(t);
+  const out=[],lg=t.ledger||{},act=activeOffer(t);
   ledgerRows(t).forEach(r=>{const e=lg[r.key]||{};
     if(r.orphan&&!(num(e.paid,0)>0||e.paidBy!=null||e.cancel||(e.refunds&&e.refunds.length)))return;
-    const ca=r.key.indexOf('act:')===0&&(t.customActs||[]).find(a=>'act:'+a.id===r.key),openPrice=base.some(l=>l.key===r.key&&l.open)||!!(ca&&ca.costOpen&&!num(ca.cost,0)); /* Preis offen ist nie 0 € */
-    out.push({key:'ledger:'+r.key,target:{kind:'ledger',key:r.key},label:r.label,entry:e,planCost:r.amount!=null?r.amount:openPrice?null:r.plan,detached:!!r.orphan})});
+    /* Preis offen (r.planOpen) ist nie 0 €; entfernte Posten haben keinen Planwert */
+    out.push({key:'ledger:'+r.key,target:{kind:'ledger',key:r.key},label:r.label,entry:e,planCost:r.amount!=null?r.amount:r.planOpen||r.orphan?null:r.plan,detached:!!r.orphan})});
   (t.offers||[]).forEach(o=>{const active=!!act&&act.id===o.id;if(!active&&!o.cancel&&!(num(o.paid,0)>0)&&o.paidBy==null)return;const oa=offerAmounts(o);
     out.push({key:'offer:'+o.id,target:{kind:'offer',id:o.id},label:'Unterkunft: '+o.name+(active?'':o.cancel?' (storniert)':' (nicht ausgewählt)'),entry:o,planCost:active&&!oa.unknown.length?oa.total:null,detached:!active&&!o.cancel})});
   if(!act){const st=cost(t).lines.filter(l=>l.key==='stay');if(st.length)out.push({key:'stay',target:null,label:'Unterkunft (Planwert)',entry:{},planCost:st.reduce((s,l)=>s+l.c,0),detached:false})}
@@ -1591,14 +1590,17 @@ function validateLedger(l){
     if(e.due&&!pd(e.due))throw new Error('Fälligkeitsdatum ungültig.');
   });
 }
+/* Preis offen ist nie 0 €: offene Kostenzeile oder eigene Unternehmung mit offenem Preis (Review R2) */
+function keyPriceOpen(t,key,lines){if(lines.some(l=>l.key===key&&l.open))return true;const ca=key.indexOf('act:')===0&&(t.customActs||[]).find(a=>'act:'+a.id===key);return !!(ca&&ca.costOpen&&!num(ca.cost,0))}
 /* Zeilen des Zahlungsbuchs: Plan (ohne Buchungsbeträge), gültiger Betrag, bezahlt, offen. Einträge zu entfernten Posten bleiben sichtbar. */
 function ledgerRows(t){
   const plan=cost(Object.assign({},t,{ledger:{}})).lines,lg=t.ledger||{},rows=[],seen=new Set();
   plan.forEach(l=>{if(!l.key||l.key==='stay'||seen.has(l.key))return;seen.add(l.key);
-    const planned=plan.filter(x=>x.key===l.key).reduce((x,y)=>x+y.c,0),e=lg[l.key]||{},amount=e.amount!=null?+e.amount:null,paid=num(e.paid,0),openPrice=plan.some(x=>x.key===l.key&&x.open);
-    let c=amount!=null?amount:planned;const row={key:l.key,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,status:e.status||'offen',paid,due:e.due||'',orphan:false};
+    const planned=plan.filter(x=>x.key===l.key).reduce((x,y)=>x+y.c,0),e=lg[l.key]||{},amount=e.amount!=null?+e.amount:null,paid=num(e.paid,0),openPrice=keyPriceOpen(t,l.key,plan);
+    let c=amount!=null?amount:planned;const row={key:l.key,planOpen:openPrice,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,status:e.status||'offen',paid,due:e.due||'',orphan:false};
     /* Format 3: Storno/Erstattungen je Posten; ohne bekannten Preis keine Überzahlung ableiten */
     if(v3Money(t,e)){const m=V3.cancelMath(e,amount!=null?amount:openPrice?null:planned);Object.assign(row,{cancelled:m.cancelled,unknown:m.unknown,netPaid:m.netPaid,refundsReceived:m.refundsReceived,refundOpen:m.refundOpen||0,feeOpen:m.feeOpen||0});c=m.cost==null?0:m.cost;row.open=m.unknown?0:(m.open||0)}
+    else if(openPrice&&amount==null){row.unknown=true;row.open=0} /* ohne Preis kein „Vollständig bezahlt“ */
     else row.open=Math.max(0,c-paid);
     row.cost=c;rows.push(row);
   });
@@ -1638,11 +1640,22 @@ function setLedger(t,key,field,value){
   else if(field==='due'){if(value&&!pd(value))throw new Error('Datum ungültig.');e.due=value||''}
   else throw new Error('Unbekanntes Feld.');
   const row=ledgerRows(Object.assign({},t,{ledger:Object.assign({},l,{[key]:e})})).find(r=>r.key===key);
-  if(row&&e.paid>row.cost+0.005)throw new Error('Bezahlt ('+eur(e.paid)+') ist höher als der Betrag des Postens ('+eur(row.cost)+'). Bitte zuerst den gebuchten Betrag eintragen.');
+  /* Erstattungen sind Teil des Bezahlten: Bezahlt darf nicht darunter sinken (sonst ungültige Reise, Review R2) */
+  const refC=(e.refunds||[]).reduce((s,r)=>s+Math.round((+r.amount||0)*100),0);
+  if(field==='paid'&&Math.round(e.paid*100)<refC)throw new Error('Bezahlt ('+eur(e.paid)+') ist niedriger als die bereits erfassten Erstattungen ('+eur(refC/100)+'). Bitte zuerst die Erstattungen anpassen.');
+  /* Obergrenze nur beim Ändern von Bezahlt oder Betrag prüfen. Erstattetes zählt nicht gegen den Betrag (netto ≤ Betrag);
+     storniert zählt der Betrag vor dem Storno (bzw. eine höhere Gebühr), nicht nur die Gebühr */
+  if(row&&(field==='paid'||field==='amount')){
+    const pre=row.amount!=null?row.amount:row.planOpen||row.orphan?null:row.plan,fee=e.cancel&&e.cancel.fee!=null?+e.cancel.fee:0;
+    const lim=row.cancelled?(pre==null?null:Math.max(pre,fee)+refC/100):row.cost+refC/100;
+    if(lim!=null&&e.paid>lim+0.005)throw new Error('Bezahlt ('+eur(e.paid)+') ist höher als der Betrag des Postens ('+eur(lim)+'). Bitte zuerst den gebuchten Betrag eintragen.');
+  }
   /* Nur wirklich leere Einträge entfernen: weitere Felder (künftig z. B. Erstattungen/Storno, SCHEMA_V3 §5 Feldtreue) bleiben erhalten */
   const extra=Object.keys(e).some(k=>!['status','amount','paid','due'].includes(k));
   if(e.status==='offen'&&e.amount==null&&!e.paid&&!e.due&&!extra)delete l[key];else l[key]=e;
   validateLedger(l);
+  /* Ganze Reise als Kandidat prüfen, bevor gespeichert wird: eine ungültige Reise würde nach dem Neuladen den Speicherbereich sperren */
+  validateExtras(Object.assign({},t,{ledger:l,schemaVersion:t.schemaVersion==null?2:t.schemaVersion}));
   t.ledger=l;return t;
 }
 function ledgerBalanceText(r){
@@ -1712,7 +1725,7 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
      von rpstore.js. backend: null = ohne RPStore (Node-Tests, Datei fehlt; Verhalten wie bisher), 'laden' bis zum
      ersten Abgleich, 'idb', 'local' = Rückfall nur localStorage mit sichtbarem Hinweis (backendNote).
      startRaw: localStorage-Text beim Laden des Bereichs; null heißt leer, nur dann wird aus der Kopie wiederhergestellt. */
-  backend:null,backendNote:'',idbBackup:null,backendGen:0,startRaw:undefined,loadingShown:false,
+  backend:null,backendNote:'',idbBackup:null,backendGen:0,startRaw:undefined,startHist:undefined,loadingShown:false,
   key(){return this.scope==='guest'?'rp-trips':'rp-u:'+this.scope},
   historyKey(){return this.scope==='guest'?'rp-history':'rp-u:'+this.scope+':history'},
   isAccount(){return this.scope!=='guest'},
@@ -1728,6 +1741,8 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
     try{raw=localStorage.getItem(this.key());const s=this.parse(raw,this.scope==='guest');this.trips=s.trips;if(this.isAccount()){this.meta=s.meta;this.queue=s.queue}
       this.lastRaw=raw;this.startRaw=raw;this.corruptRaw=null;this.localError=false}
     catch(e){this.trips={};this.meta={};this.queue={};this.localError=true;this.startRaw=raw;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
+    /* Sicherungspunkte beim Laden: nur dieser Stand entscheidet, ob die Kopie zurückgeholt wird (Review R2) */
+    try{this.startHist=localStorage.getItem(this.historyKey())}catch(e){this.startHist=undefined}
   },
   saveLocal(){
     if(this.corruptRaw!==null){this.localError=true;setSync('storage-error');return false}
@@ -1739,6 +1754,9 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   },
   /* Sicherungspunkt (fünf vorherige Stände). Scheitert er, nur Hinweis; dedupe: Stand nur ergänzen, wenn er noch fehlt. */
   addHistory(raw,at,dedupe){try{const k=this.historyKey();let h=JSON.parse(localStorage.getItem(k)||'[]');if(!Array.isArray(h))throw new Error('Sicherungspunkte ungültig');if(dedupe&&h.some(x=>x&&x.raw===raw))return;h.unshift({at:at||new Date().toISOString(),raw});const hr=JSON.stringify(h.slice(0,5));localStorage.setItem(k,hr);this.mirror(k,hr);this.historyError=false;}catch(e){this.historyError=true;}},
+  mergeHistory(raw){try{const k=this.historyKey(),a=JSON.parse(localStorage.getItem(k)||'[]'),b=JSON.parse(raw);if(!Array.isArray(a)||!Array.isArray(b))return;
+    const seen=new Set(a.map(x=>x&&x.raw)),all=a.concat(b.filter(x=>x&&typeof x.raw==='string'&&!seen.has(x.raw))).sort((x,y)=>String(y&&y.at||'').localeCompare(String(x&&x.at||'')));
+    const hr=JSON.stringify(all.slice(0,5));localStorage.setItem(k,hr);this.mirror(k,hr)}catch(e){this.historyError=true}},
   resetCorrupt(){
     if(this.corruptRaw===null)return false;
     try{const dropped=this.corruptRaw;localStorage.removeItem(this.key());this.corruptRaw=null;this.trips={};this.meta={};this.queue={};this.lastRaw=null;this.startRaw=null;this.idbBackup=null;this.localError=false;setSync('local');
@@ -1767,8 +1785,9 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
       if(d.state==='restore')this.applyRestore(d.rec);
       else if(d.state==='adopt'&&d.rec)this.addHistory(d.rec.raw,d.rec.at,true);
       else if(d.state==='backup'){this.idbBackup={at:d.rec.at||''};if(typeof render==='function')remoteChanged()}
-      let hNow=null;try{hNow=localStorage.getItem(hk)}catch(e){}
-      await R.reconcile(hk,{absentAtStart:hNow===null,autoRestore:true});
+      /* Beim Laden leer, inzwischen aber neue Sicherungspunkte geschrieben: ältere aus der Kopie dazunehmen statt verlieren */
+      const hd=await R.reconcile(hk,{absentAtStart:this.startHist===null,autoRestore:true});
+      if(gen===this.backendGen&&scope===this.scope&&hd&&hd.state==='restore'&&!hd.restored&&hd.lsRaw!=null&&hd.rec)this.mergeHistory(hd.rec.raw);
       if(gen===this.backendGen&&this.backend==='laden'){this.backend='idb';if(this.loadingShown){this.loadingShown=false;if(typeof render==='function'&&UI.view==='reisen')remoteChanged()}}
       return d;
     }catch(e){this.backendFailed(e&&e.message);return null}
@@ -1776,8 +1795,10 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   /* localStorage war beim Laden leer, die Kopie stammt aus einer früheren Sitzung: zurückholen. In dieser Sitzung schon
      angelegte Reisen behalten Vorrang (Vereinigung), es wird nichts verworfen. */
   applyRestore(rec){
-    let s;try{s=this.parse(rec.raw,this.scope==='guest')}catch(e){this.backendNote='Die Zweitkopie in IndexedDB ist nicht lesbar und wurde nicht übernommen; sie bleibt unverändert.';if(typeof render==='function')remoteChanged();return false}
-    if(!Object.keys(s.trips).length&&!Object.keys(s.queue).length)return false;
+    /* Ohne Übernahme muss die Kopie wieder dem Browser-Speicher folgen: ein zuvor eingereihter Schreibvorgang wurde verworfen (Review R2) */
+    const follow=()=>{if(this.lastRaw!=null&&this.corruptRaw===null)this.mirror(this.key(),this.lastRaw)};
+    let s;try{s=this.parse(rec.raw,this.scope==='guest')}catch(e){this.addHistory(rec.raw,rec.at,true);follow();this.backendNote='Die Zweitkopie in IndexedDB ist nicht lesbar und wurde nicht übernommen. Ihr Inhalt liegt unter den lokalen Sicherungspunkten.';if(typeof render==='function')remoteChanged();return false}
+    if(!Object.keys(s.trips).length&&!Object.keys(s.queue).length){follow();return false}
     this.trips=Object.assign(s.trips,this.trips);if(this.isAccount()){this.meta=Object.assign(s.meta,this.meta);this.queue=Object.assign(s.queue,this.queue)}
     const ok=this.saveLocal(),when=rec.at?new Date(rec.at).toLocaleString('de-DE'):'';if(ok)this.startRaw=this.lastRaw;
     alertMsg(ok?'Reisen aus der Zweitkopie (IndexedDB'+(when?', Stand '+when:'')+') wiederhergestellt.':'Reisen aus der Zweitkopie angezeigt, aber nicht in den Browser-Speicher zurückgeschrieben. Bitte als Datei sichern.');
@@ -1954,6 +1975,7 @@ const Auth={user:null,ready:false,recovery:false,gen:0,
     this.gen++;const next=user?user.id:'guest';
     if(Store.scope===next&&((this.user&&user&&this.user.id===user.id)||(!this.user&&!user))){this.user=user;setSync();return}
     this.user=user;UI.confirm=null;UI.tid=null;if(UI.view==='reise')UI.view='reisen';
+    UI.otp=null;UI.authMode='signin'; /* Code-Schritt gehört zur vorherigen Anmeldung (Review R2) */
     Store.setScope(next);setSync();if(typeof render==='function')render();
     if(user){Sync.schedule(0);this.tryInvite()}
   },
@@ -1965,8 +1987,9 @@ const Auth={user:null,ready:false,recovery:false,gen:0,
     catch(e){try{sessionStorage.removeItem('rp-invite')}catch(x){}UI.invitePending=false;alertMsg(e.message);render()}
   },
   async signOut(force){
-    /* Unlesbarer Kontocache oder vorhandene Zweitkopie: Ausstehendes unbekannt, also nie als „nichts offen“ behandeln (Review 17.10.) */
-    const unsure=Store.isAccount()&&(Store.corruptRaw!=null||!!Store.idbBackup);
+    /* Unlesbarer Kontocache, vorhandene Zweitkopie oder neuerer Stand aus einer anderen Ansicht: Ausstehendes unbekannt,
+       also nie als „nichts offen“ behandeln und den Kontobereich nicht löschen (Review 17.10., Runde 2) */
+    const unsure=Store.isAccount()&&(Store.corruptRaw!=null||!!Store.idbBackup||!!Store.conflict||!!Store.localError);
     if((Store.pending()||unsure)&&!force){UI.confirm='logout';UI.view='konto';render();return}
     const scope=Store.scope,keep=Store.pending()>0||unsure;
     try{await Sync.cloud().signOut()}catch(e){alertMsg(e.message);return}
@@ -3172,6 +3195,9 @@ function offerSheet(t,id){
  const o=UI.offerDraft,inp=(k,label,type,extra)=>'<label class="fld"><span>'+label+'</span><input data-offer="'+k+'" type="'+(type||'text')+'" value="'+esc(o[k]==null?'':o[k])+'" '+(extra||'')+'></label>',sel=(k,label,opts)=>'<label class="fld"><span>'+label+'</span><select data-offer="'+k+'">'+optionList(opts,o[k])+'</select></label>';
  openSheet('<h2>'+(old?'Angebot bearbeiten':'Konkretes Angebot erfassen')+'</h2><p class="small">Übernehmt den tatsächlich angezeigten Tarif. Gebühren nur als inklusive markieren, wenn der Anbieter das bestätigt. Zusätzliche Gebühren immer als Gesamtbetrag für alle Personen und den Aufenthalt.</p><div class="form">'+inp('name','Unterkunft / Tarif','text','maxlength="160"')+inp('location','Ort / Region','text','maxlength="160"')+sel('provider','Quelle / Anbieter',PROVIDERS.map(p=>[p.id,p.name]))+sel('type','Art',[['hotel','Hotel'],['fewo','Ferienwohnung'],['pension','Pension'],['other','Andere']])+inp('start','Anreise','date')+inp('end','Abreise','date')+inp('persons','Personen','number','min="1" max="20"')+inp('price','Preis (€)','number','min="0" step="0.01"')+sel('basis','Preisbasis',[['stay','Gesamter Aufenthalt'],['night','Pro Nacht / Unterkunft'],['person','Pro Person / Aufenthalt'],['personNight','Pro Person / Nacht']])+inp('url','Konkreter Angebotslink (HTTPS)','url')+inp('checkedAt','Beim Anbieter geprüft am','date')+inp('validUntil','Gültig bis (optional)','date')+sel('availability','Verfügbarkeit laut Anbieter',[['unknown','Unbestätigt'],['available','Als verfügbar angezeigt'],['unavailable','Nicht verfügbar']])+inp('drive','Fahrzeit einfach (Minuten, optional)','number','min="0"')+inp('rating','Bewertung (auf 0–10 umgerechnet)','number','min="0" max="10" step="0.1"')+'</div><h3>Merkmale des gewählten Tarifs</h3><div class="criteria">'+Object.entries(FEATURES).map(([k,label])=>'<label class="fld"><span>'+label+'</span><select data-offer-feature="'+k+'">'+optionList([['unknown','Unbekannt'],['yes','Bestätigt ja'],['no','Nein']],o.features[k])+'</select></label>').join('')+'</div><h3>Gebühren ohne Doppelzählung</h3>'+Object.entries(FEES).map(([k,label])=>'<div class="form"><label class="fld"><span>'+label+'</span><select data-offer-fee="'+k+'">'+optionList([['unknown','Noch offen'],['included','Inklusive / entfällt'],['extra','Zusätzlich']],o.fees[k].state)+'</select></label><label class="fld"><span>Zusätzlicher Gesamtbetrag (€)</span><input type="number" min="0" step="0.01" data-offer-amount="'+k+'" value="'+esc(o.fees[k].amount)+'"></label></div>').join('')+'<label class="fld"><span>Tarif, Leistungen, Stornofrist, Einschränkungen</span><textarea data-offer="terms" maxlength="4000" rows="4">'+esc(o.terms)+'</textarea></label><h3>Buchung & Zahlungen</h3><p class="small">Hier dokumentiert ihr eine bereits extern erfolgte Buchung. Die App bucht und bezahlt nichts. Kautionen zählen separat zum Geldbedarf.</p><div class="form">'+inp('paid','Bereits bezahlt (€)','number','min="0" step="0.01"')+inp('deposit','Zusätzlicher Kautionsbedarf (€)','number','min="0" step="0.01"')+'</div><label><input type="checkbox" data-offer="booked"'+(o.booked?' checked':'')+'> Extern gebucht</label><div class="row"><button class="btn" data-search-act="offer-save">Angebot speichern</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button>'+(old?'<button class="btn ghost" data-search-act="offer-delete" data-value="'+o.id+'">Entfernen …</button>':'')+'</div><p id="offer-error" role="alert"></p>');
 }
+/* Reisen eines Sicherungspunkts: Gastbereich speichert die Reisen direkt, Kontobereich {v,trips,meta,queue} (Review R2).
+   Bewusst ohne Gültigkeitsprüfung, damit auch ein später unlesbarer Stand gesichert werden kann; der Import prüft. */
+function historyTrips(raw,guest){const s=JSON.parse(raw);const m=guest?s:s&&s.v===1?s.trips:null;if(!m||typeof m!=='object'||Array.isArray(m))throw new Error('Sicherungspunkt ungültig.');return Object.values(m)}
 function historySheet(){let history;try{history=JSON.parse(localStorage.getItem(Store.historyKey())||'[]');if(!Array.isArray(history))throw new Error('Ungültige Sicherungspunkte');}catch(e){alertMsg('Sicherungspunkte konnten nicht gelesen werden.');return;}UI.history=history;openSheet('<h2>Lokale Sicherungspunkte</h2><p>Die letzten fünf vorherigen Speicherstände dieses Browsers. Ladet einen Stand herunter und importiert ihn danach mit der vorhandenen Konfliktprüfung. Es wird nichts direkt überschrieben.</p>'+history.map((h,i)=>'<p>'+esc(h.at)+' <button class="btn ghost sm" data-search-act="history-download" data-value="'+i+'">Als Datei herunterladen</button></p>').join('')+(history.length?'':'<p>Noch keine Sicherungspunkte vorhanden.</p>'));}
 document.addEventListener('change',e=>{
  const el=e.target,t=cur();if(!t||Store.corruptRaw!==null)return;
@@ -3188,7 +3214,7 @@ document.addEventListener('click',e=>{
  if(isV3(t)&&!V3_EDIT&&!['backup','history','history-download','offer-edit'].includes(act))throw new Error(V3_LOCK_TXT);
  if(act==='backup'){downloadBackup(Store.list());return;}
  if(act==='history'){historySheet();return;}
- if(act==='history-download'){const h=UI.history[+id];if(h)downloadText(JSON.stringify(backupData(Object.values(JSON.parse(h.raw))),null,2),'Reiseplaner-Sicherungspunkt.json','application/json');return;}
+ if(act==='history-download'){const h=UI.history[+id];if(h)downloadText(JSON.stringify(backupData(historyTrips(h.raw,Store.scope==='guest')),null,2),'Reiseplaner-Sicherungspunkt.json','application/json');return;}
  if(act==='offer-new'||act==='offer-edit'){offerSheet(t,id);return;}
  if(act==='offer-save'){
   if(UI.offerScope!==Store.scope||UI.offerSource!==JSON.stringify(t))throw new Error('Die Reise oder der Speicherbereich hat sich geändert. Angebot bitte erneut öffnen.');
@@ -3244,7 +3270,8 @@ async function decryptBackup(raw,password){
 }
 function stableBackupValue(x){if(Array.isArray(x))return x.map(stableBackupValue);if(x&&typeof x==='object')return Object.fromEntries(Object.keys(x).sort().filter(k=>k!=='updated').map(k=>[k,stableBackupValue(x[k])]));return x;}
 function importPreview(trips){
- const fields={title:'Titel',start:'Anreise',end:'Abreise',persons:'Personen',budget:'Budget',notes:'Notizen',stayId:'Unterkunft',items:'Tagesplan',offers:'Angebote',searchProfiles:'Suchprofile',search:'Suchfilter',check:'Checkliste'};
+ /* auch Zahlungsbuch und Format-3-Angaben benennen, sonst wirkt eine abweichende Reise nur „anders“ ohne Grund (Review R2) */
+ const fields={title:'Titel',start:'Anreise',end:'Abreise',persons:'Personen',budget:'Budget',notes:'Notizen',stayId:'Unterkunft',items:'Tagesplan',customActs:'Eigene Unternehmungen',extraCosts:'Zusatzkosten',offers:'Angebote',ledger:'Zahlungsbuch',searchProfiles:'Suchprofile',search:'Suchfilter',check:'Checkliste',schemaVersion:'Speicherformat',transport:'Anreise-Abschnitte',party:'Mitreisende',expenses:'Ausgaben unterwegs',journal:'Reisetagebuch',ratings:'Bewertungen'};
  return trips.map(t=>{const old=Store.get(t.id),incoming=migrateTrip(t),existing=old?migrateTrip(old):null,changed=existing?Object.entries(fields).filter(([k])=>JSON.stringify(stableBackupValue(existing[k]))!==JSON.stringify(stableBackupValue(incoming[k]))).map(([,label])=>label):[];
  const same=existing&&JSON.stringify(stableBackupValue(existing))===JSON.stringify(stableBackupValue(incoming));
  return {id:t.id,title:t.title,range:rangeText(t),persons:t.persons,items:t.items.length,offers:(t.offers||[]).length,profiles:(t.searchProfiles||[]).length,state:!old?'Neue Reise':same?'Bereits vorhanden · identischer Inhalt':'Bereits vorhanden · anderer Inhalt',changed};});
@@ -3352,7 +3379,7 @@ function vKonto(){
   const n=Store.pending(),gp=guestPendingCount();
   return head+f+'<section class="block"><dl class="facts"><dt>Angemeldet</dt><dd>'+esc(Auth.user.email||'')+'</dd><dt>Speicher</dt><dd>'+esc($('#sync')?$('#sync').textContent:'')+'</dd>'+(Sync.last?'<dt>Letzter Abgleich</dt><dd>'+esc(new Date(Sync.last).toLocaleString('de-DE'))+'</dd>':'')+(Sync.notice?'<dt>Hinweis</dt><dd>'+esc(Sync.notice)+'</dd>':'')+'</dl>'+
     '<div class="row"><button type="button" class="btn sm" data-acc="sync">Jetzt synchronisieren</button><button type="button" class="btn ghost sm" data-acc="signout">Abmelden</button></div>'+
-    (UI.confirm==='logout'?'<div class="note" role="alert"><b>'+(n?n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.':'Kontospeicher dieses Browsers nicht lesbar: ob Änderungen offen sind, ist unbekannt.')+'</b><p>Beim Abmelden bleiben sie in diesem Browser für dieses Konto liegen und werden nach der nächsten Anmeldung übertragen. Sichert sie zusätzlich als Datei, falls ihr das Gerät wechselt.</p><div class="row"><button type="button" class="btn sm" data-acc="sync">Erst synchronisieren</button><button type="button" class="btn ghost sm" data-act="backup-all">Als Datei sichern</button><button type="button" class="btn warn sm" data-acc="signout-force">Trotzdem abmelden</button></div></div>':'')+
+    (UI.confirm==='logout'?'<div class="note" role="alert"><b>'+(n?n+' Änderung'+(n===1?'':'en')+' noch nicht online gespeichert.':(Store.conflict||Store.localError?'Eine andere Ansicht hat neuere Daten gespeichert: ob Änderungen offen sind, ist unbekannt.':'Kontospeicher dieses Browsers nicht lesbar: ob Änderungen offen sind, ist unbekannt.'))+'</b><p>Beim Abmelden bleiben sie in diesem Browser für dieses Konto liegen und werden nach der nächsten Anmeldung übertragen. Sichert sie zusätzlich als Datei, falls ihr das Gerät wechselt.</p><div class="row"><button type="button" class="btn sm" data-acc="sync">Erst synchronisieren</button><button type="button" class="btn ghost sm" data-act="backup-all">Als Datei sichern</button><button type="button" class="btn warn sm" data-acc="signout-force">Trotzdem abmelden</button></div></div>':'')+
     '<p class="small muted">Lokaler Speicher ist keine Datensicherung. Der kostenlose Supabase-Tarif enthält keine automatischen Backups; sichert wichtige Reisen zusätzlich als Datei.</p></section>'+
     (gp?'<section class="block"><h2>Reisen ohne Konto in diesem Browser</h2><p>'+gp+' Reise'+(gp===1?'':'n')+' aus dem Gastmodus. Sie werden nicht automatisch übertragen.</p><button type="button" class="btn ghost sm" data-acc="adopt-open">Ansehen und übernehmen</button></section>':'')+
     '<section class="block"><h2>Meine Daten</h2><p class="small">Kontodaten enthalten alle Reisen, auf die ihr online Zugriff habt, mit eurer Rolle und euren Einladungen. Zum Wiederherstellen in der App dient die Reisesicherung.</p><div class="row"><button type="button" class="btn ghost sm" data-acc="export">Kontodaten herunterladen</button><button type="button" class="btn ghost sm" data-act="backup-all">Reisen als Sicherung speichern</button></div>'+
@@ -4174,7 +4201,14 @@ function journalSlot(t,key){
  const J=VJ(),L=journalLayout(t);
  for(const d of L.days){if(d.key===key)return {key,kind:'day',label:d.label};if(d.extra.some(x=>x.key===key))return {key,kind:'extra',label:d.label+' · früherer Eintrag für '+J.keyLabel(key)+' (vor dem Festlegen der Daten)'}}
  const o=L.orphans.find(x=>x.key===key);
- return o?{key,kind:'orphan',label:o.label+(o.kind==='index'?' (ohne festes Datum)':'')+' · ohne zugehörigen Tag'}:null;
+ if(o)return {key,kind:'orphan',label:o.label+(o.kind==='index'?' (ohne festes Datum)':'')+' · ohne zugehörigen Tag'};
+ /* Ungespeicherter Entwurf zu einem Tag, der nach einer Datumsänderung fehlt: bleibt erreichbar (Review R2) */
+ return journalDraftOf(t,key)?{key,kind:'draft',label:J.keyLabel(key)+' · ohne zugehörigen Tag'}:null;
+}
+/* Entwürfe dieser Reise, deren Tag weder aktuell ist noch einen gespeicherten Eintrag hat */
+function journalLostDrafts(t,L){
+ const pre=Store.scope+'|'+t.id+'|',known=new Set();L.days.forEach(d=>{known.add(d.key);d.extra.forEach(x=>known.add(x.key))});L.orphans.forEach(o=>known.add(o.key));
+ return Object.keys(UI.journalDrafts||{}).filter(id=>id.indexOf(pre)===0&&!known.has(id.slice(pre.length))).map(id=>id.slice(pre.length)).sort();
 }
 function journalPrivacy(){return Store.isAccount()?'Mit Konto wird das Tagebuch mit der Reise synchronisiert. Alle, mit denen ihr die Reise teilt, können es lesen.':'Gespeichert in dieser Reise in diesem Browser.'}
 
@@ -4214,7 +4248,9 @@ function journalSection(t,mode){
  const L=journalLayout(t),ph=tripPhase(t);
  const intro='<p class="small muted">Je Reisetag ein Eintrag mit optionaler Stimmung von 1 bis 5. '+esc(journalPrivacy())+'</p>';
  const days='<ul class="plain rp-jdays">'+L.days.map(d=>journalRow(t,d,edit)).join('')+'</ul>';
- const orphans=L.orphans.length?'<details class="panel" open data-journal-orphans><summary><b>'+L.orphans.length+(L.orphans.length===1?' Eintrag':' Einträge')+' ohne zugehörigen Tag</b></summary><p class="small muted">Sie passen zu keinem aktuellen Reisetag, etwa nach einer Änderung von Zeitraum oder Dauer, und bleiben unverändert gespeichert.</p><ul class="plain rp-jdays">'+L.orphans.map(o=>journalRow(t,{key:o.key,label:o.label+(o.kind==='index'?' (ohne festes Datum)':''),entry:o.entry,extra:[]},edit)).join('')+'</ul></details>':'';
+ let orphans=L.orphans.length?'<details class="panel" open data-journal-orphans><summary><b>'+L.orphans.length+(L.orphans.length===1?' Eintrag':' Einträge')+' ohne zugehörigen Tag</b></summary><p class="small muted">Sie passen zu keinem aktuellen Reisetag, etwa nach einer Änderung von Zeitraum oder Dauer, und bleiben unverändert gespeichert.</p><ul class="plain rp-jdays">'+L.orphans.map(o=>journalRow(t,{key:o.key,label:o.label+(o.kind==='index'?' (ohne festes Datum)':''),entry:o.entry,extra:[]},edit)).join('')+'</ul></details>':'';
+ const lost=edit?journalLostDrafts(t,L):[];
+ if(lost.length)orphans+='<details class="panel" open data-journal-lost><summary><b>'+lost.length+(lost.length===1?' ungespeicherter Entwurf':' ungespeicherte Entwürfe')+' ohne zugehörigen Tag</b></summary><p class="small muted">Der Tag gehört nach einer Änderung von Zeitraum oder Dauer nicht mehr zur Reise. Fortsetzen und speichern legt den Eintrag unter seinem bisherigen Tag ab, oder ihr verwerft den Entwurf.</p><ul class="plain rp-jdays">'+lost.map(k=>journalRow(t,{key:k,label:VJ().keyLabel(k),entry:null,extra:[]},edit)).join('')+'</ul></details>';
  const rates=journalRatings(t,edit);
  if(mode==='retro')return '<section class="block" data-journal="retro"><h2>Rückblick: Tagebuch & Bewertungen</h2>'+intro+days+orphans+rates+'</section>';
  /* Auf-/Zugeklappt bleibt beim Neuaufbau erhalten (z. B. nach dem Antippen eines Sterns) */
@@ -4252,6 +4288,7 @@ function journalSheet(t,key){
  const mood=['',1,2,3,4,5].map(n=>'<label class="opt"><input type="radio" name="journal-mood" value="'+n+'"'+(String(v.mood||'')===String(n)?' checked':'')+'> '+(n?n+' · '+esc(J.MOODS[n]):'Keine Angabe')+'</label>').join('');
  openSheet('<div data-journal-sheet><span class="eyebrow">Reisetagebuch</span><h2>'+esc(slot.label)+'</h2>'+
   (slot.kind==='orphan'?'<p class="note">Dieser Eintrag passt zu keinem aktuellen Reisetag. Er bleibt unter seinem bisherigen Tag gespeichert.</p>':'')+
+  (slot.kind==='draft'?'<p class="note">Dieser Entwurf passt zu keinem aktuellen Reisetag. Beim Speichern bleibt er unter seinem bisherigen Tag und erscheint als Eintrag ohne zugehörigen Tag.</p>':'')+
   (isV3(t)?'':'<p class="note">Erster Eintrag dieser Reise: Vor dem Speichern fragen wir einmal nach, weil die Reise dafür im neueren Format 3 gespeichert wird.</p>')+
   (draft?'<div class="note" role="status"><p>Ungespeicherter Entwurf wiederhergestellt.</p><div class="row"><button type="button" class="btn ghost sm" data-journal-act="discard">Entwurf verwerfen</button></div></div>':'')+
   '<div id="journal-error" class="note" role="alert" tabindex="-1" hidden></div>'+
@@ -4347,7 +4384,7 @@ document.addEventListener('click',e=>{
   const o=UI.journalOpen;
   if(act==='delete-ask'){const d=$('#journal-delete');if(d){d.hidden=false;const y=d.querySelector('button');if(y)y.focus()}return}
   if(act==='delete-no'){const d=$('#journal-delete');if(d)d.hidden=true;return}
-  if(act==='discard'){if(o){journalDropDraft(o.scope,o.trip,o.key);const x=Store.get(o.trip);if(x)journalSheet(x,o.key)}return}
+  if(act==='discard'){if(o){journalDropDraft(o.scope,o.trip,o.key);const x=Store.get(o.trip);if(x&&journalSlot(x,o.key))journalSheet(x,o.key);else{UI.journalOpen=null;closeSheet();render();alertMsg('Entwurf verworfen.')}}return}
   if(act==='save'||act==='force'||act==='delete'){
    const key=o&&o.key,r=journalSave(act==='force',act==='delete');if(r==='ask')return;
    closeSheet();render();alertMsg(r==='empty'?'Leerer Eintrag, nichts gespeichert.':act==='delete'?'Eintrag gelöscht.':'Tagebucheintrag gespeichert.');journalFocus('[data-journal-act="open"][data-key="'+key+'"]');return}
@@ -4367,6 +4404,7 @@ Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProf
 Object.assign(window.__app,{catMoodKeys});
 Object.assign(window.__app,{v3CanEdit,v3Actions,v3TransportBlock,v3Controller,v3EditorOpen,v3Sheet});
 Object.assign(window.__app,{V3_JOURNAL,journalValidate,journalCanEdit,journalHas,journalDays,journalLayout,journalActs,journalSlot,journalSection,journalRetro,journalToday,journalMappe,journalMappeToggle,journalSheet,journalSave,journalRate,journalConfirm,journalCommit,journalKeep}); /* Reisetagebuch und Bewertungen */
+Object.assign(window.__app,{historyTrips,keyPriceOpen,journalLostDrafts,v3Ref}); /* Review Runde 2 */
 Object.assign(window.__app,{ledgerBalanceText});
 Object.assign(window.__app,{TEMPLATE_GROUPS,templateGroups,tplButtons,templatePreview,templatePreviewHtml,sheetTemplate,commitTemplatePreview});
 Object.assign(window.__app,{catDbAll,catalogQuery,CAT_RANK_MAX});

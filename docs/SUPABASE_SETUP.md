@@ -117,6 +117,15 @@ supabase stop
 - Nebenbei behoben: Beim Löschen eines Kontos setzte `trips_before_write` das per Fremdschlüssel geleerte `updated_by` fremder Reisen wieder auf das gelöschte Konto und erhöhte die Version. Lokal mit der alten Triggerfassung nachgestellt.
 - Geprüft lokal (`supabase start`, Docker): `db lint`, `test:db` mit `tests/db/account.cjs`, `test:e2e` mit Kontolöschung über die Oberfläche.
 
+## Anmeldung per E-Mail-Code (P0.7, 18.10.)
+
+- App: „Mit Code aus der E-Mail anmelden“ ruft `signInWithOtp` mit `shouldCreateUser: false` und danach `verifyOtp` (Typ `email`) auf (`cloud.js`). Es meldet sich nur an, wer schon ein Konto hat; neue Konten entstehen weiter nur über „Registrieren“. Unbekannte Adressen sehen dieselbe Anzeige wie bekannte.
+- Lokal enthält die Vorlage `supabase/templates/magic_link.html` (über `[auth.email.template.magic_link]` in `config.toml`) den Code `{{ .Token }}` und zusätzlich den Link. Der E2E-Test liest den Code aus Mailpit.
+- **Produktion, einmalig durch Philipp (noch offen):** Im Dashboard unter Authentication → Emails → Templates die Vorlage „Magic Link“ um `{{ .Token }}` ergänzen; der Text aus `supabase/templates/magic_link.html` kann übernommen werden. Die GitHub-Integration übernimmt Auth-Einstellungen aus `config.toml` nicht. Ohne diese Änderung enthält die E-Mail nur den Link, die Code-Eingabe schlägt dann fehl.
+- Code-Länge und Gültigkeit stehen bei den Einstellungen des E-Mail-Anbieters im Dashboard; die App akzeptiert 6 bis 10 Ziffern. Zwischen zwei E-Mails an dieselbe Adresse wartet die App 60 s (Supabase-Standard) oder die Zeit, die der Server meldet.
+- Der eingebaute Mailversand des Gratistarifs erlaubt nur wenige E-Mails pro Stunde. Für echten Betrieb bleibt eigenes SMTP offen.
+- Nicht gegen die Produktion geprüft (aus der Cloud-Umgebung nicht erreichbar).
+
 ## Änderungen am Schema
 
 Neue Datei `supabase/migrations/<JJJJMMTTHHMMSS>_<name>.sql`, niemals bereits eingespielte Dateien ändern. Erst lokal mit `supabase db reset` und den Tests prüfen, dann `db push`. Änderungen am Dokumentformat (`schemaVersion`) brauchen eine Migration in der App (`migrateTrip`) und in der Datenbank-Prüfung.

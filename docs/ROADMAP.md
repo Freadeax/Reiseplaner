@@ -1,5 +1,9 @@
 # Roadmap
 
+## Lokaler Ordner statt Git · 18.10.2026
+
+Seit 17.10. entwickelt Claude direkt in `F:\LMNT\Reiseplaner` (Philipp: Actions-Kontingent aufgebraucht), ohne Commits und Pushes, und allein ohne ChatGPT. Fertig und geprüft, aber nicht veröffentlicht: P0.2a Mitreisende/Ausgaben/Aufteilung, P0.2b Reisetagebuch und Bewertungen, P0.4 Speicheradapter mit IndexedDB-Zweitkopie, P0.7 Anmeldung per E-Mail-Code, dazu zwei Prüfrunden mit Korrekturen (Details in STATUS). Nächste Schritte: (1) Philipps Sichtprüfung im Browser, (2) Vorlage „Magic Link“ in der Produktion um `{{ .Token }}` ergänzen, (3) nach Freigabe von Git Commit auf `main` und CI, (4) P0.5 iOS-Navigation/Gestaltungsregeln, (5) P0.6 `index.html` aufteilen, (6) Obergrenze der Reisedauer prüfen.
+
 ## Claude allein, ChatGPT pausiert · 16.10.2026
 
 Philipp: Claude bringt App und offene Punkte vorerst allein voran, Übergabe für ChatGPT kompakt oben in [COLLABORATION.md](COLLABORATION.md). Erledigt: Finanz-/Verpflichtungsreview des v3-Editors mit vier Kostenkorrekturen und Check-in-Regel (siehe STATUS). Danach P0.3 Kontoexport/-löschung/Besitzerwechsel umgesetzt und lokal mit echtem Supabase-Stack getestet. `V3_EDIT` am 16.10. nach Philipps Wahl freigeschaltet. Nächste Schritte: (1) Rückmeldungen zu den Bearbeitungsdialogen aufnehmen, (2) Produktionsstand Katalog v4 und Kontomigration read-only prüfen (aus der Cloud-Umgebung nicht erreichbar), (3) P0.4 Speicheradapter mit Migration von `rp-trips`, (4) P0.7 Anmeldung per E-Mail-Code.

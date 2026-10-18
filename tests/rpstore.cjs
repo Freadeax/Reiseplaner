@@ -421,6 +421,46 @@ process.on('exit', () => { if (!finished) { console.error('tests/rpstore.cjs: ni
     assert(/Store\.forgetScope\(scope\)/.test(del) && /Store\.forgetScope\(scope\)/.test(so), 'Abmelden und Kontolöschung nutzen forgetScope');
     assert(!/removeItem\('rp-u:'/.test(del + so), 'kein Kontolöschweg nur an localStorage vorbei');
   }
+  /* 19. Review R2: Sicherungspunkte beim Laden leer, vor dem Abgleich neu geschrieben → ältere aus der Kopie bleiben */
+  {
+    const w = world(); let S1 = app(w); await S1.ready;
+    const t = trip(S1.a, 'Alt-1'); S1.Store.put(t, true);
+    for (let i = 2; i <= 4; i++) { const x = S1.Store.get(t.id); x.title = 'Alt-' + i; S1.Store.put(x, true); }
+    await S1.R.flush(); const oldHist = JSON.parse(w.idb.raw('rp-history')); assert.equal(oldHist.length, 3);
+    w.ls.removeItem('rp-trips'); w.ls.removeItem('rp-history');
+    const S2 = app(w); S2.Store.put(trip(S2.a, 'Neu während Laden'), true);
+    await S2.ready; await S2.R.flush(); await tick(30); await S2.R.flush();
+    const lsHist = JSON.parse(w.ls.getItem('rp-history')), idbHist = JSON.parse(w.idb.raw('rp-history'));
+    assert.equal(oldHist.filter(h => lsHist.some(n => n.raw === h.raw)).length, 3, 'ältere Sicherungspunkte im Browser-Speicher');
+    assert.equal(w.ls.getItem('rp-history'), w.idb.raw('rp-history'), 'Kopie folgt'); assert(idbHist.length <= 5);
+  }
+  /* 20. Review R2: Kopie ohne Reisen bei leerem Start → eingereihte Änderung landet trotzdem in der Kopie */
+  {
+    const w = world(); let S1 = app(w); await S1.ready;
+    const t = trip(S1.a, 'Wird gelöscht'); S1.Store.put(t, true); await S1.R.flush(); await S1.Store.remove(t.id); await S1.R.flush();
+    w.ls.removeItem('rp-trips'); w.ls.removeItem('rp-history');
+    const S2 = app(w); S2.Store.put(trip(S2.a, 'Neu während Laden'), true);
+    await S2.ready; await S2.R.flush(); await tick(30); await S2.R.flush();
+    assert(/Neu während Laden/.test(w.idb.raw('rp-trips') || ''), 'Kopie enthält die neue Reise');
+    w.ls.removeItem('rp-trips'); w.ls.removeItem('rp-history');
+    const S3 = app(w); await S3.ready; await tick(30);
+    assert.deepEqual(S3.Store.list().map(x => x.title), ['Neu während Laden'], 'nach erneutem Leeren wiederhergestellt');
+  }
+  /* 21. Review R2: zwei Tabs im Konto, Tab B mit veraltetem Stand meldet sich ab → Ausstehendes aus Tab A bleibt */
+  {
+    const w = world(), cloud = { enabled: () => true, onAuth() {}, async init() { return { id: 'uT', email: 't@x' }; }, async signOut() {} };
+    const A = app(w, { cloud }), B = app(w, { cloud });
+    await A.ready; await B.ready; await until(() => A.Store.scope === 'uT' && B.Store.scope === 'uT', 'Anmeldung'); await tick(20);
+    A.Store.put(trip(A.a, 'Offline in Tab A'), true); await A.R.flush();
+    await until(() => B.Store.conflict, 'Tab B bemerkt die Fremdänderung');
+    assert.equal(B.Store.pending(), 0, 'Tab B kennt das Ausstehende nicht');
+    await B.a.Auth.signOut(false); await tick(20);
+    assert.equal(B.a.UI.confirm, 'logout', 'Rückfrage statt stillem Löschen'); assert.equal(B.Store.scope, 'uT');
+    assert(/Offline in Tab A/.test(w.ls.getItem('rp-u:uT')), 'Kontobereich unverändert');
+    assert(/andere Ansicht hat neuere Daten/.test(B.a.vKonto()), 'Hinweis nennt den Grund');
+    await B.a.Auth.signOut(true); await tick(20);
+    assert(/Offline in Tab A/.test(w.ls.getItem('rp-u:uT')) && /Offline in Tab A/.test(w.idb.raw('rp-u:uT') || ''), 'auch erzwungen bleibt der Bereich liegen');
+  }
   finished = true;
-  console.log('RPStore: Abgleichsregel, gleiche Semantik localStorage/IndexedDB, Migration mit Rücklesevergleich und Marker (rp-trips bleibt), Abbruch/Zeitüberschreitung/kein IndexedDB/Kontingent ohne falschen Erfolg, zwei Tabs, Wiederherstellung, Zurückrollen, beschädigter Speicher, Abmelden/Kontolöschung mit Löschmarke geprüft (Node, In-Memory-IndexedDB).');
+  console.log('RPStore: Abgleichsregel, gleiche Semantik localStorage/IndexedDB, Migration mit Rücklesevergleich und Marker (rp-trips bleibt), Abbruch/Zeitüberschreitung/kein IndexedDB/Kontingent ohne falschen Erfolg, zwei Tabs, Wiederherstellung, Zurückrollen, beschädigter Speicher, Abmelden/Kontolöschung mit Löschmarke, Sicherungspunkte beim Laden, leere Kopie und Abmelden aus einem veralteten Tab geprüft (Node, In-Memory-IndexedDB).');
 })().catch(e => { console.error(e); process.exit(1); });

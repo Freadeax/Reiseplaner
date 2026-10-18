@@ -17,7 +17,7 @@
   'use strict';
 
   /* Grenzen: 366 Einträge reichen für ein volles Jahr plus einen Tag; mehr würde den Browser-Speicher (rund 5 MB) einer
-     einzelnen Reise sprengen. Tagesindex bis 9999 deckt jede gültige Reisedauer ab. */
+     einzelnen Reise sprengen. Tagesindex bis 9999; Tage ohne Datum darüber bekommen keine Zeile (Review R2). */
   var LIMITS = { text: 2000, entries: 366, ratings: 500, maxIndex: 9999, minScore: 1, maxScore: 5 };
   var MOODS = { 1: 'mies', 2: 'durchwachsen', 3: 'okay', 4: 'gut', 5: 'großartig' };
   var DATE = /^\d{4}-\d{2}-\d{2}$/, INDEX = /^d(0|[1-9]\d{0,3})$/, ACT = /^[A-Za-z0-9_-]{1,60}$/;
@@ -120,17 +120,20 @@
   /* ---------- Zuordnung zu Reisetagen ---------- */
   /* Schlüssel für einen Tag: Datum bei festen Daten, sonst Tagesindex. */
   function dayKey(day) {
-    if (!day || typeof day.i !== 'number' || !Number.isInteger(day.i) || day.i < 0 || day.i > LIMITS.maxIndex) fail('Reisetag ungültig.');
+    if (!day || typeof day.i !== 'number' || !Number.isInteger(day.i) || day.i < 0) fail('Reisetag ungültig.');
     if (day.date != null) { if (!isDateKey(day.date)) fail('Datum des Reisetags ungültig.'); return day.date; }
+    if (day.i > LIMITS.maxIndex) fail('Reisetag ungültig.');
     return 'd' + day.i;
   }
+  /* Tage ohne möglichen Schlüssel (ohne Datum und Index über maxIndex) bekommen keine Zeile statt die Ansicht zu sprengen */
+  function keyable(d) { return !!d && (d.date != null || (typeof d.i === 'number' && d.i <= LIMITS.maxIndex)); }
   /* Vorhandene Einträge den aktuellen Tagen zuordnen, ohne Schlüssel zu ändern.
      - entry: Eintrag unter dem Schlüssel des Tages (dort wird neu geschrieben)
      - extra: bei festen Daten zusätzlich ein früherer Eintrag „Tag N“ aus der Zeit ohne feste Daten
      - orphans: alles Übrige, sortiert (Daten aufsteigend, dann Tage aufsteigend) */
   function layout(journal, days) {
     var j = journal && plain(journal) ? journal : {}, claimed = {}, count = 0;
-    var out = (days || []).map(function (d) {
+    var out = (days || []).filter(keyable).map(function (d) {
       var key = dayKey(d), row = { i: d.i, date: d.date == null ? null : d.date, key: key, entry: own(j, key) ? j[key] : null, extra: [] };
       Object.keys(d).forEach(function (k) { if (!own(row, k)) row[k] = d[k]; });
       claimed[key] = 1; if (row.entry) count++;

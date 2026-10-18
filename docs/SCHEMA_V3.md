@@ -139,7 +139,7 @@ Das ist der sichere Fall aus der Review. Die UI zeigt vor der Rücknahme genau d
   Höchstens 20 Personen. Darf leer sein: dann gibt es keine Aufteilung.
 - `t.expenses = [{id, on, label, amount, cat, paidBy:partyId|null, split:{among:[partyId], mode:'equal'|'shares', shares?:{id:n}}}]`
   sind Ausgaben **zusätzlich** zum Plan, also unterwegs und nicht im Buchungsbuch. Höchstens 2000 Einträge.
-- `ledger[key].paidBy`, `offers[i].paidBy` (optional, `partyId`): wer eine geplante Buchung bezahlt hat.
+- `ledger[key].paidBy`, `offers[i].paidBy` (optional, `partyId`): wer eine geplante Buchung bezahlt hat. Ein Buchungsbuch-Eintrag mit `paidBy` gilt als Historie: Er bleibt beim Entfernen des Abschnitts oder Postens erhalten (Feldtreue §5, Review 17.10.).
 
 ### Regeln
 
