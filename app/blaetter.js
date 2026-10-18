@@ -18,12 +18,61 @@ function openSheet(html){
  if(!$('.sheet'))sheetOpener=document.activeElement||null;
  if(document.body&&document.body.style&&sheetScroll===null){sheetScroll=document.body.style.overflow||'';document.body.style.overflow='hidden'}
  UI.secureJob=(UI.secureJob||0)+1;
- $('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><button type="button" class="x" data-act="sheet-x">Schließen ✕</button>'+html+'</div></div>';
+ $('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><div class="sheet-grip" data-sheet-grip aria-hidden="true"><span></span></div><button type="button" class="x" data-act="sheet-x" aria-label="Schließen">Schließen ✕</button>'+html+'</div></div>';
  const s=$('.sheet');if(!s)return;
+ sheetGripBind(s);
  const title=s.querySelector('h1,h2');
  if(title){title.id='rp-sheet-title';s.setAttribute('aria-labelledby',title.id)}else s.setAttribute('aria-label','Details');
  if(s.focus)s.focus();
 }
+/* P0.5 Zieh-Griff: Herunterziehen schließt das Blatt, nur als Ergänzung zum Schließen-Knopf.
+   Entscheidung rein rechnerisch (Node-prüfbar): weit genug gezogen oder schnell genug nach unten gewischt. */
+function sheetDragDecision(dy,ms,height){
+ dy=Number(dy)||0;ms=Math.max(1,Number(ms)||1);height=Math.max(1,Number(height)||1);
+ if(dy<=0)return 'stay';
+ if(dy>=Math.min(140,height*0.3))return 'close';
+ if(dy>=40&&dy/ms>=0.6)return 'close';
+ return 'stay';
+}
+function sheetGripBind(s){
+ const grip=s.querySelector&&s.querySelector('[data-sheet-grip]');
+ if(!grip||!grip.addEventListener||typeof window==='undefined'||!('PointerEvent' in window))return;
+ let start=null;
+ const reset=()=>{s.style.transform='';s.classList.remove('dragging');start=null};
+ grip.addEventListener('pointerdown',e=>{
+  if(e.button!=null&&e.button!==0)return;
+  start={y:e.clientY,t:Date.now(),id:e.pointerId};s.classList.add('dragging');
+  try{grip.setPointerCapture(e.pointerId)}catch(err){}
+ });
+ grip.addEventListener('pointermove',e=>{if(!start||e.pointerId!==start.id)return;const dy=Math.max(0,e.clientY-start.y);s.style.transform=dy?'translateY('+dy+'px)':''});
+ const end=e=>{
+  if(!start||e.pointerId!==start.id)return;
+  const decision=e.type==='pointerup'?sheetDragDecision(e.clientY-start.y,Date.now()-start.t,s.getBoundingClientRect().height):'stay';
+  reset();if(decision==='close')closeSheet();
+ };
+ grip.addEventListener('pointerup',end);grip.addEventListener('pointercancel',end);
+}
+/* P0.5 Bildschirmtastatur: Das aktive Feld bleibt sichtbar. Ohne visualViewport (ältere Browser, Node) passiert nichts. */
+function fieldHidden(rect,vv,margin){
+ if(!rect||!vv)return false;margin=margin==null?12:margin;
+ const top=Number(vv.offsetTop)||0,bottom=top+(Number(vv.height)||0);
+ return rect.bottom>bottom-margin||rect.top<top+margin;
+}
+function keepFieldVisible(){
+ if(typeof window==='undefined'||!window.visualViewport||typeof document==='undefined')return false;
+ const vv=window.visualViewport,root=document.documentElement;
+ if(root&&root.style&&root.style.setProperty){root.style.setProperty('--rp-vvh',Math.round(vv.height)+'px');root.style.setProperty('--rp-vvtop',Math.round(vv.offsetTop)+'px')}
+ const el=document.activeElement;
+ if(!el||!el.matches||!el.matches('input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]),textarea,select,[contenteditable="true"]'))return false;
+ if(!fieldHidden(el.getBoundingClientRect(),vv))return false;
+ try{el.scrollIntoView({block:'center',inline:'nearest'})}catch(e){try{el.scrollIntoView(false)}catch(err){}}
+ return true;
+}
+try{if(typeof window!=='undefined'&&window.visualViewport&&window.visualViewport.addEventListener){
+ let vvTimer=0;const vvRun=()=>{clearTimeout(vvTimer);vvTimer=setTimeout(keepFieldVisible,60)};
+ window.visualViewport.addEventListener('resize',vvRun);window.visualViewport.addEventListener('scroll',vvRun);
+ document.addEventListener('focusin',()=>setTimeout(keepFieldVisible,300));
+}}catch(e){}
 function closeSheet(){
  if(v3Editor)v3Editor.close();
  if(splitEditor)try{splitEditor.close()}catch(e){}

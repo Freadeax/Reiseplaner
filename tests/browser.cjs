@@ -1263,6 +1263,64 @@ async function navFlow(browser,base,name,ctxOpts){
  assert.equal(await keys(),'reisen,entdecken,erinnerungen,konto');
  assert((await viewText(p)).includes('Gerade läuft keine Reise'));
  await ctx.close();console.log(name+': Hauptnavigation ('+(phone?'Tab-Leiste unten':'oben')+'), Heute, Erinnerungen, Konto/Darstellung und Verdeckung geprüft.');
+/* P0.5 iOS-Gestaltungsregeln (PLAN_IOS_APP.md §4.3) in Chromium: Schrift 200 % ohne seitliches Scrollen und ohne
+   abgeschnittene Knöpfe/Überschriften, Blatt mit Zieh-Griff und Schließen-Knopf ≥ 44 px, Ziehen schließt nur weit genug,
+   reduzierte Bewegung ohne Übergang, Feld bleibt bei kleinerem sichtbaren Bereich sichtbar. Kein iPhone-/WebKit-Test:
+   env(safe-area-inset-*) und die echte Bildschirmtastatur lassen sich in Chromium nicht nachstellen.
+   Die Kopfleiste (.top/.app-nav) baut Modul A (Navigation) parallel um; sie wird hier ausgeblendet und separat geprüft. */
+async function iosDesign(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' iOS-Regeln: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.addInitScript(()=>document.addEventListener('DOMContentLoaded',()=>{const s=document.createElement('style');s.id='t200';s.textContent='html{font-size:200%!important}';document.head.appendChild(s)}));
+ await p.goto(base+'/index.html#reisen');
+ assert.equal(await p.evaluate(()=>getComputedStyle(document.body).fontSize),'32px',name+': Grundschrift folgt 200 %');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);return t.id});
+ const check=async where=>{
+  const r=await p.evaluate(()=>{
+   const top=document.querySelector('header.top');if(top)top.style.display='none';
+   const overflow=document.documentElement.scrollWidth-document.documentElement.clientWidth,clipped=[];
+   const scope=document.querySelector('.sheet')||document.querySelector('#view');
+   for(const el of scope.querySelectorAll('button,a.btn,a.lnk,label,h1,h2,h3,h4,summary,.kpi,.badge')){
+    const r=el.getBoundingClientRect();if(!r.width||el.closest('[hidden],details:not([open])>:not(summary)'))continue;
+    let sc=el.parentElement,scroller=false;while(sc&&sc!==document.body){const o=getComputedStyle(sc).overflowX;if(o==='auto'||o==='scroll'){scroller=true;break}sc=sc.parentElement}
+    if(!scroller&&el.scrollWidth>el.clientWidth+2)clipped.push(el.tagName+'.'+el.className+' „'+el.textContent.trim().slice(0,30)+'“ '+el.scrollWidth+'/'+el.clientWidth);
+   }
+   if(top)top.style.display='';
+   return {overflow,clipped:clipped.slice(0,5)};
+  });
+  assert(r.overflow<=0,name+' '+where+': Seite bei 200 % Schrift '+r.overflow+' px zu breit');
+  assert.deepEqual(r.clipped,[],name+' '+where+': abgeschnittener Text bei 200 %');
+ };
+ for(const [where,hash] of [['Reisen','#reisen'],['Neue Reise','#neu'],['Überblick','#r-'+id+'-ueber'],['Kosten','#r-'+id+'-kosten'],['Tagesplan','#r-'+id+'-plan'],['Entdecken','#entdecken'],['Konto','#konto']]){
+  await p.goto(base+'/index.html'+hash);await p.waitForSelector('#view h1, #view h2');await check(where);
+ }
+ /* Offenes Blatt (Eckdaten, langes Formular) */
+ await p.goto(base+'/index.html#r-'+id+'-ueber');await p.click('.trip-actions [data-act="edit-trip"]');await p.waitForSelector('.sheet #editform');
+ await check('Blatt Eckdaten');
+ const grip=await p.evaluate(()=>{const g=document.querySelector('.sheet .sheet-grip'),x=document.querySelector('.sheet .x'),gr=g.getBoundingClientRect(),xr=x.getBoundingClientRect();
+  return {hidden:g.getAttribute('aria-hidden'),gh:gr.height,gw:gr.width,shown:getComputedStyle(g).display!=='none',xw:xr.width,xh:xr.height,xname:x.getAttribute('aria-label'),xtext:x.textContent,order:g.compareDocumentPosition(x)&Node.DOCUMENT_POSITION_FOLLOWING,trans:getComputedStyle(document.querySelector('.sheet')).transitionDuration}});
+ assert(grip.shown&&grip.gh>=20&&grip.gw>=44,name+': Zieh-Griff sichtbar');assert.equal(grip.hidden,'true',name+': Griff dekorativ');
+ assert(grip.xw>=44&&grip.xh>=44,name+': Schließen-Knopf mindestens 44 × 44 px ('+grip.xw+' × '+grip.xh+')');
+ assert.equal(grip.xname,'Schließen');assert(grip.xtext.includes('Schließen'));assert(grip.order,name+': Griff über dem Knopf');
+ if(ctxOpts.reducedMotion==='reduce')assert.equal(grip.trans,'0s',name+': reduzierte Bewegung ohne Übergang am Blatt');
+ else assert.notEqual(grip.trans,'0s',name+': Übergang nur ohne reduzierte Bewegung');
+ /* Tastatur: sichtbarer Bereich schrumpft, das fokussierte Feld bleibt sichtbar */
+ const field=p.locator('.sheet #editform input, .sheet #editform select').last();await field.focus();
+ const vp=ctxOpts.viewport;await p.setViewportSize({width:vp.width,height:Math.round(vp.height*0.45)});await p.waitForTimeout(500);
+ const vis=await field.evaluate(el=>{const r=el.getBoundingClientRect(),vv=window.visualViewport;return {top:r.top,bottom:r.bottom,h:vv.height,root:getComputedStyle(document.documentElement).getPropertyValue('--rp-vvh')}});
+ assert(vis.top>=0&&vis.bottom<=vis.h,name+': Feld nach Verkleinern sichtbar ('+JSON.stringify(vis)+')');
+ assert.equal(vis.root.trim(),Math.round(vis.h)+'px',name+': Blatt kennt die sichtbare Höhe');
+ await p.setViewportSize(vp);await p.waitForTimeout(200);await p.$eval('.sheet',e=>{e.scrollTop=0});await p.locator('.sheet .x').focus();
+ /* Ziehen: kurz bleibt offen, weit schließt; Schließen-Knopf bleibt die gleichwertige Alternative */
+ const g=await p.locator('.sheet .sheet-grip').boundingBox(),gx=g.x+g.width/2,gy=g.y+g.height/2;
+ await p.mouse.move(gx,gy);await p.mouse.down();await p.mouse.move(gx,gy+15,{steps:3});await p.mouse.up();
+ assert.equal(await p.locator('.sheet').count(),1,name+': kurzes Ziehen schließt nicht');
+ assert.equal(await p.$eval('.sheet',e=>e.style.transform),'',name+': Blatt springt zurück');
+ await p.mouse.move(gx,gy);await p.mouse.down();await p.mouse.move(gx,gy+220,{steps:6});await p.mouse.up();
+ assert.equal(await p.locator('.sheet').count(),0,name+': weites Ziehen schließt');
+ await p.evaluate(()=>window.__app.appearanceSheet());await check('Blatt Darstellung');
+ await p.click('.sheet .x');assert.equal(await p.locator('.sheet').count(),0,name+': Knopf schließt');
+ await ctx.close();console.log(name+': 200 % Schrift ohne Überlauf (7 Ansichten, 2 Blätter), Zieh-Griff, Schließen ≥ 44 px, Ziehen, Tastatur-Sichtbarkeit, Bewegung geprüft.');
 }
 
 (async () => {
@@ -1307,6 +1365,9 @@ async function navFlow(browser,base,name,ctxOpts){
     await navFlow(browser,base,'navigation-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-desktop',{viewport:{width:1280,height:900}});
+    await iosDesign(browser,base,'ios-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true,reducedMotion:'reduce'});
+    await iosDesign(browser,base,'ios-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await iosDesign(browser,base,'ios-390-ruhig',{viewport:{width:390,height:844},reducedMotion:'reduce'});
     await offline(browser, base);
   } finally {
     await browser.close();

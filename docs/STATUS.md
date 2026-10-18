@@ -14,6 +14,22 @@ Tests (18.10., Cloud-Container): `npm test` (28 Dateien, neu `tests/navigation.c
 Grenzen: Ob „Heute“ erscheint, wird bei jedem Neuaufbau der Ansicht entschieden, nicht automatisch um Mitternacht. Innerhalb einer Reise gibt es noch keine Unterseiten mit Zurück-Geste (§4.2 Absatz 2). Blätter, Zieh-Griffe, Schriftskalierung und allgemeine Touchziele bearbeitet ein paralleles Modul.
 
 Nächster Schritt: Sichtprüfung auf dem iPhone (Home-Indikator, Tastatur über der Tab-Leiste), danach Zusammenführung mit dem parallelen P0.5-Modul.
+## P0.5 Modul B: iOS-Gestaltungsregeln ohne Hauptnavigation (Claude, 18.10., Branch `p05-design`, lokal)
+
+Umgesetzt nach [PLAN_IOS_APP.md](PLAN_IOS_APP.md) §4.3; Kopfleiste und Hauptnavigation (`.top`, `.app-nav`, Tab-Leiste) baut Modul A parallel und sind hier nicht angefasst.
+
+- **Blätter (`app/blaetter.js`):** sichtbarer Zieh-Griff oben (dekorativ, `aria-hidden`), Schließen-Knopf bleibt, mindestens 44 × 44 px, Name „Schließen“. Herunterziehen am Griff schließt nur als Ergänzung (ab 140 px bzw. 30 % der Blatthöhe oder schnelles Wischen ab 40 px, `sheetDragDecision`); kurzes Ziehen springt zurück. Fokusfalle, Escape und Hintergrund-Tippen unverändert. Ab 760 px Breite (Dialog in der Mitte) kein Griff.
+- **Bildschirmtastatur:** Bei Änderung von `visualViewport` (und nach Fokus) wird ein verdecktes Eingabefeld in die Mitte gerollt (`keepFieldVisible`, ohne weiches Scrollen); Blatt-Hintergrund und Blatthöhe folgen dem sichtbaren Bereich (`--rp-vvh`, `--rp-vvtop`). Ohne `visualViewport` passiert nichts.
+- **Sichere Bereiche:** zusätzlich links/rechts (`:root` mit `env(safe-area-inset-left/right)`, Querformat), Blatt mit seitlichen Abständen und Home-Indikator-Abstand unten; das Dock steht auf dem Bildschirm im Seitenfluss und erbt die Abstände, als feste Leiste hat es eigene.
+- **Schrift bis 200 %:** Grundschrift `body` von 16 px auf `1rem` (Fließtext wuchs bisher nicht mit). Lange Wörter umbrechen (`overflow-wrap:break-word`, Überschriften mit Silbentrennung), Kennzahlen, Schnellprofile, Vorlagenköpfe, Bereichsauswahl, Reise-Aktionen und Dock-Summe brechen um statt überzustehen.
+- **VoiceOver/Tippflächen:** Kartenpunkte in Entdecken haben jetzt einen Namen („3: Ort öffnen“). Sie bleiben kleiner als 44 px, weil sie dicht beieinander liegen; gleichwertig ist der Knopf „Öffnen“ in der Ergebnisliste. Die UI-Prüfung (390/320 px, Standard-Darstellung) meldet sonst keine kleinen Tippflächen und keine Knöpfe ohne Namen.
+- **Bewegung:** Rücksprung des Blatts nur ohne `prefers-reduced-motion`; sonst greift die bestehende globale Regel. Kein weiches Scrollen in App-Code oder CSS.
+
+Tests: neu `tests/ios-design.cjs` (in `npm test`), neu `iosDesign` in `tests/browser.cjs` (320 px dunkel mit reduzierter Bewegung, 390 px mobil, 390 px mit reduzierter Bewegung): bei 200 % Schrift kein seitliches Scrollen und keine abgeschnittenen Knöpfe/Überschriften in Reisen, Neue Reise, Überblick, Kosten, Tagesplan, Entdecken, Konto und zwei offenen Blättern; Griff und Knopf ≥ 44 px; Ziehen; Feld bleibt nach Verkleinern des sichtbaren Bereichs sichtbar; kein Übergang bei reduzierter Bewegung. Ausgeführt: siehe Abschlussbericht des Pakets (`npm test`, `npm run test:browser`, eingeschränkte UI-Prüfung).
+
+Grenzen: Die Kopfleiste läuft bei 200 % Schrift auf 320 px noch 12 px über (Logo-Schriftzug); sie wird im Browsertest ausgeblendet, weil Modul A sie ersetzt – nach dem Zusammenführen erneut prüfen. Nicht prüfbar ohne iPhone/WebKit: echte sichere Bereiche (Chromium setzt `env()` auf 0), echte Bildschirmtastatur, Dynamic Type des Systems (die Web-App folgt der Browser-/Seitenschrift, nicht automatisch der iOS-Textgröße; in der Capacitor-Hülle wäre `-apple-system-body` oder eine Brücke nötig), VoiceOver-Ansage, Silbentrennung in Safari, Ziehen mit dem Finger. Haptik nicht umgesetzt (nur ergänzend erlaubt). Service Worker nicht hochgezählt (Netz zuerst; Modul A zählt hoch).
+
+Nächster Schritt: Zusammenführen mit Modul A, danach Gesamtprüfung bei 200 % inklusive neuer Tab-Leiste und Test auf einem iPhone.
 
 ## P0.6: App-Code aus index.html aufgeteilt (Claude, 18.10., lokal)
 

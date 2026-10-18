@@ -3,6 +3,9 @@
 ## P0.5 Navigation lokal fertig · 18.10.2026
 
 Hauptnavigation nach PLAN_IOS_APP §4.2 (Tab-Leiste unten am Handy, oben am Desktop), neue Ansichten **Heute** und **Erinnerungen**, Darstellung auch im Konto. Branch `p05-nav`, nicht gepusht; Tests und Grenzen in STATUS. Nächste Schritte: (1) iPhone-/Safari-Sichtprüfung, (2) mit dem parallelen P0.5-Modul (Blätter, Schrift, Touchziele) zusammenführen, (3) Unterseiten mit Zurück-Geste innerhalb einer Reise.
+## P0.5 Modul B iOS-Gestaltungsregeln · 18.10.2026
+
+Lokal auf Branch `p05-design`: Blätter mit Zieh-Griff und Schließen-Knopf, Tastatur hält das Feld sichtbar, sichere Bereiche auch seitlich, Schrift bis 200 % ohne seitliches Scrollen (Chromium geprüft), Namen für Kartenpunkte. Offen: Zusammenführen mit Modul A (Navigation), Kopfleiste bei 200 % erneut prüfen, iPhone-/WebKit-Test (sichere Bereiche, Tastatur, VoiceOver, Dynamic Type).
 
 ## Lokaler Ordner statt Git · 18.10.2026
 
