@@ -1,5 +1,5 @@
 /* Reiseplaner · Start: Laden, Schnittstelle window.__app, Routing, Service Worker.
-   Teil 19 von 19 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 20 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Start ================= */
@@ -23,6 +23,7 @@ Object.assign(window.__app,{V3S,splitValidate,splitPostings,splitResult,splitSec
 Object.assign(window.__app,{NAV_DEF,runningTrips,navItems,navActive,navHtml,renderNav,navFocus,heuteLinks,vHeute,memoriesData,vErinnerungen,kontoDarstellung,navDayKey,navDayCheck,navBusy,dayOptions}); /* Navigation P0.5 */
 Object.assign(window.__app,{MAX_TRIP_DAYS,tripDayCount,tripTooLong,tripLengthError,viewDays,longTripNote}); /* Reisedauer, Paket 1 */
 Object.assign(window.__app,{sheetDragDecision,sheetGripBind,fieldHidden,keepFieldVisible}); /* P0.5 iOS-Gestaltungsregeln */
+Object.assign(window.__app,{SUB_MEDIA,subParse,subRoute,subDepth,subResolve,subParent,subNavMode,subBack,subBackLabel,subSeed,subFocus,subCount,subAreas,subListHtml,subHeadHtml,subSwipeDecision,subSwipeHost,subMobile,subHistoryApply,subBackRun,subWidthChange}); /* Unterseiten, Paket 4 */
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

@@ -35,9 +35,16 @@ const OUT = process.env.SHOT_DIR || '';
 const errors = [];
 // Die sichtbare Navigation verwenden: mobile Auswahl oder Desktop-Seitenleiste.
 async function tripTab(p,tab){
- if(await p.isVisible('#trip-area'))await p.selectOption('#trip-area',tab);
- else await p.click('.tab[data-go$="-'+tab+'"]');
+ if(await p.isVisible('#trip-area')){await p.selectOption('#trip-area',tab);return}
+ if(await p.isVisible('.tab[data-go$="-'+tab+'"]')){await p.click('.tab[data-go$="-'+tab+'"]');return}
+ /* Handy bis 760 px (Paket 4): Übersichtsseite und Unterseiten mit Zurück */
+ if(await p.isVisible('[data-sub-page="'+tab+'"]'))return;
+ for(let i=0;i<3&&!(await p.isVisible('[data-sub-area="'+tab+'"]'))&&await p.isVisible('[data-sub-back]');i++)await p.click('[data-sub-back]');
+ await p.click('[data-sub-area="'+tab+'"]');await p.waitForSelector('[data-sub-page="'+tab+'"]');
 }
+const TRIP_READY='.tabs,.sub-areas,.sub-head';
+/* Eckdaten und Status stehen am Handy auf der Übersichtsseite der Reise */
+async function tripHome(p){for(let i=0;i<3&&!(await p.isVisible('[data-act="edit-trip"]'))&&await p.isVisible('[data-sub-back]');i++)await p.click('[data-sub-back]')}
 async function planClick(p,selector){
  const target=p.locator(selector).first();
  const day=await target.evaluate(el=>{const col=el.closest('.dcol[data-day]');return col?col.getAttribute('data-day'):null});
@@ -126,7 +133,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.check('#cat-near input[data-cs] >> nth=0');
   await p.fill('#cat-n', '1');
   await p.click('[data-act="cat-create"]');
-  await p.waitForSelector('.tabs');
+  await p.waitForSelector(TRIP_READY);
   assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': nach Anlegen im Tagesplan');
   const items = await p.$$eval('.item[data-act="item"]', l => l.length);
   /* Gesamtdatei oder geladene Kacheln (Katalog K1: Direktlinks laden nur eine Kachel) */
@@ -218,7 +225,7 @@ async function entdecken(browser, base, name, ctxOpts) {
   await p.waitForSelector('.sheet input[data-tn]');
   assert((await p.textContent('.sheet')).includes('Heimfahrt'), name + ': Rundreise mit Heimfahrt');
   await p.click('[data-act="cat-tour-create"]');
-  await p.waitForSelector('.tabs');
+  await p.waitForSelector(TRIP_READY);
   assert(/#r-[a-z0-9]+-plan$/.test(p.url()), name + ': Rundreise im Tagesplan');
   assert((await p.textContent('.board')).includes('Weiterfahrt nach'), name + ': Weiterfahrt eingeplant');
   await tripTab(p,'ueber');
@@ -459,7 +466,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await noOverflow(p, name + ' Mappe');
 
   /* Eckdaten ändern: neue Daten setzen das Unterkunftsangebot zurück */
-  await p.click('[data-act="edit-trip"]');
+  await tripHome(p);await p.click('[data-act="edit-trip"]');
   await p.fill('#editform [data-f="end"]', '2027-05-06');
   await p.click('[data-act="edit-save"]');
   assert((await viewText(p)).includes('5 Nächte'), name + ': Eckdaten nicht übernommen');
@@ -583,6 +590,7 @@ async function run(browser, base, name, ctxOpts, now) {
 
   /* Duplizieren und Löschen mit Rückfrage */
   await p.click('.card.click >> nth=0');
+  await tripTab(p,'ueber');
   await p.click('[data-act="del"]');
   await p.click('[data-act="del-yes"]');
   assert.equal(await p.locator('.card.click').count(), 3, name + ': Löschen');
@@ -719,7 +727,7 @@ async function appearances(browser,base,name,ctxOpts){
   await p.click('.sheet .x');
   assert.equal(await p.evaluate(()=>localStorage.getItem('rp-appearance')),mode);
   colors.push(await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()));
-  await p.click('.trip-card[data-go="r-'+id+'-ueber"]');
+  await p.click('.trip-card[data-go="r-'+id+'"]');
   await noOverflow(p,name+' Reise '+mode);
   if(mode==='studio'&&ctxOpts.viewport.width>=1000){
    assert.equal(await p.$eval('.trip-workspace>.tabs',el=>getComputedStyle(el).flexDirection),'column');
@@ -728,7 +736,7 @@ async function appearances(browser,base,name,ctxOpts){
   await tripTab(p,'kosten');await noOverflow(p,name+' Kosten '+mode);
   await tripTab(p,'mappe');
   await p.emulateMedia({media:'print'});
-  assert.equal(await p.$eval('.tabs',el=>getComputedStyle(el).display),'none');
+  assert.equal(await p.$eval('.tabs,.sub-head',el=>getComputedStyle(el).display),'none');
   await p.emulateMedia({media:'screen'});
   await p.reload();assert.equal(await p.getAttribute('html','data-layout'),mode);
   await p.click('.app-nav [data-go="reisen"]');
@@ -758,7 +766,8 @@ async function checklistModules(browser,base,name,ctxOpts){
  await p.click('[data-act="check-reset"]');
  await noOverflow(p,name+' Checkliste');
  if(ctxOpts.viewport.width<=600){
-  for(const tab of ['kosten','plan','check','notiz','mappe']){await p.selectOption('#trip-area',tab);assert((await p.getAttribute('.tab[aria-current="page"]','data-go')).endsWith('-'+tab));await noOverflow(p,name+' '+tab)}
+  /* Paket 4: am Handy über die Übersichtsseite und Zurück statt Auswahlfeld */
+  for(const tab of ['kosten','plan','check','notiz','mappe']){await tripTab(p,tab);assert((await p.evaluate(()=>location.hash)).endsWith('-'+tab));assert.equal(await p.getAttribute('[data-sub-page]','data-sub-page'),tab);await noOverflow(p,name+' '+tab)}
  }
  // Sprunglink muss in der Reise bleiben und darf keine Hash-Navigation auslösen.
  const before=await p.evaluate(()=>location.hash);await p.focus('.skip-link');await p.press('.skip-link','Enter');
@@ -795,7 +804,7 @@ async function tripShelfFlow(browser,base,name,ctxOpts){
  ].forEach(t=>a.Store.put(t,true));a.go('reisen')});
  const original=await p.evaluate(()=>JSON.stringify(window.__app.Store.list()));
  assert.equal(await p.locator('.trip-card').count(),4);
- await p.click('.trip-spotlight [data-go]');assert((await p.getAttribute('.tab[aria-current="page"]','data-go')).endsWith('-plan'));
+ await p.click('.trip-spotlight [data-go]');assert((await p.evaluate(()=>location.hash)).endsWith('-plan'));
  await p.click('.app-nav [data-go="reisen"]');await p.click('[data-act="trip-filter"][data-val="open"]');
  assert.equal(await p.locator('.trip-card').count(),1);
  await p.fill('#trip-q','MUNCHEN');await p.press('#trip-q','Enter');assert.equal(await p.locator('.trip-card').count(),1);
@@ -884,10 +893,10 @@ async function routeEndpointFlow(browser,base,name,ctxOpts){
  await p.fill('[data-f="dest"]','München');await p.press('[data-f="dest"]','Tab');await p.click('[data-act="route-endpoint-apply"]');
  const changed=await p.evaluate(id=>window.__app.Store.get(id),id);
  assert.equal(changed.dest,'München');assert.equal(changed.destGeo,undefined);assert.equal(changed.km,0);assert.equal(changed.routeKm,0);assert.equal(changed.routeMin,undefined);
- await p.click('[data-act="edit-trip"]');await p.fill('#editform [data-f="origin"]','Berlin');await p.click('[data-act="edit-save"]');
+ await tripHome(p);await p.click('[data-act="edit-trip"]');await p.fill('#editform [data-f="origin"]','Berlin');await p.click('[data-act="edit-save"]');
  await p.waitForSelector('[data-act="route-endpoint-apply"]');await p.click('[data-act="route-endpoint-apply"]');
  assert.equal(await p.evaluate(id=>window.__app.Store.get(id).originGeo,id),undefined);
- await p.reload();assert.equal(await p.inputValue('[data-f="dest"]'),'München');
+ await tripTab(p,'unterkunft');await p.reload();assert.equal(await p.inputValue('[data-f="dest"]'),'München');
  await noOverflow(p,name+' Ortswechsel');await ctx.close();console.log(name+': Ortswechsel mit Abbruch/Übernahme und offenen Routenwerten geprüft.');
 }
 
@@ -897,10 +906,15 @@ async function layoutStructure(browser,base,name,ctxOpts){
  const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);a.go('reisen');return t.id});
  const overlap=await p.evaluate(()=>{const a=document.querySelector('#trip-q').getBoundingClientRect(),b=document.querySelector('#trip-search button').getBoundingClientRect();return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top});
  assert(!overlap,name+': Suche überlappt Knopf');
- await p.click('.trip-card[data-go="r-'+id+'-ueber"]');
- assert.equal(await p.locator('#trip-area optgroup').count(),4);assert.equal(await p.locator('#trip-area option').count(),10);
+ await p.click('.trip-card[data-go="r-'+id+'"]');
  const mobile=ctxOpts.viewport.width<1000;
- assert.equal(await p.isVisible('#trip-area'),mobile);assert.equal(await p.isVisible('.tab-links'),!mobile);
+ if(ctxOpts.viewport.width<=760){ /* Paket 4: Übersichtsseite mit vier Gruppen und zehn Bereichen statt Auswahlfeld */
+  assert.equal(await p.locator('.sub-group').count(),4);assert.equal(await p.locator('.sub-row').count(),10);
+  assert.equal(await p.locator('#trip-area,.tab-links').count(),0);
+ }else{
+  assert.equal(await p.locator('#trip-area optgroup').count(),4);assert.equal(await p.locator('#trip-area option').count(),10);
+  assert.equal(await p.isVisible('#trip-area'),mobile);assert.equal(await p.isVisible('.tab-links'),!mobile);
+ }
  assert.equal(await p.$eval('#dock',e=>getComputedStyle(e).position),'static');
  await tripTab(p,'plan');
  if(ctxOpts.viewport.width<=600){
@@ -1297,6 +1311,65 @@ async function navFlow(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': Hauptnavigation ('+(phone?'Tab-Leiste unten':'oben')+'), Heute, Erinnerungen, Konto/Darstellung und Verdeckung geprüft.');
 }
 
+/* Paket 4 (PLAN_IOS_APP §4.2 Abs. 2): Reisebereiche am Handy als Unterseiten. Echtes Browser-Zurück und -Vor, Zurück-Knopf,
+   direkter Link mit vorbefülltem Verlauf, Neuladen, Fokus, 44-px-Zeilen, 200 % Schrift, Wechsel über 760 px; Desktop unverändert.
+   Kein iPhone-/Safari-Test: die Safari-Wischgeste und die Randwisch-Erkennung der Startbildschirm-App sind hier nicht geprüft. */
+async function subPages(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Unterseiten: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html#reisen');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);a.go('reisen');return t.id});
+ const original=await p.evaluate(()=>localStorage.getItem('rp-trips'));
+ const hash=()=>p.evaluate(()=>location.hash),focused=()=>p.evaluate(()=>{const e=document.activeElement;return e&&(e.id||e.getAttribute('data-sub-area')||e.tagName)});
+ const phone=ctxOpts.viewport.width<=760;
+ await p.click('.trip-card[data-go="r-'+id+'"]');
+ if(!phone){
+  assert.equal(await hash(),'#r-'+id+'-ueber',name+': Desktop öffnet den Überblick');
+  assert(await p.isVisible('.trip-workspace>.tabs'));assert.equal(await p.locator('.sub-row,[data-sub-back]').count(),0);
+  await p.click('.tab[data-go="r-'+id+'-kosten"]');await p.goBack().catch(()=>{});
+  assert.notEqual(await hash(),'#r-'+id+'-ueber',name+': Desktop legt wie bisher keinen Eintrag je Bereich an');
+  await ctx.close();console.log(name+': Unterseiten am Desktop unverändert (Seitenleiste, ein Verlaufseintrag).');return;
+ }
+ assert.equal(await hash(),'#r-'+id);
+ assert.equal(await p.locator('.sub-group').count(),4);assert.equal(await p.locator('.sub-row').count(),10);
+ assert.equal(await p.locator('.tabs,#trip-area').count(),0,name+': keine Tab-Reihe');
+ const rows=await p.$$eval('.sub-row',bs=>bs.map(b=>b.getBoundingClientRect().height));assert(rows.every(h=>h>=44),name+': Zeilen ≥ 44 px');
+ assert((await p.textContent('[data-sub-area="check"]')).includes('erledigt'),name+': Zähler mit Wörtern');
+ await noOverflow(p,name+' Übersicht');
+ /* hinein, Knopf zurück, Browser zurück, Browser vor */
+ await p.click('[data-sub-area="kosten"]');
+ assert.equal(await hash(),'#r-'+id+'-kosten');assert.equal(await p.textContent('#sub-title'),'Kosten');assert.equal(await focused(),'sub-title',name+': Fokus auf Überschrift');
+ assert.equal(await p.getAttribute('[data-sub-back]','aria-label'),'Zurück zu Bereiche');
+ const back=await p.$eval('[data-sub-back]',b=>{const r=b.getBoundingClientRect();return [r.width,r.height]});assert(back[0]>=44&&back[1]>=44,name+': Zurück ≥ 44 px');
+ await noOverflow(p,name+' Kosten');
+ await p.click('[data-sub-back]');await p.waitForFunction(()=>location.hash.split('-').length===2);
+ assert.equal(await focused(),'kosten',name+': Fokus zurück auf die Zeile');
+ await p.click('[data-sub-area="plan"]');await p.goBack();await p.waitForSelector('.sub-areas');
+ assert.equal(await hash(),'#r-'+id,name+': Browser-Zurück auf die Übersicht');
+ await p.goForward();await p.waitForSelector('[data-sub-page="plan"]');
+ await p.goBack();await p.waitForSelector('.sub-areas');await p.goBack();await p.waitForSelector('.trip-card');
+ assert.equal(await hash(),'#reisen',name+': zweites Zurück ins Regal');
+ /* direkter Link: Zurück bleibt in der App; Neuladen behält den Verlauf */
+ await p.goto(base+'/index.html#r-'+id+'-notiz');await p.waitForSelector('[data-sub-page="notiz"]');
+ await p.reload();await p.waitForSelector('[data-sub-page="notiz"]');
+ await p.goBack();await p.waitForSelector('.sub-areas');assert.equal(await hash(),'#r-'+id);
+ await p.goBack();await p.waitForSelector('.trip-card');assert.equal(await hash(),'#reisen',name+': vorbefüllter Verlauf');
+ /* Heute-ähnlicher Sprung von außen: Übersicht liegt dazwischen */
+ await p.evaluate(id=>window.__app.go('r-'+id+'-check'),id);assert.equal(await p.getAttribute('[data-sub-back]','aria-label'),'Zurück zu Bereiche');
+ await p.click('[data-sub-back]');await p.waitForSelector('.sub-areas');
+ /* breiter als 760 px: Übersicht wird zum Überblick, schmaler wieder Unterseite */
+ await p.setViewportSize({width:1100,height:800});await p.waitForSelector('.trip-workspace>.tabs');
+ assert.equal(await hash(),'#r-'+id,name+': Querformat ändert die Adresse nicht');assert(await p.isVisible('[data-next-steps]'),name+': breit der Überblick');
+ await p.setViewportSize(ctxOpts.viewport);await p.waitForSelector('.sub-areas');
+ await p.click('[data-sub-area="ueber"]');assert.equal(await p.getAttribute('[data-sub-back]','aria-label'),'Zurück zu Bereiche');
+ /* 200 % Schrift: Übersicht und Unterseite ohne Überlauf */
+ await p.addStyleTag({content:'html{font-size:200%!important}'});await noOverflow(p,name+' Unterseite 200 %');
+ await p.click('[data-sub-back]');await p.waitForSelector('.sub-areas');await noOverflow(p,name+' Übersicht 200 %');
+ assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),original,name+': Reisedaten unverändert');
+ await shot(p,name+'-uebersicht');
+ await ctx.close();console.log(name+': Unterseiten (Übersicht, 10 Bereiche, Zurück-Knopf, Browser-Zurück/Vor, direkter Link, Neuladen, Fokus, 760-px-Wechsel, 200 %) geprüft.');
+}
+
 /* P0.5 iOS-Gestaltungsregeln (PLAN_IOS_APP.md §4.3) in Chromium: Schrift 200 % ohne seitliches Scrollen und ohne
    abgeschnittene Knöpfe/Überschriften, Blatt mit Zieh-Griff und Schließen-Knopf ≥ 44 px, Ziehen schließt nur weit genug,
    reduzierte Bewegung ohne Übergang, Feld bleibt bei kleinerem sichtbaren Bereich sichtbar. Kein iPhone-/WebKit-Test:
@@ -1329,7 +1402,7 @@ async function iosDesign(browser,base,name,ctxOpts){
   await p.goto(base+'/index.html'+hash);await p.waitForSelector('#view h1, #view h2');await check(where);
  }
  /* Offenes Blatt (Eckdaten, langes Formular) */
- await p.goto(base+'/index.html#r-'+id+'-ueber');await p.click('.trip-actions [data-act="edit-trip"]');await p.waitForSelector('.sheet #editform');
+ await p.goto(base+'/index.html#r-'+id+'-ueber');await tripHome(p);await p.click('.trip-actions [data-act="edit-trip"]');await p.waitForSelector('.sheet #editform');
  await check('Blatt Eckdaten');
  const grip=await p.evaluate(()=>{const g=document.querySelector('.sheet .sheet-grip'),x=document.querySelector('.sheet .x'),gr=g.getBoundingClientRect(),xr=x.getBoundingClientRect();
   return {hidden:g.getAttribute('aria-hidden'),gh:gr.height,gw:gr.width,shown:getComputedStyle(g).display!=='none',xw:xr.width,xh:xr.height,xname:x.getAttribute('aria-label'),xtext:x.textContent,order:g.compareDocumentPosition(x)&Node.DOCUMENT_POSITION_FOLLOWING,trans:getComputedStyle(document.querySelector('.sheet')).transitionDuration}});
@@ -1401,6 +1474,9 @@ async function iosDesign(browser,base,name,ctxOpts){
     await splitFlow(browser,base,'aufteilung-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await subPages(browser,base,'unterseiten-desktop',{viewport:{width:1280,height:900}});
+    await subPages(browser,base,'unterseiten-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
+    await subPages(browser,base,'unterseiten-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-desktop',{viewport:{width:1280,height:900}});
     await bookFlow(browser,base,'reisebuch-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await bookFlow(browser,base,'reisebuch-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});

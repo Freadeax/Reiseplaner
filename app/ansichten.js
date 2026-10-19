@@ -1,5 +1,5 @@
 /* Reiseplaner · Ansichten.
-   Teil 10 von 19 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 10 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Ansichten ================= */
@@ -31,7 +31,7 @@ function emptyShelf(){if(Store.backend==='laden'&&Store.startRaw===null){Store.l
 function vReisen(){
   const list=Store.list(),shelf=tripShelf(list,{filter:UI.tripFilter,query:UI.tripQuery,sort:UI.tripSort});
   const card=t=>{const c=cost(t),ph=tripPhase(t),b=num(t.budget,0),pct=b?Math.min(100,c.total/b*100):0,pl=placeOf(t),st=stayOf(t);
-    return '<button type="button" class="card click trip-card" data-go="r-'+t.id+'-ueber"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3>'+(Store.isAccount()?'<div class="badges">'+syncBadge(t.id)+(Store.role(t.id)!=='owner'?'<span class="badge">'+ROLE_TXT[Store.role(t.id)]+'</span>':'')+'</div>':'')+'<p class="small muted">'+esc(rangeText(t))+'</p>'+
+    return '<button type="button" class="card click trip-card" data-go="r-'+t.id+'"><div class="between"><span class="eyebrow">'+esc(TYPES[t.type]||'Reise')+'</span><span class="badge">'+esc(STATUS[t.status]||'')+'</span></div><h3>'+esc(t.title)+'</h3>'+(Store.isAccount()?'<div class="badges">'+syncBadge(t.id)+(Store.role(t.id)!=='owner'?'<span class="badge">'+ROLE_TXT[Store.role(t.id)]+'</span>':'')+'</div>':'')+'<p class="small muted">'+esc(rangeText(t))+'</p>'+
     '<p class="small">'+esc(pl?pl.name:(t.dest||'Ziel offen'))+(st?' · '+esc(st.name):'')+'</p>'+
     (ph?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
     '<div class="between trip-price"><span><span class="small muted">Planwert gesamt</span><br><span class="price num">'+eur(c.total)+'</span></span><span class="small muted num">'+(b?'von '+eur(b):'kein Budget')+'</span></div>'+(b?'<div class="bar'+(c.total>b?' bad':c.total>b*.92?' warn':'')+'"><i style="width:'+pct+'%"></i></div>':'')+(openCosts(t).length?'<span class="small" style="color:var(--warn)">Weitere Kosten sind noch offen</span>':'')+'<span class="trip-open"><span>Reise öffnen</span><span aria-hidden="true">↗</span></span></button>'};
@@ -69,14 +69,14 @@ function vNeu(){
   return '<section class="block"><button type="button" class="lnk" data-go="reisen">← Meine Reisen</button><h1>Neue Reise</h1><p class="lead muted">Alles lässt sich später ändern.</p></section>'+
   '<section class="block"><div class="panel" id="draft">'+tripForm(t,'d-')+'<div class="row"><button type="button" class="btn" data-act="create">Reise anlegen</button></div><details><summary class="small"><b>Oder mit einer Vorlage starten</b></summary>'+tplButtons()+'</details></div></section>';
 }
-function tripHead(t){
+function tripHead(t,noNav){
   const ph=tripPhase(t);
   return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'">'+
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
   (ph&&ph.phase==='vor'?'<p class="muted small">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
-  '<div class="trip-actions noprint"><button type="button" class="lnk" data-go="reisen">← Reisen</button><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></section>'+
+  '<div class="trip-actions noprint"><button type="button" class="lnk" data-go="reisen">← Reisen</button><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></section>'+(noNav?'':
   '<nav class="tabs" aria-label="Bereiche">'+areaPicker(t)+'<div class="tab-links">'+AREA_GROUPS.map(([group,keys])=>'<div class="tab-group"><span class="eyebrow">'+group+'</span>'+keys.map(key=>{const x=TABS.find(tab=>tab[0]===key);let n='';if(key==='plan')n=(t.items||[]).length;if(key==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
-    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+key+'"'+(UI.tab===key?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div>').join('')+'</div></nav>';
+    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+key+'"'+(UI.tab===key?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div>').join('')+'</div></nav>');
 }
 function stackBar(c){
   const tot=c.total||1, keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
@@ -637,7 +637,13 @@ function tMappe(t){
 function vReise(){
   const t=cur(); if(!t) return vReisen();
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
-  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+unreadableBlock(t)+v3Banner(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'')+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
+  const notes=unreadableBlock(t)+v3Banner(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'');
+  /* Paket 4: am Handy Übersichtsseite (UI.tab null) und Unterseiten mit Zurück statt Bereichsauswahl */
+  if(subMobile()){
+    if(!UI.tab)return '<div class="trip-sub trip-sub-list">'+tripHead(t,true)+notes+subListHtml(t)+'</div>';
+    return '<div class="trip-sub trip-sub-page" data-sub-page="'+UI.tab+'">'+subHeadHtml(t,UI.tab,subBack(UI.route||'',subHistoryState()))+'<div class="trip-content">'+notes+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
+  }
+  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+notes+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
 }
 function render(){
   const v=$('#view');

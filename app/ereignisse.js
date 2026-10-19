@@ -1,5 +1,5 @@
 /* Reiseplaner · Ereignisse.
-   Teil 12 von 19 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 12 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Ereignisse ================= */
@@ -175,7 +175,8 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('keydown',sheetKeydown);
 window.addEventListener('storage',e=>{if(e.key===Store.key()){Store.conflict=true;alertMsg('Reisedaten wurden in einer anderen Ansicht geändert. Sichert offene Änderungen und ladet neu.');}});
-window.addEventListener('hashchange',()=>go(location.hash,true));
+window.addEventListener('hashchange',()=>go(location.hash,true,{pop:true}));
+window.addEventListener('popstate',()=>go(location.hash,true,{pop:true})); /* Paket 4: Zurück/Vor zwischen Unterseiten */
 document.addEventListener('change',e=>{
   const el=e.target;if(!el.hasAttribute||!el.hasAttribute('data-ledger'))return;
   const t=cur();if(!t||Store.corruptRaw!==null)return;

@@ -1,5 +1,5 @@
 /* Reiseplaner · Zustand, Routing, Darstellung.
-   Teil 9 von 19 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 9 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Zustand & Routing ================= */
@@ -24,22 +24,28 @@ function moduleGuide(t){
  return '<aside class="module-guide noprint" aria-label="Bereichsorientierung"><span class="eyebrow">'+info[0]+'</span><p>'+info[1]+'</p></aside>';
 }
 function areaPicker(t){return '<label class="area-picker noprint"><span>Bereich</span><select id="trip-area" aria-label="Reisebereich wählen">'+AREA_GROUPS.map(([group,keys])=>'<optgroup label="'+group+'">'+keys.map(key=>'<option value="'+key+'"'+(UI.tab===key?' selected':'')+'>'+TABS.find(x=>x[0]===key)[1]+'</option>').join('')+'</optgroup>').join('')+'</select></label>'}
-function go(h,keepScroll){
+/* Paket 4 (app/unterseiten.js): opts.pop bei Zurück/Vor oder geänderter Adresse. Am Handy legt tiefer gehen einen Verlaufseintrag an,
+   #r-<id> ist dort die Übersichtsseite der Reise (UI.tab null). Am Desktop wie bisher: #r-<id> öffnet den Überblick, nur replaceState. */
+function go(h,keepScroll,opts){
+  const pop=!!(opts&&opts.pop),mobile=subMobile(),previousRoute=UI.route||'';
+  h=subResolve((h||'').replace(/^#/,''),mobile);
+  if(pop&&previousRoute&&h===previousRoute)return; /* hashchange und popstate melden denselben Schritt */
   const previousTrip=UI.tid,after=UI.navAfter;UI.navAfter=null;UI.heuteTid=null;
-  h=(h||'').replace(/^#/,'');
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
   else if(h==='konto'){UI.view='konto'}
   else if(h==='entdecken'){UI.view='entdecken'}
   else if(h==='heute'||h==='erinnerungen'){UI.view=h}
   else if(/^ziel-[a-z0-9-]{2,40}$/.test(h)){UI.view='entdecken';UI.openZiel=h.slice(5)}
-  else if(/^r-[a-z0-9]+-[a-z]+$/.test(h)){const [,id,tab]=h.split('-');if(Store.get(id)&&TABS.some(x=>x[0]===tab)){if(UI.tid!==id){UI.checkFilter='all';UI.checkQuery='';UI.aq='';UI.aplanned=''}UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
+  else if(/^r-[a-z0-9]+(-[a-z]+)?$/.test(h)){const [,id,tab=null]=h.split('-');if(Store.get(id)&&(tab===null||TABS.some(x=>x[0]===tab))){if(UI.tid!==id){UI.checkFilter='all';UI.checkQuery='';UI.aq='';UI.aplanned=''}UI.view='reise';UI.tid=id;UI.tab=tab;UI.pending=null}else{UI.view='reisen';UI.pending=h}}
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
   if(previousTrip!==UI.tid)UI.planDay=0;
   if(after&&UI.view==='reise'&&Number.isInteger(after.day))UI.planDay=after.day;
-  const target=UI.view==='reise'?'r-'+UI.tid+'-'+UI.tab:UI.openZiel?'ziel-'+UI.openZiel:UI.view;
-  try{history.replaceState(null,'','#'+target)}catch(e){}
-  closeSheet();render();if(!keepScroll)try{window.scrollTo(0,0)}catch(e){}
+  const target=UI.view==='reise'?subRoute(UI.tid,UI.tab):UI.openZiel?'ziel-'+UI.openZiel:UI.view;
+  UI.route=target;subHistoryApply(previousRoute,target,{mobile,pop});
+  closeSheet();render();
+  const restored=pop&&mobile&&subScrollRestore();if(!keepScroll&&!restored)try{window.scrollTo(0,0)}catch(e){}
   if(after&&after.focus&&UI.view==='reise')navFocus(after.focus);
+  else{const f=subFocus(previousRoute,target,mobile);if(f)subFocusApply(f,restored)}
   if(UI.openZiel&&CATX){const z=UI.openZiel;UI.openZiel=null;catOpenById(z).catch(err=>alertMsg(err.message))}
 }
 /* In der Heute-Ansicht die Reise des angeklickten Heute-Blocks (UI.heuteTid, app/navigation.js) */
