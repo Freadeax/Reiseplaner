@@ -4,10 +4,11 @@
 
 - **Tagesauswahl in Blättern** („Einplanen“, „Verschieben“) zeigt bei überlangen Reisen höchstens 366 Tage mit Hinweis „Zeitraum prüfen“. Liegt ein Termin schon auf einem späteren Tag, bleibt dieser Tag wählbar, damit beim Speichern nichts still verschoben wird (`dayOptions`, app/blaetter.js).
 - **„Heute“ um Mitternacht:** Die Tab-Leiste passt sich nach Mitternacht und beim Zurückkehren in die App (Sichtbarkeit, Fokus) an den neuen Tag an. Die Ansicht „Heute“ wird nur neu aufgebaut, wenn kein Blatt offen ist und niemand tippt (`navDayCheck`, app/navigation.js).
-- Service Worker `reiseplaner-v15`. Speicherformat `rp-trips` unverändert.
+- Service Worker `reiseplaner-v16`. Speicherformat `rp-trips` unverändert.
+- **Paket 6 Reisebuch-Editor (eingebunden):** `bookedit.js` mit Bearbeitungsschritten (verschieben, löschen, einfügen, Layout, Foto tauschen, Zoom-Ausschnitt, Bildunterschrift, Titel, Rückgängig/Wiederholen); jeder Zustand besteht den Format-4-Vertrag. „Erinnerungen“ zeigt einen Reisebuch-Entwurf zum Blättern und Ausprobieren (`app/reisebuch.js`, Teil 18 von 19), deutlich als „nicht gespeichert“ markiert. Dafür lädt die App jetzt `v4logic.js`, `bookgen.js` und `bookedit.js` (auch im Offline-Cache und im Build). Ohne Fotoablage zeigt die Vorschau Platzhalter. Nicht umgesetzt: Doppelseite, Ziehen zum Sortieren, Neu-Generieren mit Erhalt, Speichern in `t.books` (wartet auf Format 4 im Speicher), Druck/PDF.
 - Parallel gestartet (eigene Dateien, Einbindung durch Claude): Paket 4 Reise-Unterseiten am Handy (§4.2), Paket 5 Fotos lokal (Grundlage, §6.1–6.3), Paket 6 Reisebuch-Editor und Vorschau (§7.3–7.4).
 
-Tests (19.10., Cloud-Container): `npm test` grün (neu: Tageswechsel in `tests/navigation.cjs`, Tagesauswahl in `tests/reisedauer.cjs`); `npm run test:browser` grün (Chromium). **Nicht getestet:** iPhone, Safari/WebKit, Windows-Rechner, echter Tageswechsel im Browser.
+Tests (19.10., Cloud-Container): `npm test` grün (neu: Tageswechsel in `tests/navigation.cjs`, Tagesauswahl in `tests/reisedauer.cjs`); `npm run test:browser` grün (Chromium, neu Reisebuch-Klickweg bei 320 px dunkel, 390 px und Desktop: erzeugen, blättern, verschieben, rückgängig, Ziele ≥ 44 px, kein Überlaufen, `rp-trips` unverändert); `npm run build` und `check:artifact` bestanden; `node tests/bookedit.cjs` grün. **Nicht getestet:** iPhone, Safari/WebKit, Windows-Rechner, echter Tageswechsel im Browser, Druck, echte Fotos.
 
 ## P0.5 fertig und drei parallele Pakete zusammengeführt (Claude, 18.10. abends, lokal)
 

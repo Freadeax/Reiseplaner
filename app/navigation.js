@@ -7,7 +7,7 @@
    - vHeute(now): je laufender Reise Tag x von n, der bestehende Heute-Block (todayBlock) und Schnellzugriffe.
      Aktionen im Heute-Block (Tagebuch, Regen-Alternative) brauchen die Reise: Ein Klick in [data-heute-trip]
      merkt sie in UI.heuteTid, cur() liefert sie dann auch in dieser Ansicht.
-   - vErinnerungen(trips): Tagebuch und Bewertungen aller Reisen, nur lesend. Fotos und Reisebücher gibt es noch nicht.
+   - vErinnerungen(trips): Tagebuch und Bewertungen aller Reisen, nur lesend. Fotos gibt es noch nicht; Reisebuch-Entwurf über app/reisebuch.js (nicht gespeichert).
    - navDayCheck(now): nach Mitternacht oder Rückkehr in die App Tab-Leiste und „Heute“ an den neuen Tag anpassen. */
 "use strict";
 const NAV_ICON={
@@ -143,15 +143,16 @@ function memoriesData(trips){
 }
 function vErinnerungen(trips){
  const m=memoriesData(trips),J=VJ();
- const head='<section class="block"><span class="eyebrow">Alle Reisen</span><h1>Erinnerungen</h1><p class="small muted">Tagebuch und Bewertungen aus euren Reisen, nur zum Lesen. Schreiben und ändern im Tagesplan der jeweiligen Reise. Fotos und Reisebücher kommen später.</p></section>';
+ const head='<section class="block"><span class="eyebrow">Alle Reisen</span><h1>Erinnerungen</h1><p class="small muted">Tagebuch und Bewertungen aus euren Reisen, nur zum Lesen. Schreiben und ändern im Tagesplan der jeweiligen Reise. Fotos kommen später; Reisebücher könnt ihr unten als Entwurf ansehen.</p></section>';
  if(m.unsupported)return head+'<section class="block"><div class="note" role="status">Diese App-Version kann Tagebücher nicht anzeigen. Eure Einträge bleiben in den Reisen gespeichert.</div></section>';
- if(!m.groups.length)return head+'<section class="block"><div class="empty" data-memories-empty><b>Noch keine Erinnerungen</b><span>Während und nach einer Reise könnt ihr im Tagesplan je Tag einen Tagebucheintrag schreiben und Unternehmungen mit Sternen bewerten. Sie erscheinen dann hier.</span><button type="button" class="btn ghost" data-go="reisen">Zu den Reisen</button></div></section>';
+ if(!m.groups.length)return head+(typeof reisebuchSection==='function'?reisebuchSection(trips):'')+'<section class="block"><div class="empty" data-memories-empty><b>Noch keine Erinnerungen</b><span>Während und nach einer Reise könnt ihr im Tagesplan je Tag einen Tagebucheintrag schreiben und Unternehmungen mit Sternen bewerten. Sie erscheinen dann hier.</span><button type="button" class="btn ghost" data-go="reisen">Zu den Reisen</button></div></section>';
  return head+m.groups.map(g=>{const t=g.trip,id=esc(t.id);
   return '<section class="block memory-trip" data-memory-trip="'+id+'"><span class="eyebrow">'+esc(rangeText(t))+'</span><h2>'+esc(t.title)+'</h2>'+
    (g.entries.length?'<h3>Tagebuch · '+g.entries.length+(g.entries.length===1?' Eintrag':' Einträge')+'</h3><ul class="plain rp-jdays">'+g.entries.map(e=>'<li data-memory-entry="'+esc(e.key)+'"><b>'+esc(e.label)+'</b>'+(e.mood?'<p class="small">Stimmung: <b>'+esc(e.moodText)+'</b></p>':'')+(e.excerpt?'<p class="small rp-jtext">'+esc(e.excerpt)+'</p>':'')+'</li>').join('')+'</ul>':'')+
    (g.ratings.length?'<h3>Bewertungen · '+g.ratings.length+'</h3><ul class="plain rp-rates">'+g.ratings.map(r=>'<li data-memory-rating="'+esc(r.id)+'"><b>'+esc(r.title)+'</b><p class="small"><span aria-hidden="true">'+J.starsGlyphs(r.stars)+'</span> '+esc(r.text)+'</p></li>').join('')+'</ul>':'')+
    '<div class="row"><button type="button" class="btn ghost sm" data-go="r-'+id+'-plan" data-heute-focus="[data-journal=&quot;plan&quot;] summary" aria-label="Tagebuch von '+esc(t.title)+' im Tagesplan öffnen">Tagebuch im Tagesplan</button><button type="button" class="btn ghost sm" data-go="r-'+id+'-ueber" aria-label="'+esc(t.title)+' öffnen">Reise öffnen</button></div></section>'}).join('')+
-  (m.without?'<p class="small muted">'+m.without+(m.without===1?' weitere Reise hat':' weitere Reisen haben')+' noch kein Tagebuch und keine Bewertung.</p>':'');
+  (m.without?'<p class="small muted">'+m.without+(m.without===1?' weitere Reise hat':' weitere Reisen haben')+' noch kein Tagebuch und keine Bewertung.</p>':'')+
+  (typeof reisebuchSection==='function'?reisebuchSection(trips):'');
 }
 
 /* ---------- Konto: Darstellung auch hier erreichbar ---------- */

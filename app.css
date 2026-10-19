@@ -494,3 +494,24 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
 @media screen and (max-width:600px){.trip-actions{grid-template-columns:repeat(auto-fit,minmax(min(100%,4.5rem),1fr))}}
 /* P0.5 Zusammenführung: Schriftzug im Kopf bricht bei großer Schrift auf schmalen Geräten um statt die Seite zu verbreitern. */
 @media screen and (max-width:760px){.top .brand{flex:1 1 auto}.brand-copy{min-width:0}.brand b{font-size:clamp(1.1rem,6vw,1.5rem);overflow-wrap:anywhere;hyphens:auto}}
+
+/* Reisebuch-Vorschau (Paket 6, app/reisebuch.js) · Vorschlag zum Anhängen an app.css */
+.book-draft{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.book-page{max-width:640px;width:100%}
+.rp-book-page{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:10px;overflow-wrap:anywhere}
+.rp-book[data-format="a5-quer"] .rp-book-page{min-height:min(60vw,420px)}
+.rp-book[data-format="a4-hoch"] .rp-book-page{min-height:min(110vw,700px)}
+.rp-book[data-format="quadrat-21"] .rp-book-page{min-height:min(85vw,560px)}
+.rp-book[data-theme="klassisch"] .rp-book-page h2{font-family:Georgia,"Times New Roman",serif;font-weight:600}
+.rp-book-sub{color:var(--muted);margin:0}
+.rp-book-page figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.rp-book-page img,.rp-book-ph{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:var(--surface-2)}
+.rp-book-ph{border:1px dashed var(--line)}
+.rp-book-page figcaption{font-size:.9rem;color:var(--muted)}
+.rp-book-page[data-layout="2-nebeneinander"],.rp-book-page[data-layout="4-raster"]{display:grid;grid-template-columns:1fr 1fr}
+.rp-book-page[data-layout="2-nebeneinander"]>:not(figure),.rp-book-page[data-layout="4-raster"]>:not(figure){grid-column:1/-1}
+.rp-book-page ul{margin:0;padding-left:1.2em}
+.book-pages{margin:8px 0 0;padding-left:0;display:flex;flex-direction:column;gap:4px}
+.book-pages [aria-current="page"]{font-weight:700;text-decoration:underline}
+.book-tools .row{align-items:flex-end}
+@media print{.book-draft>:not(.book-page){display:none}}

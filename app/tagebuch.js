@@ -1,5 +1,5 @@
 /* Reiseplaner · Reisetagebuch und Bewertungen.
-   Teil 16 von 18 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 16 von 19 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Reisetagebuch und Bewertungen (P0.2b, SCHEMA_V3 §4/§5/§9, Claude) =================

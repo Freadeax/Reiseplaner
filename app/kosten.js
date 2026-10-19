@@ -1,5 +1,5 @@
 /* Reiseplaner · Kosten, Checkliste, neue Reise, Sicherung und Import, Saison, Vorlagen.
-   Teil 5 von 18 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 5 von 19 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 function cost(t){

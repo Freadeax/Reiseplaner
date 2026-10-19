@@ -1179,6 +1179,38 @@ async function splitFlow(browser,base,name,ctxOpts){
 
 /* Hauptnavigation (P0.5): Tab-Leiste unten am Handy, oben am Desktop; Heute nur während einer laufenden Reise;
    Heute und Erinnerungen per Tippen erreichbar; nichts unter der Leiste versteckt. Feste Uhrzeit 01.01.2027. */
+/* Reisebuch-Entwurf in Erinnerungen (Paket 6): erzeugen, blättern, bearbeiten, rückgängig; nichts wird gespeichert */
+async function bookFlow(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Reisebuch: '+e.message));
+ p.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))errors.push(name+' Reisebuch-Konsole: '+m.text())});
+ await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html#reisen');
+ await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();t.id='booktrip';a.Store.put(t);const v=JSON.parse(JSON.stringify(t));v.schemaVersion=3;v.journal={'2026-12-31':{text:'Feuerwerk am See',mood:4}};a.Store.put(v)});
+ const before=await p.evaluate(()=>localStorage.getItem('rp-trips'));
+ await p.goto(base+'/index.html#erinnerungen');await p.reload();
+ assert(await p.isVisible('[data-book-preview]'),name+': Reisebuch-Bereich sichtbar');
+ await p.click('[data-book-act="make"]');
+ await p.waitForSelector('[data-book-draft]');
+ assert((await p.textContent('[data-book-draft]')).includes('Entwurf, nicht gespeichert'),name+': als Entwurf markiert');
+ const pos=()=>p.textContent('[data-book-pos]');
+ assert(/^Seite 1 von \d+$/.test((await pos()).trim()),name+': Seite 1 '+await pos());
+ assert.equal(await p.evaluate(()=>document.activeElement&&document.activeElement.hasAttribute('data-book-pos')),true,name+': Fokus auf Seitenangabe');
+ await p.click('[data-book-act="next"]');assert((await pos()).trim().startsWith('Seite 2 '),name+': geblättert');
+ const head=await p.$eval('[data-book-page]',n=>n.getAttribute('data-book-page'));
+ await p.click('.book-tools summary');await p.click('[data-book-act="up"]');
+ assert((await pos()).trim().startsWith('Seite 1 '),name+': nach vorn verschoben');
+ assert.equal(await p.$eval('[data-book-page]',n=>n.getAttribute('data-book-page')),head,name+': gleiche Seite jetzt vorn');
+ await p.click('[data-book-act="undo"]');
+ assert(/Rückgängig gemacht/.test(await p.textContent('[data-book-msg]')),name+': rückgängig');
+ await noOverflow(p,name+' Reisebuch');
+ const small=await p.$$eval('[data-book-preview] button:not([disabled]),[data-book-preview] select',bs=>bs.filter(b=>{const r=b.getBoundingClientRect();return r.width>0&&r.height>0&&!b.closest('details:not([open])')}).map(b=>{const r=b.getBoundingClientRect();return {t:(b.textContent||b.id).trim().slice(0,30),w:Math.round(r.width),h:Math.round(r.height)}}).filter(x=>x.h<44||x.w<44));
+ if(ctxOpts.isMobile)assert.deepEqual(small,[],name+': Ziele mindestens 44 px '+JSON.stringify(small));
+ assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),before,name+': rp-trips unverändert');
+ assert.equal(await p.evaluate(()=>(window.__app.Store.get('booktrip').books||[]).length),0,name+': kein Buch gespeichert');
+ await ctx.close();
+ console.log(name+': Reisebuch-Entwurf erzeugen, blättern, verschieben, rückgängig, ohne Speichern geprüft.');
+}
 async function navFlow(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();
  p.on('pageerror',e=>errors.push(name+' Navigation: '+e.message));
@@ -1370,6 +1402,9 @@ async function iosDesign(browser,base,name,ctxOpts){
     await navFlow(browser,base,'navigation-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await navFlow(browser,base,'navigation-desktop',{viewport:{width:1280,height:900}});
+    await bookFlow(browser,base,'reisebuch-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true});
+    await bookFlow(browser,base,'reisebuch-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await bookFlow(browser,base,'reisebuch-desktop',{viewport:{width:1280,height:900}});
     await iosDesign(browser,base,'ios-320',{viewport:{width:320,height:640},colorScheme:'dark',isMobile:true,hasTouch:true,reducedMotion:'reduce'});
     await iosDesign(browser,base,'ios-390',{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     await iosDesign(browser,base,'ios-390-ruhig',{viewport:{width:390,height:844},reducedMotion:'reduce'});
