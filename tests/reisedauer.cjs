@@ -104,5 +104,23 @@ const ms = f => { const s = process.hrtime.bigint(); f(); return Number(process.
   assert.equal(a.daysOf(t).length, 4); t.end = '2027-03-10'; assert.equal(a.daysOf(t).length, 10);
   t.dateMode = 'flex'; t.nights = 2; assert.equal(a.daysOf(t).length, 3); assert.equal(a.daysOf(t)[0].date, null);
 }
-console.log('Reisedauer: Eingabe bis 366 Tage, 367 abgelehnt (Anlegen und Eckdaten), Reise über 45 Jahre lädt, exportiert vollständig, rendert alle Ansichten unter 2 s mit Hinweis „Zeitraum prüfen“, Tagebuch mit späten Einträgen. Kein Browser-/iPhone-Test.');
+/* Tagesauswahl in Blättern höchstens 366 Tage; ein schon gewählter späterer Tag bleibt wählbar (19.10.) */
+{
+  const { a } = load();
+  const t = a.newTrip({ title: 'Lang', dateMode: 'fix', start: '2027-01-01', end: '2031-01-01' });
+  const count = h => (h.match(/<option /g) || []).length;
+  assert.equal(count(a.dayOptions(t, 0)), 366, 'nur 366 Tage zur Auswahl');
+  const late = a.dayOptions(t, 900);
+  assert.equal(count(late), 367); assert(late.includes('value="900" selected'), 'späterer Tag bleibt gewählt');
+  const short = a.newTrip({ title: 'Kurz', dateMode: 'fix', start: '2027-03-01', end: '2027-03-04' });
+  assert.equal(count(a.dayOptions(short, 2)), 4); assert(a.dayOptions(short, 2).includes('value="2" selected'));
+  const act = Object.keys(a.ACTS)[0]; t.items = [{ uid: 'i1', act, day: 900, slot: 'nachm' }];
+  const sheets = a.window.__sheets; sheets.length = 0;
+  const d = ms(() => { a.sheetItem(t, 'i1'); a.sheetAct(t, act); }); assert(d < 1000, 'Blätter schnell: ' + Math.round(d) + ' ms');
+  assert.equal(sheets.length, 2);
+  assert.equal(count(sheets[0].split('id="mv-day"')[1].split('</select>')[0]), 367, 'Verschieben: 366 Tage plus gewählter Tag');
+  assert(sheets[0].includes('data-trip-long'), 'Hinweis „Zeitraum prüfen“ im Blatt');
+  assert.equal(count(sheets[1].split('id="pl-day"')[1].split('</select>')[0]), 366, 'Einplanen: 366 Tage');
+}
+console.log('Reisedauer: Eingabe bis 366 Tage, 367 abgelehnt (Anlegen und Eckdaten), Reise über 45 Jahre lädt, exportiert vollständig, rendert alle Ansichten unter 2 s mit Hinweis „Zeitraum prüfen“, Tagebuch mit späten Einträgen, Tagesauswahl in Blättern (366 Tage, gewählter späterer Tag bleibt). Kein Browser-/iPhone-Test.');
 })().catch(e => { console.error(e); process.exit(1); });

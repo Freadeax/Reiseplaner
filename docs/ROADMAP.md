@@ -1,5 +1,9 @@
 # Roadmap
 
+## Pakete 4–6 parallel · 19.10.2026
+
+Erledigt: Tagesauswahl in Blättern auf 366 Tage begrenzt, „Heute“ folgt dem Tageswechsel. In Arbeit (eigene Threads): Unterseiten innerhalb einer Reise am Handy, Fotos lokal (Ablage, EXIF, Zuordnung), Reisebuch-Editor und Vorschau in „Erinnerungen“. Danach: Einbindung und gemeinsamer Test, Format 4 an den Speicher anbinden (mit Versionierung, Migration und Export), iPhone-Prüfung.
+
 ## P0.5 fertig, Pakete 1–3 zusammengeführt · 18.10.2026 abends
 
 Lokal im Ordner, nicht veröffentlicht: P0.5 Navigation (Tab-Leiste, Heute, Erinnerungen) und iOS-Gestaltungsregeln; Paket 1 Obergrenze der Reisedauer (366 Tage, lange Reisen bleiben lesbar); Paket 2 Vertragsentwurf Format 4 (`docs/SCHEMA_V4.md`, `v4logic.js`); Paket 3 Reisebuch-Erstentwurf (`bookgen.js`). Nächste Schritte: (1) Philipps Sichtprüfung im Browser, (2) iPhone-Prüfung, (3) Entscheidungen zu Format 4 (SCHEMA_V4 §8), (4) Unterseiten innerhalb einer Reise (§4.2), (5) Reisebuch-Vorschau in Erinnerungen, (6) nach Freigabe von Git: Commit auf `main` und CI.

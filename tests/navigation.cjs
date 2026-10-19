@@ -178,4 +178,22 @@ const keys = items => items.map(x => x.key).join(',');
   assert.equal(a.navFocus('[data-x="off"]|[data-x="head"]'), head, 'gesperrter Knopf übersprungen');
   doc.activeElement = null; assert.equal(a.navFocus('[data-x="off"]|[data-x="fehlt"]'), null); assert.equal(doc.activeElement, view, 'Fokus nie auf body');
 }
-console.log('Navigation (P0.5): Einträge mit/ohne laufende Reise (feste Uhrzeit), aktiver Eintrag, Routing #heute/#erinnerungen/#konto, Sprungziele, Heute (leer, nächste Reise, laufend, zwei Reisen), Erinnerungen (Gruppierung, Reihenfolge, Sterne als Text, Maskierung, nur lesend, ohne Modul) geprüft. Kein Browser-/iPhone-Test.');
+/* ---------- Tageswechsel um Mitternacht (19.10.) ---------- */
+{
+  const { a, ctx } = load();
+  let renders = 0, navs = 0;
+  vm.runInContext('render', ctx); // vorhanden
+  ctx.__count = () => renders++; ctx.__nav = () => navs++;
+  vm.runInContext('render=function(){__count()};renderNav=function(){__nav()};', ctx);
+  const day = (y, m, d, h) => new Date(y, m - 1, d, h, 0, 0);
+  vm.runInContext('navDay=navDayKey(new Date(2027,6,1,23,0,0))', ctx);
+  assert.equal(a.navDayCheck(day(2027, 7, 1, 23)), false, 'gleicher Tag: nichts');
+  a.UI.view = 'heute';
+  assert.equal(a.navDayCheck(day(2027, 7, 2, 0)), true); assert.equal(renders, 1, 'Heute neu aufgebaut');
+  assert.equal(a.navDayCheck(day(2027, 7, 2, 9)), false, 'nur einmal je Tag');
+  ctx.document.activeElement = { matches: s => s.includes('input') };
+  a.navDayCheck(day(2027, 7, 3, 0)); assert.equal(renders, 1, 'beim Tippen kein Neuaufbau'); assert.equal(navs, 1, 'Tab-Leiste trotzdem aktualisiert');
+  ctx.document.activeElement = null; a.UI.view = 'reisen';
+  a.navDayCheck(day(2027, 7, 4, 0)); assert.equal(renders, 1); assert.equal(navs, 2, 'andere Ansicht: nur Tab-Leiste');
+}
+console.log('Navigation (P0.5): Einträge mit/ohne laufende Reise (feste Uhrzeit), aktiver Eintrag, Routing #heute/#erinnerungen/#konto, Sprungziele, Heute (leer, nächste Reise, laufend, zwei Reisen), Erinnerungen (Gruppierung, Reihenfolge, Sterne als Text, Maskierung, nur lesend, ohne Modul), Tageswechsel um Mitternacht geprüft. Kein Browser-/iPhone-Test.');

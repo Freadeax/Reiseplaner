@@ -99,10 +99,16 @@ function sheetKeydown(e){
  const target=sheetTabTarget(nodes,document.activeElement,e.shiftKey);
  if(target){e.preventDefault();target.focus()}else if(!nodes.length){e.preventDefault();sheet.focus()}
 }
+/* Tagesauswahl in Blättern: höchstens VIEW_DAYS Tage (Paket 1); ein schon gewählter späterer Tag bleibt wählbar, damit nichts still verschoben wird */
+function dayOptions(t,sel){
+  const all=daysOf(t),list=viewDays(t).slice();
+  if(Number.isInteger(sel)&&sel>=list.length&&all[sel])list.push(all[sel]);
+  return list.map(d=>'<option value="'+d.i+'"'+(d.i===sel?' selected':'')+'>'+esc(d.label)+'</option>').join('');
+}
 function sheetAct(t,id,preDay,preSlot){
   const a=actOf(t,id); if(!a) return;
   const days=daysOf(t), c=actCost(t,a), planned=sortedItems(t).filter(i=>i.act===id);
-  const firstFree=()=>{for(const d of days){if(d.i===0&&a.slot==='morgen')continue;if(!(t.items||[]).some(i=>i.day===d.i&&i.slot===a.slot))return d.i}return 0};
+  const firstFree=()=>{for(const d of viewDays(t)){if(d.i===0&&a.slot==='morgen')continue;if(!(t.items||[]).some(i=>i.day===d.i&&i.slot===a.slot))return d.i}return 0};
   const dDay=preDay!=null?preDay:(a.onlyDate?(days.find(d=>d.md===a.onlyDate)||{i:firstFree()}).i:firstFree());
   const dSlot=preSlot||a.slot||'nachm';
   openSheet('<span class="eyebrow">'+esc(CAT[a.cat||'eigen'])+(a.ort?' · '+esc(a.ort):'')+'</span><h2>'+esc(a.t)+'</h2><p>'+esc(a.s||a.note||'')+'</p>'+
@@ -114,7 +120,7 @@ function sheetAct(t,id,preDay,preSlot){
    (a.bring&&a.bring.length?'<h4>Mitnehmen</h4><ul class="plain">'+a.bring.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':'')+
    '<div class="row">'+(a.links||[]).map(l=>lk(l[1],l[0])).join('')+(a.link?lk(a.link,'Link'):'')+(a.map?lk(mp(a.map),'Karte'):'')+'</div>'+
    (planned.length?'<h4>Eingeplant</h4><div class="checks-list">'+planned.map(i=>'<div class="chk info"><span>'+esc((days[i.day]||{label:'außerhalb'}).label+' · '+SLOTNAME[i.slot])+'</span><button type="button" class="lnk" style="margin-left:auto" data-act="item-del" data-val="'+i.uid+'">Entfernen</button></div>').join('')+'</div>':'')+
-   '<div class="panel"><h4>Einplanen</h4><div class="form"><label class="fld"><span>Tag</span><select id="pl-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===dDay?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="pl-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===dSlot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div><button type="button" class="btn" data-act="plan-do" data-val="'+esc(a.id)+'">In den Tagesplan</button></div>'+
+   '<div class="panel"><h4>Einplanen</h4>'+longTripNote(t,'Die Tagesauswahl')+'<div class="form"><label class="fld"><span>Tag</span><select id="pl-day">'+dayOptions(t,dDay)+'</select></label><label class="fld"><span>Tageszeit</span><select id="pl-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===dSlot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label></div><button type="button" class="btn" data-act="plan-do" data-val="'+esc(a.id)+'">In den Tagesplan</button></div>'+
    (a.custom&&a.costOpen&&!num(a.cost,0)?'<div class="panel"><h4>Preis eintragen</h4><p class="small muted">Aus dem Katalog übernommen, Preis noch offen. Tragt ein, was ihr beim Anbieter gefunden habt.</p><div class="form"><label class="fld"><span>Kosten (€)</span><input type="number" min="0" step="0.5" id="ap-cost"></label><label class="fld"><span>gilt</span><select id="ap-per"><option value="pp">pro Person</option><option value="grp">gesamt</option></select></label></div><div class="row"><button type="button" class="btn sm" data-act="act-price" data-val="'+esc(a.id)+'">Preis speichern</button><button type="button" class="btn ghost sm" data-act="act-free" data-val="'+esc(a.id)+'">Ist kostenlos</button></div></div>':'')+
    (a.custom&&!a.transit?'<div class="row"><button type="button" class="btn ghost sm" data-act="act-edit" data-val="'+esc(a.id)+'">Bearbeiten</button><button type="button" class="btn ghost sm" data-act="act-del" data-val="'+esc(a.id)+'">Eigene Unternehmung löschen</button></div>':''));
 }
@@ -126,7 +132,7 @@ function sheetSlot(t,day,slot){
 }
 function sheetItem(t,u){
   const it=(t.items||[]).find(i=>i.uid===u); if(!it) return; const a=actOf(t,it.act), days=daysOf(t);
-  openSheet('<span class="eyebrow">Im Tagesplan</span><h2>'+esc(a?a.t:'')+'</h2><div class="form"><label class="fld"><span>Tag</span><select id="mv-day">'+days.map(d=>'<option value="'+d.i+'"'+(d.i===it.day?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label><label class="fld"><span>Tageszeit</span><select id="mv-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===it.slot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label><label class="fld"><span>Uhrzeit (optional)</span><input type="time" id="mv-time" value="'+esc(it.time||'')+'"></label></div><p class="small muted">Mit Uhrzeit wird die Tageszeit automatisch passend gesetzt. Leeres Feld entfernt die Uhrzeit.</p>'+
+  openSheet('<span class="eyebrow">Im Tagesplan</span><h2>'+esc(a?a.t:'')+'</h2>'+longTripNote(t,'Die Tagesauswahl')+'<div class="form"><label class="fld"><span>Tag</span><select id="mv-day">'+dayOptions(t,it.day)+'</select></label><label class="fld"><span>Tageszeit</span><select id="mv-slot">'+SLOTS.map(s=>'<option value="'+s[0]+'"'+(s[0]===it.slot?' selected':'')+'>'+s[1]+'</option>').join('')+'</select></label><label class="fld"><span>Uhrzeit (optional)</span><input type="time" id="mv-time" value="'+esc(it.time||'')+'"></label></div><p class="small muted">Mit Uhrzeit wird die Tageszeit automatisch passend gesetzt. Leeres Feld entfernt die Uhrzeit.</p>'+
    '<div class="row"><button type="button" class="btn" data-act="item-move" data-val="'+u+'">Verschieben</button><button type="button" class="btn ghost" data-act="act-view" data-val="'+esc(it.act)+'">Details</button><button type="button" class="btn warn" data-act="item-del" data-val="'+u+'">Entfernen</button></div>'+
    (a&&a.catalogSpot&&!a.indoor&&CATX?'<div class="panel" id="rain-twin"><h4>☂ Regenzwilling</h4><p class="small muted">Drinnen-Alternativen in der Nähe. Sie werden nur eingeplant, wenn ihr tauscht; die Draußen-Idee bleibt in der Ideenliste.</p><div class="row"><button type="button" class="btn ghost sm" data-act="rain-twin" data-val="'+u+'">Alternativen zeigen</button></div></div>':''));
 }

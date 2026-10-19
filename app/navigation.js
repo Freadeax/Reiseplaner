@@ -7,7 +7,8 @@
    - vHeute(now): je laufender Reise Tag x von n, der bestehende Heute-Block (todayBlock) und Schnellzugriffe.
      Aktionen im Heute-Block (Tagebuch, Regen-Alternative) brauchen die Reise: Ein Klick in [data-heute-trip]
      merkt sie in UI.heuteTid, cur() liefert sie dann auch in dieser Ansicht.
-   - vErinnerungen(trips): Tagebuch und Bewertungen aller Reisen, nur lesend. Fotos und Reisebücher gibt es noch nicht. */
+   - vErinnerungen(trips): Tagebuch und Bewertungen aller Reisen, nur lesend. Fotos und Reisebücher gibt es noch nicht.
+   - navDayCheck(now): nach Mitternacht oder Rückkehr in die App Tab-Leiste und „Heute“ an den neuen Tag anpassen. */
 "use strict";
 const NAV_ICON={
  reisen:'<path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7"/><rect x="3.5" y="7" width="17" height="12.5" rx="2.5"/><path d="M3.5 12.5h17"/>',
@@ -48,6 +49,34 @@ function navHeight(){
  }catch(e){}
 }
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',navHeight);
+
+/* ---------- Tageswechsel: „Heute“ erscheint/verschwindet um Mitternacht ----------
+   Timer schlafen auf dem iPhone im Hintergrund; deshalb zusätzlich beim Zurückkehren in die App prüfen.
+   Die Tab-Leiste folgt immer; die Ansicht „Heute“ wird nur neu aufgebaut, wenn niemand gerade tippt und kein Blatt offen ist. */
+function navDayKey(now){const d=now||new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+let navDay=navDayKey();
+function navBusy(){
+ if(typeof document==='undefined'||!document.querySelector)return false;
+ if(document.querySelector('.sheet'))return true;
+ const a=document.activeElement;return !!(a&&a.matches&&a.matches('input,textarea,select,[contenteditable="true"]'));
+}
+function navDayCheck(now){
+ const k=navDayKey(now);if(k===navDay)return false;
+ navDay=k;
+ if(UI.view==='heute'&&!navBusy())render();else renderNav(now);
+ return true;
+}
+function navDayTimer(){
+ if(typeof setTimeout!=='function')return;
+ const n=new Date(),next=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,5);
+ const h=setTimeout(()=>{navDayCheck();navDayTimer()},Math.max(1000,next-n));
+ if(h&&typeof h.unref==='function')h.unref(); /* Node-Tests: Timer hält den Prozess nicht offen */
+}
+if(typeof window!=='undefined'&&window.addEventListener&&typeof document!=='undefined'&&document.addEventListener){
+ navDayTimer();
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)navDayCheck()});
+ window.addEventListener('focus',()=>navDayCheck());
+}
 
 /* ---------- Sprungziel nach dem Wechsel in einen Reisebereich ---------- */
 /* Geschlossene Aufklapper werden geöffnet; landet der Fokus nicht (z. B. gesperrter Knopf), gilt das nächste Ziel, zuletzt der Inhalt. */

@@ -1,5 +1,14 @@
 # Projektstand · 18.10.2026
 
+## Kleine Punkte 19.10. und Pakete 4–6 gestartet (Claude, 19.10., lokal)
+
+- **Tagesauswahl in Blättern** („Einplanen“, „Verschieben“) zeigt bei überlangen Reisen höchstens 366 Tage mit Hinweis „Zeitraum prüfen“. Liegt ein Termin schon auf einem späteren Tag, bleibt dieser Tag wählbar, damit beim Speichern nichts still verschoben wird (`dayOptions`, app/blaetter.js).
+- **„Heute“ um Mitternacht:** Die Tab-Leiste passt sich nach Mitternacht und beim Zurückkehren in die App (Sichtbarkeit, Fokus) an den neuen Tag an. Die Ansicht „Heute“ wird nur neu aufgebaut, wenn kein Blatt offen ist und niemand tippt (`navDayCheck`, app/navigation.js).
+- Service Worker `reiseplaner-v15`. Speicherformat `rp-trips` unverändert.
+- Parallel gestartet (eigene Dateien, Einbindung durch Claude): Paket 4 Reise-Unterseiten am Handy (§4.2), Paket 5 Fotos lokal (Grundlage, §6.1–6.3), Paket 6 Reisebuch-Editor und Vorschau (§7.3–7.4).
+
+Tests (19.10., Cloud-Container): `npm test` grün (neu: Tageswechsel in `tests/navigation.cjs`, Tagesauswahl in `tests/reisedauer.cjs`); `npm run test:browser` grün (Chromium). **Nicht getestet:** iPhone, Safari/WebKit, Windows-Rechner, echter Tageswechsel im Browser.
+
 ## P0.5 fertig und drei parallele Pakete zusammengeführt (Claude, 18.10. abends, lokal)
 
 Auf Philipps Wunsch parallel gearbeitet: P0.5 in zwei Modulen (Navigation, Gestaltungsregeln), dazu drei eigene Threads (Paket 1 Reisedauer direkt im Ordner, Paket 2 Format 4 und Paket 3 Reisebuch in der Cloud). Zusammengeführt und gemeinsam getestet im Integrationsstand; Einzelheiten der Module in den Abschnitten darunter.
@@ -16,7 +25,7 @@ Service Worker `reiseplaner-v14`, App jetzt 18 Teile (neu `app/navigation.js`). 
 
 Tests (18.10. abends, Cloud-Container, Integrationsstand): `npm test` (34 Testdateien) grün; lokal mit Supabase `REQUIRE_DB=1 npm run test:db` und `npm run test:e2e` grün; `npm run build` und `check:artifact` bestanden; `npm run test:browser` grün (Chromium Desktop, mobil, 320 px dunkel, Navigation 320/390/Desktop, 200 % Schrift auf 320/390 px mit und ohne reduzierte Bewegung). **Nicht getestet:** iPhone, Safari/WebKit, Philipps Windows-Rechner, Produktion.
 
-Grenzen: Tagesauswahlen in Blättern (`app/blaetter.js`) zeigen bei überlangen Reisen noch alle Tage. „Heute“ erscheint nach dem nächsten Neuaufbau, nicht automatisch um Mitternacht. Innerhalb einer Reise noch keine Unterseiten mit Zurück-Geste (§4.2 Absatz 2). Format 4 und Reisebuch sind nur Logik, ohne Oberfläche.
+Grenzen (Tagesauswahl und Mitternacht am 19.10. erledigt): Innerhalb einer Reise noch keine Unterseiten mit Zurück-Geste (§4.2 Absatz 2). Format 4 und Reisebuch sind nur Logik, ohne Oberfläche.
 
 Nächster Schritt: Philipps Sichtprüfung (`py -m http.server 8000`), danach iPhone. Weiter: Unterseiten in einer Reise (§4.2), Reisebuch-Vorschau in „Erinnerungen“, Format 4 nach Philipps Entscheidungen (§8).
 
