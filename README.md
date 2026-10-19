@@ -146,6 +146,7 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | `catalog.js` | Rechenregeln des Umkreis-Katalogs (Entfernung, Bereich, Bewertung, Stopps, Tagesgerüst) |
 | `v4logic.js` | Entwurf Format 4 (Fotos, Reisebücher): Prüfung und Grenzen; geladen für die Reisebuch-Vorschau, noch nicht am Speicher ([SCHEMA_V4](docs/SCHEMA_V4.md)) |
 | `bookgen.js` | Reisebuch-Erstentwurf, rein und deterministisch; Vorschau in „Erinnerungen“ |
+| `photostore.js` | Lokale Fotoablage (IndexedDB `rp-media`), EXIF, Standort entfernen, Zuordnungsvorschlag; noch ohne Oberfläche |
 | `bookedit.js` | Bearbeitungsschritte für Reisebücher mit Rückgängig, jeder Zustand gegen Format 4 geprüft |
 | `app/reisebuch.js` | Reisebuch-Entwurf in „Erinnerungen“ ansehen und ausprobieren, ohne Speichern |
 | `catalog-data.js` | Katalogdaten, einzige Quelle; daraus erzeugt `scripts/catalog-sql.mjs` die Seed-Migration |

@@ -2,7 +2,7 @@
 
 ## Pakete 4–6 parallel · 19.10.2026
 
-Erledigt: Tagesauswahl in Blättern auf 366 Tage begrenzt, „Heute“ folgt dem Tageswechsel. In Arbeit (eigene Threads): Unterseiten innerhalb einer Reise am Handy, Fotos lokal (Ablage, EXIF, Zuordnung), Reisebuch-Editor und Vorschau in „Erinnerungen“. Danach: Einbindung und gemeinsamer Test, Format 4 an den Speicher anbinden (mit Versionierung, Migration und Export), iPhone-Prüfung.
+Erledigt: Tagesauswahl in Blättern auf 366 Tage begrenzt, „Heute“ folgt dem Tageswechsel; Reisebuch-Entwurf in „Erinnerungen“ (Paket 6); lokale Fotoablage als Logik geladen (Paket 5). In Arbeit (eigene Threads): Unterseiten innerhalb einer Reise am Handy, Fotos lokal (Ablage, EXIF, Zuordnung), Reisebuch-Editor und Vorschau in „Erinnerungen“. Danach: Einbindung und gemeinsamer Test, Format 4 an den Speicher anbinden (mit Versionierung, Migration und Export), iPhone-Prüfung.
 
 ## P0.5 fertig, Pakete 1–3 zusammengeführt · 18.10.2026 abends
 
