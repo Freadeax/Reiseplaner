@@ -1217,13 +1217,28 @@ async function bookFlow(browser,base,name,ctxOpts){
  assert.equal(await p.$eval('[data-book-page]',n=>n.getAttribute('data-book-page')),head,name+': gleiche Seite jetzt vorn');
  await p.click('[data-book-act="undo"]');
  assert(/Rückgängig gemacht/.test(await p.textContent('[data-book-msg]')),name+': rückgängig');
+ /* Drucken und PDF (Paket 9): Druckdialog-Attrappe, nur Buchseiten in der Druckansicht, danach aufgeräumt */
+ await p.evaluate(()=>{window.__printed=0;window.print=()=>{window.__printed++}});
+ await p.selectOption('#book-print-mode','fotobuch');await p.click('[data-book-act="print"]');
+ assert.equal(await p.evaluate(()=>window.__printed),1,name+': Druckdialog einmal geöffnet');
+ assert(/^Druckdialog geöffnet: \d+ Seiten, A5 quer/.test((await p.textContent('[data-book-msg]')).trim()),name+': Druckmeldung '+await p.textContent('[data-book-msg]'));
+ await p.emulateMedia({media:'print'});
+ const pr=await p.evaluate(()=>({view:document.getElementById('view').checkVisibility(),nav:document.getElementById('app-nav').checkVisibility(),root:getComputedStyle(document.getElementById('rp-print-root')).visibility,pages:document.querySelectorAll('#rp-print-root .rpp-page').length,ctl:document.querySelectorAll('#rp-print-root button,#rp-print-root select,#rp-print-root input').length,bg:getComputedStyle(document.querySelector('#rp-print-root .rpp-page')).backgroundColor}));
+ await p.emulateMedia({media:'screen'});
+ assert.equal(pr.view,false,name+': App nicht im Druck');assert.equal(pr.nav,false,name+': Navigation nicht im Druck');assert.equal(pr.root,'visible');assert.equal(pr.ctl,0,name+': keine Bedienelemente im Druck');
+ assert(pr.pages>=2&&pr.pages%2===0,name+': Fotobuch mit gerader Seitenzahl '+pr.pages);assert.equal(pr.bg,'rgb(255, 255, 255)',name+': helles Papier');
+ await p.evaluate(()=>window.dispatchEvent(new Event('afterprint')));
+ assert.equal(await p.evaluate(()=>!!document.getElementById('rp-print-root')||document.documentElement.classList.contains('rp-printing')),false,name+': nach dem Drucken aufgeräumt');
+ await p.selectOption('#book-format','a4-hoch');await p.click('[data-book-act="format"]');
+ assert(/Buchformat geändert/.test(await p.textContent('[data-book-msg]')),name+': Format geändert');
+ assert.equal(await p.$eval('[data-book-page] .rp-book',n=>n.getAttribute('data-format')),'a4-hoch',name+': Vorschau im neuen Format');
  await noOverflow(p,name+' Reisebuch');
  const small=await p.$$eval('[data-book-preview] button:not([disabled]),[data-book-preview] select',bs=>bs.filter(b=>{const r=b.getBoundingClientRect();return r.width>0&&r.height>0&&!b.closest('details:not([open])')}).map(b=>{const r=b.getBoundingClientRect();return {t:(b.textContent||b.id).trim().slice(0,30),w:Math.round(r.width),h:Math.round(r.height)}}).filter(x=>x.h<44||x.w<44));
  if(ctxOpts.isMobile)assert.deepEqual(small,[],name+': Ziele mindestens 44 px '+JSON.stringify(small));
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),before,name+': rp-trips unverändert');
  assert.equal(await p.evaluate(()=>(window.__app.Store.get('booktrip').books||[]).length),0,name+': kein Buch gespeichert');
  await ctx.close();
- console.log(name+': Reisebuch-Entwurf erzeugen, blättern, verschieben, rückgängig, ohne Speichern geprüft.');
+ console.log(name+': Reisebuch-Entwurf erzeugen, blättern, verschieben, rückgängig, drucken (Attrappe), Format wechseln, ohne Speichern geprüft.');
 }
 async function navFlow(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts)),p=await ctx.newPage();

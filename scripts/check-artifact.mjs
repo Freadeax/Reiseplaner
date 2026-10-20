@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ALLOWED = new Set(['index.html', '404.html', '.nojekyll', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
-  'app.css', 'cloud.js', 'config.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'v4logic.js', 'bookgen.js', 'bookedit.js', 'photostore.js', 'v3split.js', 'catalog-data.js', 'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt']);
+  'app.css', 'cloud.js', 'config.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'v4logic.js', 'bookgen.js', 'bookedit.js', 'bookprint.js', 'photostore.js', 'v3split.js', 'catalog-data.js', 'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt']);
 const SECRET = [
   [/sb_secret_[A-Za-z0-9_-]{8,}/, 'Supabase Secret Key'],
   [/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]*cm9sZSI6InNlcnZpY2Vfcm9sZS[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+/, 'service_role-JWT'],

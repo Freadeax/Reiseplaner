@@ -14,7 +14,7 @@ import { checkArtifact } from './check-artifact.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public');
-const FILES = ['index.html', 'app.css', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3split.js', 'rpstore.js', 'v3journal.js', 'v4logic.js', 'bookgen.js', 'bookedit.js', 'photostore.js', 'catalog-data.js',
+const FILES = ['index.html', 'app.css', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3split.js', 'rpstore.js', 'v3journal.js', 'v4logic.js', 'bookgen.js', 'bookedit.js', 'bookprint.js', 'photostore.js', 'catalog-data.js',
   'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt'];
 /* Kachel-Katalog: Index und Kacheln (nicht die Quelle catalog/src) */
 /* App-Code seit P0.6 in app/*.js */

@@ -7,6 +7,8 @@
      UI.book und ist nach Neuladen oder Reisewechsel weg. Das steht sichtbar über jeder Seite.
    - Braucht window.RPBook, window.RPBookEdit und window.RPV4; fehlt eines, erscheint ein Hinweis statt der Vorschau.
    - Fotos: Bilder nur über reisebuchPhotoUrl(id) (setzt die lokale Fotoablage, Paket 5), sonst Platzhalter.
+   - Drucken (Paket 9, bookprint.js): Buchformat wählen, Druckart wählen, „Als PDF drucken“ öffnet den Druckdialog des
+     Browsers mit nur den Buchseiten. Übervolle Seiten brauchen eine Bestätigung. Auch das speichert nichts.
    Einbindung (Vorschlag, pakete/reisebuch-editor/EINBINDUNG.md): vErinnerungen hängt reisebuchSection() an. */
 "use strict";
 /* Von der Fotoablage zu setzen: function(mediaId) → 'blob:…' | 'data:image/…' | 'https:…' | null */
@@ -80,10 +82,34 @@ function reisebuchSection(trips){
    '<div class="row"><label class="field"><span>Buchtitel</span><input id="book-title" maxlength="120" value="'+esc(b.title)+'"></label>'+btn('title','Titel übernehmen')+'</div>'+
   '</details>'+
   '<div class="row" role="group" aria-label="Rückgängig">'+btn('undo','Rückgängig','',!E.canUndo(st))+btn('redo','Wiederholen','',!E.canRedo(st))+btn('discard','Entwurf schließen')+'</div>'+
+  reisebuchPrintBlock(B,b,p,list.find(t=>t.id===B.tid),btn)+
   (B.warnings&&B.warnings.length?'<ul class="small plain" data-book-warn>'+B.warnings.map(w=>reisebuchWarnText(w,b.pages)).filter(Boolean).map(x=>'<li>Hinweis: '+esc(x)+'</li>').join('')+'</ul>':'')+
   '<details><summary>Alle Seiten ('+n+')</summary><ol class="plain book-pages">'+b.pages.map((q,k)=>'<li><button type="button" class="lnk" data-book-act="goto" data-i="'+k+'"'+(k===i?' aria-current="page"':'')+'>'+esc(reisebuchPageLabel(q,k))+'</button></li>').join('')+'</ol></details>'+
   '</div>';
  return h+'</section>';
+}
+/* Drucken und PDF (Paket 9): nur mit window.RPBookPrint; Auflösungshinweise für die angezeigte Seite */
+function reisebuchPrintBlock(B,b,p,t,btn){
+ const P=typeof window!=='undefined'?window.RPBookPrint:null;if(!P)return '';
+ const mode=B.printMode||'heim',media=t&&Array.isArray(t.media)?t.media:[];
+ let hints=[];try{hints=P.resolution(b,media,P.plan(b,{mode})).filter(r=>r.pageId===p.id&&r.status!=='ok').map(P.resolutionText)}catch(e){hints=[]}
+ return '<div class="book-print" data-book-print><h3>Drucken und PDF</h3>'+
+  '<div class="row"><label class="field"><span>Buchformat</span><select id="book-format">'+Object.keys(P.SIZES).map(k=>'<option value="'+k+'"'+(k===b.format?' selected':'')+'>'+esc(P.SIZES[k].name)+'</option>').join('')+'</select></label>'+btn('format','Format übernehmen')+'</div>'+
+  '<div class="row"><label class="field"><span>Druckart</span><select id="book-print-mode">'+Object.keys(P.MODES).map(k=>'<option value="'+k+'"'+(k===mode?' selected':'')+'>'+esc(P.MODES[k].name)+'</option>').join('')+'</select></label>'+btn('print','Als PDF drucken')+'</div>'+
+  '<p class="small muted">Öffnet den Druckdialog des Browsers; dort „Als PDF sichern“ oder einen Drucker wählen. Gedruckt werden nur die Buchseiten, ohne Bedienelemente. Nichts wird gespeichert.</p>'+
+  (hints.length?'<ul class="small plain" data-book-print-hints>'+hints.map(x=>'<li>Hinweis: '+esc(x)+'</li>').join('')+'</ul>':'')+
+  (B.printConfirm?'<div class="row" role="group" aria-label="Zu volle Seiten">'+btn('print-confirm','Trotzdem drucken')+btn('print-cancel','Abbrechen')+'</div>':'')+
+  '</div>';
+}
+/* Druckdialog öffnen; Ergebnis steht in B.msg. confirm: trotz übervoller Seiten drucken */
+function reisebuchPrint(B,confirm,mode){
+ const P=typeof window!=='undefined'?window.RPBookPrint:null;if(!P){B.msg='Diese App-Version kann noch nicht drucken.';return}
+ if(mode)B.printMode=mode;
+ const t=Store.get(B.tid);
+ const r=P.printBook(B.st.book,{mode:B.printMode||'heim',confirm,media:t&&Array.isArray(t.media)?t.media:[],mediaUrl:id=>typeof reisebuchPhotoUrl==='function'?reisebuchPhotoUrl(id):null});
+ B.printConfirm=null;
+ if(!r.ok){if(r.code==='ueberlauf')B.printConfirm=r.pages;B.msg=r.error;return}
+ B.msg='Druckdialog geöffnet: '+r.plan.count+' Seiten, '+r.plan.name+(r.plan.added?', '+r.plan.added+(r.plan.added===1?' Leerseite':' Leerseiten')+' ergänzt':'')+'.'+(r.warnings.length?' Hinweis: Ein Text erwähnt Buchungs- oder Zahlungsangaben; bitte vor dem Teilen prüfen.':'');
 }
 /* Foto tauschen und Bildunterschrift je Platz; nur wenn die Reise Fotos hat */
 function reisebuchSlots(st,p,E){
@@ -136,6 +162,10 @@ function reisebuchAct(act,data,val){
   case 'undo':{const r=E.undo(st);if(r.ok){B.st=r.state;B.warnings=r.warnings;B.i=Math.min(B.i,r.state.book.pages.length-1);B.msg='Rückgängig gemacht.'}else B.msg=r.error;B.confirm=null;return '[data-book-act="undo"]:not([disabled])|[data-book-act="redo"]'}
   case 'redo':{const r=E.redo(st);if(r.ok){B.st=r.state;B.warnings=r.warnings;B.i=Math.min(B.i,r.state.book.pages.length-1);B.msg='Wiederholt.'}else B.msg=r.error;B.confirm=null;return '[data-book-act="redo"]:not([disabled])|[data-book-act="undo"]'}
   case 'discard':UI.book=null;return '[data-book-act="make"]';
+  case 'format':run({type:'format',format:val('book-format')},'Buchformat geändert.');return '#book-format';
+  case 'print':reisebuchPrint(B,false,val('book-print-mode'));return B.printConfirm?'[data-book-act="print-confirm"]':'[data-book-act="print"]';
+  case 'print-confirm':reisebuchPrint(B,true);return '[data-book-act="print"]';
+  case 'print-cancel':B.printConfirm=null;B.msg='Nicht gedruckt.';return '[data-book-act="print"]';
  }
  return null;
 }
