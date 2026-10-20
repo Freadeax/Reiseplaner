@@ -1,5 +1,5 @@
 /* Reiseplaner · Ansichten.
-   Teil 10 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 10 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Ansichten ================= */
@@ -361,12 +361,13 @@ function tPlan(t){
       (L.planned||L.unknown||L.drive?'<span class="small">Programm ≈ '+hrs(L.planned)+' von '+hrs(L.cap)+' Std.'+(L.drive?' · Fahrt ca. '+hrs(Math.round(L.drive/6)/10)+' Std.':'')+(L.unknown?' · '+L.unknown+'× Dauer offen':'')+'</span><br>':'')+
       '<span class="small muted dcost">'+(dc&&dc.total?'Programm ≈ '+eur(dc.total)+(dc.shared?' (davon '+eur(dc.shared)+' anteilig)':''):'Programm ohne Kosten')+(dc&&dc.open?' · '+dc.open+'× Preis offen':'')+(fs.length&&fs.length<SLOTS.length?' · frei: '+esc(fs.join(', ')):fs.length===SLOTS.length?' · ganzer Tag frei':'')+'</span>'+
       '<span class="dtools">'+(days.length>1?'<button type="button" class="lnk" data-act="day-swap-open" data-val="'+d.i+'" aria-label="'+esc(d.label)+' mit anderem Tag tauschen">⇄ Tauschen</button>':'')+(ru?lk(ru,'Tagesroute'):'')+'</span></details></div>'})()+
+    (typeof fotosDayStrip==='function'?fotosDayStrip(t,d.i):'')+
     SLOTS.map(([k,lab])=>{const its=items.filter(it=>it.day===d.i&&it.slot===k);
       let fixed='';
       if(d.i===0&&k==='morgen'){const arr=arrivalMin(t);fixed='<div class="item fixed">Anreise'+(pl?' · '+esc(pl.time):'')+'<small>ab '+esc(t.origin||'')+(t.departTime?' um '+esc(t.departTime):'')+(arr!=null?' · Ankunft ca. '+minTime(arr)+' (Schätzung)':'')+(t.checkinTime?' · Check-in ab '+esc(t.checkinTime):'')+'</small></div>'}
       if(d.i===lastDay&&lastDay>0&&k==='morgen') fixed='<div class="item fixed">Packen & Abreise<small>'+(pl?'zuhause ≈ 2–2,5 Std. später':'')+'</small></div>';
       return '<div class="dslot"><span class="lbl">'+lab+'</span>'+fixed+its.map(it=>{const a=actOf(t,it.act);if(!a)return '';return '<button type="button" class="item'+(isWarn(it,a,d)?' warn':'')+'" style="border-left-color:'+CATCOL[a.cat||'eigen']+'" data-act="item" data-val="'+it.uid+'">'+(it.time?'<b class="num">'+esc(it.time)+'</b> ':'')+esc(a.t)+'<small>'+esc(a.dur||'')+(a.ort?' · '+esc(a.ort):'')+(gaps[it.uid]?' · '+(gaps[it.uid].short?'! ':'')+'≈ '+gaps[it.uid].need+' Min. Weg davor':'')+'</small></button>'}).join('')+
-      '<button type="button" class="add" data-act="slot-add" data-val="'+d.i+'|'+k+'" aria-label="'+esc(d.label+' '+lab)+' hinzufügen">+</button></div>'}).join('')+'</div>'}).join('')+'</div></section>'+journalSection(t,'plan');
+      '<button type="button" class="add" data-act="slot-add" data-val="'+d.i+'|'+k+'" aria-label="'+esc(d.label+' '+lab)+' hinzufügen">+</button></div>'}).join('')+'</div>'}).join('')+'</div></section>'+journalSection(t,'plan')+(typeof fotosSection==='function'?fotosSection(t):'');
 }
 function costEntryCommitted(t,id){const e=(t.ledger||{})['xc:'+id];return !!(e&&(e.status==='gebucht'||e.status==='angefragt'||num(e.paid,0)>0||e.due));}
 function costEntryFromForm(f,id){

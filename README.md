@@ -42,7 +42,8 @@ Oben oder im Konto über **Darstellung** zwischen drei Oberflächen wechseln: **
 - Beispielkatalog für vier Winterregionen mit Unterkünften und Aktivitäten
 - Tagesplan, Kostenübersicht, Pack- und Buchungscheckliste
 - Eigene Unterkunft, Aktivität und Kostenposten ergänzen. Eigene Unternehmungen mit Dauer in Stunden, Indoor-Merkmal und Packhinweisen; leerer Preis bleibt offen, kostenlos nur bei ausdrücklicher Angabe
-- Einzelne oder alle Reisen als JSON-Datei sichern und ohne stilles Überschreiben wieder importieren
+- Einzelne oder alle Reisen als JSON-Datei sichern und ohne stilles Überschreiben wieder importieren; mit Fotos als Archiv `.reiseplaner`
+- **Seit 20.10. (lokal):** Fotos zu einer Reise hinzufügen, Tag und Unternehmung bestätigen, Ort je Foto ansehen; Reisebuch-Entwurf in „Erinnerungen“, als PDF drucken. Fotos liegen nur in diesem Browser und sind keine Sicherung.
 - Bei beschädigten lokalen Speicherdaten wird das Schreiben gesperrt; Rohdaten lassen sich vor einem bewussten Zurücksetzen herunterladen
 - Heller und dunkler Modus je nach Geräteeinstellung
 - Unterwegs-Ansicht: Während einer Reise mit festem Datum zeigt der Überblick, was heute und morgen geplant ist
@@ -147,6 +148,9 @@ Die Prüfungen decken unter anderem Reisedauer, Datumsregeln, Gästekartenrabatt
 | `v4logic.js` | Entwurf Format 4 (Fotos, Reisebücher): Prüfung und Grenzen; geladen für die Reisebuch-Vorschau, noch nicht am Speicher ([SCHEMA_V4](docs/SCHEMA_V4.md)) |
 | `bookgen.js` | Reisebuch-Erstentwurf, rein und deterministisch; Vorschau in „Erinnerungen“ |
 | `app/unterseiten.js` | Reisebereiche am Handy als Übersicht und Unterseiten mit Zurück (Verlauf, Wischgeste) |
+| `app/format4.js` | Format 4 im Speicher: Anheben nach Bestätigung, Schreibwege für Fotos und Bücher, Archiv „Mit Fotos sichern“, Format 4 bleibt im Konto lokal |
+| `app/fotos.js` | Foto-Import mit Prüfliste, Vorschaubilder je Tag, Fotoblatt mit Ort, Fotos in Erinnerungen |
+| `bookprint.js` | Reisebuch drucken / PDF: Seitengrößen, Ränder, Seitenzahlen |
 | `photostore.js` | Lokale Fotoablage (IndexedDB `rp-media`), EXIF, Standort entfernen, Zuordnungsvorschlag; noch ohne Oberfläche |
 | `bookedit.js` | Bearbeitungsschritte für Reisebücher mit Rückgängig, jeder Zustand gegen Format 4 geprüft |
 | `app/reisebuch.js` | Reisebuch-Entwurf in „Erinnerungen“ ansehen und ausprobieren, ohne Speichern |

@@ -1,5 +1,5 @@
 /* Reiseplaner · P0.2a Mitreisende, Ausgaben unterwegs, Aufteilung.
-   Teil 4 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 4 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= P0.2a Mitreisende, Ausgaben unterwegs und Aufteilung (Claude, #8; SCHEMA_V3 §3) =================

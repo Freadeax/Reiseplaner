@@ -1,5 +1,9 @@
 # Roadmap
 
+## Fotos, Format 4 und Reisebuch-Druck · 20.10.2026
+
+Lokal fertig und getestet (Chromium): Format 4 im Speicher mit Bestätigung, Foto-Import mit Prüfliste und Ortsanzeige, Archiv „Mit Fotos sichern“, Reisebuch als PDF. Konto: Format-4-Reisen bleiben bis zur Datenbankfreigabe nur auf dem Gerät. Nächste Schritte: (1) Philipps Sichtprüfung, (2) iPhone/Safari, (3) Entscheidung Migration Format 4, (4) Reisebuch speichern über `bookSave`, (5) nach Git-Freigabe Commit auf `main` und CI.
+
 ## Pakete 4–6 parallel · 19.10.2026
 
 Erledigt: Tagesauswahl in Blättern auf 366 Tage begrenzt, „Heute“ folgt dem Tageswechsel; Reisebuch-Entwurf in „Erinnerungen“ (Paket 6); lokale Fotoablage als Logik geladen (Paket 5); Reisebereiche am Handy als Unterseiten mit Zurück (Paket 4). Nächstes: iPhone-Prüfung von Zurück-Knopf und Wischgeste, Foto-Import-Oberfläche nach Format 4 im Speicher. Danach: Einbindung und gemeinsamer Test, Format 4 an den Speicher anbinden (mit Versionierung, Migration und Export), iPhone-Prüfung.

@@ -1,5 +1,24 @@
 # Projektstand · 18.10.2026
 
+## Fotos, Format 4 und Reisebuch-Druck zusammengeführt (Claude, 20.10., lokal)
+
+Drei parallele Pakete (eigene Threads, eigene Dateien), von Claude eingebunden und gemeinsam getestet:
+
+- **Paket 7 Format 4 im Speicher (`app/format4.js`):**
+  - Reisen mit Fotos und Reisebüchern (schemaVersion 4) werden geladen, geprüft und unverändert zurückgeschrieben.
+  - Eine Reise wird erst beim ersten Foto bzw. gespeicherten Buch auf Format 4 gehoben, mit sichtbarem Hinweis und ausdrücklicher Bestätigung; danach bleibt sie 4 (keine Rückstufung, Feldtreue geprüft). Storno, Abschnitte, Mitreisende und Tagebuch rechnen in Format 4 weiter.
+  - **Konto:** Die Datenbank erlaubt nur Format 2 und 3 (`check (schema_version in (2, 3))`, Migration 20261015160000). Reisen in Format 4 bleiben deshalb sichtbar „nur auf diesem Gerät (Format 4)“, werden nicht gesendet und gehen nicht verloren; andere Reisen synchronisieren weiter.
+  - **Migrationsvorschlag für Philipp** (nicht angelegt, Produktionsänderung): `pakete/format4-app/EINBINDUNG.md` §5. Danach genügt `F4_SERVER_MAX = 4`.
+  - **Sicherung:** JSON-Sicherung behält Foto-Einträge und Bücher, aber keine Bilder, mit sichtbarem Hinweis. Neu: „Mit Fotos sichern“ als Archiv `.reiseplaner` (ZIP), Standort standardmäßig entfernt, wahlweise mitsichern. Import prüft Inhaltsverzeichnis, Pfade, CRC und Prüfsummen vor dem Ablegen und baut bei Fehlern zurück.
+  - Bekannte Grenze: Ein noch offener alter Tab (Service Worker v18 oder älter) sieht eine Format-4-Reise als „beschädigt“ und sperrt sich; nichts geht still verloren, aber dort nicht „Zurücksetzen“ wählen. Vor einer Veröffentlichung zuerst mit `F4_WRITE = false` ausliefern (SCHEMA_V4 §6).
+- **Paket 8 Foto-Import und Fotoansicht (`app/fotos.js`):** Im Tagesplan einer Reise „Fotos hinzufügen“ (mehrere Dateien), nacheinander verkleinert und in der Fotoablage abgelegt, dann Prüfliste „passt / ändern“ mit Korb „ohne Tag“. Erst „Übernehmen und speichern“ (beim ersten Foto zusätzlich „Umstellen und speichern“) schreibt in die Reise; Abbrechen räumt die Ablage. Vorschaubilder je Tag, Fotoblatt mit Aufnahmezeit, Ort als Text und OpenStreetMap-Link (Philipp: Standort bleibt), Löschen mit Rückfrage, „Fotos eurer Reisen“ in Erinnerungen, echte Bilder in der Reisebuch-Vorschau. Hinweis „Lokale Fotos sind keine Sicherung“ sichtbar. Beim Zusammenführen angepasst: Bestätigungsschritt für Format 4, der im Paket nur als Stub bestand.
+- **Paket 9 Reisebuch drucken / PDF (`bookprint.js`):** Unter dem Reisebuch-Entwurf „Drucken und PDF“ mit Format A5 quer, A4 hoch oder 21×21 cm, Rändern, Beschnitt und Seitenzahlen über den Druckdialog des Browsers; gedruckt werden nur Buchseiten. Keine neue Bibliothek, nichts gespeichert.
+- Service Worker `reiseplaner-v21`, App jetzt 22 Teile. `rp-trips` bleibt das Speicherformat; neu ist nur schemaVersion 4 je Reise nach Bestätigung.
+
+Tests (20.10., Cloud-Container, Integrationsstand): `npm test` grün (neu `format4`, `fotos`, `bookprint`); `npm run test:browser` grün (Chromium, alle Abläufe inkl. Reisebuch mit Druckknopf); `test:format4-browser` (Foto in echter IndexedDB, Archiv-Download, Import auf frischem Profil), `test:fotos-browser` (Import, Bestätigung Format 4, Fotoblatt, Erinnerungen, Löschen bei 390/320 dunkel/Desktop), `test:print-browser` (echtes Chromium-PDF: Seitenzahl und -größe) und `test:photos-browser` grün; lokal mit Supabase `REQUIRE_DB=1 npm run test:db` und `npm run test:e2e` grün (nach Paket 7); `npm run build` und `check:artifact` bestanden. **Nicht getestet:** iPhone, Safari/WebKit, echte Kamerafotos und HEIC, große Fotomengen, echter Drucker, Windows-Rechner, Produktion.
+
+Nächster Schritt: Philipps Sichtprüfung (Fotos hinzufügen, Reisebuch, PDF), dann iPhone. Offen für Philipp: Datenbank für Format 4 freigeben (Migration §5, nach Git-Freigabe) oder Fotos vorerst nur auf dem Gerät.
+
 ## Kleine Punkte 19.10. und Pakete 4–6 gestartet (Claude, 19.10., lokal)
 
 - **Tagesauswahl in Blättern** („Einplanen“, „Verschieben“) zeigt bei überlangen Reisen höchstens 366 Tage mit Hinweis „Zeitraum prüfen“. Liegt ein Termin schon auf einem späteren Tag, bleibt dieser Tag wählbar, damit beim Speichern nichts still verschoben wird (`dayOptions`, app/blaetter.js).

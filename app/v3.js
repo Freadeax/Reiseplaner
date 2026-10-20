@@ -1,5 +1,5 @@
 /* Reiseplaner · Datenvertrag v3: Prüfung, Schreibschutz, Editor-Anbindung.
-   Teil 3 von 20 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 3 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Datenvertrag v3, Lese-Release (Claude, #8; docs/SCHEMA_V3.md) =================

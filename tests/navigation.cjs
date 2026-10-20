@@ -147,7 +147,7 @@ const keys = items => items.map(x => x.key).join(',');
   assert(h.includes('data-go="r-told-plan"') && h.includes('data-go="r-tneu-plan"'), 'Link zum Tagebuch im Tagesplan');
   assert(h.indexOf('data-memory-trip="tneu"') < h.indexOf('data-memory-trip="told"'));
   assert(h.includes('1 weitere Reise hat noch kein Tagebuch'));
-  assert(!/Foto|Reisebuch erstellen/.test(h.replace('Fotos kommen später; Reisebücher könnt ihr unten als Entwurf ansehen.', '').replace(/<section[^>]*data-book-preview[\s\S]*$/, '')), 'keine erfundenen Fotos oder Reisebücher');
+  assert(!/Foto|Reisebuch erstellen/.test(h.replace('Fotos fügt ihr im Tagesplan einer Reise hinzu; Reisebücher könnt ihr unten als Entwurf ansehen.', '').replace(/<section[^>]*data-book-preview[\s\S]*$/, '')), 'keine erfundenen Fotos oder Reisebücher');
   /* gespeicherte Daten unverändert */
   const before = JSON.stringify(old); a.vErinnerungen([old]); assert.equal(JSON.stringify(old), before, 'nur lesend');
   /* Standard: gespeicherte Reisen */

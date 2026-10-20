@@ -2,7 +2,7 @@
 
 Stand 18.10.2026, Entwurf von Claude (Paket 2, ohne ChatGPT-Review), ergänzt um die Seitenfelder des Erstentwurfs aus `bookgen.js` (Regel `bookgen-1`, Paket 3). Grundlage: [`PLAN_IOS_APP.md`](PLAN_IOS_APP.md) §5.2, §6, §7
 und das Verfahren aus [`SCHEMA_V3.md`](SCHEMA_V3.md). Die Regeln stehen in `v4logic.js` (Tests `tests/v4logic.cjs`).
-**Status: Entwurf. Nichts davon ist in der App verdrahtet, keine Datenbankmigration, keine Freigabe.**
+**Status (20.10.2026): lokal in der App umgesetzt** (`app/format4.js`, Paket 7: Lesen, Anheben nach Bestätigung, Fotos, Archiv). **Datenbank weiterhin nur Format 2/3**, Format-4-Reisen bleiben im Konto lokal; Migrationsvorschlag in `pakete/format4-app/EINBINDUNG.md` §5, keine Freigabe.
 
 ## 0 · Grundsätze
 
