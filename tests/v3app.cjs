@@ -195,6 +195,6 @@ assert.throws(() => a.validateExtras(Object.assign(J(v2), { transport: t.transpo
 assert.throws(() => a.validateExtras(Object.assign(J(v2), { ledger: { 'tr:sflug': { status: 'offen', amount: null, paid: 0, due: '' } } })), /erst ab Format 3/);
 assert.throws(() => a.validateExtras(Object.assign(J(t), { party: [{ id: 'pa1', name: 'A' }] })), /kennt diese App-Version noch nicht/, '§3 noch nicht unterstützt → nicht lesbar');
 assert.throws(() => a.validateExtras(Object.assign(J(t), { ledger: { 'tr:sweg': { status: 'offen', amount: null, paid: 0, due: '' } } })), /verweist auf keinen/);
-assert.throws(() => a.validateExtras(Object.assign(J(t), { schemaVersion: 4 })), /Unbekannte Reiseversion/);
+assert.throws(() => a.validateExtras(Object.assign(J(t), { schemaVersion: 5 })), /Unbekannte Reiseversion/);
 assert.notEqual(a.serverRowProblem({ id: t.id, version: 1, data: Object.assign(J(t), { party: [{ id: 'pa1', name: 'A' }] }) }), null, 'nicht unterstützte v3-Angaben → geschützt als nicht lesbar');
 console.log('Format 3 (Lese-Release): Prüfung, Anreise aus Abschnitten (eigene km, p. P., Gepäck, offener Preis), Storno mit Gebühr, Nettozahlung und getrennte Erstattungen, unbekannte Gebühr sichtbar, unveränderter Rundlauf (Sync, Sicherung, Import, Neuladen), Schreibsperre, Verpflichtungsschutz, Formular-Mutatoren (Storno, Erstattung, Rücknahme, Abschnitte; Quelle unverändert, gebundene Abschnitte geschützt, Historie bleibt) und Abgrenzung zu Format 2/4 geprüft.');

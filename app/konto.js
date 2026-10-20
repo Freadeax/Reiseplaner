@@ -4,7 +4,7 @@
 "use strict";
 /* ================= Konto, Freigaben, Konflikte (Issue #6) ================= */
 const ROLE_TXT={owner:'Eigentümer',editor:'Bearbeiten',viewer:'Lesen'};
-const SYNC_TXT={'nicht-lesbar':'online nicht lesbar',online:'online gespeichert',ausstehend:'Synchronisation ausstehend',konflikt:'Konflikt',fehler:'Speicherfehler','kein-zugriff':'kein Zugriff mehr'};
+const SYNC_TXT={'nicht-lesbar':'online nicht lesbar',online:'online gespeichert',ausstehend:'Synchronisation ausstehend',konflikt:'Konflikt',fehler:'Speicherfehler','kein-zugriff':'kein Zugriff mehr','nur-lokal':'nur auf diesem Gerät (Format 4)'};
 function syncBadge(id){const s=tripSyncState(id);if(!s)return '';const cls=s==='online'?'ok':s==='ausstehend'?'est':'bad';return '<span class="badge '+cls+'">'+SYNC_TXT[s]+'</span>'}
 /* Anmeldung per E-Mail-Code (P0.7): Adresse → Code senden → Code eingeben. Nur für bestehende Konten,
    die Anzeige ist für unbekannte Adressen gleich. UI.otp: {email,sentAt,wait,err,info}; ohne email = Schritt 1.

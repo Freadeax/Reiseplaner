@@ -32,7 +32,8 @@ document.addEventListener('click',async e=>{
   if(act==='backup-all'){downloadBackup(Store.list());return}
   if(act==='import-open'){$('#import-file').click();return}
   if(act==='import-skip'||act==='import-copy'){
-    try{const added=importTrips(backupData(UI.importDraft),act==='import-skip'?'skip':'copy');UI.importDraft=null;closeSheet();render();alertMsg(added.length+' Reisen importiert. Bestehende Reisen blieben unverändert.');}catch(err){const box=$('#import-error');if(box)box.textContent=err.message;else alertMsg(err.message);}return;
+    if(b.disabled)return;b.disabled=true;
+    f4ImportTrips(act==='import-skip'?'skip':'copy').then(added=>{UI.importDraft=null;closeSheet();render();alertMsg(added.length+' Reisen importiert. Bestehende Reisen blieben unverändert.');},err=>{b.disabled=false;const box=$('#import-error');if(box)box.textContent=err.message;else alertMsg(err.message);});return;
   }
   const invalid=[...document.querySelectorAll('input[type=number]')].find(x=>x.value!==''&&!x.checkValidity());if(invalid){invalid.reportValidity();return;}
   if(act==='check'||act==='online'||act==='card-confirm'||act==='mappe-notes') return; /* über change */
@@ -199,7 +200,7 @@ const FEATURES={sauna:'Sauna / Wellness',kitchen:'Küche',breakfast:'Frühstück
 const FEES={tax:'Kurtaxe',cleaning:'Endreinigung',parking:'Parkgebühr',wellness:'Wellnessgebühr',mandatory:'Weitere Pflichtzuschläge'};
 function searchDefaults(t){return {version:1,destination:t.dest||(placeOf(t)||{}).name||'',maxPrice:'',maxDrive:'',minRating:'',type:'',provider:'',sort:'match',onlyFavorites:false,onlyCurrent:false,must:[],wish:['sauna','quiet'],providers:['booking','check24','fewo','airbnb']};}
 function searchState(t){return Object.assign(searchDefaults(t),t.search||{});}
-function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3))throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2||t.schemaVersion===3)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
+function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3)&&!(t.schemaVersion===4&&V3&&window.RPV4))throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2||t.schemaVersion===3||t.schemaVersion===4)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
 function safeOfferUrl(value){return /^https:\/\/[^\s<>"']+$/i.test(String(value||''))?String(value):'';}
 function providerUrl(p,t,q){
  const dest=q.destination.trim();if(!dest)return p.home;
@@ -252,8 +253,10 @@ function validateSearch(s){
  return s;
 }
 function validateExtras(t){
- if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3))throw new Error('Unbekannte Reiseversion.');
- if(t.schemaVersion===3)validateV3(t);
+ if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3)&&!(t.schemaVersion===4&&V3&&window.RPV4))throw new Error('Unbekannte Reiseversion.');
+ /* Format 4 = Format 3 plus Fotos und Reisebücher; unter 4 sind volle v4-Felder verboten (validateV4) */
+ if(window.RPV4)window.RPV4.validateV4(t);
+ if(t.schemaVersion===3||t.schemaVersion===4)validateV3(t);
  else{if(V3&&V3.needsV3(t))throw new Error('Angaben des Formats 3 in einer Reise des Formats 2.');if(Object.keys(t.ledger||{}).some(k=>k.startsWith('tr:')))throw new Error('Anreise-Abschnitte im Buchungsbuch gibt es erst ab Format 3.');}
  if(t.search)validateSearch(t.search);
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}
@@ -386,7 +389,7 @@ async function decryptBackup(raw,password){
 function stableBackupValue(x){if(Array.isArray(x))return x.map(stableBackupValue);if(x&&typeof x==='object')return Object.fromEntries(Object.keys(x).sort().filter(k=>k!=='updated').map(k=>[k,stableBackupValue(x[k])]));return x;}
 function importPreview(trips){
  /* auch Zahlungsbuch und Format-3-Angaben benennen, sonst wirkt eine abweichende Reise nur „anders“ ohne Grund (Review R2) */
- const fields={title:'Titel',start:'Anreise',end:'Abreise',persons:'Personen',budget:'Budget',notes:'Notizen',stayId:'Unterkunft',items:'Tagesplan',customActs:'Eigene Unternehmungen',extraCosts:'Zusatzkosten',offers:'Angebote',ledger:'Zahlungsbuch',searchProfiles:'Suchprofile',search:'Suchfilter',check:'Checkliste',schemaVersion:'Speicherformat',transport:'Anreise-Abschnitte',party:'Mitreisende',expenses:'Ausgaben unterwegs',journal:'Reisetagebuch',ratings:'Bewertungen'};
+ const fields={title:'Titel',start:'Anreise',end:'Abreise',persons:'Personen',budget:'Budget',notes:'Notizen',stayId:'Unterkunft',items:'Tagesplan',customActs:'Eigene Unternehmungen',extraCosts:'Zusatzkosten',offers:'Angebote',ledger:'Zahlungsbuch',searchProfiles:'Suchprofile',search:'Suchfilter',check:'Checkliste',schemaVersion:'Speicherformat',transport:'Anreise-Abschnitte',party:'Mitreisende',expenses:'Ausgaben unterwegs',journal:'Reisetagebuch',ratings:'Bewertungen',media:'Fotos',books:'Reisebücher'};
  return trips.map(t=>{const old=Store.get(t.id),incoming=migrateTrip(t),existing=old?migrateTrip(old):null,changed=existing?Object.entries(fields).filter(([k])=>JSON.stringify(stableBackupValue(existing[k]))!==JSON.stringify(stableBackupValue(incoming[k]))).map(([,label])=>label):[];
  const same=existing&&JSON.stringify(stableBackupValue(existing))===JSON.stringify(stableBackupValue(incoming));
  return {id:t.id,title:t.title,range:rangeText(t),persons:t.persons,items:t.items.length,offers:(t.offers||[]).length,profiles:(t.searchProfiles||[]).length,state:!old?'Neue Reise':same?'Bereits vorhanden · identischer Inhalt':'Bereits vorhanden · anderer Inhalt',changed};});
@@ -397,7 +400,9 @@ function acceptImport(raw,protectedFile){
 async function readBackupFile(file){
  UI.secureJob=(UI.secureJob||0)+1;const read=UI.importRead=(UI.importRead||0)+1;UI.importDraft=null;UI.encryptedImport=null;
  if(file.size>MAX_SECURE_FILE_BYTES){alertMsg('Datei zu groß: maximal 8 MB, entschlüsselter Inhalt maximal 5 MB.');return;}
- try{const txt=await file.text();if(read!==UI.importRead)return;const raw=JSON.parse(txt);
+ try{UI.archive=null;const head=new Uint8Array(await file.slice(0,2).arrayBuffer());if(read!==UI.importRead)return;
+ if(f4IsArchive(file,head)){await f4ReadArchive(file);return;}
+ const txt=await file.text();if(read!==UI.importRead)return;const raw=JSON.parse(txt);
  if(raw.format===SECURE_FORMAT){requireBackupCrypto();validateSecureBackup(raw);UI.encryptedImport=raw;openSheet('<h2>Passwortgeschützte Sicherung öffnen</h2><p>Die Datei wird nur in diesem Browser geöffnet. Danach könnt ihr die Reisen und Konflikte prüfen, bevor etwas importiert wird.</p><label class="fld"><span>Passwort der Sicherung</span><input type="password" id="secure-import-password" autocomplete="off" maxlength="1024"></label><div class="row"><button class="btn" data-secure-act="decrypt">Entschlüsseln & prüfen</button><button class="btn ghost" data-act="sheet-x">Abbrechen</button></div><p id="secure-error" role="alert"></p>');}
  else{if(file.size>MAX_BACKUP_BYTES)throw new Error('Unverschlüsselte Sicherung ist zu groß (maximal 5 MB).');acceptImport(raw,false);}
  }catch(err){if(read===UI.importRead){UI.importDraft=null;UI.encryptedImport=null;alertMsg('Import nicht möglich: '+err.message);}}

@@ -51,7 +51,7 @@ const run = () => Sync.run();
 
 (async () => {
   S.user = 'uA'; Auth.switchTo({ id: 'uA', email: 'a@x' });
-  const v3 = d => { d.schemaVersion = 4; /* Format über der höchsten bekannten Version (seit Lese-Release v3) */ d.ledger = { 'xc:a': { status: 'gebucht', amount: 50, paid: 20, due: '', cancel: { on: '2027-04-01', fee: 100, refund: 0 } } }; };
+  const v3 = d => { d.schemaVersion = 5; /* Format über der höchsten bekannten Version (seit Lese-Release v4) */ d.ledger = { 'xc:a': { status: 'gebucht', amount: 50, paid: 20, due: '', cancel: { on: '2027-04-01', fee: 100, refund: 0 } } }; };
 
   /* 1. Reproduktion des Datenverlusts: jetzt geschützt */
   const t = trip('Basis'); Store.put(t); await run();
@@ -59,7 +59,7 @@ const run = () => Sync.run();
   const serverBefore = JSON.stringify(S.rows[t.id].data);
   await run();
   const m = Store.meta[t.id];
-  assert(m.unreadable && m.unreadable.newer && m.unreadable.schema === 4, 'als neuere Version markiert');
+  assert(m.unreadable && m.unreadable.newer && m.unreadable.schema === 5, 'als neuere Version markiert');
   assert.equal(Store.get(t.id).title, 'Basis', 'lokaler Stand bleibt lesbar erhalten');
   assert.equal(a.tripSyncState(t.id), 'nicht-lesbar');
   assert(/Konflikt bei 1 Reise/.test(status()), 'sichtbar im Status');
@@ -93,12 +93,12 @@ const run = () => Sync.run();
   assert.equal(Store.get(t2.id).title, 'Zwei lokal', 'lokale Änderung nicht verloren');
   assert.throws(() => Sync.resolve(t2.id, 'mine'));
   await run();
-  assert.equal(S.rows[t2.id].data.schemaVersion, 4, 'neuere Fassung nie überschrieben');
+  assert.equal(S.rows[t2.id].data.schemaVersion, 5, 'neuere Fassung nie überschrieben');
   /* Export erhält den lokalen Stand */
   assert(JSON.stringify(a.backupData(Store.list())).includes('Zwei lokal'), 'lokaler Stand exportierbar');
 
   /* 3. Neue, noch nie gesehene v3-Reise eines anderen Kontos (Leserecht): nur Platzhalter, kein ungültiger Datensatz im Speicher */
-  S.rows.tforeign = { id: 'tforeign', data: Object.assign(trip('Fremd neu'), { id: 'tforeign', schemaVersion: 4 }), version: 4, owner: 'uB', deleted_at: null, members: { uB: 'owner', uA: 'viewer' } };
+  S.rows.tforeign = { id: 'tforeign', data: Object.assign(trip('Fremd neu'), { id: 'tforeign', schemaVersion: 5 }), version: 4, owner: 'uB', deleted_at: null, members: { uB: 'owner', uA: 'viewer' } };
   await run();
   assert(!Store.get('tforeign') && Store.meta.tforeign.unreadable, 'kein ungültiger Datensatz lokal');
   assert(a.unreadableShelf().includes('Fremd neu'));

@@ -108,7 +108,11 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   canEdit(id){return this.role(id)!=='viewer'},
   pending(){return Object.keys(this.queue).length},
   put(t,now){
-    if(t&&t.schemaVersion===3&&!V3_EDIT){
+    /* Keine Rückstufung (SCHEMA_V4 §1): Eine Reise, die als Format 4 gespeichert ist, wird nie mit kleinerer Version überschrieben */
+    if(t&&this.lastRaw&&this.lastRaw.indexOf('"schemaVersion":4')>=0&&(t.schemaVersion==null||t.schemaVersion<4)){
+      let old=null;try{const s=JSON.parse(this.lastRaw);old=this.scope==='guest'?s&&s[t.id]:s&&s.trips&&s.trips[t.id]}catch(e){}
+      if(old&&old.schemaVersion===4){this.trips[t.id]=old;alertMsg('Diese Reise hat Format 4 (Fotos, Reisebücher) und darf nicht auf ein älteres Format zurückgesetzt werden. Nicht gespeichert.');if(typeof render==='function')setTimeout(render,0);return false}}
+    if(t&&(t.schemaVersion===3||t.schemaVersion===4)&&!V3_EDIT){
       try{const s=JSON.parse(this.lastRaw||'{}');const old=this.scope==='guest'?s&&s[t.id]:s&&s.trips&&s.trips[t.id];if(old)this.trips[t.id]=old;else delete this.trips[t.id]}catch(e){}
       alertMsg(V3_LOCK_TXT);if(typeof render==='function')setTimeout(render,0);return false}
     if(this.isAccount()&&this.meta[t.id]&&this.meta[t.id].unreadable){
@@ -137,7 +141,8 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
    mit der zuletzt bekannten Version geschrieben (atomar in der Datenbank); bei Abweichung entsteht ein
    sichtbarer Konflikt statt eines stillen Überschreibens. Löschungen werden als Markierung übertragen. */
 /* Version nie zurückstufen: migrateTrip liefert die gültige Version der Reise (SCHEMA_V3 §5) */
-const toServer=t=>{const d=migrateTrip(clone(t));return V3?V3.serializeTrip(d):d};
+/* Format 4 läuft unverändert rund; darunter werden leere v4-Felder entfernt und volle abgelehnt (RPF4.toServer) */
+const toServer=t=>{const d=migrateTrip(clone(t));return RPF4.toServer(d,V3)};
 const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,notice:'',
   cloud(){return typeof window!=='undefined'&&window.RPCloud&&window.RPCloud.enabled()?window.RPCloud:null},
   active(){return Store.isAccount()&&!!this.cloud()&&!!Auth.user&&Auth.user.id===Store.scope},
@@ -172,6 +177,9 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
       }
       const t=Store.trips[id];if(!t){delete Store.queue[id];continue}
       let data;try{data=toServer(t)}catch(e){Store.meta[id]=Object.assign(m,{failed:e.message,failedAt:q.at});continue}
+      /* Format über der Grenze des Servers (Paket 7): nicht senden, in der Warteschlange lassen und sichtbar als „nur auf diesem Gerät“ führen */
+      if(f4LocalOnly(data)){if(!m.localOnly){Store.meta[id]=Object.assign(m,{localOnly:data.schemaVersion});changed=true}continue}
+      if(m.localOnly){delete m.localOnly;changed=true}
       try{
         if(!m.version){
           let row;
@@ -321,7 +329,7 @@ function unreadableShelf(){
   const L=unreadableList().filter(x=>!x.local);if(!L.length)return '';
   return '<section class="block"><div class="note" role="status"><h2>'+(L.length===1?'Eine Reise':L.length+' Reisen')+' online nicht lesbar</h2><ul class="plain">'+L.map(x=>'<li><b>'+esc(x.u.title||'Reise')+'</b><br><small>'+esc(unreadableText(x.u))+'</small></li>').join('')+'</ul><button type="button" class="btn ghost sm" data-act="reload-app">Seite neu laden</button></div></section>';
 }
-function tripSyncState(id){if(!Store.isAccount())return '';const m=Store.meta[id]||{},q=Store.queue[id];if(m.unreadable)return 'nicht-lesbar';if(m.conflict)return 'konflikt';if(m.lost)return 'kein-zugriff';if(m.failed&&q&&m.failedAt===q.at)return 'fehler';if(q)return 'ausstehend';return m.version?'online':'ausstehend'}
+function tripSyncState(id){if(!Store.isAccount())return '';const m=Store.meta[id]||{},q=Store.queue[id];if(m.unreadable)return 'nicht-lesbar';if(m.conflict)return 'konflikt';if(m.lost)return 'kein-zugriff';if(m.failed&&q&&m.failedAt===q.at)return 'fehler';if(m.localOnly&&q)return 'nur-lokal';if(q)return 'ausstehend';return m.version?'online':'ausstehend'}
 function setSync(s){
   if(Store.conflict)s='conflict';else if(Store.localError)s='storage-error';
   const el=$('#sync');if(!el)return;
@@ -334,6 +342,7 @@ function setSync(s){
     else if(Sync.state==='error')txt='Speicherfehler online: '+Sync.error+(n?' · '+n+' lokal gespeichert':'');
     else if(Sync.state==='offline')txt='Offline · '+(n?n+' Änderung'+(n===1?'':'en')+' nur lokal gespeichert':'lokal gespeichert');
     else if(Sync.state==='syncing')txt='Synchronisiere …';
+    else if(f4LocalCount())txt=f4LocalCount()+(f4LocalCount()===1?' Reise':' Reisen')+' nur auf diesem Gerät (Format 4)'+(n>f4LocalCount()?' · Synchronisation ausstehend ('+(n-f4LocalCount())+')':'');
     else if(n)txt='Synchronisation ausstehend ('+n+')';
     else if(Sync.last){txt='Online gespeichert';on=true}
     else txt='Lokal gespeichert · noch nicht abgeglichen';}

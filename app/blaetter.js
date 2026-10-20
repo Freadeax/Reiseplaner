@@ -85,7 +85,7 @@ function closeSheet(){
  if(splitEditor)try{splitEditor.close()}catch(e){}
  UI.offerSource=null;UI.offerScope=null;UI.offerDraft=null;
  UI.templatePreview=null;
- UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;
+ UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;UI.archive=null;
  $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
  if(sheetScroll!==null&&document.body&&document.body.style){document.body.style.overflow=sheetScroll;sheetScroll=null}
  if(opener&&opener.isConnected!==false&&opener.focus)opener.focus();

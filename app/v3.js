@@ -53,8 +53,10 @@ const V3_LOCK_TXT='Diese Reise nutzt Angaben aus Format 3 (Anreise-Abschnitte, S
 function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=f.v3||{};
   return '<section class="block"><div class="note" role="status"><b>Nur ansehen: Format 3</b><p>'+esc(V3_LOCK_TXT)+' Kosten berücksichtigen Anreise-Abschnitte und Storno. Erstattungen und Stornogebühren stehen getrennt, ohne Verrechnung.</p>'+
    (v.refundOpen||v.feeOpen||v.unknownFee?'<p class="small">'+[v.refundOpen?'Erstattungen offen: '+eur(v.refundOpen):'',v.feeOpen?'Stornogebühren offen: '+eur(v.feeOpen):'',v.unknownFee?v.unknownFee+'× Stornogebühr unbekannt':''].filter(Boolean).join(' · ')+'</p>':'')+'</div></section>'}
-const SCHEMA_MAX=3;
-const isV3=t=>!!t&&t.schemaVersion===3&&!!V3;
+/* Höchste lesbare Version: 4 mit v4logic.js (Paket 7, SCHEMA_V4 §6), sonst 3 */
+const SCHEMA_MAX=typeof window!=='undefined'&&window.RPV4?4:3;
+/* Format 4 ist eine Obermenge von Format 3: alle v3-Angaben gelten dort weiter (SCHEMA_V4 §0.2) */
+const isV3=t=>!!t&&(t.schemaVersion===3||t.schemaVersion===4)&&!!V3;
 function v3Transport(t){const tr=isV3(t)&&t.transport;return tr&&((tr.out||[]).length||(tr.back||[]).length)?tr:null}
 function v3Money(t,e){return isV3(t)&&e&&(e.cancel||(e.refunds&&e.refunds.length))?e:null}
 function validateV3(t){
@@ -72,7 +74,7 @@ function validateV3(t){
 function v3Candidate(t,fn,ref){
   if(!V3)throw new Error('Format 3 kann diese App-Version nicht bearbeiten.');
   const c=clone(t);fn(c);
-  if(t.schemaVersion===3||V3.needsV3(c))c.schemaVersion=3;
+  if((c.schemaVersion==null||c.schemaVersion<3)&&(t.schemaVersion===3||V3.needsV3(c)))c.schemaVersion=3; /* Format 4 bleibt 4 */
   validateExtras(c);
   /* Die bewusst geänderte Geldangabe des Zielpostens ist gewollt; alles andere bleibt durch den Verpflichtungsschutz geprüft */
   const cmp=clone(c);if(ref)ref.restore(cmp,t);
