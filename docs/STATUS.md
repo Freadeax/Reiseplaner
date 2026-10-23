@@ -1,5 +1,15 @@
 # Projektstand · 23.10.2026
 
+## Gästekarten-Rechnung und Fristen-Funktion (Claude, 23.10.)
+
+Zwei parallele Pakete (eigene Threads, eigene Dateien), eingebunden und gemeinsam getestet:
+
+- **M09.1 Gästekarten (`app/gaestekarten.js`):** Die Kartenlogik aus `cost()` ist jetzt die reine Funktion `cardPricing`. Nur bestätigte Karten senken die Rechnung; ein unbestätigter Vorteil steht getrennt in `cost(t).card.possible`, nie in der Summe. Tageslimit chronologisch (Philipp 23.10.): erste Top-Leistung des Tages frei. `cost()` rechnet in 188 geprüften Reisen centgenau wie vorher (G-R12). Gleichstand am selben Tag und in derselben Tageszeit ohne Uhrzeit entscheidet jetzt die `uid` statt der Reihenfolge. Oberfläche folgt mit M09.4.
+- **M02.1 Fristen (`app/fristen.js`):** `deadlines(t, now)` als reine Funktion (Zeitzone, Sommerzeit, Check-in-Uhrzeit, Erstattung erwartet, Stornogebühr unbekannt), Fahrplan (`departurePlan`) nutzt sie, Kalender-Erinnerungen mit festen UIDs, Übersicht über alle Reisen (7 Tage).
+- Service Worker `reiseplaner-v23`, App 24 Teile. `rp-trips` unverändert.
+
+Tests (23.10., Cloud-Container): `npm test` (neu `gaestekarten`, `fristen`), `test:browser` mit der CI-Schrift (DejaVu Sans), `test:fotos-browser`, `test:print-browser`, `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari.
+
 ## Veröffentlichung auf main und GitHub Pages (Claude, 23.10.)
 
 - Philipp 23.10.: keine Handy-App vorerst (zu teuer), stattdessen Website ausbauen; Push auf `main`/GitHub Pages wieder erlaubt. Die lokal seit 17.10. entstandenen Stände (P0.2a/b, P0.4, P0.5, P0.6, P0.7, Pakete 1–9) gehen damit auf `main`.

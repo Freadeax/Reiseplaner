@@ -1,5 +1,5 @@
 /* Reiseplaner · Ansichten.
-   Teil 10 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 14 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Ansichten ================= */
@@ -254,32 +254,20 @@ function sheetActivityPreview(t,draft){
   openSheet('<h2>'+ (draft.remove?'Unternehmung löschen?':'Änderung prüfen')+'</h2><p><b>'+esc(before.t)+'</b></p>'+(draft.remove?'<p>Die Idee und '+draft.count+' eingeplante(r) Termin(e) werden entfernt. Angaben im Zahlungsbuch werden nicht gelöscht.</p>':'<dl class="facts"><dt>Titel danach</dt><dd>'+esc(after.t)+'</dd><dt>Preis vorher</dt><dd>'+esc(actCost(t,before).txt)+'</dd><dt>Preis danach</dt><dd>'+esc(actCost(draft.candidate,after).txt)+'</dd><dt>Dauer danach</dt><dd>'+esc(after.dur||'unbekannt')+'</dd></dl><p class="small">Termine und Aktivitäts-ID bleiben erhalten. Prüft Öffnung und tatsächliche Dauer beim Anbieter.</p>')+
    '<dl class="facts"><dt>Plan vorher</dt><dd>'+eur(draft.before)+'</dd><dt>Plan danach</dt><dd>'+eur(draft.after)+'</dd></dl><p class="small muted">Planwerte; offene Preise sind nicht enthalten. Keine Stornierung oder Erstattung wird ausgelöst.</p><div class="row"><button type="button" class="btn'+(draft.remove?' warn':'')+'" data-act="act-change-confirm">'+(draft.remove?'Ja, Idee und Termine löschen':'Änderung übernehmen')+'</button><button type="button" class="btn ghost" data-act="sheet-x">Abbrechen</button></div>');UI.activityDraft=draft;
 }
-/* Fahrplan bis zur Abreise (Claude, #8, Plan D1): nur aus vorhandenen Daten abgeleitet, keine erfundenen Fristen.
-   Datiert: Zahlungsfälligkeiten (offen), Gültigkeit des gewählten, nicht gebuchten Angebots, Packtag, Winter-Hinweis, Abfahrt.
-   Ohne Datum: offene Buchungsaufgaben aus der Checkliste. */
+/* Fahrplan bis zur Abreise (Claude, #8, Plan D1; seit M02.1 aus deadlines() in app/fristen.js): nur aus vorhandenen Daten
+   abgeleitet, keine erfundenen Fristen. Gleiche Form wie bisher; als erledigt markierte Fristen fehlen. */
 function departurePlan(t,now){
   const a=pd(t.start);if(t.dateMode!=='fix'||!a)return null;
-  const today=todayUTC(now),todayIso=iso(today),startIso=iso(a),out=[],undated=[];
-  const add=(date,kind,label,detail,go)=>{if(!date)return;out.push({date,kind,label,detail:detail||'',go:go||'',overdue:date<todayIso,days:Math.round((pd(date)-today)/864e5)})};
-  const f=financeSummary(t);
-  f.due.forEach(d=>add(d.due,'zahlung','Zahlung fällig: '+d.label,eur(d.open)+' offen','kosten'));
-  const o=activeOffer(t);
-  if(o&&!o.booked&&o.validUntil&&pd(o.validUntil))add(o.validUntil,'angebot','Angebot gilt bis: '+o.name,'Danach Preis und Verfügbarkeit neu prüfen','angebote');
-  const g=checklist(t),chk=t.check||{};
-  let packAll=0,packOpen=0;g.forEach(x=>{if(/^Packliste/.test(x[0]))x[1].forEach(i=>{packAll++;if(!chk[i[0]])packOpen++})});
-  const pack=new Date(a.getTime()-864e5);
-  if(packAll&&iso(pack)>=todayIso)add(iso(pack),'packen','Packen',packOpen?packOpen+' von '+packAll+' Punkten offen · Ausweise und Versicherungskarten bereitlegen':'Packliste vollständig abgehakt','check');
-  if(t.type==='winter'&&t.travel==='auto'){const w=new Date(a.getTime()-7*864e5);if(iso(w)>=todayIso)add(iso(w),'auto','Auto winterfest?','Winterreifen, Schneeketten, Frostschutz prüfen')}
-  if(v3Transport(t))[].concat(v3Transport(t).out||[],v3Transport(t).back||[]).forEach(sg=>{const ci=sg.checkin&&sg.checkin.opens;if(ci&&ci.date&&ci.date>=todayIso)add(ci.date,'checkin','Online-Check-in'+(sg.number?' '+sg.number:'')+(ci.time?' ab '+ci.time+(ci.tz?' ('+ci.tz+')':''):''),sg.checkin.note||'Frist laut Airline','unterkunft')});
-  add(startIso,'abfahrt','Abfahrt'+(t.departTime?' um '+t.departTime:''),t.origin?'ab '+t.origin:'');
-  (g[0]?g[0][1]:[]).forEach(i=>{if(!chk[i[0]])undated.push({label:i[1],detail:i[2]||'',go:'check'})});
-  out.sort((x,y)=>x.date.localeCompare(y.date)||(x.kind==='abfahrt')-(y.kind==='abfahrt'));
-  return {items:out,undated,daysLeft:Math.round((a-today)/864e5)};
+  const all=deadlines(t,now),items=[],undated=[];
+  all.forEach(d=>{if(d.state==='done')return;
+    if(!d.at){if(d.kind==='buchen')undated.push({id:d.id,label:d.label,detail:d.detail,go:d.go});return}
+    items.push({id:d.id,date:d.at.date,time:d.at.time,tz:d.at.tz,kind:d.kind,label:d.label,detail:d.detail,go:d.go,overdue:d.state==='overdue',days:d.days,when:d.when})});
+  return {items,undated,daysLeft:Math.round((a-todayUTC(now))/864e5)};
 }
 function departureBlock(t,now){
   const ph=tripPhase(t,now);if(!ph||ph.phase!=='vor')return '';
   const p=departurePlan(t,now);if(!p)return '';
-  const when=x=>x.overdue?'<b style="color:var(--bad)">! überfällig seit '+esc(fmtLong(pd(x.date)))+'</b>':x.days===0?'<b>heute</b>':x.days===1?'morgen':'in '+x.days+' Tagen · '+esc(fmtLong(pd(x.date)));
+  const when=x=>x.overdue?'<b style="color:var(--bad)">! '+esc(x.when)+'</b>':x.days===0?'<b>'+esc(x.when)+'</b>':esc(x.when);
   const row=x=>'<li class="dp-'+x.kind+'"><span class="eyebrow">'+when(x)+'</span><br><b>'+esc(x.label)+'</b>'+(x.detail?' <small class="muted">· '+esc(x.detail)+'</small>':'')+(x.go?' <button type="button" class="lnk" data-go="r-'+t.id+'-'+x.go+'">Ansehen</button>':'')+'</li>';
   return '<section class="block" data-departure><details class="panel"'+(p.items.some(x=>x.overdue||x.days<=7&&x.kind!=='abfahrt')?' open':'')+'><summary><b>Fahrplan bis zur Abreise</b> <small class="muted">noch '+p.daysLeft+(p.daysLeft===1?' Tag':' Tage')+' · '+p.items.filter(x=>x.kind!=='abfahrt').length+' Termine'+(p.undated.length?' · '+p.undated.length+' offene Buchungen':'')+'</small></summary>'+
    '<ol class="plain timeline">'+p.items.map(row).join('')+'</ol>'+

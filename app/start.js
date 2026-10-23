@@ -1,5 +1,5 @@
 /* Reiseplaner · Start: Laden, Schnittstelle window.__app, Routing, Service Worker.
-   Teil 22 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 24 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Start ================= */
@@ -8,7 +8,7 @@ window.__app={sheetTabTarget,sheetKeydown,openSheet,closeSheet,checklistView,tCh
 Object.assign(window.__app,{tripShelf,tripShelfTools,tripSpotlight,SHELF_FILTERS});
 Object.assign(window.__app,{dayCosts,freeSlots,activityList,actCost,NOTE_BLOCKS,notesLinks,notesPhones,notesHas,addNoteBlock,notesExtras,tNotiz,budgetCheck,budgetSection});
 Object.assign(window.__app,{routeEndpointPreview,applyRouteEndpointChange,invalidateEndpointRoute});
-Object.assign(window.__app,{catPlaceRaw,catSpotPlace,catLoadForQuery,catLoadIndex,financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
+Object.assign(window.__app,{catPlaceRaw,catSpotPlace,catLoadForQuery,catLoadIndex,financeEntry,cancelEntry,addRefund,uncancel,setTransport,validateExtras,openCosts,serverRowProblem,V3_EDIT,v3Banner,validateV3,toServer,TEMPLATES,TPL_CHECKS,tplTrip,departurePlan,departureBlock,deadlines,upcomingDeadlines,deadlineWhen,deadlineMs,serverRowProblem,unreadableList,unreadableBlock,unreadableShelf});
 Object.assign(window.__app,{AREA_GROUPS,planDayPicker});
 Object.assign(window.__app,{catReadProfile,catProfile,catProfileChange,catSetMood,catPreset,catMoodPanel,catRank,catReasons,catSearch});
 Object.assign(window.__app,{catWishItems,catDropWish,catClearProfile,catUndoProfile,catProfileSummary,catResultView,catProfileRows,catInvalidateSearch,catSetOrigin});

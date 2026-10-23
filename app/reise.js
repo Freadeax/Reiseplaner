@@ -1,5 +1,5 @@
 /* Reiseplaner · Reise-Logik (Tage, Orte, Unterkunft, Plan).
-   Teil 2 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 2 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Reise-Logik ================= */

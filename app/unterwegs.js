@@ -1,5 +1,5 @@
 /* Reiseplaner · Unterwegs, Kalender und Reisemappe.
-   Teil 6 von 22 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 8 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Unterwegs, Kalender & Reisemappe =================
@@ -66,8 +66,9 @@ function icsData(t,now,opts){
   Object.keys(t.ledger||{}).length&&financeSummary(t).due.forEach(d=>{const x=pd(d.due);ev(t.id+'-due-'+d.key.replace(/[^A-Za-z0-9-]/g,'-'),['DTSTART;VALUE=DATE:'+dt(x),'DTEND;VALUE=DATE:'+dt(new Date(x.getTime()+864e5)),'SUMMARY:'+icsEsc('Zahlung fällig: '+d.label+' ('+eur(d.open)+')'),'DESCRIPTION:'+icsEsc('Aus dem Zahlungsbuch der Reise „'+t.title+'“. Betrag laut eurer Erfassung.'),'TRANSP:TRANSPARENT'])});
   /* Erinnerungen (Plan D2): offene Zahlungen, Angebotsgültigkeit, Packtag, Winter-Check als ganztägige Termine mit Alarm um 9 Uhr */
   let reminders=0;
-  if(opts&&opts.reminders){const dp=departurePlan(t,now);if(dp)dp.items.filter(x=>x.kind!=='abfahrt'&&!x.overdue).forEach((x,i)=>{reminders++;
-    ev(t.id+'-erinnerung-'+x.kind+'-'+i+'-'+x.date,['DTSTART;VALUE=DATE:'+x.date.replace(/-/g,''),'DTEND;VALUE=DATE:'+dt(new Date(pd(x.date).getTime()+864e5)),'SUMMARY:'+icsEsc(x.label+' · '+t.title),
+  if(opts&&opts.reminders){const dp=departurePlan(t,now);if(dp)dp.items.filter(x=>x.kind!=='abfahrt'&&!x.overdue).forEach(x=>{reminders++;
+    /* stabile Frist-ID (M02.1): erneuter Export ersetzt den Termin statt ihn zu verdoppeln */
+    ev(t.id+'-frist-'+x.id.replace(/[^A-Za-z0-9-]/g,'-'),['DTSTART;VALUE=DATE:'+x.date.replace(/-/g,''),'DTEND;VALUE=DATE:'+dt(new Date(pd(x.date).getTime()+864e5)),'SUMMARY:'+icsEsc(x.label+' · '+t.title),
       'DESCRIPTION:'+icsEsc((x.detail?x.detail+'\n':'')+'Erinnerung aus dem Reiseplaner. Stand des Exports, Änderungen danach sind hier nicht enthalten.'),'TRANSP:TRANSPARENT',
       'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(x.label),'TRIGGER;RELATED=START:PT9H','END:VALARM'])})}
   /* Anreise-Abschnitte (Format 3): UTC nur bei eindeutigem Zeitpunkt, sonst ganztägig, ohne Datum kein Termin */
