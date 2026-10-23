@@ -3,7 +3,7 @@ const s=require("./app-code.cjs")(fs.readFileSync(__dirname+'/../index.html','ut
 const els=Object.fromEntries(['#view','#sheet-root','#dock','#sync','#dock-nm','#dock-sum','#dock-bar'].map(k=>[k,{innerHTML:'',style:{},querySelector(){return {textContent:'',style:{}}}}]));
 const ctx={window:{addEventListener(){},scrollTo(){}},location:{hash:''},history:{replaceState(){}},document:{addEventListener(){},querySelector(k){return els[k]||null},createElement(){return {setAttribute(){},style:{}}},body:{appendChild(){}}},localStorage:{getItem(){return null},setItem(){}},setTimeout,clearTimeout,console};
 vm.createContext(ctx);vm.runInContext(s,ctx);
-if(!els['#view'].innerHTML.includes('Meine Reisen'))throw new Error('Startansicht leer');
+if(!/Meine Reisen|Wie wollt ihr anfangen/.test(els['#view'].innerHTML))throw new Error('Startansicht leer');
 console.log('Startansicht mit',els['#view'].innerHTML.length,'Zeichen aufgebaut');
 ctx.localStorage.getItem=()=>'{kaputt';
 ctx.window.__app.Store.loadLocal();

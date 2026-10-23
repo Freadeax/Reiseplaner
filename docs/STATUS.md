@@ -1,5 +1,10 @@
 # Projektstand · 23.10.2026
 
+## Einfacher Aufbau A3 + A4 (Claude, 23.10.)
+
+- A3 Startseite und A4 Kosten und Ideen in aufklappbaren Ebenen (Thread „Einfacher Aufbau des Planers“, Details `pakete/aufbau/EINBINDUNG.md`, Nachtrag). Kein Speicherformat, keine Berechnung geändert. Service Worker `reiseplaner-v25`.
+- Tests (23.10., Cloud-Container): `npm test`, `test:browser` mit CI-Schrift, `test:fotos-browser`, `test:print-browser`, `build`, `check:artifact` grün; `test:e2e` lokal nicht gelaufen (läuft in CI). Nicht getestet: iPhone, Safari.
+
 ## Einfacher Aufbau A1 + A2 (Claude, 23.10.)
 
 Paket aus dem Thread „Einfacher Aufbau des Planers“ (`app/aufbau.js`, Konzept `pakete/aufbau/KONZEPT.md`), eingebunden auf den Stand mit Gästekarten und Fristen:

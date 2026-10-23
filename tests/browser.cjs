@@ -305,7 +305,11 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
   await p.clock.setFixedTime(now);
   await p.goto(base + '/index.html');
-  assert((await viewText(p)).includes('Meine Reisen'), name + ': Startansicht');
+  /* Solange die IndexedDB-Zweitkopie geprüft wird, steht „Gespeicherte Reisen werden geladen“; danach die Einstiege */
+  await p.waitForFunction(() => document.querySelector('#view').textContent.includes('Wie wollt ihr anfangen?'), null, { timeout: 5000 }).catch(() => {});
+  assert((await viewText(p)).includes('Wie wollt ihr anfangen?'), name + ': Startansicht mit Einstiegen');
+  assert.equal(await p.locator('.start-weg').count(), 2, name + ': zwei direkte Einstiege plus Vorlagen');
+  assert(!(await p.isVisible('[data-act="tpl"]')), name + ': Vorlagen zugeklappt');
   await noOverflow(p, name + ' Start');
 
   /* Neue Reise mit festem Datum, ohne Katalog */
@@ -702,7 +706,7 @@ async function offline(browser, base) {
   await p.waitForFunction(() => navigator.serviceWorker.controller !== null);
   await ctx.setOffline(true);
   await p.reload();
-  assert((await viewText(p)).includes('Meine Reisen'), 'offline: App startet ohne Netz nicht');
+  assert(/Meine Reisen|Wie wollt ihr anfangen/.test(await viewText(p)), 'offline: App startet ohne Netz nicht');
   /* Reisedaten bleiben ohne Netz bearbeitbar und gehen nicht verloren */
   await p.click('[data-go="neu"]');
   await p.fill('#draft [data-f="title"]', 'Offline angelegt');
@@ -907,6 +911,8 @@ async function layoutStructure(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();p.on('pageerror',e=>errors.push(name+' Struktur: '+e.message));
  await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());await p.goto(base+'/index.html');
  const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);a.go('reisen');return t.id});
+ assert.equal(await p.locator('#trip-q').count(),0,name+': Suche erst ab vier Reisen (pakete/aufbau)');
+ await p.evaluate(()=>{const a=window.__app;['s1','s2','s3'].forEach(id=>a.Store.put(a.newTrip({id:'tsuche'+id,title:'Suche '+id}),true));a.go('reisen')});
  const overlap=await p.evaluate(()=>{const a=document.querySelector('#trip-q').getBoundingClientRect(),b=document.querySelector('#trip-search button').getBoundingClientRect();return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top});
  assert(!overlap,name+': Suche überlappt Knopf');
  await p.click('.trip-card[data-go="r-'+id+'"]');
@@ -1393,6 +1399,33 @@ async function subPages(browser,base,name,ctxOpts){
  await ctx.close();console.log(name+': Unterseiten (Übersicht, 5 Bereiche mit Teilleiste, Zurück-Knopf, Browser-Zurück/Vor, direkter Link, Neuladen, Fokus, 760-px-Wechsel, 200 %) geprüft.');
 }
 
+/* Ebenen (pakete/aufbau A4): Standard zugeklappt, Zustand übersteht Neuzeichnen und Neuladen, aktive Filter halten offen, Ideen schrittweise. */
+async function folds(browser,base,name,ctxOpts){
+ const ctx=await browser.newContext(Object.assign({serviceWorkers:'block',folds:'zu'},ctxOpts)),p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push(name+' Ebenen: '+e.message));await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
+ await p.goto(base+'/index.html');
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.silvesterTemplate();a.Store.put(t,true);return t.id});
+ await p.goto(base+'/index.html#r-'+id+'-kosten');await p.waitForSelector('[data-fold="kosten-werkzeuge"]');
+ assert.equal(await p.getAttribute('[data-fold="kosten-werkzeuge"]','open'),null,name+': Werkzeuge zugeklappt');
+ assert.equal(await p.getAttribute('[data-fold="kosten-posten"]','open'),null,name+': Posten zugeklappt');
+ assert(await p.isVisible('.kosten-gesamt'),name+': Gesamtsumme ohne Aufklappen');
+ assert(!(await p.isVisible('[data-act="food"]')),name+': Annahmen erst nach Aufklappen');
+ await p.click('[data-fold="kosten-werkzeuge"] > summary');await p.click('[data-act="food"][data-val="gemischt"]');
+ assert.equal(await p.evaluate(id=>window.__app.Store.get(id).food,id),'gemischt',name+': Annahme gespeichert');
+ assert.notEqual(await p.getAttribute('[data-fold="kosten-werkzeuge"]','open'),null,name+': nach Eingabe und Neuzeichnen weiter offen');
+ await p.reload();await p.waitForSelector('[data-fold="kosten-werkzeuge"]');
+ assert.notEqual(await p.getAttribute('[data-fold="kosten-werkzeuge"]','open'),null,name+': nach Neuladen weiter offen');
+ await noOverflow(p,name+' Kosten');
+ await p.goto(base+'/index.html#r-'+id+'-unternehmen');await p.waitForSelector('[data-fold="ideen-filter"]');
+ assert.equal(await p.getAttribute('[data-fold="ideen-filter"]','open'),null,name+': weitere Filter zugeklappt');
+ const n0=await p.locator('[data-act="plan-act"]').count();assert(n0<=12,name+': erst höchstens 12 Ideen');
+ if(await p.isVisible('[data-aufbau="ideen-mehr"]')){await p.click('[data-aufbau="ideen-mehr"]');assert(await p.locator('[data-act="plan-act"]').count()>n0,name+': weitere Ideen')}
+ await p.click('[data-fold="ideen-filter"] > summary');await p.click('[data-act="ffree"]');
+ assert.notEqual(await p.getAttribute('[data-fold="ideen-filter"]','open'),null,name+': aktiver Filter bleibt sichtbar');
+ assert((await p.textContent('[data-fold="ideen-filter"] > summary')).includes('1 aktiv'),name+': Zahl aktiver Filter in Worten');
+ await ctx.close();console.log(name+': Ebenen (Kosten, Ideen) zugeklappt, gemerkt, aktive Filter offen, Ideen schrittweise geprüft.');
+}
+
 /* P0.5 iOS-Gestaltungsregeln (PLAN_IOS_APP.md §4.3) in Chromium: Schrift 200 % ohne seitliches Scrollen und ohne
    abgeschnittene Knöpfe/Überschriften, Blatt mit Zieh-Griff und Schließen-Knopf ≥ 44 px, Ziehen schließt nur weit genug,
    reduzierte Bewegung ohne Übergang, Feld bleibt bei kleinerem sichtbaren Bereich sichtbar. Kein iPhone-/WebKit-Test:
@@ -1461,9 +1494,17 @@ async function iosDesign(browser,base,name,ctxOpts){
   const base = 'http://127.0.0.1:' + srv.address().port;
   const exe = process.env.CHROMIUM_PATH || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
   const browser = await pw.chromium.launch(exe ? { executablePath: exe } : {});
+  /* Ebenen (pakete/aufbau A4): Die Funktionsprüfungen arbeiten mit aufgeklappten Werkzeugen, wie nach einmaligem Aufklappen
+     (Zustand je Browser in rp-fold). Den zugeklappten Standard prüft folds(); dort mit {folds:'zu'}. */
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (o) => { const opts = Object.assign({}, o), zu = opts.folds === 'zu'; delete opts.folds; const c = await newContext(opts);
+    if (!zu) await c.addInitScript(() => { try { if (!localStorage.getItem('rp-fold')) localStorage.setItem('rp-fold', JSON.stringify({ 'kosten-posten': true, 'kosten-werkzeuge': true, 'ideen-filter': true })); } catch (e) {} });
+    return c; };
   const now = new Date('2027-05-02T10:00:00');
   try {
     await run(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } }, now);
+    await folds(browser, base, 'ebenen-390', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await folds(browser, base, 'ebenen-desktop', { viewport: { width: 1280, height: 900 } });
     await run(browser, base, 'mobil', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, now);
     await run(browser, base, 'dunkel-schmal', { viewport: { width: 320, height: 640 }, colorScheme: 'dark' }, now);
     await entdecken(browser, base, 'desktop', { viewport: { width: 1280, height: 900 } });

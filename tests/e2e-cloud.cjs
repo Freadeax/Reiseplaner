@@ -84,7 +84,7 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
   try {
     /* GitHub-Pages-Pfad: Start, direkter Link, Neuladen, unbekannter Pfad, keine fehlenden Assets */
     const { ctx: c0, p: p0 } = await page(browser, 'pfad');
-    await p0.goto(BASE); assert((await p0.textContent('#view')).includes('Meine Reisen'));
+    await p0.goto(BASE); assert(/Meine Reisen|Wie wollt ihr anfangen/.test(await p0.textContent('#view')));
     await p0.goto(BASE + '#konto'); assert((await p0.textContent('#view')).includes('Anmelden'), 'direkter Link #konto');
     await p0.reload(); assert((await p0.textContent('#view')).includes('Anmelden'), 'Neuladen behält Ansicht');
     /* Umkreis-Katalog ohne Anmeldung aus der Datenbank (#7) */

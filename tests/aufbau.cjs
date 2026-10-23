@@ -62,4 +62,21 @@ const ue = a.tUeber ? a.tUeber(t) : g('tUeber')(t);
 assert(ue.includes('Als Nächstes') && !ue.includes('Was jetzt sinnvoll ist') && !ue.includes('<h2>Plan-Check</h2>') && !ue.includes('<h2>Nächste Schritte</h2>'));
 assert(ue.includes('data-go="r-' + t.id + '-kosten"'), 'Weg zur Kostenaufstellung');
 
-console.log('Aufbau: fünf Bereiche mit zehn Teilen, „Als Nächstes“ (sortiert, ohne Dubletten, Warnungen sichtbar, maskiert) und Überblick geprüft. Kein Browser-/iPhone-Test.');
+/* Ebenen: fold mit gemerktem Zustand, erzwungen offen bei aktiven Filtern, nur gültige Schlüssel */
+const fold = g('fold'), foldSet = g('foldSet'), foldOpen = g('foldOpen');
+assert(!/ open/.test(fold('test-a', 'Titel <x>', 'kurz', '<p>x</p>').split('>')[0]), 'Standard zu');
+assert(fold('test-a', 'Titel <x>', 'kurz', '').includes('Titel &lt;x&gt;'), 'Titel maskiert');
+assert(/data-fold="test-a" open/.test(fold('test-a', 'T', '', '', { open: true })), 'Startzustand offen');
+assert(foldSet('test-a', true) && foldOpen('test-a', false), 'gemerkt');
+assert(/data-fold="test-a" open/.test(fold('test-a', 'T', '', '')));
+foldSet('test-a', false); assert(/data-fold="test-a" open/.test(fold('test-a', 'T', '', '', { force: true })), 'aktive Filter halten offen');
+assert.equal(foldSet('<böse>', true), false, 'ungültiger Schlüssel abgelehnt');
+/* Kosten und Ideen nutzen die Ebenen; Summe bleibt ohne Aufklappen sichtbar */
+a.UI.tab = 'kosten'; const k = g('tKosten')(t);
+assert(k.includes('data-fold="kosten-posten"') && k.includes('data-fold="kosten-werkzeuge"') && k.includes('kosten-gesamt'));
+assert(k.indexOf('kosten-gesamt') < k.indexOf('data-fold="kosten-posten"'), 'Gesamt vor den Posten');
+a.UI.tab = 'unternehmen'; const u = g('tUnternehmen')(t);
+assert(u.includes('data-fold="ideen-filter"') && u.includes('id="act-q"'), 'Suche sichtbar, weitere Filter aufklappbar');
+assert((u.match(/data-act="plan-act"/g) || []).length <= 12, 'höchstens 12 Ideen zuerst');
+
+console.log('Aufbau: fünf Bereiche mit zehn Teilen, „Als Nächstes“ (sortiert, ohne Dubletten, Warnungen sichtbar, maskiert), Überblick und Ebenen in Kosten und Ideen geprüft. Kein Browser-/iPhone-Test.');

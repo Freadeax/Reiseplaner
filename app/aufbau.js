@@ -121,3 +121,37 @@ function naechstesBlock(t,now){
   (v.weitere.length?'<ul class="plain nx-list">'+v.weitere.map(x=>naechstesZeile(t,x)).join('')+'</ul>':'')+
   (v.rest.length?'<details class="panel nx-more"><summary><b>'+v.rest.length+(v.rest.length===1?' weiterer Punkt':' weitere Punkte')+'</b></summary><ul class="plain nx-list">'+v.rest.map(x=>naechstesZeile(t,x)).join('')+'</ul></details>':'')+'</section>';
 }
+
+/* ---------- Ebenen: aufklappbare Abschnitte mit gemerktem Zustand (KONZEPT §2, Paket A4) ----------
+   fold(id,titel,zusammenfassung,html,opts): <details data-fold> mit Zusammenfassung in der Kopfzeile. Der Zustand gilt je Browser
+   (localStorage rp-fold, reine Darstellung, kein Reisedatum) und übersteht das Neuzeichnen nach jeder Eingabe.
+   opts.open: Startzustand ohne gemerkten Wert; opts.force: immer offen (z. B. aktive Filter, damit sie sichtbar und zurücksetzbar bleiben). */
+let aufbauFolds={};
+try{const raw=typeof localStorage!=='undefined'&&localStorage.getItem('rp-fold');const v=raw?JSON.parse(raw):null;if(v&&typeof v==='object'&&!Array.isArray(v))aufbauFolds=v}catch(e){}
+function foldOpen(id,def){return Object.prototype.hasOwnProperty.call(aufbauFolds,id)?!!aufbauFolds[id]:!!def}
+function foldSet(id,open){
+ if(!/^[a-z0-9-]{1,40}$/.test(String(id||'')))return false;
+ aufbauFolds[id]=!!open;
+ try{localStorage.setItem('rp-fold',JSON.stringify(aufbauFolds))}catch(e){}
+ return true;
+}
+function fold(id,titel,zusammenfassung,html,opts){
+ const o=opts||{},open=o.force||foldOpen(id,o.open);
+ return '<details class="panel fold" data-fold="'+aufbauEsc(id)+'"'+(open?' open':'')+'><summary><b>'+aufbauEsc(titel)+'</b>'+(zusammenfassung?' <small class="muted">'+aufbauEsc(zusammenfassung)+'</small>':'')+'</summary><div class="fold-body">'+html+'</div></details>';
+}
+if(typeof document!=='undefined'&&document.addEventListener){
+ /* toggle steigt nicht auf, daher in der Einfangphase */
+ document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.matches&&d.matches('details[data-fold]'))foldSet(d.getAttribute('data-fold'),d.open)},true);
+}
+
+/* Ideen schrittweise zeigen (Paket A4): erst 12, dann je 12 mehr. Gilt je Reise für diese Sitzung; Filter und Suche wirken auf alle Ideen. */
+const IDEEN_SCHRITT=12;
+const aufbauIdeen={};
+function ideenSichtbar(t){return t&&aufbauIdeen[t.id]||IDEEN_SCHRITT}
+if(typeof document!=='undefined'&&document.addEventListener){
+ document.addEventListener('click',e=>{
+  const b=e.target&&e.target.closest?e.target.closest('[data-aufbau="ideen-mehr"]'):null;if(!b||typeof UI==='undefined'||!UI.tid)return;
+  aufbauIdeen[UI.tid]=ideenSichtbar({id:UI.tid})+IDEEN_SCHRITT;
+  const y=typeof window!=='undefined'&&typeof window.scrollY==='number'?window.scrollY:0;render();try{window.scrollTo(0,y)}catch(err){}
+ });
+}

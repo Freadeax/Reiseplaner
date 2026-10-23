@@ -600,3 +600,14 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
 .nx-check input{width:22px;height:22px;margin-top:2px;flex:none}
 .plan-mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
 .plan-mini>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+/* Startseite (pakete/aufbau A3): drei Einstiege für Neue, kompakter Kopf für Wiederkehrer */
+.start-wege{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.start-weg{position:relative;display:flex;flex-direction:column;gap:4px;text-align:left;cursor:pointer;min-height:44px;padding:16px 44px 16px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);font:inherit}
+.start-weg b{font-size:1.05rem}
+.start-weg:focus-visible{outline:3px solid var(--spruce);outline-offset:2px}
+.start-pfeil{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:1.2rem;color:var(--spruce)}
+.home-head h1{margin:0}
+/* Ebenen (app/aufbau.js fold) */
+.fold>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.fold-body{display:flex;flex-direction:column;gap:14px}
+.fold-body>section.block:first-child{border-top:0;padding-top:4px}
