@@ -1411,7 +1411,7 @@ async function iosDesign(browser,base,name,ctxOpts){
   });
   assert(r.pad>=0,name+' '+where+': Tab-Leiste höher als der Seitenabstand unten ('+r.pad+' px)');
   assert(r.overflow<=0,name+' '+where+': Seite bei 200 % Schrift '+r.overflow+' px zu breit');
-  assert.deepEqual(r.clipped,[],name+' '+where+': abgeschnittener Text bei 200 %');
+  assert.deepEqual(r.clipped,[],name+' '+where+': abgeschnittener Text bei 200 % '+JSON.stringify(r.clipped));
  };
  for(const [where,hash] of [['Reisen','#reisen'],['Neue Reise','#neu'],['Überblick','#r-'+id+'-ueber'],['Kosten','#r-'+id+'-kosten'],['Tagesplan','#r-'+id+'-plan'],['Entdecken','#entdecken'],['Konto','#konto']]){
   await p.goto(base+'/index.html'+hash);await p.waitForSelector('#view h1, #view h2');await check(where);
