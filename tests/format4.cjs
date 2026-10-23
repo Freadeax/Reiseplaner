@@ -8,7 +8,8 @@ const zlib = require('zlib');
 const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 assert(/<script src="app\/format4\.js">/.test(html), 'index.html lädt app/format4.js (siehe pakete/format4-app/EINBINDUNG.md)');
-const baseCode = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
+/* Schreibweg prüfen: die veröffentlichte Datei kann als Lese-Release F4_WRITE=false tragen. */
+const baseCode = require('./app-code.cjs')(html).replace('const F4_WRITE=false;', 'const F4_WRITE=true;').replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 const P = require('../photostore.js');
 const J = x => JSON.parse(JSON.stringify(x));
 const u8 = b => b instanceof Uint8Array ? b : new Uint8Array(b);

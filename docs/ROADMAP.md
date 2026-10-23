@@ -1,5 +1,9 @@
 # Roadmap
 
+## Website statt App, Veröffentlichung · 23.10.2026
+
+Philipp: keine Handy-App vorerst, Website ausbauen, GitHub Pages aktuell halten. Freigegeben: Format 5 als gemeinsame Version, Gästekarten-Tageslimit chronologisch, Open-Meteo (Planer bleibt kostenlos und werbefrei), Frischegrenzen 31/180 Tage/1 Jahr, Unterlagen lokal (Cloud nur auf Wahl), einfache Anreise Auto+km behalten, Format-4-Migration nach lokalen DB-Tests. Nächste Schritte: (1) Lese-Release prüfen, (2) Migration Format 4 und `F4_SERVER_MAX = 4`, (3) `F4_WRITE = true`, (4) einfacherer Aufbau (Thread „Einfacher Aufbau des Planers“), (5) Module aus der Planung in Paketen.
+
 ## Fotos, Format 4 und Reisebuch-Druck · 20.10.2026
 
 Lokal fertig und getestet (Chromium): Format 4 im Speicher mit Bestätigung, Foto-Import mit Prüfliste und Ortsanzeige, Archiv „Mit Fotos sichern“, Reisebuch als PDF. Konto: Format-4-Reisen bleiben bis zur Datenbankfreigabe nur auf dem Gerät. Nächste Schritte: (1) Philipps Sichtprüfung, (2) iPhone/Safari, (3) Entscheidung Migration Format 4, (4) Reisebuch speichern über `bookSave`, (5) nach Git-Freigabe Commit auf `main` und CI.

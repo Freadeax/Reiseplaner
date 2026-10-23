@@ -85,8 +85,8 @@ function memStore() {
   return S;
 }
 
-function load() {
-  const code = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '')
+function load(opt) {
+  const code = require('./app-code.cjs')(html).replace('const F4_WRITE=false;', opt && opt.readOnly ? 'const F4_WRITE=false;' : 'const F4_WRITE=true;').replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '')
     .replace('function closeSheet(){', 'function closeSheet(){return;');
   const memory = new Map(), sheets = [];
   const node = () => ({ innerHTML: '', hidden: false, style: {}, className: '', textContent: '', attrs: {},
@@ -332,6 +332,15 @@ process.on('exit', () => { if (!finished) { console.error('tests/fotos.cjs: nich
     assert.equal(R.review, null); assert.equal(R.dups, 1); assert.match(R.msg, /schon in der Reise/);
     ctx.v3CanEdit = () => false;
     assert.match(ctx.fotosBlocked(t3), /nur lesen/);
+  }
+  /* Lese-Release (F4_WRITE=false): kein Knopf zum Hinzufügen, verständlicher Hinweis, Reise bleibt unverändert */
+  if (INTEGRATED) {
+    const { ctx, a } = load({ readOnly: true });
+    let t = trip(a); a.Store.put(t, true); t = a.Store.get('tfoto');
+    assert.match(ctx.fotosBlocked(t), /nächsten Updates freigeschaltet/);
+    const h = ctx.fotosSection(t);
+    assert.match(h, /data-foto-blocked/); assert.doesNotMatch(h, /id="foto-input"/);
+    assert.equal(a.Store.get('tfoto').schemaVersion, t.schemaVersion);
   }
   /* Integration mit dem echten Paket 7 (app/format4.js): erstes Foto hebt auf Format 4 nur nach Bestätigung, Standort bleibt */
   if (INTEGRATED) {

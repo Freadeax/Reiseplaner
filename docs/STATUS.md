@@ -1,4 +1,15 @@
-# Projektstand · 18.10.2026
+# Projektstand · 23.10.2026
+
+## Veröffentlichung auf main und GitHub Pages (Claude, 23.10.)
+
+- Philipp 23.10.: keine Handy-App vorerst (zu teuer), stattdessen Website ausbauen; Push auf `main`/GitHub Pages wieder erlaubt. Die lokal seit 17.10. entstandenen Stände (P0.2a/b, P0.4, P0.5, P0.6, P0.7, Pakete 1–9) gehen damit auf `main`.
+- **Lese-Release Format 4:** veröffentlicht mit `F4_WRITE = false` (SCHEMA_V4 §6, EINBINDUNG format4-app §4). Vorhandene Format-4-Reisen werden gelesen und unverändert zurückgeschrieben, aber keine Reise wird neu angehoben. „Fotos hinzufügen“ zeigt stattdessen „wird mit einem der nächsten Updates freigeschaltet“. Grund: Ein noch offener alter Tab würde eine Format-4-Reise als beschädigt sehen. Nach einigen Tagen folgt `true`.
+- Tests prüfen den Schreibweg weiterhin (sie setzen `F4_WRITE` im Test auf `true`); neu geprüft: Lese-Release ohne Hinzufügen-Knopf (tests/fotos.cjs).
+- Service Worker `reiseplaner-v22`. `rp-trips` unverändert.
+- Für die Anmeldung per Code (P0.7) muss die Vorlage „Magic Link“ im Supabase-Dashboard `{{ .Token }}` enthalten (Philipp, Dashboard). Bis dahin funktioniert der Link in der E-Mail weiter.
+- F:\LMNT\Reiseplaner war am 23.10. aus; Abgleich, sobald der Rechner wieder an ist (Dateien unter `/mnt/project-files/reiseplaner/`).
+
+Tests (23.10., Cloud-Container): `npm test`, `test:browser`, `test:format4-browser`, `test:fotos-browser`, `test:print-browser`, `test:photos-browser`, `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari/WebKit, Produktion vor dem Deployment.
 
 ## Fotos, Format 4 und Reisebuch-Druck zusammengeführt (Claude, 20.10., lokal)
 

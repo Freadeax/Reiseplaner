@@ -17,6 +17,9 @@ const server = http.createServer((req, res) => {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname); if (p === '/') p = '/index.html';
   const f = path.join(ROOT, path.normalize(p));
   if (!f.startsWith(ROOT) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
+  if (/[\\/]app[\\/]format4\.js$/.test(f)) { /* Schreibweg prüfen, auch wenn die Datei als Lese-Release ausgeliefert wird */
+    res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-cache' }); res.end(fs.readFileSync(f, 'utf8').replace('const F4_WRITE=false;', 'const F4_WRITE=true;')); return;
+  }
   res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream', 'cache-control': 'no-cache' }); fs.createReadStream(f).pipe(res);
 });
 

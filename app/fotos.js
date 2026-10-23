@@ -37,6 +37,7 @@ function fotosState(){if(!UI.fotos)UI.fotos={tid:null,busy:false,done:0,total:0,
 function fotosBlocked(t){
  if(!FP())return 'Diese App-Version kann noch keine Fotos aufnehmen.';
  if(typeof mediaCommit!=='function')return 'Fotos lassen sich erst mit Format 4 in der Reise speichern. Diese App-Version kann das noch nicht.';
+ if(typeof F4_WRITE!=='undefined'&&!F4_WRITE)return 'Fotos hinzufügen wird mit einem der nächsten Updates freigeschaltet. Diese Version bereitet das neue Speicherformat vor.';
  if(!FOTOS.store&&!(typeof window!=='undefined'&&window.indexedDB))return 'Dieser Browser erlaubt keinen Fotospeicher (zum Beispiel im privaten Fenster).';
  if(t&&typeof v3CanEdit==='function'&&!v3CanEdit(t))return 'Diese Reise könnt ihr hier gerade nur lesen.';
  return '';
