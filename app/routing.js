@@ -1,5 +1,5 @@
 /* Reiseplaner · Zustand, Routing, Darstellung.
-   Teil 12 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 12 von 25 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Zustand & Routing ================= */

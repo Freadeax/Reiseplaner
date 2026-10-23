@@ -1,5 +1,5 @@
 /* Reiseplaner · Ansichten.
-   Teil 14 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 15 von 25 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Ansichten ================= */
@@ -75,8 +75,7 @@ function tripHead(t,noNav){
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
   (ph&&ph.phase==='vor'?'<p class="muted small">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
   '<div class="trip-actions noprint"><button type="button" class="lnk" data-go="reisen">← Reisen</button><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></section>'+(noNav?'':
-  '<nav class="tabs" aria-label="Bereiche">'+areaPicker(t)+'<div class="tab-links">'+AREA_GROUPS.map(([group,keys])=>'<div class="tab-group"><span class="eyebrow">'+group+'</span>'+keys.map(key=>{const x=TABS.find(tab=>tab[0]===key);let n='';if(key==='plan')n=(t.items||[]).length;if(key==='check'){const g=checklist(t);let all=0,done=0;g.forEach(gr=>gr[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));n=done+'/'+all}
-    return '<button type="button" class="tab" data-go="r-'+t.id+'-'+key+'"'+(UI.tab===key?' aria-current="page"':'')+'>'+x[1]+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')+'</div>').join('')+'</div></nav>');
+  '<nav class="tabs" aria-label="Bereiche">'+areaPicker(t)+aufbauLeiste(t,UI.tab)+'</nav>');
 }
 function stackBar(c){
   const tot=c.total||1, keys=Object.keys(c.byCat).filter(k=>c.byCat[k]>0);
@@ -115,22 +114,19 @@ function nextStepsBlock(t){
  const rows=planningNextSteps(t),row=x=>'<article class="card" data-next-step="'+esc(x.id)+'"><h3>'+esc(x.title)+'</h3><p class="small">'+esc(x.reason)+'</p><div class="foot"><button type="button" class="btn ghost sm" '+(x.action?'data-act="'+esc(x.action)+'" data-val="'+esc(x.value)+'"':'data-go="r-'+esc(t.id)+'-'+x.tab+'"')+'>'+esc(x.label)+'</button></div></article>';
  return '<section class="block" data-next-steps><div class="between"><h2>Was jetzt sinnvoll ist</h2><span class="badge">Aus eurem aktuellen Plan</span></div><p class="small muted">Die wichtigsten nächsten Schritte zuerst. Hinweise sind keine Buchungsfreigabe und ändern euren Plan nicht.</p>'+(rows.length?'<div class="grid">'+rows.slice(0,3).map(row).join('')+'</div>'+(rows.length>3?'<details class="panel"><summary><b>'+ (rows.length-3)+' weitere Hinweise</b></summary><div class="grid">'+rows.slice(3).map(row).join('')+'</div></details>':''):'<p>Keine zusätzlichen Schritte aus diesen Kriterien. Öffnungen, Tarife, genaue Zeiten und Buchungsbedingungen trotzdem beim Anbieter prüfen.</p>')+'</section>';
 }
+/* Überblick (pakete/aufbau A2): eine Liste „Als Nächstes“ statt Fahrplan, „Was jetzt sinnvoll ist“, Plan-Check und Nächste Schritte;
+   Kosten nur kurz mit Weg zur Aufstellung; Ort, Unterkunft und Paket als eine kompakte Zeile. */
 function tUeber(t){
-  const c=cost(t), b=num(t.budget,0), pl=placeOf(t), st=stayOf(t), ch=checks(t), pk=PKGS.find(p=>p.id===t.packageId);
-  const open=[];checklist(t)[0][1].forEach(i=>{if(!(t.check&&t.check[i[0]]))open.push(i)});
-  return journalRetro(t)+todayBlock(t)+departureBlock(t)+nextStepsBlock(t)+'<section class="block"><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person</small></div>'+
-  '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+'</small></div>'+
-  '<div class="kpi"><small>Dauer</small><b class="num">'+c.N+' Nächte</b><small>'+c.P+' Personen</small></div>'+
-  '<div class="kpi"><small>Unternehmungen</small><b class="num">'+(t.items||[]).length+'</b><small>über '+daysOf(t).length+' Tage verteilt</small></div></div>'+
+  const c=cost(t), b=num(t.budget,0), pl=placeOf(t), st=stayOf(t), pk=PKGS.find(p=>p.id===t.packageId), oc=openCosts(t);
+  return journalRetro(t)+todayBlock(t)+naechstesBlock(t)+'<section class="block"><div class="between"><h2>Kosten</h2><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-kosten">Aufstellung</button></div><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person · '+c.N+' Nächte, '+c.P+' Personen</small></div>'+
+  '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+(oc.length?' · noch '+oc.length+(oc.length===1?' Angabe':' Angaben')+' offen':'')+'</small></div></div>'+
   stackBar(c)+(c.saved?'<p class="small" style="color:var(--ok)">Durch die Gästekarte spart ihr beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  '<section class="block"><h2>Plan-Check</h2><div class="checks-list">'+ch.map(x=>'<div class="chk '+x[0]+'"><b>'+(x[0]==='warn'?'!':x[0]==='ok'?'OK':'i')+'</b><span>'+esc(x[1])+'</span><button type="button" class="lnk" style="margin-left:auto" data-go="r-'+t.id+'-'+x[2]+'">Ansehen</button></div>').join('')+'</div></section>'+
   legsBlock(t)+
-  '<section class="block"><h2>Euer Plan</h2><div class="grid">'+
-   '<div class="card"><span class="eyebrow">Ort</span><h3>'+esc(pl?pl.name:(t.dest||'Noch offen'))+'</h3><p class="small muted">'+esc(pl?pl.short:'')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
-   '<div class="card"><span class="eyebrow">Unterkunft</span><h3>'+esc(st?st.name:'Noch keine')+'</h3><p class="small muted">'+esc(st?(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):''):'Im Bereich Ort & Unterkunft wählen')+'</p><div class="foot">'+(st&&st.url?lk(st.url,'Inserat'):'')+'<button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div></div>'+
-   '<div class="card"><span class="eyebrow">Angebot</span><h3>'+esc(pk?pk.name:'Frei geplant')+'</h3><p class="small muted">'+esc(pk?pk.pitch:'Pakete als Startpunkt im Bereich Angebote')+'</p><div class="foot"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-angebote">Angebote</button></div></div>'+
+  '<section class="block"><div class="between"><h2>Euer Plan</h2><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div><div class="plan-mini">'+
+   '<div><span class="eyebrow">Ort</span><b>'+esc(pl?pl.name:(t.dest||'Noch offen'))+'</b></div>'+
+   '<div><span class="eyebrow">Unterkunft</span><b>'+esc(st?st.name:'Noch keine')+'</b>'+(st?'<small class="muted">'+esc(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):'')+'</small>':'')+(st&&st.url?lk(st.url,'Inserat'):'')+'</div>'+
+   '<div><span class="eyebrow">Paket</span><b>'+esc(pk?pk.name:'Frei geplant')+'</b></div>'+
   '</div></section>'+
-  '<section class="block"><h2>Nächste Schritte</h2>'+(open.length?'<div class="checks-list">'+open.slice(0,5).map(i=>'<label class="chk info"><input type="checkbox" data-act="check" data-val="'+esc(i[0])+'"> <span>'+esc(i[1])+(i[2]?'<br><small class="muted">'+esc(i[2])+'</small>':'')+'</span></label>').join('')+'</div>':'<p class="muted">Keine offenen Buchungen.</p>')+'</section>'+
   '<section class="block"><h2>Reise verwalten</h2>'+(Store.isAccount()?'<p class="small">'+syncBadge(t.id)+' · Eure Rolle: '+ROLE_TXT[Store.role(t.id)]+'</p>':'')+'<div class="row">'+(Store.isAccount()?'<button type="button" class="btn ghost sm" data-acc="share">Teilen & Rechte</button>':'')+'<button type="button" class="btn ghost sm" data-act="dup">Reise duplizieren</button><button type="button" class="btn ghost sm" data-act="backup-trip">Diese Reise sichern</button>'+(f4HasPhotos([t])?'<button type="button" class="btn ghost sm" data-f4="export-open" data-scope="trip">Mit Fotos sichern</button>':'')+''+(UI.confirm==='del'?'<span class="small">Wirklich löschen?</span><button type="button" class="btn warn sm" data-act="del-yes">Ja, löschen</button><button type="button" class="btn ghost sm" data-act="del-no">Abbrechen</button>':'<button type="button" class="btn ghost sm" data-act="del">Reise löschen</button>')+'</div></section>';
 }
 function tAngebote(t){
@@ -628,11 +624,12 @@ function vReise(){
   const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
   const notes=unreadableBlock(t)+v3Banner(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'');
   /* Paket 4: am Handy Übersichtsseite (UI.tab null) und Unterseiten mit Zurück statt Bereichsauswahl */
+  aufbauMerken(t.id,UI.tab);
   if(subMobile()){
     if(!UI.tab)return '<div class="trip-sub trip-sub-list">'+tripHead(t,true)+notes+subListHtml(t)+'</div>';
-    return '<div class="trip-sub trip-sub-page" data-sub-page="'+UI.tab+'">'+subHeadHtml(t,UI.tab,subBack(UI.route||'',subHistoryState()))+'<div class="trip-content">'+notes+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
+    return '<div class="trip-sub trip-sub-page" data-sub-page="'+UI.tab+'">'+subHeadHtml(t,UI.tab,subBack(UI.route||'',subHistoryState()))+'<div class="trip-content">'+aufbauTeile(t,UI.tab)+notes+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
   }
-  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+notes+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
+  return '<div class="trip-workspace">'+tripHead(t)+'<div class="trip-content">'+aufbauTeile(t,UI.tab)+notes+moduleGuide(t)+costNotice(t)+body(t)+'</div></div>';
 }
 function render(){
   const v=$('#view');

@@ -91,7 +91,7 @@ function inspect() {
 async function designsOf(p) {
   return p.evaluate(() => {
     const vals = new Set();
-    if (!document.querySelector('[data-act="appearance-set"]')) { const o = document.querySelector('[data-act="appearance-open"]'); if (o) o.click(); }
+    if (!document.querySelector('[data-act="appearance-set"]')) { const o = document.querySelector('[data-act="appearance-open"]'); if (o) o.click(); else if (window.__app && window.__app.appearanceSheet) window.__app.appearanceSheet(); }
     document.querySelectorAll('[data-act="appearance-set"]').forEach(e => vals.add(e.getAttribute('data-val')));
     const x = document.querySelector('.sheet .x'); if (x) x.click();
     return [...vals].filter(Boolean);

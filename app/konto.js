@@ -1,5 +1,5 @@
 /* Reiseplaner · Konto, Freigaben, Konflikte.
-   Teil 17 von 24 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 18 von 25 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Konto, Freigaben, Konflikte (Issue #6) ================= */

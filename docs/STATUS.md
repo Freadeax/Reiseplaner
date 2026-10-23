@@ -1,5 +1,14 @@
 # Projektstand · 23.10.2026
 
+## Einfacher Aufbau A1 + A2 (Claude, 23.10.)
+
+Paket aus dem Thread „Einfacher Aufbau des Planers“ (`app/aufbau.js`, Konzept `pakete/aufbau/KONZEPT.md`), eingebunden auf den Stand mit Gästekarten und Fristen:
+- Eine Reise hat fünf Bereiche statt zehn Reiter: Überblick · Ziel & Unterkunft · Programm · Kosten · Unterlagen, mit Teilleiste für die Teile. Umbenannt: Reisefinder → Angebote vergleichen, Angebote → Pakete, Unternehmungen → Ideen. Alle Adressen `#r-<id>-<teil>` bleiben gültig. „Darstellung“ nur noch im Konto.
+- Überblick mit einer Liste „Als Nächstes“ (aus `deadlines()`, nächsten Schritten und Plan-Check, ohne Dubletten, Warnungen immer sichtbar), Kosten dort nur kurz.
+- Service Worker `reiseplaner-v24`, App 25 Teile. Kein Speicherformat und keine Berechnung geändert.
+
+Tests (23.10., Cloud-Container): `npm test` (neu `aufbau`), `test:browser` mit CI-Schrift, `test:fotos-browser`, `test:format4-browser`, `test:print-browser`, `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari.
+
 ## Gästekarten-Rechnung und Fristen-Funktion (Claude, 23.10.)
 
 Zwei parallele Pakete (eigene Threads, eigene Dateien), eingebunden und gemeinsam getestet:

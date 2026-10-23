@@ -9,7 +9,7 @@ const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 assert(html.includes('<script src="app/navigation.js"></script>'), 'navigation.js eingebunden');
 assert(html.indexOf('app/navigation.js') > html.indexOf('app/tagebuch.js') && html.indexOf('app/navigation.js') < html.indexOf('app/start.js'), 'Ladereihenfolge');
 assert(/<nav class="app-nav" id="app-nav" aria-label="Hauptnavigation">/.test(html), 'eine Hauptnavigation mit Namen');
-assert.equal((html.match(/data-act="appearance-open"/g) || []).length, 1, 'Darstellung im Kopf (eine Stelle), zusätzlich in der Kontoansicht');
+assert.equal((html.match(/data-act="appearance-open"/g) || []).length, 0, 'Darstellung nicht mehr im Kopf, nur in der Kontoansicht (pakete/aufbau)');
 assert(fs.readFileSync(__dirname + '/../sw.js', 'utf8').includes("'navigation'"), 'Service Worker kennt navigation.js');
 
 function load() {

@@ -33,7 +33,7 @@ function loadPart() {
   vm.createContext(ctx);
   vm.runInContext('const esc=s=>String(s==null?"":s).replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",\'"\':"&quot;","\'":"&#39;"}[c]));function alertMsg(){}function closeSheet(){}function render(){}function newTrip(){return {}}' +
     'function checklist(t){return [["Buchen",[["a","A"],["b","B"],["c","C"]]],["Packen",[["d","D"]]]]}', ctx);
-  vm.runInContext(read('app/routing.js') + '\n' + read('app/unterseiten.js') + '\n;this.__t={UI,TABS,AREA_GROUPS,MODULE_INFO,subParse,subRoute,subDepth,subResolve,subParent,subNavMode,subPushState,subPushChain,subBack,subBackLabel,subSeed,subFocus,subCount,subAreas,subListHtml,subHeadHtml,subSwipeDecision,subSwipeHost,subMobile,subEnv,subHistoryApply};', ctx);
+  vm.runInContext(read('app/routing.js') + '\n' + read('app/aufbau.js') + '\n' + read('app/unterseiten.js') + '\n;this.__t={UI,TABS,AREA_GROUPS,MODULE_INFO,BEREICHE,aufbauZiel,aufbauMerken,aufbauTeile,aufbauLeiste,aufbauBereich,subParse,subRoute,subDepth,subResolve,subParent,subNavMode,subPushState,subPushChain,subBack,subBackLabel,subSeed,subFocus,subCount,subAreas,subListHtml,subHeadHtml,subSwipeDecision,subSwipeHost,subMobile,subEnv,subHistoryApply};', ctx);
   return ctx;
 }
 {
@@ -105,28 +105,49 @@ function loadPart() {
 
   /* Fokus */
   assert.equal(a.subFocus('r-t1', 'r-t1-plan', true), '#sub-title');
-  assert.equal(a.subFocus('r-t1-plan', 'r-t1', true), '[data-sub-area="plan"]|#sub-title', 'nach Zurück die verlassene Zeile');
+  assert.equal(a.subFocus('r-t1-plan', 'r-t1', true), '[data-sub-area="programm"]|#sub-title', 'nach Zurück die Zeile des verlassenen Bereichs');
+  assert.equal(a.subFocus('r-t1-unternehmen', 'r-t1-plan', true), '[data-seg="plan"]|#sub-title', 'Teilleiste: Fokus bleibt auf dem gewählten Teil');
   assert.equal(a.subFocus('reisen', 'r-t1', true), '#sub-title');
   assert.equal(a.subFocus('r-t2-plan', 'r-t1', true), '#sub-title');
   assert.equal(a.subFocus('r-t1-plan', 'reisen', true), null);
   assert.equal(a.subFocus('r-t1', 'r-t1-plan', false), null, 'Desktop: Fokus wie bisher');
   assert.equal(a.subFocus('r-t1-plan', 'r-t1-plan', true), null);
 
-  /* Bereiche: alle zehn, in vier Gruppen, gleiche Reihenfolge wie AREA_GROUPS */
+  /* Bereiche: fünf aus BEREICHE (pakete/aufbau), jeder der zehn Teile genau einmal */
   const t = { id: 't1', title: 'Allgäu <Winter>', items: [{}, {}], check: { a: true, d: true } };
-  const g = a.subAreas(t);
-  assert.deepEqual(g.map(x => x.group), a.AREA_GROUPS.map(x => x[0]));
-  assert.deepEqual(g.flatMap(x => x.items.map(i => i.key)), a.AREA_GROUPS.flatMap(x => x[1]));
-  assert.equal(g.flatMap(x => x.items).length, 10);
-  assert(g.flatMap(x => x.items).every(i => i.label && i.hint && i.route === 'r-t1-' + i.key), 'Name, Kurzbeschreibung und Adresse je Bereich');
-  assert.equal(a.subCount(t, 'plan'), '2 Termine'); assert.equal(a.subCount({ items: [{}] }, 'plan'), '1 Termin'); assert.equal(a.subCount({}, 'plan'), '0 Termine');
-  assert.equal(a.subCount(t, 'check'), '2 von 4 erledigt', 'Zähler mit Wörtern, nicht nur Zahl');
-  assert.equal(a.subCount(t, 'kosten'), '');
+  const g = a.subAreas(t), rows = g.flatMap(x => x.items);
+  assert.deepEqual(rows.map(i => i.key), ['ueber', 'ziel', 'programm', 'kosten', 'unterlagen']);
+  assert.deepEqual(rows.flatMap(i => i.parts).sort(), a.TABS.map(x => x[0]).sort(), 'alle zehn Teile erreichbar');
+  assert.deepEqual(a.AREA_GROUPS.map(x => x[0]), rows.map(i => i.label), 'Auswahlfeld folgt BEREICHE');
+  assert(rows.every(i => i.label && i.hint && /^r-t1-[a-z]+$/.test(i.route)), 'Name, Kurzbeschreibung und Adresse je Bereich');
+  assert.equal(rows[2].route, 'r-t1-plan', 'Programm mit Terminen öffnet den Tagesplan');
+  assert.equal(a.aufbauZiel({ id: 't9', items: [] }, 'programm'), 'unternehmen', 'Programm ohne Termine öffnet die Ideen');
+  a.aufbauMerken('t1', 'suche'); assert.equal(a.aufbauZiel(t, 'ziel'), 'suche', 'zuletzt benutzter Teil');
+  a.aufbauMerken('t1', 'unterkunft');
+  assert.equal(a.subCount(t, 'programm'), '2 Termine'); assert.equal(a.subCount({ items: [{}] }, 'programm'), '1 Termin'); assert.equal(a.subCount({}, 'programm'), '0 Termine');
+  assert.equal(a.subCount(t, 'unterlagen'), '2 von 4 erledigt', 'Zähler mit Wörtern, nicht nur Zahl');
+  assert.equal(a.subCount(t, 'ueber'), '');
+  /* Neue Namen: Angebotsvergleich und Pakete nicht mehr verwechselbar */
+  assert.deepEqual(['suche', 'angebote', 'unternehmen'].map(k => a.TABS.find(x => x[0] === k)[1]), ['Angebote vergleichen', 'Pakete', 'Ideen']);
+  /* Teilleiste nur bei mehreren Teilen, aktiver Teil mit aria-current */
+  assert.equal(a.aufbauTeile(t, 'kosten'), '');
+  const seg = a.aufbauTeile(t, 'suche');
+  assert.equal((seg.match(/class="seg"/g) || []).length, 3);
+  assert(/data-go="r-t1-suche" data-seg="suche" aria-current="page"/.test(seg) && /aria-label="Teile von Ziel &amp; Unterkunft"/.test(seg));
+  /* Desktop-Leiste: fünf Einträge, aktiver Bereich bleibt auf dem aktuellen Teil */
+  const bar = a.aufbauLeiste(t, 'mappe');
+  assert.equal((bar.match(/class="tab"/g) || []).length, 5);
+  assert(/data-go="r-t1-mappe" data-bereich="unterlagen" data-sub-parts="check notiz mappe" aria-current="page"/.test(bar));
+  /* Teilleiste ersetzt den Verlaufseintrag und behält das Zurück-Ziel */
+  assert.equal(a.subNavMode('r-t1-unternehmen', 'r-t1-plan', M), 'swap');
+  assert.equal(a.subNavMode('r-t1-plan', 'r-t1-kosten', M), 'push', 'anderer Bereich wie bisher');
+  assert.equal(a.subNavMode('r-t1-unternehmen', 'r-t1-plan', D), 'replace', 'Desktop wie bisher');
   const list = a.subListHtml(t);
-  assert.equal((list.match(/class="sub-row"/g) || []).length, 10);
-  assert.equal((list.match(/<h2 /g) || []).length, 4, 'vier Gruppenüberschriften');
-  assert.equal((list.match(/<button type="button"/g) || []).length, 10, 'echte Knöpfe, kein Ziehen oder Hover');
-  assert(/data-go="r-t1-kosten" data-sub-area="kosten"/.test(list));
+  assert.equal((list.match(/class="sub-row"/g) || []).length, 5);
+  assert.equal((list.match(/<h2 /g) || []).length, 0, 'eine Liste ohne Gruppenüberschriften');
+  assert.equal((list.match(/<button type="button"/g) || []).length, 5, 'echte Knöpfe, kein Ziehen oder Hover');
+  assert(/data-go="r-t1-kosten" data-sub-area="kosten" data-sub-parts="kosten"/.test(list));
+  assert(/data-sub-area="unterlagen" data-sub-parts="check notiz mappe"/.test(list));
   assert(/<span class="sub-chev" aria-hidden="true">›<\/span>/.test(list), 'Pfeil nur Schmuck');
   assert(/aria-label="Bereiche dieser Reise"/.test(list));
   const head = a.subHeadHtml(t, 'kosten', a.subBack('r-t1-kosten', a.subPushState('r-t1', 'r-t1-kosten')));
@@ -214,7 +235,7 @@ function loadApp(mobile) {
   assert.deepEqual(H.urls(), ['#reisen', '#r-' + t.id]); assert.equal(ctx.UI.tab, null);
   let v = dom['#view'].innerHTML;
   assert(v.includes('trip-sub-list') && !v.includes('class="tabs"') && !v.includes('id="trip-area"'), 'Übersicht ohne gequetschte Tab-Reihe und ohne Auswahlfeld');
-  assert.equal((v.match(/class="sub-row"/g) || []).length, 10);
+  assert.equal((v.match(/class="sub-row"/g) || []).length, 5);
   assert(v.includes('data-act="edit-trip"') && v.includes('data-f="status"'), 'Eckdaten und Status bleiben erreichbar');
   assert(!dom['#dock'].hidden, 'Gesamtpreis im Dock auch auf der Übersicht');
   a.go('r-' + t.id + '-kosten');
@@ -235,6 +256,12 @@ function loadApp(mobile) {
   a.go('r-' + t.id + '-ueber'); a.go('r-' + t.id + '-plan');
   assert(dom['#view'].innerHTML.includes('aria-label="Zurück zu Überblick"'));
   a.subBackRun(); pop(); assert.equal(ctx.UI.tab, 'ueber');
+  /* Teilleiste im Bereich Programm: ersetzt den Eintrag, Zurück führt weiter zu Bereiche */
+  a.go('r-' + t.id); a.go('r-' + t.id + '-unternehmen'); const n0 = H.entries.length;
+  assert(dom['#view'].innerHTML.includes('data-seg="plan"') && /<h1 id="sub-title" tabindex="-1">Programm<\/h1>/.test(dom['#view'].innerHTML), 'Bereich als Überschrift, Teile als Leiste');
+  a.go('r-' + t.id + '-plan'); assert.equal(H.entries.length, n0, 'kein neuer Verlaufseintrag');
+  assert(dom['#view'].innerHTML.includes('aria-label="Zurück zu Bereiche"'));
+  a.subBackRun(); pop(); assert.equal(ctx.UI.tab, null, 'Zurück aus dem zweiten Teil zur Übersichtsseite');
   /* Tab-Leiste ersetzt nur den Eintrag */
   const before = H.entries.length; a.go('entdecken'); assert.equal(H.entries.length, before);
   /* Heute → Tagesplan: Zurück zu Bereiche, dann zu Heute */
@@ -286,4 +313,4 @@ function loadApp(mobile) {
   /* alte Links */
   a.go('#r-' + t.id + '-check'); assert.equal(ctx.UI.tab, 'check');
 }
-console.log('Unterseiten: Logik und Zusammenspiel geprüft (Handy: Übersicht, 10 Bereiche, Zurück, Vor, direkter Link, Fokus; Desktop unverändert). Kein Browser-/iPhone-Test.');
+console.log('Unterseiten: Logik und Zusammenspiel geprüft (Handy: Übersicht, 5 Bereiche mit Teilleiste, Zurück, Vor, direkter Link, Fokus; Desktop unverändert). Kein Browser-/iPhone-Test.');

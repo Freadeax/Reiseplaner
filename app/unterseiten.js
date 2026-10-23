@@ -3,8 +3,9 @@
    globalen Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen.
    Kein neues Speicherfeld; rp-trips bleibt unverändert. Nur Adresse (#…), Verlauf (history.state) und Darstellung.
    Bis 760 px Breite (wie die Tab-Leiste in app.css):
-   - #r-<id>        Übersichtsseite der Reise: Kopf und die zehn Bereiche in vier Gruppen als Liste.
-   - #r-<id>-<tab>  Unterseite eines Bereichs mit Zurück-Knopf. Bestehende Links behalten ihre Form.
+   - #r-<id>        Übersichtsseite der Reise: Kopf und die fünf Bereiche aus BEREICHE (app/aufbau.js) als Liste.
+   - #r-<id>-<tab>  Unterseite eines Teils mit Zurück-Knopf, Überschrift ist der Bereich. Bestehende Links behalten ihre Form.
+   - Wechsel zwischen Teilen desselben Bereichs (Teilleiste) ersetzt den Verlaufseintrag, Zurück führt weiter zur Übersichtsseite.
    - Tiefer gehen legt einen Verlaufseintrag an (pushState). Browser-Zurück, Android-Zurück und die iOS-Wischgeste in Safari
      führen dadurch eine Ebene zurück. Für die Startbildschirm-App und die iOS-App ohne Safari-Geste gibt es eine Randwisch-Erkennung.
    Ab 761 px bleibt alles wie bisher: #r-<id> wird zu #r-<id>-ueber, jeder Wechsel ersetzt den Verlaufseintrag (replaceState).
@@ -18,6 +19,8 @@ const SUB_BACK_LABEL={reisen:'Reisen',neu:'Neue Reise',entdecken:'Entdecken',heu
 function subTabs(){return typeof TABS!=='undefined'?TABS:[]}
 function subGroups(){return typeof AREA_GROUPS!=='undefined'?AREA_GROUPS:[]}
 function subEsc(s){return typeof esc==='function'?esc(s):String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function subNachbarn(a,b){return typeof aufbauNachbarn==='function'&&aufbauNachbarn(a,b)}
+function subBereich(tab){return typeof aufbauBereich==='function'?aufbauBereich(tab):{key:tab,label:subTabLabel(tab),parts:[tab]}}
 function subTabLabel(key){const x=subTabs().find(tab=>tab[0]===key);return x?x[1]:''}
 /* Adresse zerlegen. depth: 0 Hauptansicht, 1 Übersicht einer Reise, 2 Bereich einer Reise. Unbekannte Bereiche sind nicht gültig (valid:false). */
 function subParse(route){
@@ -36,13 +39,14 @@ function subParent(route){const p=subParse(route);return p.depth===2?subRoute(p.
 /* Verlaufsart beim Wechsel von from nach to:
    'keep'    Zurück/Vor im Browser oder Adresse geändert: nur Adresse bestätigen, Zustand des Eintrags behalten.
    'push'    Handy, tiefer oder seitlich zwischen zwei Bereichen: neuer Verlaufseintrag, Zurück führt nach from.
+   'swap'    Handy, Teilleiste innerhalb eines Bereichs: Eintrag ersetzen, Herkunft (Zurück-Ziel) behalten.
    'replace' sonst, also immer am Desktop (wie bisher), beim ersten Aufruf, nach oben und zwischen Hauptansichten. */
 function subNavMode(from,to,opts){
  const o=opts||{};if(o.pop)return 'keep';
  if(!o.mobile||!from||from===to)return 'replace';
  const a=subParse(from),b=subParse(to);
  if(b.depth>a.depth)return 'push';
- if(a.depth===2&&b.depth===2)return 'push';
+ if(a.depth===2&&b.depth===2)return a.tid===b.tid&&subNachbarn(a.tab,b.tab)?'swap':'push';
  return 'replace';
 }
 function subPushState(from,to){return {rp:'sub',back:from,depth:subDepth(to)}}
@@ -81,24 +85,21 @@ function subSeed(route,state,mobile){
 function subFocus(from,to,mobile){
  if(!mobile||from===to)return null;
  const a=subParse(from),b=subParse(to);
- if(b.depth===2)return '#sub-title';
- if(b.depth===1&&a.depth===2&&a.tid===b.tid)return '[data-sub-area="'+a.tab+'"]|#sub-title';
+ if(b.depth===2)return a.depth===2&&a.tid===b.tid&&subNachbarn(a.tab,b.tab)?'[data-seg="'+b.tab+'"]|#sub-title':'#sub-title';
+ if(b.depth===1&&a.depth===2&&a.tid===b.tid)return '[data-sub-area="'+subBereich(a.tab).key+'"]|#sub-title';
  if(b.depth===1)return '#sub-title';
  return null;
 }
-/* Kennzahl je Bereich, wie bisher in der Tab-Reihe: Termine im Tagesplan, erledigte Punkte der Checkliste. */
-function subCount(t,key){
- if(key==='plan'){const n=(t&&t.items||[]).length;return n===1?'1 Termin':n+' Termine'}
- if(key==='check'&&typeof checklist==='function'){let all=0,done=0;checklist(t).forEach(g=>g[1].forEach(i=>{all++;if(t.check&&t.check[i[0]])done++}));return done+' von '+all+' erledigt'}
- return '';
-}
+/* Stand je Bereich in Worten (app/aufbau.js), z. B. „7 Termine“, „0 von 25 erledigt“. */
+function subCount(t,key){return typeof aufbauStand==='function'?aufbauStand(t,key):''}
+/* Bereiche der Reise aus BEREICHE (app/aufbau.js): je Bereich eine Zeile, Ziel ist der passende Teil, Stand in Worten. */
 function subAreas(t){
- const info=typeof MODULE_INFO!=='undefined'?MODULE_INFO:{};
- return subGroups().map(([group,keys])=>({group,items:keys.filter(k=>subTabLabel(k)).map(key=>({key,label:subTabLabel(key),hint:info[key]?info[key][1]:'',count:subCount(t,key),route:subRoute(t.id,key)}))}));
+ if(typeof BEREICHE==='undefined')return subGroups().map(([group,keys])=>({group,items:keys.filter(k=>subTabLabel(k)).map(key=>({key,label:subTabLabel(key),hint:'',count:'',parts:[key],route:subRoute(t.id,key)}))}));
+ return [{group:'',items:BEREICHE.map(b=>({key:b.key,label:b.label,hint:b.hint,count:subCount(t,b.key),parts:b.parts.slice(),route:subRoute(t.id,aufbauZiel(t,b.key))}))}];
 }
 function subListHtml(t){
- return '<nav class="sub-areas noprint" aria-label="Bereiche dieser Reise">'+subAreas(t).map((g,i)=>'<section class="block sub-group"><h2 class="sub-group-title" id="sub-g'+i+'">'+subEsc(g.group)+'</h2><ul class="sub-list" aria-labelledby="sub-g'+i+'">'+
-  g.items.map(x=>'<li><button type="button" class="sub-row" data-go="'+subEsc(x.route)+'" data-sub-area="'+subEsc(x.key)+'"><span class="sub-row-txt"><b>'+subEsc(x.label)+'</b>'+(x.hint?'<small>'+subEsc(x.hint)+'</small>':'')+'</span>'+(x.count?'<span class="badge sub-count">'+subEsc(x.count)+'</span>':'')+'<span class="sub-chev" aria-hidden="true">›</span></button></li>').join('')+
+ return '<nav class="sub-areas noprint" aria-label="Bereiche dieser Reise">'+subAreas(t).map((g,i)=>'<section class="block sub-group">'+(g.group?'<h2 class="sub-group-title" id="sub-g'+i+'">'+subEsc(g.group)+'</h2><ul class="sub-list" aria-labelledby="sub-g'+i+'">':'<ul class="sub-list" aria-label="Bereiche">')+
+  g.items.map(x=>'<li><button type="button" class="sub-row" data-go="'+subEsc(x.route)+'" data-sub-area="'+subEsc(x.key)+'" data-sub-parts="'+subEsc(x.parts.join(' '))+'"><span class="sub-row-txt"><b>'+subEsc(x.label)+'</b>'+(x.hint?'<small>'+subEsc(x.hint)+'</small>':'')+'</span>'+(x.count?'<span class="badge sub-count">'+subEsc(x.count)+'</span>':'')+'<span class="sub-chev" aria-hidden="true">›</span></button></li>').join('')+
   '</ul></section>').join('')+'</nav>';
 }
 /* Kopf einer Unterseite: Zurück (Ziel als Text, nicht nur Pfeil), Reisename, Bereich als Hauptüberschrift. */
@@ -106,7 +107,7 @@ function subHeadHtml(t,tab,back){
  const b=back||{kind:'none',label:''};
  return '<section class="block sub-head'+(tab==='mappe'?' noprint':'')+'">'+
   (b.kind!=='none'?'<div class="sub-bar noprint"><button type="button" class="lnk sub-back" data-sub-back aria-label="Zurück zu '+subEsc(b.label)+'"><span aria-hidden="true">‹</span> '+subEsc(b.label)+'</button></div>':'')+
-  '<span class="eyebrow">'+subEsc(t.title)+'</span><h1 id="sub-title" tabindex="-1">'+subEsc(subTabLabel(tab))+'</h1></section>';
+  '<span class="eyebrow">'+subEsc(t.title)+'</span><h1 id="sub-title" tabindex="-1">'+subEsc(subBereich(tab).label)+'</h1></section>';
 }
 /* Randwischen nach rechts als Zurück, nur wo Safari es nicht selbst kann (Startbildschirm-App, iOS-App).
    Beginn höchstens 24 px vom linken Rand, überwiegend waagrecht, weit genug oder schnell genug. */
@@ -151,7 +152,7 @@ function subHistoryApply(from,to,opts){
    const y=typeof window!=='undefined'&&typeof window.scrollY==='number'?window.scrollY:0;
    history.replaceState(Object.assign({},history.state||{},{rpScroll:y}),'');
    subPushChain(from,to).forEach(x=>history.pushState(x.state,'','#'+x.route));
-  }else history.replaceState(mode==='keep'||from===to?history.state:null,'','#'+to); /* neu zeichnen behält die Herkunft */
+  }else history.replaceState(mode==='keep'||mode==='swap'||from===to?history.state:null,'','#'+to); /* neu zeichnen behält die Herkunft */
  }catch(e){}
  return mode;
 }
