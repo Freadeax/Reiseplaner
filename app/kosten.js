@@ -35,8 +35,8 @@ function cost(t){
   const kursIt=items.filter(it=>actOf(t,it.act).kurs), kursDays=[...new Set(kursIt.map(i=>i.day))];
   const passDays=new Set(); kursDays.slice(1).forEach(d=>passDays.add(d));
   items.forEach(it=>{if(actOf(t,it.act).pass)passDays.add(it.day)});
-  const card=!!(st&&t.cardConfirmed===true);
-  const topUsed=new Set(passDays);
+  /* Gästekarte: Status, Top-Limit je Tag und Skipass rechnet cardPricing (app/gaestekarten.js, M09.1). */
+  const gc=cardPricingFor(t,{persons:P,place:pl,stay:st,items,passDays,kursActive:kursDays.length>0});
   if(pl&&kursDays.length){const k=kursDays.length, price=k<=3?pl.kurs[k]:pl.kurs[3]+35*(k-3);add('schnee','Gruppenkurs · '+k+(k>1?' Tage':' Tag'),pl.school+' · '+price+' € p. P.'+(k>3?' · ab Tag 4 mit 35 € / Tag geschätzt':''),price*P,k>3?'est':pl.kursSrc,'kurs');lines[lines.length-1].days=kursDays.slice()}
   const gearSet=[...new Set(items.filter(it=>actOf(t,it.act).gear).map(i=>i.day))],gearDays=gearSet.length;
   /* Tariftabelle reicht bis 5 Tage; darüber mit dem Zuwachs von Tag 4 auf 5 hochgerechnet und als Schätzung markiert. */
@@ -44,7 +44,7 @@ function cost(t){
   if(gearDays){const gl=lines.find(l=>l.cat==='schnee'&&/^Verleih/.test(l.t));if(gl)gl.days=gearSet.slice()}
   let saved=0;
   if(pl&&passDays.size){const n=passDays.size;
-    if(pl.cardPass&&card){saved=pl.passDay*P*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'in '+pl.card+' enthalten'+(st.card==='?'?' (beim Gastgeber bestätigen!)':''),0,'plus','skipass')}
+    if(pl.cardPass&&gc.status==='enthalten'){saved=gc.pass.normal;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'in '+pl.card+' enthalten'+(st.card==='?'?' (beim Gastgeber bestätigen!)':''),0,'plus','skipass')}
     else if(pl.cardPass){add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),'Unterkunft ohne Gästekarte: '+dec(pl.passDay,2)+' € p. P. / Tag',pl.passDay*P*n,'est','skipass')}
     else{const tb=pl.passTable,pp=n<=3?tb[n]:tb[3]/3*n;add('schnee','Skipass · '+n+(n>1?' Tage':' Tag'),dec(pp,2)+' € p. P. ('+pl.passSrc+(n>3?', ab Tag 4 hochgerechnet':'')+')',pp*P,n>3?'est':'ok','skipass')}
   }
@@ -53,7 +53,7 @@ function cost(t){
   items.forEach(it=>{const a=actOf(t,it.act);if(a.kurs)return;
     let c;
     if(a.custom){c=a.per==='pp'?num(a.cost,0)*P:num(a.cost,0)}
-    else{let pp=a.pp||0;if(a.cardPp!=null&&card){pp=a.cardPp;if(a.top){if(topUsed.has(it.day))pp=a.pp;else topUsed.add(it.day)}}if(a.ppKurs!=null&&kursDays.length)pp=a.ppKurs;c=pp*P+(a.grp||0)}
+    else c=gc.forItem(it).applied;
     const d=days[it.day];
     if(c>0||a.custom){add(a.custom?(a.cat||'eigen'):a.cat,a.t,(d?d.label+' · '+SLOTNAME[it.slot]:''),c,a.custom?'ok':a.src,'act:'+a.id);lines[lines.length-1].day=it.day}
   });
@@ -77,7 +77,8 @@ function cost(t){
   if(num(t.puffer,0)>0) add('puffer','Puffer '+num(t.puffer,0)+' %','für Unvorhergesehenes',sub*num(t.puffer,0)/100,'ok');
   const total=lines.reduce((s,l)=>s+l.c,0), byCat={};
   lines.forEach(l=>byCat[l.cat]=(byCat[l.cat]||0)+l.c);
-  return {lines,total,byCat,saved,P,N,kursDays,passDays,gearDays};
+  /* card: eingerechnete Ersparnis (applied) und getrennter möglicher Vorteil (possible, nie in total). */
+  return {lines,total,byCat,saved,P,N,kursDays,passDays,gearDays,card:{status:gc.status,applied:gc.applied,possible:gc.possible,items:gc.items,pass:gc.pass,days:gc.days}};
 }
 /* Szenarien verändern nur die ausdrücklich genannten Verpflegungsannahmen. */
 function costScenarios(t){
