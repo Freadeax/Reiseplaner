@@ -179,9 +179,22 @@ function newTrip(o){
 }
 /* Dateisicherung: nur Daten, kein ausführbarer Code. Importe überschreiben nie bestehende Reisen. */
 const BACKUP_FORMAT='reiseplaner-backup', BACKUP_VERSION=2;
+/* Datei sichern über die Plattformschicht (platform.js, P00 A1); ohne sie der bisherige Download-Weg */
 function downloadText(content,name,type){
+  const P=typeof window!=='undefined'&&window.RPPlatform;
+  if(P&&P.files){P.files.save({name,type,data:content}).then(r=>{if(!r.ok&&r.state!=='cancelled')alertMsg(r.text)});return}
   const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+/* Teilen über die Plattformschicht: Teilen-Menü, sonst Zwischenablage, sonst Text zum Kopieren im Blatt.
+   Abbrechen im Teilen-Menü ist kein Fehler und zeigt nichts an. */
+function shareSheet(o,body){openSheet('<h2>'+esc(o.sheetTitle||o.title||'Text')+'</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(body)+'</div>')}
+async function shareText(o){
+  const P=typeof window!=='undefined'&&window.RPPlatform;
+  if(P&&P.share){const r=await P.share(o);if(r.state==='cancelled')return r;if(r.where==='clipboard')alertMsg(o.copied||'Text kopiert.');else if(!r.ok)shareSheet(o,r.body||'');return r}
+  const body=[o.text,o.url].filter(Boolean).join('\n');
+  try{if(navigator.share){await navigator.share({title:o.title,text:o.text,url:o.url});return {ok:true,where:'share'}}}catch(err){if(err&&err.name==='AbortError')return {ok:false,state:'cancelled'}}
+  try{await navigator.clipboard.writeText(body);alertMsg(o.copied||'Text kopiert.');return {ok:true,where:'clipboard'}}catch(err){shareSheet(o,body);return {ok:false,where:'manual'}}
 }
 function backupData(trips){return {format:BACKUP_FORMAT,version:BACKUP_VERSION,exportedAt:new Date().toISOString(),trips:trips.map(t=>toServer(t))}}
 function validateBackup(raw){

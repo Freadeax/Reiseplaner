@@ -496,6 +496,10 @@ document.addEventListener('click',e=>{
   const act=b.getAttribute('data-act'),val=b.getAttribute('data-val'),s=catState();
   switch(act){
     case 'cat-geo':
+      if(window.RPPlatform&&window.RPPlatform.geo){const P=window.RPPlatform;
+        if(!P.can('geo')){alertMsg('Standort wird von diesem Browser nicht unterstützt. Bitte Ort eingeben.');return}
+        s.geoBusy=true;render();
+        P.geo.current({timeoutMs:10000}).then(r=>{s.geoBusy=false;if(r.ok){catSetOrigin({label:'Mein Standort (gerundet)',lat:r.lat,lon:r.lon});return}render();alertMsg('Standort nicht verfügbar'+(r.state==='cancelled'?' (keine Freigabe)':'')+'. Bitte Ort eingeben oder aus der Liste wählen.')});return}
       if(!navigator.geolocation){alertMsg('Standort wird von diesem Browser nicht unterstützt. Bitte Ort eingeben.');return}
       s.geoBusy=true;render();
       navigator.geolocation.getCurrentPosition(pos=>{s.geoBusy=false;catSetOrigin({label:'Mein Standort (gerundet)',lat:Math.round(pos.coords.latitude*100)/100,lon:Math.round(pos.coords.longitude*100)/100})},
@@ -527,10 +531,10 @@ document.addEventListener('click',e=>{
     case 'cat-q-clear':s.q='';render();return;
     case 'cat-fav-export':{const l=catFavs();if(!l.length)return;downloadText(JSON.stringify(favExportData(l),null,2),'Reiseplaner-Merkliste-'+iso(todayUTC())+'.json','application/json');return}
     case 'cat-fav-import':{const f=$('#fav-file');if(f)f.click();return}
-    case 'cat-fav-share':{const txt=favText(catFavs());(async()=>{try{if(navigator.share){await navigator.share({title:'Merkliste',text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}try{await navigator.clipboard.writeText(txt);alertMsg('Merkliste als Text kopiert.')}catch(err){openSheet('<h2>Merkliste als Text</h2><div class="copybox">'+esc(txt)+'</div>')}})();return}
+    case 'cat-fav-share':{shareText({title:'Merkliste',text:favText(catFavs()),copied:'Merkliste als Text kopiert.',sheetTitle:'Merkliste als Text'});return}
     case 'cat-find':catFindRun(($('#cat-find')||{}).value);return;
     case 'cat-open-id':catOpenById(val).catch(err=>alertMsg(err.message));return;
-    case 'cat-share':{const u=catShareUrl(val);(async()=>{try{if(navigator.share){await navigator.share({title:'Reiseziel',url:u});return}}catch(err){if(err&&err.name==='AbortError')return}try{await navigator.clipboard.writeText(u);alertMsg('Link kopiert: '+u)}catch(err){alertMsg('Link: '+u)}})();return}
+    case 'cat-share':{const u=catShareUrl(val);shareText({title:'Reiseziel',url:u,copied:'Link kopiert: '+u,sheetTitle:'Link zum Reiseziel'});return}
     case 'cat-month':{if(!s.res)return;catProfileChange({month:s.month===val?'':val});render();return}
     case 'cat-combo':{const ids=val.split('|');ids.forEach(id=>{const c=document.querySelector('[data-cs="'+id.replace(/"/g,'')+'"]');if(c)c.checked=true});s.combo=ids;document.querySelectorAll('[data-act="cat-combo"]').forEach(x=>{x.textContent=x===b?'✓ gewählt':'Diese Kombi';x.setAttribute('aria-pressed',x===b?'true':'false')});return}
     case 'cat-create':catCreate();return;
