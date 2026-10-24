@@ -1,5 +1,5 @@
 /* Reiseplaner · Ereignisse.
-   Teil 17 von 25 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 18 von 26 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Ereignisse ================= */
@@ -51,15 +51,16 @@ document.addEventListener('click',async e=>{
   switch(act){
    case 'backup-trip': downloadBackup([t]);return;
    case 'rain-plan':{const [id,d]=val.split('|');sheetAct(t,id,+d);return}
-   case 'mappe-print': try{window.print()}catch(err){alertMsg('Drucken wird hier nicht unterstützt. Bitte im Browser öffnen.')}return;
+   case 'mappe-print':{const P=window.RPPlatform;if(P&&P.print){const r=P.print();if(!r.ok)alertMsg(r.text);return}try{window.print()}catch(err){alertMsg('Drucken wird hier nicht unterstützt. Bitte im Browser öffnen.')}return}
    case 'mappe-ics':{const d=icsData(t,undefined,{reminders:true});if(!d){alertMsg('Kalenderexport braucht feste Reisedaten.');return}downloadText(d.text,fileSafe(t.title)+'.ics','text/calendar;charset=utf-8');return}
-   case 'mappe-share':{const txt=tripText(t,{notes:!!UI.mappeNotes});
-     try{if(navigator.share){await navigator.share({title:t.title,text:txt});return}}catch(err){if(err&&err.name==='AbortError')return}
-     try{await navigator.clipboard.writeText(txt);alertMsg('Text kopiert.')}catch(err){openSheet('<h2>Reise als Text</h2><p class="small muted">Text markieren und kopieren.</p><div class="copybox">'+esc(txt)+'</div>')}return}
+   case 'mappe-share':{await shareText({title:t.title,text:tripText(t,{notes:!!UI.mappeNotes}),sheetTitle:'Reise als Text'});return}
    case 'edit-trip': sheetEdit(t);return;
    case 'edit-save':{try{if(UI.editSource!==JSON.stringify(t))throw new Error('Die Reise hat sich geändert. Eckdaten bitte erneut öffnen.');if(tripLengthError(UI.edit))throw new Error(tripLengthError(UI.edit));const c=protectedPlanChange(t,'edit',{draft:UI.edit}),d=routeEndpointPreview(t,c);if(d){render();sheetRouteEndpoint(t,d);return}adoptPlanChange(t,c);save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
    case 'route-endpoint-apply':{try{applyRouteEndpointChange(t,UI.routeEndpointDraft);UI.routeEndpointDraft=null;UI.routeDraft=null;save(t);closeSheet();render();}catch(err){alertMsg(err.message)}return;}
-   case 'dup':{const c=clone(t);c.id=uid('t');c.title=t.title+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');return}
+   case 'dup':{/* M05.1: nur Planinhalte kopieren (app/varianten.js), Buchungen, Zahlungen, Tagebuch und Fotos bleiben in der Quelle */
+     const r=variantCopy(t,{notes:true}),c=r.trip;c.title=String(t.title||'Reise').slice(0,72)+' (Kopie)';c.status='idee';save(c,true);go('r-'+c.id+'-ueber');
+     const why=[...r.notes];if(r.dropped.length)why.unshift('Nicht übernommen: '+r.dropped.join(', ')+'.');if(r.unknown.length)why.push(r.unknown.length+' Angabe(n) aus einer neueren App-Version nicht übernommen.');
+     if(why.length)alertMsg('Kopie angelegt. '+why.join(' '));return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
    case 'del-yes': UI.confirm=null;try{await Store.remove(t.id)}catch(err){alertMsg(err.message);render();return}go('reisen');return;

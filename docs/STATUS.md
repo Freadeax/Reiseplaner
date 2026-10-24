@@ -1,5 +1,14 @@
 # Projektstand · 24.10.2026
 
+## Reise duplizieren korrigiert, Varianten und Plattformschicht (Claude, 24.10.)
+
+Zwei Pakete aus dem Thread „Module und Plattformen planen“ (`pakete/varianten/`, `pakete/plattform/`), eingebunden:
+- **Fehler behoben:** „Reise duplizieren“ hat bisher Zahlungen, gebuchte Angebote, Tagebuch und Fotoverweise mitkopiert, sodass bezahlte Beträge in der Kopie noch einmal auftauchten, und konnte Titel über 80 Zeichen erzeugen. Jetzt übernimmt die Kopie nur Planinhalte (`variantCopy`, `app/varianten.js`, M05.1) und sagt, was nicht übernommen wurde.
+- **Plattformschicht (`platform.js`, `window.RPPlatform`, P00 A1):** Datei speichern, Teilen, Drucken und Standort laufen über eine Schicht, mit dem bisherigen Weg als Rückfall (Kosten, Format 4, Sicherung, Entdecken).
+- Service Worker `reiseplaner-v27`, App 26 Teile. Kein Speicherformat, keine Migration. `check-artifact` kennt `platform.js`.
+
+Tests (24.10., Cloud-Container): `npm test` (neu `platform`, `varianten`), `test:browser` mit CI-Schrift, `test:format4-browser`, `test:fotos-browser`, `test:print-browser`, `build`, `check:artifact` grün. `test:db`/`test:e2e` lokal nicht gelaufen (läuft in CI). Nicht getestet: iPhone, Safari.
+
 ## Datenbank nimmt Format 4 an (Claude, 24.10.)
 
 - Freigabe Philipp 24.10. (nach lokalen Tests): Migration `20261024060000_trips_schema_v4.sql` erlaubt `schema_version` 2, 3 und 4. Bestehende Zeilen bleiben unverändert, der Rückstufungsschutz gilt auch für 4 → 3/2. Bilddateien liegen weiterhin nicht in der Datenbank, nur die Foto-Einträge.

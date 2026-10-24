@@ -242,6 +242,8 @@ const f4HasPhotos=trips=>(trips||[]).some(t=>t&&Array.isArray(t.media)&&t.media.
 /* Hinweis beim JSON-Export (SCHEMA_V4 §5) */
 function f4JsonNote(trips){return f4HasPhotos(trips)?'<p class="small" data-f4-json-note><b>Fotos sind in der JSON-Datei nicht enthalten.</b> Die Foto-Einträge bleiben erhalten und zeigen nach einem Import „Datei fehlt“. Mit Fotos sichert die .reiseplaner-Datei.</p>':''}
 function f4Download(chunks,name){
+  const P=typeof window!=='undefined'&&window.RPPlatform;
+  if(P&&P.files){P.files.save({name,type:'application/zip',data:chunks}).then(r=>{if(!r.ok&&r.state!=='cancelled')alertMsg(r.text)});return}
   const blob=new Blob(chunks,{type:'application/zip'}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
