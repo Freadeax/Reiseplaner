@@ -16,9 +16,9 @@
    Seit 23.10. veröffentlicht als Lese-Release; nach einigen Tagen auf true (EINBINDUNG format4-app §4).
    v4-Reisen werden gelesen, geprüft und unverändert zurückgeschrieben, aber keine Reise wird neu auf Format 4 gehoben. */
 const F4_WRITE=false;
-/* Höchstes Format, das die Datenbank annimmt: CHECK schema_version in (2,3) aus 20261015160000_trips_schema_v3.sql.
-   Erst nach einer freigegebenen Migration (Vorschlag in EINBINDUNG.md) auf 4 setzen. */
-const F4_SERVER_MAX=3;
+/* Höchstes Format, das die Datenbank annimmt: CHECK schema_version in (2,3,4) aus 20261024060000_trips_schema_v4.sql
+   (Freigabe Philipp 24.10.). Mit 3 blieben Format-4-Reisen im Konto nur auf dem Gerät (localOnly). */
+const F4_SERVER_MAX=4;
 const RPF4=(function(){
   const W=typeof window!=='undefined'?window:{};
   const V=()=>{if(!W.RPV4)throw new Error('Format 4 kann diese App-Version nicht prüfen.');return W.RPV4};

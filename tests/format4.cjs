@@ -25,11 +25,11 @@ function fakePhotos() {
     async has(id) { return { work: m.has(id), thumb: m.has(id), original: false }; },
     async remove(id) { m.delete(id); return true; } };
 }
-/* Nachgebildeter Server wie tests/sync.cjs, mit dem CHECK der Datenbank: schema_version in (2, 3) */
+/* Nachgebildeter Server wie tests/sync.cjs, mit dem CHECK der Datenbank: vor 20261024060000 schema_version in (2, 3), danach S.allowed = [2, 3, 4] */
 function fakeServer() {
-  const S = { rows: {}, user: null, calls: [] };
+  const S = { rows: {}, user: null, calls: [], allowed: [2, 3] };
   const out = (r, u) => ({ id: r.id, data: J(r.data), version: r.version, owner_id: r.owner, deleted_at: r.deleted_at, updated_at: new Date().toISOString(), role: r.members[u] });
-  const check = data => { if (![2, 3].includes(data.schemaVersion)) { const e = new Error('new row for relation "trips" violates check constraint "trips_schema_version_check"'); e.code = '23514'; throw e; } };
+  const check = data => { if (!S.allowed.includes(data.schemaVersion)) { const e = new Error('new row for relation "trips" violates check constraint "trips_schema_version_check"'); e.code = '23514'; throw e; } };
   S.api = { enabled: () => true, onAuth() {}, async init() { return S.user ? { id: S.user } : null; }, async signOut() { S.user = null; },
     async listTrips(u) { S.calls.push('list'); return Object.values(S.rows).filter(r => r.members[u]).map(r => out(r, u)); },
     async getTrip(id) { const r = S.rows[id]; return r && r.members[S.user] ? out(r, S.user) : null; },
@@ -180,9 +180,9 @@ async function photo(id, bytes, extra) { return Object.assign({ id, takenAt: '20
     assert.throws(() => old.a.validateBackup(raw), /Unbekannte Reiseversion/);
   }
 
-  /* ---------- 5. Sync: Datenbank nimmt Format 4 nicht an → bleibt sichtbar lokal, nichts geht verloren ---------- */
+  /* ---------- 5. Sync: Datenbank nimmt Format 4 nicht an (Stand vor der Migration, F4_SERVER_MAX=3) → bleibt sichtbar lokal ---------- */
   {
-    const S = fakeServer(); const { a, ctx, F, syncText } = makeApp({ server: S });
+    const S = fakeServer(); const { a, ctx, F, syncText, store } = makeApp({ server: S, code: baseCode.replace('const F4_SERVER_MAX=4;', 'const F4_SERVER_MAX=3;') });
     const { Store, Sync, Auth } = a;
     S.user = 'uA'; Auth.switchTo({ id: 'uA' });
     const t = Object.assign(a.newTrip({ title: 'Konto', dateMode: 'fix', start: '2027-05-01', end: '2027-05-04' }), { schemaVersion: 3, journal: { '2027-05-01': { text: 'los' } } });
@@ -202,6 +202,13 @@ async function photo(id, bytes, extra) { return Object.assign({ id, takenAt: '20
     assert(/1 Reise nur auf diesem Gerät \(Format 4\)/.test(syncText()), 'sichtbar im Status: ' + syncText());
     assert(Store.pending() >= 1, 'Abmelden fragt nach (ausstehend)');
     Store.setScope('uA'); assert.equal(Store.get(t.id).media.length, 1, 'nach Neuladen weiter vorhanden'); assert(Store.meta[t.id].localOnly);
+    /* 5b. Nach der Migration (Datenbank nimmt 4, App mit F4_SERVER_MAX=4): die wartende Reise geht beim nächsten Abgleich hoch */
+    S.allowed = [2, 3, 4];
+    const n = makeApp({ server: S, store }); n.a.Auth.switchTo({ id: 'uA' }); await n.a.Sync.run();
+    assert.equal(S.rows[t.id].data.schemaVersion, 4, 'Format 4 jetzt auf dem Server'); assert.equal(S.rows[t.id].version, 2);
+    assert.equal(S.rows[t.id].data.media.length, 1); assert.equal(S.rows[t.id].data.journal['2027-05-01'].text, 'los', 'Feldtreue');
+    assert(!n.a.Store.queue[t.id] && !(n.a.Store.meta[t.id] || {}).localOnly, 'nicht mehr nur lokal');
+    assert.equal(n.a.tripSyncState(t.id), 'online');
   }
 
   /* ---------- 6. ZIP ---------- */

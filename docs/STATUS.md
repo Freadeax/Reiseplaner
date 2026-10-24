@@ -1,4 +1,14 @@
-# Projektstand · 23.10.2026
+# Projektstand · 24.10.2026
+
+## Datenbank nimmt Format 4 an (Claude, 24.10.)
+
+- Freigabe Philipp 24.10. (nach lokalen Tests): Migration `20261024060000_trips_schema_v4.sql` erlaubt `schema_version` 2, 3 und 4. Bestehende Zeilen bleiben unverändert, der Rückstufungsschutz gilt auch für 4 → 3/2. Bilddateien liegen weiterhin nicht in der Datenbank, nur die Foto-Einträge.
+- App: `F4_SERVER_MAX = 4`. Format-4-Reisen im Konto werden jetzt gesendet; Reisen, die vorher als „nur auf diesem Gerät (Format 4)“ warteten, gehen beim nächsten Abgleich hoch (tests/format4.cjs 5b). `F4_WRITE` bleibt vorerst `false` (Lese-Release, seit 23.10. live).
+- Fotostandorte (`lat/lon`) der Einträge gehen mit dem Konto an alle Mitglieder der Reise (Philipp 19.10.: Standort bleibt in der App); Export und geteilte Bücher entfernen ihn weiterhin.
+- Service Worker `reiseplaner-v26`.
+
+Tests (24.10., Cloud-Container, lokaler Supabase nach `supabase db reset`): `supabase db lint`, `REQUIRE_DB=1 npm run test:db` (Format 4 erlaubt, 5 abgelehnt, keine Rückstufung 4 → 3, 2000 Foto-Einträge passen: 0,6 MB JSON, 27 KB gespeichert), `test:e2e`, `npm test`, `test:browser` mit CI-Schrift, `test:format4-browser`, `test:fotos-browser` grün. Produktion nicht von hier prüfbar (Proxy); Deployment über die Supabase-GitHub-Anbindung beim Push.
+
 
 ## Einfacher Aufbau A3 + A4 (Claude, 23.10.)
 

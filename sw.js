@@ -3,7 +3,7 @@
    zuletzt geladene Kopie aus dem Cache gezeigt. Reisedaten liegen weiterhin nur im Browser-Speicher
    (rp-trips in localStorage, Zweitkopie in IndexedDB über rpstore.js) und werden hier weder gelesen noch
    zwischengespeichert. */
-const CACHE = 'reiseplaner-v25';
+const CACHE = 'reiseplaner-v26';
 const FILES = ['./', './index.html', './config.js', './cloud.js', './catalog.js', './v3logic.js', './v3forms.js', './v3editor.js', './v3split.js', './rpstore.js', './v3journal.js', './v4logic.js', './bookgen.js', './bookedit.js', './bookprint.js', './photostore.js', './catalog-data.js', './app.css', ...['basis', 'reise', 'v3', 'format4', 'aufteilung', 'gaestekarten', 'kosten', 'unterwegs', 'zahlungsbuch', 'fristen', 'speicher', 'routing', 'aufbau', 'unterseiten', 'ansichten', 'blaetter', 'ereignisse', 'konto', 'entdecken', 'tagesplan', 'tagebuch', 'navigation', 'reisebuch', 'fotos', 'start'].map(n => './app/' + n + '.js'), './catalog/index.js', './vendor/supabase-js-2.117.2.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
