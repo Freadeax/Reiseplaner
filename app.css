@@ -671,7 +671,8 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
  #msg{border-radius:14px!important;padding:12px 18px!important;box-shadow:var(--sh-3)}
 
  /* Aufklappflächen: eigener Pfeil, der sich mitdreht (zusätzlich zum Zustand „offen“, den Vorlesehilfen ansagen). */
- summary{display:block;position:relative;list-style:none;padding-left:26px;border-radius:10px}
+ summary{display:block;position:relative;list-style:none;padding-left:26px;border-radius:10px;overflow-wrap:anywhere}
+ summary>*{min-width:0}
  summary::-webkit-details-marker{display:none}
  summary::before{content:'';position:absolute;left:5px;top:50%;width:9px;height:9px;margin-top:-6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);opacity:.75}
  details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
