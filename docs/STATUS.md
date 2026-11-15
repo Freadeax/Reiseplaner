@@ -1,5 +1,13 @@
 # Projektstand · 15.11.2026
 
+
+## Datenbank nimmt Format 5 an (Claude, 15.11. abends)
+
+- Freigabe Philipp 15.11. („Ja, nach lokalem Test live“): Migration `20261115190000_trips_schema_v5.sql` erlaubt `schema_version` 2–5; bestehende Zeilen unverändert, Rückstufungsschutz gilt auch für 5 → 4/3/2 (SCHEMA_V5 §8 Schritt 2).
+- Die App selbst schreibt weiterhin höchstens Format 4 (`v5logic.js` nicht geladen). Nächster Schritt: Lese-Release (Schritt 3), abgestimmt mit dem Oberflächen-Thread.
+
+Tests (15.11., Cloud-Container, lokaler Supabase frisch mit allen Migrationen): `supabase db lint` ohne Befund, `REQUIRE_DB=1 npm run test:db` (neu: Format 5 erlaubt, 6 abgelehnt, keine Rückstufung 5 → 4, v5-Felder unverändert zurückgelesen), `test:e2e`, `npm test` grün. Produktion nicht von hier prüfbar; Einspielen über die Supabase-GitHub-Anbindung beim Push.
+
 ## Oberfläche: Bewegung und Feinschliff, Schritt 1 (Claude, 15.11.)
 
 Thread „UI neu gestalten und animieren“ (Auftrag Philipp 15.11.). Nur Darstellung; kein Speicherformat, keine Berechnung, keine Konto- oder Supabase-Anbindung berührt.

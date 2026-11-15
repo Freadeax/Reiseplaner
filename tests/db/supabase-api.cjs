@@ -83,9 +83,16 @@ const doc = (id, title, extra) => Object.assign({ id, title, type: 'stadt', stat
   assert(r.error, 'festes Datum ohne Abreise wird abgewiesen');
   r = await A.c.from('trips').insert({ id: 't' + run + 'v', data: doc('t' + run + 'v', 'X', { schemaVersion: 1 }) });
   assert(r.error, 'kein Format 1');
-  /* Format 3 und 4 erlaubt (20261015160000, 20261024060000), 5 nicht; keine Rückstufung, auch nicht für den Eigentümer */
-  r = await A.c.from('trips').insert({ id: 't' + run + 'f5', data: doc('t' + run + 'f5', 'X', { schemaVersion: 5 }) });
-  assert(r.error, 'Format 5 unbekannt');
+  /* Format 3, 4 und 5 erlaubt (20261015160000, 20261024060000, 20261115190000), 6 nicht; keine Rückstufung, auch nicht für den Eigentümer */
+  r = await A.c.from('trips').insert({ id: 't' + run + 'f6', data: doc('t' + run + 'f6', 'X', { schemaVersion: 6 }) });
+  assert(r.error, 'Format 6 unbekannt');
+  const v5id = 't' + run + 'f5';
+  r = await A.c.from('trips').insert({ id: v5id, data: doc(v5id, 'Format 5', { schemaVersion: 5, tasks: [{ id: 'task1', title: 'Winterreifen', due: null, done: false }], criteria: { budgetMax: 1500 } }) }).select('schema_version').single();
+  assert.ifError(r.error); assert.equal(r.data.schema_version, 5, 'Format 5 erlaubt');
+  r = await A.c.from('trips').update({ data: doc(v5id, 'Alt', { schemaVersion: 4, media: [], books: [] }) }).eq('id', v5id).select();
+  assert(r.error && String(r.error.code) === '23514' && /neueren App-Version/.test(r.error.message), 'Rückstufung 5 → 4 abgelehnt');
+  r = await A.c.from('trips').select('data').eq('id', v5id).single();
+  assert.deepEqual(r.data.data.tasks, [{ id: 'task1', title: 'Winterreifen', due: null, done: false }], 'v5-Felder unverändert zurückgelesen');
   const v4id = 't' + run + 'f4';
   /* Reise mit 2000 Foto-Einträgen (ohne Bilddateien) passt unter trips_data_size */
   const media = Array.from({ length: 2000 }, (_, i) => ({ id: 'm' + String(i).padStart(6, '0') + 'abcdef', kind: 'photo', takenAt: '2027-05-02T10:00:00', lat: 47.5 + i / 1e5, lon: 10.2, w: 2048, h: 1536, bytes: 812345, sha256: 'a'.repeat(64), caption: 'Bildunterschrift ' + i, day: '2027-05-02', cloud: { state: 'local' } }));
