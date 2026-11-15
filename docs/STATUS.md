@@ -1,5 +1,18 @@
 # Projektstand · 15.11.2026
 
+## Oberfläche: Bewegung und Feinschliff, Schritt 1 (Claude, 15.11.)
+
+Thread „UI neu gestalten und animieren“ (Auftrag Philipp 15.11.). Nur Darstellung; kein Speicherformat, keine Berechnung, keine Konto- oder Supabase-Anbindung berührt.
+- **Neuer Teil `app/bewegung.js`** (App jetzt 27 Teile): Seitenwechsel blenden gestaffelt ein, mit Richtung (tiefer hinein von rechts, zurück von links, Nachbarteil und Hauptseiten von unten). Das läuft nur bei einem echten Seitenwechsel in `go()` (Klasse `rp-enter` an `#view`), nie beim bloßen Neuzeichnen nach einer Eingabe. Blätter gleiten herein; beim Schließen wird das echte Blatt wie bisher sofort entfernt (Fokus, Zustand), für das Auge gleitet eine nicht bedienbare Kopie ohne Kennungen hinaus. Aufklappflächen öffnen weich (Höhe über `::details-content`, wo der Browser es kann, sonst nur Einblenden).
+- **`app.css`, neuer Abschnitt „Feinschliff und Bewegung“ am Ende:** Zeit- und Schattenwerte als Variablen, Rückmeldung beim Antippen für Knöpfe, Karten und Listenzeilen (ohne Hover), Balken wachsen beim Seitenwechsel, Meldung unten blendet ein, eigener Aufklapp-Pfeil, der sich mitdreht. Seitenüberschriften im Reisebuch-Stil mit Serifen (Systemschrift, keine neue Schriftdatei), Kleintexte einheitlich in der Grundschrift statt Schreibmaschinenschrift. Tab-Leiste am Handy leicht durchscheinend.
+- **Behoben:** Zähler in der Seitenleiste der Reise standen am Desktop über den Rand; zugeklappte Flächen („Mit einer Vorlage starten“, „weitere Punkte“) hatten unten eine Leerfläche.
+- „Bewegung reduzieren“: `bewegung.js` tut dann nichts, jede Animation und jeder Übergang des Abschnitts steht zusätzlich hinter `prefers-reduced-motion:no-preference` (geprüft in `tests/bewegung.cjs`).
+- Aufrufstellen: je eine abgesicherte Zeile in `app/routing.js` (`go`) und `app/blaetter.js` (`openSheet`, `closeSheet`). Service Worker `reiseplaner-v29`.
+
+Tests (15.11., Cloud-Container, auf Stand `45b830a`): `npm test` (neu `bewegung`, 28 Prüfungen), `test:browser`, `test:format4-browser`, `test:fotos-browser`, `test:print-browser`, `build`, `check:artifact` grün. `test:db`/`test:e2e` lokal nicht gelaufen (läuft in CI). Bewegung in Chromium mit Zwischenbildern angesehen (Handy 390 px hell/dunkel, Desktop). Nicht getestet: iPhone, Safari (dort ohne Höhen-Übergang beim Aufklappen, falls `::details-content` fehlt).
+
+Nächster Schritt: `app.css` aufräumen (die historisch geschichteten Abschnitte zu einem geordneten Stylesheet zusammenführen, mit Vorher/Nachher-Vergleich der berechneten Stile), danach Ansichten einzeln durchgehen (Kosten, Tagesplan, Entdecken).
+
 ## Format-5-Vertrag, Fotos freigeschaltet, Ortssuche-Takt, Systemplan (Claude, 15.11.)
 
 Thread „Offene Punkte weiterentwickeln“ (nur Logik, Daten und Doku; die Oberfläche gestaltet parallel ein eigener Thread neu).

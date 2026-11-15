@@ -385,7 +385,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .mood-votes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
 .mood-votes .btn{padding:12px 6px;justify-content:center;min-width:0}
 .mood-frame{border-top:1px solid var(--line);padding-top:20px;margin-top:24px}
-.mood-frame summary,.cat-reasons summary{cursor:pointer;padding:8px 0}
+.mood-frame summary,.cat-reasons summary{cursor:pointer;padding-block:8px}
 .mood-frame .form{margin-top:16px}
 .mood-weather{display:flex;align-items:center;gap:10px;margin-top:12px}
 .profile-summary{margin:20px 0;padding:18px;background:var(--spruce-soft);border:1px solid var(--line);border-radius:14px}
@@ -611,3 +611,140 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
 .fold>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
 .fold-body{display:flex;flex-direction:column;gap:14px}
 .fold-body>section.block:first-child{border-top:0;padding-top:4px}
+
+/* ==========================================================================
+   Feinschliff und Bewegung (app/bewegung.js)
+   Bewegung zeigt nur Herkunft und Ziel und trägt nie allein eine Bedeutung. Einblenden läuft ausschließlich
+   bei einem echten Seitenwechsel (#view.rp-enter), weil die Ansicht bei jeder Eingabe neu gezeichnet wird.
+   Alles Bewegte steht in prefers-reduced-motion:no-preference; die globale Regel oben schaltet zusätzlich ab.
+   ========================================================================== */
+:root{
+  --dur-1:.12s; --dur-2:.2s; --dur-3:.36s;
+  --ease:cubic-bezier(.2,.7,.2,1); --ease-soft:cubic-bezier(.4,0,.2,1); --ease-spring:cubic-bezier(.3,1.45,.5,1);
+  --sh-rgb:24 43 35;
+  --sh-1:0 1px 2px rgb(var(--sh-rgb) / .05),0 3px 10px rgb(var(--sh-rgb) / .05);
+  --sh-2:0 2px 6px rgb(var(--sh-rgb) / .06),0 10px 28px rgb(var(--sh-rgb) / .1);
+  --sh-3:0 14px 44px rgb(var(--sh-rgb) / .2);
+  --f-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sh-rgb:0 0 0}}
+:root[data-theme="dark"]{--sh-rgb:0 0 0}
+@media (prefers-reduced-motion:reduce){*::before,*::after{transition:none!important;animation:none!important}}
+
+@media screen{
+ /* Schrift: Überschriften der Seiten im Reisebuch-Stil mit Serifen, Kleintexte einheitlich in der Grundschrift statt Schreibmaschine. */
+ html[data-layout=book] h1,html[data-layout=book] .home-hero h1{font-family:var(--f-serif);font-weight:500;letter-spacing:-.03em}
+ .eyebrow,.nx-level,.dslot .lbl,.dock .nm,.sync,.facts dt,.tab .n,.dload,.chk b{font-family:var(--f-body)}
+ .eyebrow{font-size:.74rem;font-weight:600;letter-spacing:.09em}
+ .nx-level{font-size:.74rem;font-weight:600;letter-spacing:.07em}
+ .dslot .lbl,.facts dt{font-size:.72rem;font-weight:600;letter-spacing:.08em}
+ .sync{font-size:.78rem}.dock .nm{font-size:.8rem}
+ .tab .n{font-size:.74rem;font-weight:600;opacity:.85}
+ .dload{font-size:.76rem;font-variant-numeric:tabular-nums}
+
+ /* Flächen */
+ .card,.panel{box-shadow:var(--sh-1)}
+ .card.sel{box-shadow:inset 0 0 0 2px var(--spruce)}
+ .dock{box-shadow:none}
+ .trip-content>section.block .card,.trip-content>section.block .kpi{box-shadow:none}
+ .sheet .x{font-family:var(--f-body);font-weight:600;font-size:.85rem}
+ #msg{border-radius:14px!important;padding:12px 18px!important;box-shadow:var(--sh-3)}
+
+ /* Aufklappflächen: eigener Pfeil, der sich mitdreht (zusätzlich zum Zustand „offen“, den Vorlesehilfen ansagen). */
+ summary{display:block;position:relative;list-style:none;padding-left:26px;border-radius:10px}
+ summary::-webkit-details-marker{display:none}
+ summary::before{content:'';position:absolute;left:5px;top:50%;width:9px;height:9px;margin-top:-6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);opacity:.75}
+ details[open]>summary::before{transform:translateY(-2px) rotate(45deg)}
+ .dmore>summary,.fold>summary,.home-support summary{display:flex}
+ details.panel,details.note{gap:0;padding-block:4px}
+ details.panel[open],details.note[open]{gap:12px;padding-bottom:18px}
+ .plan-notice:not([open]){padding-block:4px}
+ details[open]::details-content{overflow-clip-margin:8px}
+ /* Tippziele behalten ihre Mindestgröße auch, während eine Ebene aufklappt */
+ .rp-star,.rp-stars,ul.rp-rates>li,ul.rp-jdays>li{flex:none}
+
+ /* Seitenleiste der Reise (breit): Zähler unter dem Namen statt daneben, damit nichts übersteht. */
+ .tab .n{white-space:normal;text-align:left}
+}
+@media screen and (min-width:1000px){
+ .trip-workspace>.tabs .tab{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}
+ .trip-workspace>.tabs .tab .n{margin:0;padding:0;border:0}
+}
+@media screen and (max-width:760px){
+ @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .app-nav{background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4)}
+ }
+}
+
+/* Tippen und Zeigen: sofortige Rückmeldung, auch ohne Hover. */
+@media screen and (prefers-reduced-motion:no-preference){
+ .btn,.lnk,.chipbtn,.opt,.tab,.seg,.add,.rp-star,.item,.card.click,.start-weg,.template-card,.mood-preset,.design-choice,.profile-tag,.sub-row,.foto-thumb,.app-nav .nav-item{
+  transition:background-color var(--dur-2) var(--ease-soft),border-color var(--dur-2) var(--ease-soft),color var(--dur-2) var(--ease-soft),box-shadow var(--dur-2) var(--ease-soft),transform var(--dur-1) var(--ease-soft)}
+ :is(.btn,.lnk,.chipbtn,.opt,.tab,.seg,.add,.rp-star,.app-nav .nav-item):active:not([disabled]){transform:scale(.97)}
+ :is(.card.click,.start-weg,.template-card,.mood-preset,.design-choice,.item:not(.fixed),button.profile-tag):active{transform:scale(.985)}
+ .sub-row:active{background:var(--surface-2)}
+ .start-pfeil{transition:transform var(--dur-2) var(--ease)}
+ .start-weg:active .start-pfeil{transform:translate(4px,-50%)}
+ input,select,textarea{transition:border-color var(--dur-2) var(--ease-soft),box-shadow var(--dur-2) var(--ease-soft)}
+ summary::before{transition:transform var(--dur-2) var(--ease)}
+ .app-nav .nav-ico{transition:transform var(--dur-3) var(--ease-spring)}
+ .app-nav [aria-current=page] .nav-ico{transform:translateY(-1px) scale(1.1)}
+ .bar i,.budget-bar>span{transition:width var(--dur-3) var(--ease)}
+ .sync i{transition:background-color var(--dur-3) ease}
+ .skip-link{transition:none}
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+ .btn:not([disabled]):hover{box-shadow:var(--sh-2)}
+ .btn.ghost:not([disabled]):hover{background:var(--spruce-soft);box-shadow:none}
+ :is(.card.click,.start-weg,.template-card,.mood-preset):hover{transform:translateY(-2px);box-shadow:var(--sh-2);border-color:var(--spruce)}
+ :is(.card.click,.start-weg,.template-card,.mood-preset):hover:active{transform:scale(.985)}
+ .start-weg:hover .start-pfeil{transform:translate(4px,-50%)}
+ .sub-row:hover{background:var(--surface-2)}
+ .item:not(.fixed):hover{border-color:var(--spruce)}
+}
+
+/* Seitenwechsel, Blätter, Aufklappen */
+@keyframes rp-rise{from{opacity:0;translate:0 12px}}
+@keyframes rp-from-right{from{opacity:0;translate:20px 0}}
+@keyframes rp-from-left{from{opacity:0;translate:-20px 0}}
+@keyframes rp-fade{from{opacity:0}}
+@keyframes rp-fade-out{to{opacity:0}}
+@keyframes rp-grow{from{transform:scaleX(0)}}
+@keyframes rp-sheet-up{from{translate:0 100%}}
+@keyframes rp-sheet-down{to{translate:0 100%}}
+@keyframes rp-sheet-pop{from{opacity:0;translate:0 14px}}
+@keyframes rp-sheet-drop{to{opacity:0;translate:0 14px}}
+@keyframes rp-compass{from{opacity:0;rotate:-70deg}}
+@media screen and (prefers-reduced-motion:no-preference){
+ :root{interpolate-size:allow-keywords}
+ #view{--rp-enter:rp-rise}
+ #view[data-rp-dir=fwd]{--rp-enter:rp-from-right}
+ #view[data-rp-dir=back]{--rp-enter:rp-from-left}
+ #view.rp-enter{overflow-x:clip}
+ #view.rp-enter:not([data-rp-dir=fade])>:not(.trip-workspace):not(.trip-sub),
+ #view.rp-enter:not([data-rp-dir=fade]) :is(.trip-workspace,.trip-sub)>:not(.trip-content),
+ #view.rp-enter .trip-content>*{animation:var(--rp-enter) var(--dur-3) var(--ease) backwards}
+ #view.rp-enter>:nth-child(2),#view.rp-enter .trip-content>:nth-child(2){animation-delay:45ms}
+ #view.rp-enter>:nth-child(3),#view.rp-enter .trip-content>:nth-child(3){animation-delay:90ms}
+ #view.rp-enter>:nth-child(4),#view.rp-enter .trip-content>:nth-child(4){animation-delay:135ms}
+ #view.rp-enter>:nth-child(n+5),#view.rp-enter .trip-content>:nth-child(n+5){animation-delay:180ms}
+ #view.rp-enter :is(.bar i,.sbar,.budget-bar>span){transform-origin:left center;animation:rp-grow .7s var(--ease) .2s backwards}
+ #view.rp-enter .hero-art{transform-origin:50% 50%;animation:rp-compass 1.3s var(--ease-spring) .1s backwards}
+
+ .sheet-bg.sheet-in{animation:rp-fade var(--dur-2) ease backwards}
+ .sheet-bg.sheet-in>.sheet{animation:rp-sheet-up var(--dur-3) var(--ease) backwards}
+ .sheet-out{position:fixed;inset:0;z-index:20;pointer-events:none;background:rgba(10,18,24,.45);animation:rp-fade-out var(--dur-2) ease forwards}
+ .sheet-out-panel{position:fixed;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;animation:rp-sheet-down var(--dur-2) var(--ease-soft) forwards}
+ .sheet-out-panel .x{align-self:flex-end;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:10px 16px;min-height:44px;min-width:44px;font-family:var(--f-body);font-weight:600;font-size:.85rem}
+ .sheet-out-panel .form{margin-bottom:12px}
+ #msg:not([hidden]){animation:rp-rise var(--dur-3) var(--ease) backwards}
+
+ details::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size var(--dur-3) var(--ease),opacity var(--dur-2) ease,content-visibility var(--dur-3) allow-discrete}
+ details[open]::details-content{block-size:auto;opacity:1}
+ details.rp-opened>:not(summary){animation:rp-fade var(--dur-3) ease backwards}
+}
+@media screen and (min-width:760px) and (prefers-reduced-motion:no-preference){
+ .sheet-bg.sheet-in>.sheet{animation-name:rp-sheet-pop;animation-duration:var(--dur-2)}
+ .sheet-out-panel{animation-name:rp-sheet-drop}
+}
+@media print{.sheet-out{display:none!important}}

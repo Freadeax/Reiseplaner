@@ -1,5 +1,5 @@
 /* Reiseplaner · Blätter (Sheets).
-   Teil 17 von 26 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 17 von 27 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Blätter ================= */
@@ -15,12 +15,14 @@ function sheetTabTarget(nodes,current,backwards){
 }
 function openSheet(html){
  UI.templatePreview=null;
- if(!$('.sheet'))sheetOpener=document.activeElement||null;
+ const fresh=!$('.sheet');
+ if(fresh)sheetOpener=document.activeElement||null;
  if(document.body&&document.body.style&&sheetScroll===null){sheetScroll=document.body.style.overflow||'';document.body.style.overflow='hidden'}
  UI.secureJob=(UI.secureJob||0)+1;
  $('#sheet-root').innerHTML='<div class="sheet-bg" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><div class="sheet-grip" data-sheet-grip aria-hidden="true"><span></span></div><button type="button" class="x" data-act="sheet-x" aria-label="Schließen">Schließen ✕</button>'+html+'</div></div>';
  const s=$('.sheet');if(!s)return;
  sheetGripBind(s);
+ if(typeof sheetEnter==='function')sheetEnter(s,fresh);
  const title=s.querySelector('h1,h2');
  if(title){title.id='rp-sheet-title';s.setAttribute('aria-labelledby',title.id)}else s.setAttribute('aria-label','Details');
  if(s.focus)s.focus();
@@ -86,6 +88,7 @@ function closeSheet(){
  UI.offerSource=null;UI.offerScope=null;UI.offerDraft=null;
  UI.templatePreview=null;
  UI.routeEndpointDraft=null;UI.savingDraft=null;UI.secureJob=(UI.secureJob||0)+1;UI.importRead=(UI.importRead||0)+1;UI.securePayload=null;UI.encryptedImport=null;UI.importDraft=null;UI.archive=null;
+ if(typeof sheetLeave==='function')sheetLeave();
  $('#sheet-root').innerHTML='';const opener=sheetOpener;sheetOpener=null;
  if(sheetScroll!==null&&document.body&&document.body.style){document.body.style.overflow=sheetScroll;sheetScroll=null}
  if(opener&&opener.isConnected!==false&&opener.focus)opener.focus();

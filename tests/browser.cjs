@@ -1070,7 +1070,8 @@ async function journalFlow(browser,base,name,ctxOpts){
  /* Bewertung: Antippen speichert direkt, Bereich bleibt offen, Zustand auch als Text */
  await p.click(sec+' details[data-journal-details="rates"] > summary');
  const firstRate=p.locator(sec+' [data-journal-rate]').first(),actId=await firstRate.getAttribute('data-journal-rate');
- const star=firstRate.locator('[data-stars="3"]');const box=await star.boundingBox();assert(box.width>=44&&box.height>=44,'Sterne mindestens 44 px');
+ const star=firstRate.locator('[data-stars="3"]');await star.waitFor(); /* Ebene klappt weich auf: erst messen, wenn der Inhalt gezeichnet ist */
+ const box=await star.boundingBox();assert(box.width>=44&&box.height>=44,'Sterne mindestens 44 px');
  await star.click();
  assert.equal((await trip()).ratings[actId],3);
  assert(await p.locator(sec+' details[data-journal-details="rates"]').evaluate(d=>d.open),'Bewertungen bleiben aufgeklappt');

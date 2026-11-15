@@ -1,5 +1,5 @@
 /* Reiseplaner · Zustand, Routing, Darstellung.
-   Teil 13 von 26 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
+   Teil 13 von 27 der App (P0.6). Klassisches Skript ohne Bundler: Alle Teile teilen sich den globalen
    Gültigkeitsbereich und laden in der Reihenfolge aus index.html. Zur Ladezeit nur auf frühere Teile zugreifen. */
 "use strict";
 /* ================= Zustand & Routing ================= */
@@ -43,6 +43,7 @@ function go(h,keepScroll,opts){
   const target=UI.view==='reise'?subRoute(UI.tid,UI.tab):UI.openZiel?'ziel-'+UI.openZiel:UI.view;
   UI.route=target;subHistoryApply(previousRoute,target,{mobile,pop});
   closeSheet();render();
+  if(typeof viewEnter==='function')viewEnter(previousRoute,target);
   const restored=pop&&mobile&&subScrollRestore();if(!keepScroll&&!restored)try{window.scrollTo(0,0)}catch(e){}
   if(after&&after.focus&&UI.view==='reise')navFocus(after.focus);
   else{const f=subFocus(previousRoute,target,mobile);if(f)subFocusApply(f,restored)}
