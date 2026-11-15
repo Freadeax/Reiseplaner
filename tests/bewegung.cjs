@@ -62,7 +62,7 @@ ok(/typeof sheetLeave==='function'\)sheetLeave\(\);\n \$\('#sheet-root'\)\.inner
 ok(/typeof sheetEnter==='function'\)sheetEnter\(s,fresh\)/.test(sheets), 'openSheet ruft sheetEnter abgesichert');
 
 /* 6. Stylesheet: jede Animation und jeder Übergang des Abschnitts steht hinter no-preference; Kopie nicht bedienbar. */
-const part = css.slice(css.indexOf('Feinschliff und Bewegung'));
+const part = css.slice(css.lastIndexOf('   Feinschliff und Bewegung (app/bewegung.js)\n'));
 ok(part.length > 2000, 'Abschnitt vorhanden');
 let depth = 0, stack = [], bad = [];
 for (const m of part.matchAll(/@media([^{]+)\{|@supports[^{]+\{|@keyframes[^{]+\{|[^{}@]+\{|\}/g)) {

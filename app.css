@@ -1,4 +1,24 @@
-/* Reiseplaner · Gestaltung (P0.6: aus index.html ausgelagert, Reihenfolge unverändert). */
+/* Reiseplaner · Gestaltung (P0.6: aus index.html ausgelagert).
+   Die Abschnitte sind historisch geschichtet: Spätere überschreiben frühere, die Reihenfolge ist deshalb Teil der Wirkung.
+   Wegweiser (in Dateireihenfolge; nach dem Kommentartext suchen):
+     1  Katalogkarte, Saison, Vergleich, Finder      (erste Zeilen)
+     2  Farben, Grundschrift, Grundbausteine         „Layout: App mit Kopfleiste“ … Kopf, Buttons, Reiter, Karten, KPI,
+                                                     Checks, Tagesplan-Raster, Tabelle, Formulare, Blatt, Dock, Druck
+     3  Reisebuch-Designbasis                        „Reisebuch: gemeinsame Designbasis“
+     4  Drei Darstellungen (book/studio/compact)     „Drei Darstellungen derselben Reise“ + Farbsätze je Darstellung
+     5  Struktur der Reise, Seitenleiste, Handy      „Struktur B“
+     6  Entdecken, Vorlagen                          „Entdecken: gleichmäßige, deckende Wunschkarten“
+     7  Tippziele ab 44 px                           „Audit-Nacharbeit“
+     8  Tagebuch und Bewertungen                     „Reisetagebuch und Bewertungen“
+     9  Hauptnavigation, Tab-Leiste am Handy         „Hauptnavigation (P0.5“
+    10  iOS-Regeln: sichere Bereiche, Blatt, 200 %   „P0.5 iOS-Gestaltungsregeln“
+    11  Reisebuch-Vorschau und -Druck                „Reisebuch-Vorschau“, „Reisebuch-Druck“
+    12  Unterseiten am Handy                         „Paket 4 (app/unterseiten.js)“
+    13  Fotos                                        „Paket 8 Fotos“
+    14  Fünf Bereiche, Als Nächstes, Start, Ebenen   „Aufbau (app/aufbau.js)“
+    15  Feinschliff und Bewegung                     „Feinschliff und Bewegung (app/bewegung.js)“: Zeit-/Schattenwerte,
+                                                     Schrift, Aufklapp-Pfeil, Listen, Antippen, Seitenwechsel, Blätter
+   Neue Regeln gehören in den passenden Abschnitt; Bewegung immer hinter prefers-reduced-motion:no-preference. */
 .catmap{margin:0;display:flex;flex-direction:column;gap:4px}.catmap svg{width:100%;max-width:520px;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}.catmap .ring{fill:none;stroke:var(--line);stroke-dasharray:3 3}.catmap .rl{font:10px var(--f-mono);fill:var(--muted)}.catmap .home{fill:var(--bad)}.catmap .pt{fill:var(--spruce);stroke:var(--bg);stroke-width:1.5}.catmap .pn{font:bold 9px var(--f-mono);fill:var(--bg);text-anchor:middle}.catmap a:focus .pt{stroke:var(--warn);stroke-width:3}
 .season{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;max-width:420px}.season span{text-align:center;font:600 .72rem var(--f-mono);padding:4px 0;border-radius:4px;background:var(--surface-2);color:var(--muted);display:flex;flex-direction:column;line-height:1.1}.season span.on{background:var(--spruce-soft);color:var(--spruce);outline:1px solid var(--spruce)}.season i{font-style:normal;font-size:.62rem}
 .cmp th[scope=row]{text-align:left;font-weight:600;white-space:nowrap;position:sticky;left:0;background:var(--bg);z-index:1}.cmp td,.cmp th{vertical-align:top;min-width:9rem}.yearbar{display:inline-block;height:8px;border-radius:4px;background:var(--spruce);vertical-align:middle;opacity:.55}.dhead{flex-wrap:wrap}.dload{flex-basis:100%;font:600 .68rem var(--f-mono);color:var(--muted);line-height:1.35}.dload.over{color:var(--bad)}.dtools{flex-basis:100%;display:flex;gap:4px;flex-wrap:wrap}.dtools .lnk{min-height:32px;padding:4px 8px;font-size:.8rem}
@@ -673,6 +693,28 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
 @media screen and (max-width:760px){
  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .app-nav{background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4)}
+ }
+}
+
+/* Ruhigere Listen: Die Checkliste ist eine Liste mit Trennlinien statt vieler einzelner Kästen.
+   Erledigt bleibt am Häkchen erkennbar; Durchstreichen und gedämpfte Farbe kommen nur dazu. */
+@media screen{
+ .check-group .checks-list{gap:0}
+ .check-group .check-row{border-top:1px solid var(--line)}
+ .check-group .check-row:first-child{border-top:0}
+ .check-group .check-row>.chk{border:0;background:transparent;border-radius:0;padding:12px 2px;min-height:48px;cursor:pointer}
+ .check-group .chk.ok>span{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+ .check-group .check-row>.lnk{align-self:center}
+ .check-group>summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px}
+ .check-group summary strong{margin-right:0}
+ details.check-group[open]{gap:2px;padding-bottom:6px}
+}
+/* Teilleiste am Handy: gleich breite Felder in einer Zeile statt Umbruch mit einem einzelnen Rest. */
+@media screen and (max-width:760px){
+ .seg-bar{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px}
+ .seg{padding:8px 6px;font-size:.88rem;overflow-wrap:anywhere;hyphens:auto}
+ @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .sub-bar{background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
  }
 }
 

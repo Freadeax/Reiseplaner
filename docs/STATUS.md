@@ -11,6 +11,8 @@ Thread „UI neu gestalten und animieren“ (Auftrag Philipp 15.11.). Nur Darste
 
 Tests (15.11., Cloud-Container, auf Stand `45b830a`): `npm test` (neu `bewegung`, 28 Prüfungen), `test:browser`, `test:format4-browser`, `test:fotos-browser`, `test:print-browser`, `build`, `check:artifact` grün. `test:db`/`test:e2e` lokal nicht gelaufen (läuft in CI). Bewegung in Chromium mit Zwischenbildern angesehen (Handy 390 px hell/dunkel, Desktop). Nicht getestet: iPhone, Safari (dort ohne Höhen-Übergang beim Aufklappen, falls `::details-content` fehlt).
 
+Nachtrag Schritt 2 (15.11., gleicher Tag): Checkliste als ruhige Liste mit Trennlinien statt einzelner Kästen (Erledigtes zusätzlich durchgestrichen, Häkchen bleibt das Zeichen), Teilleiste am Handy mit gleich breiten Feldern in einer Zeile, Kopfzeile der Unterseiten am Handy leicht durchscheinend, Wegweiser-Kommentar am Anfang von `app.css`. Service Worker bleibt `reiseplaner-v29` (Netz zuerst, nur `app.css` geändert). Tests: `npm test`, `test:browser` grün.
+
 Nächster Schritt: `app.css` aufräumen (die historisch geschichteten Abschnitte zu einem geordneten Stylesheet zusammenführen, mit Vorher/Nachher-Vergleich der berechneten Stile), danach Ansichten einzeln durchgehen (Kosten, Tagesplan, Entdecken).
 
 ## Format-5-Vertrag, Fotos freigeschaltet, Ortssuche-Takt, Systemplan (Claude, 15.11.)
