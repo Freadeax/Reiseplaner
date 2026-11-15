@@ -86,7 +86,7 @@ function memStore() {
 }
 
 function load(opt) {
-  const code = require('./app-code.cjs')(html).replace('const F4_WRITE=false;', opt && opt.readOnly ? 'const F4_WRITE=false;' : 'const F4_WRITE=true;').replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '')
+  const code = require('./app-code.cjs')(html).replace(/const F4_WRITE=(?:true|false);/, opt && opt.readOnly ? 'const F4_WRITE=false;' : 'const F4_WRITE=true;').replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '')
     .replace('function closeSheet(){', 'function closeSheet(){return;');
   const memory = new Map(), sheets = [];
   const node = () => ({ innerHTML: '', hidden: false, style: {}, className: '', textContent: '', attrs: {},

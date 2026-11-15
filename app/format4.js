@@ -13,9 +13,10 @@
    Einbindung: pakete/format4-app/EINBINDUNG.md. */
 "use strict";
 /* Erfassung freigeschaltet (Fotos speichern, Reisebücher speichern). false = reines Lese-Release (SCHEMA_V4 §6 Schritt 4):
-   Seit 23.10. veröffentlicht als Lese-Release; nach einigen Tagen auf true (EINBINDUNG format4-app §4).
-   v4-Reisen werden gelesen, geprüft und unverändert zurückgeschrieben, aber keine Reise wird neu auf Format 4 gehoben. */
-const F4_WRITE=false;
+   v4-Reisen werden gelesen, geprüft und unverändert zurückgeschrieben, aber keine Reise wird neu auf Format 4 gehoben.
+   23.10.2026 als Lese-Release veröffentlicht, seit 24.10. nimmt die Datenbank Format 4 an; am 15.11.2026 freigeschaltet
+   (drei Wochen Lese-Release, alte Tabs mit Service Worker ≤ v18 sind damit praktisch ausgeschlossen). */
+const F4_WRITE=true;
 /* Höchstes Format, das die Datenbank annimmt: CHECK schema_version in (2,3,4) aus 20261024060000_trips_schema_v4.sql
    (Freigabe Philipp 24.10.). Mit 3 blieben Format-4-Reisen im Konto nur auf dem Gerät (localOnly). */
 const F4_SERVER_MAX=4;

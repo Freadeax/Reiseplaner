@@ -1,5 +1,9 @@
 # Roadmap
 
+## Format 5 als Vertrag, Fotos frei · 15.11.2026
+
+Format 5 liegt als Vertrag mit reinen Funktionen und Tests vor (`docs/SCHEMA_V5.md`). Reihenfolge laut `docs/PLAN_SYSTEME.md` §9: (1) Format-5-Migration nach Freigabe, (2) Lese-Release, dann parallel Storno-Vorschau (M02.2), Zahlungsplan/Teilzahlungen (M08.2), Gästekarten-Status (M09.3), Aufgaben (M02.4), Varianten-Vergleich (M05.2); daneben Betreiber-Backup und Wetter (M03.1). Fotos und Reisebücher sind seit 15.11. freigeschaltet.
+
 ## Website statt App, Veröffentlichung · 23.10.2026
 
 Philipp: keine Handy-App vorerst, Website ausbauen, GitHub Pages aktuell halten. Freigegeben: Format 5 als gemeinsame Version, Gästekarten-Tageslimit chronologisch, Open-Meteo (Planer bleibt kostenlos und werbefrei), Frischegrenzen 31/180 Tage/1 Jahr, Unterlagen lokal (Cloud nur auf Wahl), einfache Anreise Auto+km behalten, Format-4-Migration nach lokalen DB-Tests. Nächste Schritte: (1) Lese-Release prüfen, (2) Migration Format 4 und `F4_SERVER_MAX = 4`, (3) `F4_WRITE = true`, (4) einfacherer Aufbau (Thread „Einfacher Aufbau des Planers“), (5) Module aus der Planung in Paketen.

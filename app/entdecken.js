@@ -470,7 +470,7 @@ async function catGeoSearch(text){
   const low=text.toLowerCase(),local=CATX.ORIGINS.filter(o=>o.label.toLowerCase().startsWith(low));
   s.geoBusy=true;render();
   try{
-    const r=await catTimeout(fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=de&countrycodes=de,at,ch,fr,it,nl,be,lu,cz,pl,dk&q='+encodeURIComponent(text),{headers:{Accept:'application/json'}}),8000);
+    const r=await nominatimFetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=de&countrycodes=de,at,ch,fr,it,nl,be,lu,cz,pl,dk&q='+encodeURIComponent(text),8000);
     if(!r.ok)throw new Error('Ortssuche: Fehler '+r.status);
     const j=await r.json();
     s.geoHits=local.concat((Array.isArray(j)?j:[]).map(h=>({label:String(h.display_name||'').split(',').slice(0,3).join(',').trim().slice(0,80),lat:Math.round(+h.lat*1000)/1000,lon:Math.round(+h.lon*1000)/1000})).filter(h=>h.label&&CATX.validPoint(h))).slice(0,6);

@@ -1,4 +1,18 @@
-# Projektstand · 24.10.2026
+# Projektstand · 15.11.2026
+
+## Format-5-Vertrag, Fotos freigeschaltet, Ortssuche-Takt, Systemplan (Claude, 15.11.)
+
+Thread „Offene Punkte weiterentwickeln“ (nur Logik, Daten und Doku; die Oberfläche gestaltet parallel ein eigener Thread neu).
+- **Fotos und Reisebücher freigeschaltet:** `F4_WRITE = true` (`app/format4.js`). Seit 23.10. Lese-Release, seit 24.10. nimmt die Datenbank Format 4 an. Die erste Reise mit Foto wird nach Bestätigung auf Format 4 gehoben. Fotos bleiben auf dem Gerät; Cloud-Upload fehlt weiterhin (Systemplan §6.4).
+- **Format 5 als Vertrag (`docs/SCHEMA_V5.md`, `v5logic.js`, `window.RPV5`):** alle Reise-Felder der Module M01–M12 in einer Version, mit Prüfung, Feldtreue, keine Rückstufung, Anheben nur über `candidate5` (übernimmt `cardConfirmed` in `guestCards` ohne Statuswechsel). Rechenregeln Cent-genau: Stornogebühr zum Stichtag mit Zeitzonen (`cancelFee`, R1–R9), Zahlungsplan mit exaktem Rest und Ratenstatus (O7/O8), Preisstände (gebucht bleibt Buchungsbetrag, Hinweis „Umbuchung prüfen“), Budget „nicht sicher“ bei offenen Posten, Ausweis-/Versicherungsprüfung, Fremdwährung, Ausgabefilter ohne Codes und Unterlagen. **Nicht in der App verdrahtet, keine Migration**: die App bleibt bei Format ≤ 4 und lehnt v5-Sicherungen ab (getestet).
+- **Ortssuche (Nominatim):** höchstens eine Anfrage je Sekunde (`nominatimFetch` in `app/reise.js`, genutzt auch in `app/entdecken.js`); vorher suchte die Streckenberechnung Start und Ziel direkt nacheinander. Geprüft: keine Suche beim Tippen.
+- **Systemplan (`docs/PLAN_SYSTEME.md`):** Stand, Lücken und Reihenfolge je System (Kosten, Zahlungsbuch, Fristen, Speicherung, Konto/Zugriff, Fotos, Dienste).
+- Service Worker `reiseplaner-v28` (bzw. nächste freie Nummer nach dem Oberflächen-Thread). Kein neues Speicherformat in der App.
+
+Tests (15.11., Cloud-Container): `npm test` (neu `v5logic` mit 15 Gruppen, 41 Ablehnungsfällen und G-R12 gegen die echte `cost()`, neu `nominatim`), `test:browser`, `test:fotos-browser`, `test:format4-browser`, `build`, `check:artifact` grün. `test:db`/`test:e2e` nicht gelaufen (keine Datenbankänderung; CI). Nicht getestet: iPhone, Safari.
+
+Nächster Schritt: Format-5-Migration lokal prüfen und **Philipps Freigabe** einholen (Produktion beim Push), danach Lese-Release (SCHEMA_V5 §8) abgestimmt mit dem Oberflächen-Thread.
+
 
 ## Reise duplizieren korrigiert, Varianten und Plattformschicht (Claude, 24.10.)
 

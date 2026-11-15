@@ -6,12 +6,9 @@ Philipp, Claude und ChatGPT arbeiten möglicherweise gleichzeitig am Reiseplaner
 
 Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in `docs/STATUS.md` (oben).
 
-- **Arbeitsmodus seit 17.10.2026 (Philipp):** Claude arbeitet allein; ChatGPT pausiert. Entwickelt wird direkt im Ordner `F:\LMNT\Reiseplaner` auf Philipps Rechner, **ohne Git** (Actions-Kontingent aufgebraucht). Der Ordner ist damit neuer als `main` (Ausgangsstand `1a468de`); bis Git wieder freigegeben ist, nicht von `main` aus weiterarbeiten.
-- **Zuletzt erledigt (Claude, 17./18.10., nicht veröffentlicht):** P0.2a Mitreisende/Ausgaben/Aufteilung (`v3split.js`), P0.2b Tagebuch/Bewertungen (`v3journal.js`), P0.4 Speicheradapter (`rpstore.js`), P0.7 E-Mail-Code (`cloud.js`), zwei Prüfrunden mit Korrekturen (u. a. Zahlungsbuch: Bezahlt nie unter den Erstattungen). Service Worker v12.
-- **Tests:** `npm test`, `test:browser`, lokal `test:db` und `test:e2e` grün, Build und Artefaktprüfung bestanden. Kein iPhone-/Safari-Test.
-- **P0.6 erledigt (18.10., lokal):** App-Code aus `index.html` in `app/*.js` (17 Teile) und `app.css` verschoben, inhaltlich unverändert; Service Worker v13; Build hängt `?v=<Hash>` an.
-- **P0.5 und Pakete 1–3 erledigt (18.10. abends, lokal):** Tab-Leiste, Heute, Erinnerungen (`app/navigation.js`), iOS-Gestaltungsregeln, Obergrenze Reisedauer, Format-4-Entwurf (`v4logic.js`, `docs/SCHEMA_V4.md`), Reisebuch-Logik (`bookgen.js`); Service Worker v14. `v4logic.js` und `bookgen.js` sind noch nicht in `index.html` eingebunden.
-- **Offen:** Produktions-Vorlage „Magic Link“ braucht `{{ .Token }}` (Philipp). iPhone-Prüfung, Entscheidungen Format 4 (SCHEMA_V4 §8).
+- **Arbeitsmodus:** Claude arbeitet allein (ChatGPT pausiert seit 17.10.). Seit 23.10. wieder direkt auf `main` mit Veröffentlichung über „Tests & Pages“; nur Website, keine Handy-App. Parallel arbeiten mehrere Claude-Threads mit getrennten Dateien; seit 15.11. gestaltet ein Thread die Oberfläche neu (CSS, Animationen, `app/bewegung.js`), ein anderer bearbeitet Logik, Daten und Doku.
+- **Zuletzt erledigt (15.11.):** `F4_WRITE = true` (Fotos und Reisebücher speichern), Format-5-Vertrag `docs/SCHEMA_V5.md` + `v5logic.js` + `tests/v5logic.cjs` (nicht verdrahtet, keine Migration), Nominatim-Takt ≥ 1 s (`tests/nominatim.cjs`), Systemplan `docs/PLAN_SYSTEME.md`.
+- **Offen:** Format-5-Migration braucht Philipps Freigabe; Vorlage „Magic Link“ mit `{{ .Token }}`, SMTP/Domain (Philipp); iPhone-Prüfung der Fotos; Entscheidungen 7–14 in `docs/PLAN_SYSTEME.md` §10.
 
 ## Verbindlicher Ablauf für jede Änderung
 

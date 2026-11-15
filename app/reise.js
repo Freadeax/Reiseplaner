@@ -107,8 +107,17 @@ function routeBlock(t){
      '<p class="small muted">Berechnet mit routing.openstreetmap.de (OpenStreetMap-Mitwirkende), ohne Verkehr und Pausen. Start: '+esc(d.fromLabel)+'.</p><div class="row"><button type="button" class="btn sm" data-act="route-apply"'+(stale?' disabled':'')+'>Übernehmen</button><button type="button" class="btn ghost sm" data-act="route-drop">Verwerfen</button></div></div>':'')+
    '<p class="small muted">Übertragen werden nur Koordinaten; fehlen sie, wird der Ortsname bei OpenStreetMap (Nominatim) gesucht.</p></div>';
 }
+/* Nominatim-Nutzungsregeln (operations.osmfoundation.org/policies/nominatim): höchstens 1 Anfrage je Sekunde, keine
+   Autovervollständigung. Die App fragt nur auf Knopfdruck/Enter; dieser Riegel hält zusätzlich Abstand zwischen Anfragen,
+   z. B. wenn die Streckenberechnung Start und Ziel nacheinander sucht. */
+let nominatimLast=0;
+async function nominatimFetch(url,ms){
+  const wait=nominatimLast+1100-Date.now();nominatimLast=Date.now()+Math.max(0,wait);
+  if(wait>0)await new Promise(r=>setTimeout(r,wait));
+  return catTimeout(fetch(url,{headers:{Accept:'application/json'}}),ms);
+}
 async function geoLookup(text){
-  const r=await catTimeout(fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=de&q='+encodeURIComponent(text),{headers:{Accept:'application/json'}}),10000);
+  const r=await nominatimFetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=de&q='+encodeURIComponent(text),10000);
   if(!r.ok)throw new Error('Ortssuche: Fehler '+r.status);const j=await r.json();
   if(!Array.isArray(j)||!j.length)throw new Error('Ort „'+text+'“ nicht gefunden.');
   return {lat:+j[0].lat,lon:+j[0].lon,label:String(j[0].display_name||text).split(',').slice(0,2).join(',')};
