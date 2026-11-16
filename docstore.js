@@ -112,6 +112,29 @@
     return { u: u, mime: mime, name: nm || null };
   }
 
+  /* ---------- Buchungsnummern in Notizen finden (M11.7) ----------
+     Bezeichnung + Code mit mindestens einer Ziffer (oder ≥ 6 Großbuchstaben). Liefert Fundstellen, ändert nichts. */
+  var CODE_RE = /\b(buchungs-?(?:nummer|nr\.?|code)|reservierungs-?(?:nummer|nr\.?|code)|best[äa]tigungs-?(?:nummer|nr\.?|code)|auftrags-?(?:nummer|nr\.?)|vorgangs-?(?:nummer|nr\.?)|ticket-?(?:nummer|nr\.?|code)|booking[ -](?:reference|number|id|code)|confirmation[ -](?:number|code)|reservation[ -](?:number|code)|pnr|pin)\s*[:#.]?\s*([A-Za-z0-9][A-Za-z0-9-]{2,39})/gi;
+  function findCodes(text) {
+    var s = typeof text === 'string' ? text : '', out = [], m;
+    CODE_RE.lastIndex = 0;
+    while ((m = CODE_RE.exec(s)) && out.length < 20) {
+      var v = m[2].replace(/-+$/, '');
+      if (!(/\d/.test(v) || /^[A-Z]{6,}$/.test(v)) || v.length < 4) continue;
+      var lab = m[1].replace(/\s+/g, ' ');
+      lab = lab.charAt(0).toUpperCase() + lab.slice(1);
+      var ls = s.lastIndexOf('\n', m.index) + 1, le = s.indexOf('\n', m.index); if (le < 0) le = s.length;
+      out.push({ label: lab.slice(0, LIMITS.secretLabel), value: v.slice(0, LIMITS.secretValue), start: m.index, end: m.index + m[0].length, line: s.slice(ls, le).trim().slice(0, 160) });
+    }
+    return out;
+  }
+  /* Fundstelle aus dem Text nehmen: „Buchungsnummer: AB12“ → „Buchungsnummer: in Tickets“. Nur wenn die Stelle unverändert ist. */
+  function moveCodeText(text, f) {
+    var s = String(text || ''), part = s.slice(f.start, f.end);
+    if (part.indexOf(f.value) < 0) fail('Die Notizen haben sich geändert. Bitte neu laden.');
+    return s.slice(0, f.start) + part.replace(f.value, '(in „Tickets“)') + s.slice(f.end);
+  }
+
   /* ---------- Format 5 (Stufe 2): t.docs-Eintrag ohne Code ---------- */
   /* owner: Personen-ID aus t.party, falls „nur ich“; sonst 'mitglieder'. Ergebnis besteht RPV5.validateV5. */
   function toTripDoc(m, owner) {
@@ -193,12 +216,14 @@
     function readData(id) { return tx([DATA], 'readonly', function (t, done, abort) { on(t.objectStore(DATA).get(id), function (d) { done(d || null); }, abort); }); }
 
     /* Neue Unterlage: input wie normalize(), file optional {bytes, name}. Prüft Grenzen der Reise und Dubletten. */
-    async function add(scope, trip, input, file) {
+    /* opt.id: vorgegebene ID (Datei zu einem Eintrag, der schon in der Reise steht, auf diesem Gerät nachtragen) */
+    async function add(scope, trip, input, file, opt) {
       checkScope(scope); checkTrip(trip);
+      if (opt && opt.id != null) { checkId(opt.id); if (await meta(opt.id)) fail('Diese Unterlage liegt auf diesem Gerät schon vor.', 'ConstraintError'); }
       var m = normalize(input), f = file ? checkFile(file.bytes, file.name) : null;
       var have = await list(scope, trip);
       if (have.length >= LIMITS.perTrip) fail('Diese Reise hat schon ' + LIMITS.perTrip + ' Unterlagen. Bitte erst alte entfernen.');
-      m.id = env.newId ? env.newId() : newId();
+      m.id = opt && opt.id ? opt.id : env.newId ? env.newId() : newId();
       m.scope = scope; m.trip = trip; m.at = m.upd = now(); m.file = null;
       var data = null;
       if (f) {
@@ -272,6 +297,6 @@
   return {
     DB_NAME: DB_NAME, DB_VERSION: DB_VERSION, LIMITS: LIMITS, KINDS: KINDS, MIMES: MIMES,
     sniff: sniff, sha256: sha256, ext: ext, fmtBytes: fmtBytes, mask: mask, newId: newId,
-    normalize: normalize, checkFile: checkFile, toTripDoc: toTripDoc, create: create
+    normalize: normalize, checkFile: checkFile, toTripDoc: toTripDoc, findCodes: findCodes, moveCodeText: moveCodeText, create: create
   };
 });

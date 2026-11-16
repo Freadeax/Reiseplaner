@@ -39,6 +39,16 @@ Auftrag Philipp 16.11. abends („Threads komplett weiterentwickeln“). Aufbaue
 
 Tests (16.11. abends, Cloud-Container): `npm test` (fixpunkte 8, fixpunkte-write 4 Prüfungen), `test:browser` grün; in Chromium Ebene „Fixpunkte & Puffer“ und Blatt „Massage“ angesehen. Nicht getestet: iPhone, Safari.
 
+## Tickets Stufe 2: Eintrag in der Reise, zweites Gerät, Notizen-Assistent (Claude, 16.11. abends)
+
+Fortsetzung von „Buchungen & Tickets“ (`docs/UNTERLAGEN.md` §3), nur `app/unterlagen.js`, `docstore.js` und je eine Zeile in `app/ansichten.js` (Löschhinweis) und `app/ereignisse.js` (Aufräumen nach dem Löschen).
+- Unterlagen lassen sich ohne Datei und ohne Code in der Reise vermerken (`t.docs`, über `f5Commit`, Anheben auf Format 5 nur nach zweitem Klick). Andere Geräte und Mitreisende sehen „Datei auf einem anderen Gerät“ und können die Datei dort nachtragen.
+- Löschen einer Unterlage entfernt auch den Eintrag; Reise löschen nennt Anzahl und Größe der Unterlagen und räumt sie auf.
+- Notizen-Assistent: Buchungsnummern aus den Notizen verdeckt anzeigen und einzeln in „Tickets“ übernehmen.
+
+Tests (Cloud-Container): `npm test` grün (`tests/unterlagen.cjs` jetzt 21 Prüfungen: Bestätigung vor dem Anheben, kein Code/Dateiname in der Reise, `validateV5`, zweites Gerät, Datei nachtragen, Löschen, Notizen, Reise löschen), `node tests/unterlagen-browser.cjs` und `node tests/browser.cjs` grün. Nicht getestet: Safari, iPhone, zwei echte Konten.
+
+
 ## Neugestaltung „Reisetagebuch“ (Claude, 16.11. abends)
 
 Philipp hat per Auswahlkarte entschieden: Stil **B Reisetagebuch**, Handy-Navigation **schwebendes Dock**, Bewegung **verspielt**, Veröffentlichung freigegeben.

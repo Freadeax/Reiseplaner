@@ -160,7 +160,7 @@ function trip(ctx) {
   const s = vm.runInContext('silvesterTemplate()', ctx);
   s.id = 'tsil'; s.title = 'Silvester im Schnee'; s.dateMode = 'fix'; s.start = '2026-12-30'; s.end = '2027-01-03';
   s.stayId = s.stayId || 'cstay1';
-  s.offers = [{ id: 'ohotel', stayId: s.stayId, name: 'Hotel am See', location: 'Oberstaufen', start: '2026-12-30', end: '2027-01-03', persons: 2, booked: true, paid: 0, price: 680, basis: 'stay', provider: 'direkt', type: 'hotel', url: '', checkedAt: '2026-11-16', validUntil: '', availability: 'available',
+  s.offers = [{ id: 'ohotel', stayId: s.stayId, name: 'Hotel am See', location: 'Oberstaufen', start: '2026-12-30', end: '2027-01-03', persons: 2, booked: true, paid: 0, price: 680, basis: 'stay', provider: 'direkt', type: 'hotel', url: 'https://example.org/hotel', checkedAt: '2026-11-16', validUntil: '2027-01-04', availability: 'available',
     features: { sauna: 'yes', kitchen: 'unknown', breakfast: 'yes', cancel: 'unknown', quiet: 'unknown', accessible: 'unknown', parking: 'unknown' },
     fees: { tax: { state: 'unknown', amount: null }, cleaning: { state: 'unknown', amount: null }, parking: { state: 'unknown', amount: null }, wellness: { state: 'unknown', amount: null }, mandatory: { state: 'unknown', amount: null } }, terms: '', deposit: 0 }];
   s.activeOfferId = 'ohotel';
@@ -213,7 +213,7 @@ test('Darstellung: Laden, Liste, Datenschutzhinweis, Code nie im Überblick', as
   await U.UNT.store.add('guest', t.id, { kind: 'ticket', title: 'Bahnticket RE 5', link: 'tr:segbahn', secret: { label: 'Auftragsnummer', value: 'ZX-998877' } }, { bytes: pdf('bahn') });
   await ctx.untLoad(t.id, true);
   h = ctx.tBuchungen(t);
-  assert.match(h, /Nur auf diesem Gerät/); assert.match(h, /Bahnticket RE 5/); assert.match(h, /✓ Gebucht/); assert.match(h, /mit Code/);
+  assert.match(h, /nur auf diesem Gerät/i); assert.match(h, /Bahnticket RE 5/); assert.match(h, /✓ Gebucht/); assert.match(h, /mit Code/);
   assert.match(h, /data-unt-missing/, 'Hinweis bei gebuchter Therme ohne Unterlage');
   assert(!h.includes('ZX-998877'), 'Code steht nicht im Überblick');
   /* Ausgabewege der Reise kennen die Unterlagen nicht */
@@ -249,6 +249,94 @@ test('Formular speichern, Ansicht mit verdecktem Code, Löschen in zwei Schritte
   await ctx.untSubmit(bad);
   assert.match(out.textContent, /Titel fehlt/);
   assert.equal(ctx.untList(t.id).list.length, 0);
+});
+
+/* ---------- 4. Stufe 2: Eintrag in der Reise, zweites Gerät, Notizen, Reise löschen ---------- */
+function formOf(t, vals, files, extra) {
+  const attrs = Object.assign({ 'data-tid': t.id }, extra || {}), out = { textContent: '' }, btn = { textContent: 'Speichern', disabled: false };
+  return { out, btn, attrs, getAttribute: k => attrs[k] == null ? null : attrs[k], setAttribute: (k, v) => { attrs[k] = String(v); },
+    querySelector: s => { const m = /name="(\w+)"/.exec(s); if (m) { if (m[1] === 'file') return { files: files || [] }; if (m[1] === 'mirror') return { checked: !!vals.mirror, disabled: false }; return { value: vals[m[1]] == null ? '' : vals[m[1]] }; }
+      return /error/.test(s) ? out : btn; } };
+}
+test('Findet Buchungsnummern in Notizen, ersetzt nur die Fundstelle', () => {
+  const txt = 'Hotel am See\nBuchungsnummer: HX-4711\nPNR ABC12D, Tel 0831 123\nBooking reference #9988776\nSpinat 1234 kaufen\nCode: hallo';
+  const f = F.findCodes(txt);
+  assert.deepEqual(f.map(x => [x.label, x.value]), [['Buchungsnummer', 'HX-4711'], ['PNR', 'ABC12D'], ['Booking reference', '9988776']]);
+  assert.equal(F.moveCodeText(txt, f[0]).split('\n')[1], 'Buchungsnummer: (in „Tickets“)');
+  assert.throws(() => F.moveCodeText(txt.replace('HX-4711', 'HX-4712'), f[0]), /geändert/);
+  assert.deepEqual(F.findCodes(''), []); assert.deepEqual(F.findCodes(null), []);
+});
+test('Vorgegebene ID (Datei zu Eintrag aus der Reise nachtragen)', async () => {
+  const S = store(fakeIDB());
+  const m = await S.add('guest', 'tsil', { kind: 'ticket', title: 'Bahn' }, { bytes: pdf('id') }, { id: 'dfremd1' });
+  assert.equal(m.id, 'dfremd1');
+  await assert.rejects(() => S.add('guest', 'tsil', { kind: 'ticket', title: 'Bahn 2' }, null, { id: 'dfremd1' }), /schon vor/);
+  await assert.rejects(() => S.add('guest', 'tsil', { kind: 'ticket', title: 'x' }, null, { id: '../x' }), /ungültige ID/);
+});
+test('In der Reise vermerken: Bestätigung vor dem Anheben, ohne Code, zweites Gerät, Entfernen', async () => {
+  const A = load(), t = trip(A.ctx);
+  A.U.Store.put(t);
+  assert((+A.U.Store.get(t.id).schemaVersion || 2) < 5, 'Ausgangsreise unter Format 5');
+  A.ctx.untOpenForm(A.U.Store.get(t.id), null, 'tr:segbahn');
+  assert.match(A.sheets.at(-1), /name="mirror"(?! checked)/, 'bei Reise unter Format 5 nicht vorausgewählt');
+  const vals = { kind: 'ticket', title: 'Bahnticket', link: 'tr:segbahn', slabel: 'Auftragsnummer', svalue: 'ZX-998877', mirror: true };
+  const f1 = formOf(t, vals, [{ name: 'bahn.pdf', arrayBuffer: async () => pdf('bahn2').buffer }]);
+  await A.ctx.untSubmit(f1);
+  assert.match(f1.out.textContent, /Format 5/); assert.equal(f1.btn.textContent, 'Speichern und Reise umstellen');
+  await A.ctx.untLoad(t.id, true);
+  assert.equal(A.ctx.untList(t.id).list.length, 0, 'vor der Bestätigung nichts gespeichert');
+  await A.ctx.untSubmit(f1);
+  const saved = A.U.Store.get(t.id), list = A.ctx.untList(t.id).list;
+  assert.equal(list.length, 1); assert.equal(saved.schemaVersion, 5);
+  assert.equal(saved.docs.length, 1); assert.equal(saved.docs[0].id, list[0].id); assert.equal(saved.docs[0].link.key, 'tr:segbahn');
+  assert.deepEqual(saved.docs[0].secret, { label: 'Auftragsnummer', value: null, local: true });
+  assert(!JSON.stringify(saved).includes('ZX-998877') && !JSON.stringify(saved).includes('bahn.pdf'), 'kein Code, kein Dateiname in der Reise');
+  V5.validateV5(saved);
+  assert.match(A.msgs.at(-1), /In der Reise vermerkt/);
+  /* Zweites Gerät: gleiche Reise, leerer Gerätespeicher */
+  const B = load(); B.U.Store.put(JSON.parse(JSON.stringify(saved)));
+  await B.ctx.untLoad(t.id, true);
+  const tb = B.U.Store.get(t.id), h = B.ctx.tBuchungen(tb);
+  assert.match(h, /Bahnticket/); assert.match(h, /Datei auf einem anderen Gerät/);
+  assert.match(h, /data-unt-missing/, 'ohne Datei hier gilt die Buchung weiter als ohne Unterlage auf diesem Gerät');
+  await B.ctx.untOpenView(tb, saved.docs[0].id);
+  assert.match(B.sheets.at(-1), /Die Datei liegt auf einem anderen Gerät/); assert.match(B.sheets.at(-1), /Datei hier hinzufügen/);
+  /* Datei auf Gerät B nachtragen: gleiche ID, Eintrag bleibt einer */
+  const fb = formOf(tb, { kind: 'ticket', title: 'Bahnticket', link: 'tr:segbahn' }, [{ name: 'b.pdf', arrayBuffer: async () => pdf('bahn2').buffer }], { 'data-id': saved.docs[0].id, 'data-remote': '1' });
+  await B.ctx.untSubmit(fb);
+  assert.equal(fb.out.textContent, '');
+  assert.equal(B.ctx.untList(t.id).list[0].id, saved.docs[0].id);
+  assert.equal(B.U.Store.get(t.id).docs.length, 1);
+  assert(!B.ctx.tBuchungen(B.U.Store.get(t.id)).includes('Datei auf einem anderen Gerät'));
+  /* Löschen auf Gerät A entfernt auch den Eintrag in der Reise */
+  await A.ctx.untDelete(A.U.Store.get(t.id), list[0].id);
+  assert(!A.U.Store.get(t.id).docs, 'Eintrag entfernt');
+  V5.validateV5(A.U.Store.get(t.id));
+});
+test('Notizen-Assistent: übernimmt Code verdeckt, ändert nur die Fundstelle', async () => {
+  const { ctx, U, msgs } = load(), t = trip(ctx);
+  t.notes = 'Hotel: Gästehaus\nBuchungsnummer: HX-4711\nAnreise ab 15 Uhr';
+  U.Store.put(t);
+  await ctx.untLoad(t.id, true);
+  const h = ctx.tBuchungen(U.Store.get(t.id));
+  assert.match(h, /In euren Notizen gefunden/); assert(!h.includes('HX-4711'), 'Code im Vorschlag verdeckt');
+  await ctx.untCodeMove(U.Store.get(t.id), 0);
+  assert.equal(U.Store.get(t.id).notes, 'Hotel: Gästehaus\nBuchungsnummer: (in „Tickets“)\nAnreise ab 15 Uhr');
+  const m = ctx.untList(t.id).list[0];
+  assert.equal(m.secret.value, 'HX-4711'); assert.equal(m.kind, 'bestaetigung');
+  assert.match(msgs.at(-1), /übernommen/);
+  assert(!ctx.tBuchungen(U.Store.get(t.id)).includes('In euren Notizen gefunden'));
+});
+test('Reise löschen nennt und entfernt die Unterlagen dieses Geräts', async () => {
+  const { ctx, U } = load(), t = trip(ctx);
+  U.Store.put(t);
+  await U.UNT.store.add('guest', t.id, { kind: 'ticket', title: 'A' }, { bytes: pdf('a', 2048) });
+  await U.UNT.store.add('guest', t.id, { kind: 'ticket', title: 'B' });
+  await U.UNT.store.add('guest', 'tandere', { kind: 'ticket', title: 'C' });
+  await ctx.untLoad(t.id, true);
+  assert.match(ctx.untDeleteNote(t), /auch 2 Unterlagen \(2 KB\) auf diesem Gerät/);
+  assert.equal(await ctx.untTripRemoved(t.id), 2);
+  assert.deepEqual(await U.UNT.store.trips('guest'), { tandere: 1 }, 'andere Reise bleibt');
 });
 
 (async () => {

@@ -63,7 +63,7 @@ document.addEventListener('click',async e=>{
      if(why.length)alertMsg('Kopie angelegt. '+why.join(' '));return}
    case 'del': UI.confirm='del';render();return;
    case 'del-no': UI.confirm=null;render();return;
-   case 'del-yes': UI.confirm=null;try{await Store.remove(t.id)}catch(err){alertMsg(err.message);render();return}go('reisen');return;
+   case 'del-yes': UI.confirm=null;try{await Store.remove(t.id)}catch(err){alertMsg(err.message);render();return}if(typeof untTripRemoved==='function')untTripRemoved(t.id);go('reisen');return;
    case 'pkgf': UI.pkgf=val;break;
    case 'pkgfocus': UI.pkgfocus=val;break;
    case 'pkg-ask': UI.confirm='pkg-'+val;break;
