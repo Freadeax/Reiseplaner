@@ -15,7 +15,9 @@ Heute live und in diesem Stand enthalten: Format 5 schreiben (Storno, Zahlungspl
 Wege im Tagesplan, Fixpunkte & Puffer, Check-/Packlisten mit Wetter, Offline/Service Worker mit „Neue Version verfügbar“, Reisestil,
 Bedienbarkeit (zugeklappte Ebenen), gemeinsames Planen G1 (Drei-Wege-Abgleich).
 
-**Nicht live (bewusst):** Migration `20261116120000_gemeinsam` (G2–G5) wartet im Thread „Gemeinsam mit Mitreisenden planen“ auf Philipps Freigabe.
+**Migration G2–G5:** Während dieser Prüfung hat der Thread „Gemeinsam mit Mitreisenden planen“ die Migration `20261116120000_gemeinsam` mit Philipps Freigabe auf main gebracht (`ed1dba0`, Actions-Lauf 151 grün inkl. Datenbanktests). Ob sie im Produktionsprojekt angewendet ist, lässt sich aus der Cloud nicht prüfen (Supabase-Dashboard → Migrations).
+
+**Nach der Korrektur:** Actions-Lauf 152 auf `0d54e99` komplett grün (inkl. voller Klicktest und Deploy); GitHub Pages liefert seit 16.11. 14:57 UTC `RP_BUILD.commit = "0d54e9993297"`, SW-Stand `2f586a2aa027` (abgerufen ~15:07 UTC mit Cache-Umgehung; ohne sie kam kurz noch der alte Stand aus einem Zwischenspeicher).
 
 ## 2. Zusammenspiel der Module
 
@@ -53,5 +55,5 @@ Sonst keine Fehler gefunden: Format 5 ist in Import, Export, Sync, Abgleich, Fri
 ## 5. Nächste Schritte
 
 1. Philipp: einmal am iPhone die Seite neu laden, „Nach neuer Version suchen“ antippen, Wetter und „Wege berechnen“ mit echter Verbindung ausprobieren.
-2. Freigabe der Migration G2–G5 im Thread „Gemeinsam mit Mitreisenden planen“.
+2. Im Supabase-Dashboard prüfen, ob die Migration `20261116120000_gemeinsam` angewendet ist.
 3. Teilzahlungen einzeln erfassen (Format 5 `payments`) und dabei Varianten-Test erweitern.
