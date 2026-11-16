@@ -152,6 +152,7 @@ function v3trip() {
   const sec = g('istSection')(t, UNTERWEGS);
   ok(/Plan und Ist/.test(sec) && /data-ist-area="essen"/.test(sec), 'Budget-Ansicht zeigt Plan und Ist je Bereich');
   ok(/Heute ausgegeben/.test(sec), 'unterwegs: heute ausgegeben');
+  ok(/data-fold="ist-bereiche"[^>]*>.*data-ist-area="essen"/.test(sec), 'Bereiche als zugeklappte Ebene, keine dritte offene Liste');
   ok(/über dem Budget|unter dem Budget|Noch nicht sicher/.test(sec), 'Aussage zum Budget in Worten, nicht nur Farbe');
   ok(a.budgetSection(t, UNTERWEGS).includes('data-ist'), 'in budgetSection eingebunden');
   const today = g('istToday')(t, UNTERWEGS);

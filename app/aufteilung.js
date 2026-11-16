@@ -212,9 +212,11 @@ function istSection(t,now){
     if(a.pace)notes.push('bis heute geplant ≈ '+eur(a.pace.soFar)+', ausgegeben '+istCt(a.pace.spent)+(a.pace.spent>a.pace.soFar+0.005?' · <b>schneller als geplant</b>':''));
     if(a.extra>0.004)notes.push(istCt(a.extra)+' zusätzlich unterwegs');
     return '<li data-ist-area="'+esc(a.key)+'"><div class="between"><b>'+esc(a.label)+'</b><b class="num">'+eur(a.forecast)+'</b></div><p class="small">Plan '+eur(a.plan)+(a.ist>0.004?' · bisher ausgegeben '+istCt(a.ist):'')+(a.spent>0.004&&a.paid>0.004?' ('+istCt(a.paid)+' bezahlt, '+istCt(a.spent)+' unterwegs)':'')+' · '+istDiffText(a.diff)+'</p>'+(notes.length?'<p class="small muted">'+notes.join(' · ')+'</p>':'')+'</li>'}).join('');
+  /* Keine dritte offene Bereichsliste neben Budget-Tabelle und Aufstellung (Abstimmung UI-Thread 16.11.): zugeklappte Ebene */
+  const istList='<ul class="plain" style="list-style:none;padding-left:0;gap:10px" data-ist-areas>'+rows+'</ul>';
   return '<div data-ist><h3>Plan und Ist</h3><p>'+verdict+'</p>'+
    '<div class="kpis"><div class="kpi"><small>Bisher ausgegeben</small><b class="num">'+istCt(r.ist)+'</b><small>bezahlt '+istCt(r.paid)+' · unterwegs '+istCt(r.spent)+'</small></div><div class="kpi"><small>Hochrechnung</small><b class="num">'+eur(r.forecast)+'</b><small>'+istDiffText(r.diff)+' (Plan '+eur(r.plan)+')</small></div>'+(p==='unterwegs'?'<div class="kpi"><small>Heute ausgegeben</small><b class="num">'+istCt(r.todaySpent)+'</b><small>Ausgaben unterwegs</small></div>':'')+'</div>'+
-   '<ul class="plain" style="list-style:none;padding-left:0;gap:10px" data-ist-areas>'+rows+'</ul>'+istAddButton(t)+
+   (typeof fold==='function'?fold('ist-bereiche','Plan und Ist je Bereich',r.areas.length+' Bereiche'+(r.areas.some(x=>x.unknown)?' · Preis offen':''),istList):istList)+istAddButton(t)+
    '<p class="small muted">Rechte Zahl = Hochrechnung bis Reiseende, ohne Puffer'+(r.reserve>0.004?' ('+eur(r.reserve)+' Reserve, keine Ausgabe)':'')+'. Verpflegung und Sprit sind Töpfe: Ausgaben dort füllen zuerst den Planwert, die Hochrechnung sinkt unterwegs aber nie unter den Plan. In anderen Bereichen kommen Ausgaben unterwegs zum Plan dazu; habt ihr einen geplanten Posten vor Ort bezahlt, tragt das unter „Buchungen & Zahlungen“ ein, sonst zählt er doppelt. Nur so genau wie eure Erfassung.</p></div>';
 }
 /* Heute-Block unterwegs: eine Zeile mit heutigen Ausgaben und dem Knopf zur Schnellerfassung */

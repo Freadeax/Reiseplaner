@@ -58,7 +58,7 @@ Stände; die Eingabe selbst verhindert es) zählte in `cost()` nur mit dem Planw
 
 - **Kosten → Budget:** Abschnitt „Plan und Ist“ (nur wenn schon Geld geflossen ist oder die Reise läuft/vorbei ist):
   Aussage zum Budget in Worten, Kacheln „Bisher ausgegeben“, „Hochrechnung“, unterwegs „Heute ausgegeben“, je Bereich eine
-  Zeile (Liste statt Tabelle, damit es am Handy passt), Knopf „+ Ausgabe erfassen“.
+  Zeile in der zugeklappten Ebene „Plan und Ist je Bereich“ (`fold`, keine dritte offene Bereichsliste), Knopf „+ Ausgabe erfassen“.
 - **Heute-Block unterwegs:** eine Zeile „Heute ausgegeben · bisher · Hochrechnung von Budget“ mit „+ Ausgabe erfassen“.
 - **Erfassen schneller:** Betrag zuerst, Bezeichnung freiwillig (leer = Name der Kategorie), zuletzt Zahlende/r vorgewählt.
   Vorschau und Bestätigung bleiben (Format-3-Umstellung wird so weiter angekündigt).
