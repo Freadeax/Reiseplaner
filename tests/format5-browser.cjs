@@ -68,13 +68,38 @@ const assert = require('assert');
     await p.click(ack);
     await p.waitForSelector('[data-f5-act="unack"][data-id="cancel:stay:0"]', { state: 'attached' });
     assert.equal(await p.evaluate(i => !!window.__app.Store.get(i).deadlineAck['cancel:stay:0'], id), true);
+    /* Aufgabe in der Checkliste anlegen und abhaken */
+    await open('check');
+    await p.waitForSelector('[data-task-act="new"]', { state: 'attached' });
+    await p.click('[data-task-act="new"]');
+    await p.fill('#task-title', 'Winterreifen prüfen'); await p.fill('#task-date', '2026-12-20');
+    await p.click('[data-task-act="save"]');
+    await p.waitForSelector('[data-tasks] [data-task-act="toggle"]');
+    await p.check('[data-tasks] [data-task-act="toggle"]');
+    await p.waitForFunction(i => { const t = window.__app.Store.get(i); return t.tasks && t.tasks[0].done; }, id);
+    /* Teilzahlung: bisherige 204 € werden erste Zahlung */
+    await open('kosten');
+    await p.evaluate(() => { const b = document.querySelector('[data-f5-act="pay-open"]'); for (let e = b; e; e = e.parentElement) if (e.tagName === 'DETAILS') e.open = true; });
+    await p.click('[data-f5-act="pay-open"]');
+    await p.fill('#f5-pay-first', '2026-10-20'); await p.fill('#f5-pay-on', '2026-11-18'); await p.fill('#f5-pay-amount', '100');
+    await p.click('[data-f5-act="pay-add"]');
+    await p.waitForFunction(i => window.__app.Store.get(i).offers[0].paid === 304, id);
+    /* Gästekarte als enthalten bestätigen */
+    await open('unterkunft');
+    const gc = await p.$('[data-f5-gc] summary');
+    if (gc) {
+      await p.evaluate(() => { const b = document.querySelector('[data-f5-gc]'); for (let e = b; e; e = e.parentElement) if (e.tagName === 'DETAILS') e.open = true; });
+      await p.click('[data-f5-gc] summary'); await p.selectOption('#f5-gc-status', 'enthalten'); await p.fill('#f5-gc-note', 'Mail Gastgeber');
+      await p.click('[data-f5-act="gc-save"]');
+      await p.waitForFunction(i => window.__app.Store.get(i).cardConfirmed === true, id);
+    } else console.log(name + ': Unterkunft ohne Gästekarten-Angabe, Schritt übersprungen');
     /* Neuladen behält alles */
     await p.reload(); await p.waitForFunction(() => window.__app && window.__app.Store);
-    const kept = await p.evaluate(i => { const t = window.__app.Store.get(i); return [t.schemaVersion, t.offers[0].cancelTerms.steps.length, t.offers[0].payPlan.length, Object.keys(t.deadlineAck)]; }, id);
-    assert.deepEqual(kept, [5, 1, 2, ['cancel:stay:0']]);
+    const kept = await p.evaluate(i => { const t = window.__app.Store.get(i); return [t.schemaVersion, t.offers[0].cancelTerms.steps.length, t.offers[0].payPlan.length, Object.keys(t.deadlineAck), t.tasks.length, t.offers[0].payments.length]; }, id);
+    assert.deepEqual(kept, [5, 1, 2, ['cancel:stay:0'], 1, 2]);
     assert.deepEqual(errors, [], name + ': keine Fehler in der Konsole');
     await ctx.close();
   }
   await browser.close(); srv.close();
-  console.log('Format 5 im Browser (Chromium Desktop und 390 px): Stornobedingungen und Zahlungsplan eintragen, Bestätigung der Umstellung, Vorschau, Fehler im Blatt, Frist erledigt, Neuladen geprüft. Kein iPhone-/Safari-Test.');
+  console.log('Format 5 im Browser (Chromium Desktop und 390 px): Stornobedingungen und Zahlungsplan eintragen, Bestätigung der Umstellung, Vorschau, Fehler im Blatt, Frist erledigt, Aufgabe anlegen und abhaken, Teilzahlung, Gästekarte, Neuladen geprüft. Kein iPhone-/Safari-Test.');
 })().catch(e => { console.error(e); process.exit(1); });

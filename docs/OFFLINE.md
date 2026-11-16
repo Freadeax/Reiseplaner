@@ -88,9 +88,9 @@ Am Handy und iPad bleibt die Seite oft tagelang offen und läuft mit dem Code we
 | O1 | Service Worker mit vollständigen Versionsständen, Build setzt Kennung und Liste ein | `sw.js`, `scripts/build.mjs`, Tests | erledigt 16.11. |
 | O2 | Neueres Format ≠ beschädigt | `app/speicher.js` (`loadLocal`), `app/ansichten.js` (`storageRecoveryBlock`) | erledigt 16.11. |
 | O3 | Offline-Hinweis, „Auf diesem Gerät“, dauerhafter Speicher | neue Datei `app/offline.js`, eine Zeile in `setSync` | erledigt 16.11. |
-| O4 | „Für unterwegs bereit machen“ | `app/offline.js`, Mappe | geplant, nach Unterlagen-Thread |
+| O4 | „Für unterwegs bereit machen“ | `app/offline.js` (`readySection`), eine Zeile in `tMappe` | erledigt 16.11. |
 | O6 | Nach neuer Version suchen, Hinweis „Neue Version verfügbar“ | `app/offline.js` | erledigt 16.11. |
-| O5 | PDF-Hinweise, Mappe-Fuß | `app/ansichten.js` (Mappe) | geplant |
+| O5 | PDF-Hinweise, Mappe-Fuß | in „Für unterwegs bereit?“ (iPhone-Weg „In Dateien sichern“, Merker Druckdialog) | erledigt 16.11. |
 
 Geteilte Dateien: `sw.js` (alle Threads zählten bisher die Nummer hoch, nach O1 nicht mehr nötig), `app/speicher.js` (Thread „Gemeinsam planen“ ändert `put`, `push`, `resolve`; O2 nur `loadLocal`), `app/ansichten.js` (Oberflächen-Thread). Format 5: Thread „Offene Punkte weiterentwickeln“ entscheidet über `F5_WRITE`; O1 und O2 sollen vorher auf `main` sein.
 

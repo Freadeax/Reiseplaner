@@ -7,6 +7,7 @@ Philipp, Claude und ChatGPT arbeiten möglicherweise gleichzeitig am Reiseplaner
 Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in `docs/STATUS.md` (oben).
 
 - **Arbeitsmodus:** Claude arbeitet allein (ChatGPT pausiert seit 17.10.). Seit 23.10. wieder direkt auf `main` mit Veröffentlichung über „Tests & Pages“; nur Website, keine Handy-App. Parallel arbeiten mehrere Claude-Threads mit getrennten Dateien; seit 15.11. gestaltet ein Thread die Oberfläche neu (CSS, Animationen, `app/bewegung.js`), ein anderer bearbeitet Logik, Daten und Doku.
+- **Format 5 (16.11. abends):** `app/aufgaben.js` (Aufgaben), Teilzahlungen, Storno für Buchungsbuch-Posten, Gästekarten-Status in `app/format5.js`; Test `format5-more`. Format-5-Felder pflegt der Thread „Offene Punkte weiterentwickeln“ in `v5logic.js`.
 - **Zuletzt erledigt (16.11. abends):** Neugestaltung „Reisetagebuch“ der Standard-Darstellung (Farbsatz, Schriften, schwebendes Dock, verspielte Bewegung); Details oben in `docs/STATUS.md`. Neue Oberflächen-Regeln gehören in den letzten Abschnitt von `app.css`.
 - **Davor (16.11. mittags):** `F5_WRITE = true`, `app/format5.js` (f5Commit, erledigt, Stornobedingungen, Zahlungsplan), Tests `format5-write`, `format5-browser` (auch in CI).
 - **Davor (16.11.):** Format-5-Migration (CHECK 2–5, 15.11.) und Lese-Release: App liest Format 5, `F5_WRITE = false`, `tests/format5-app.cjs`. Nächstes: `F5_WRITE = true` nach einigen Tagen, dann M02.2/M08.2/M09.3.

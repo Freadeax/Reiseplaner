@@ -10,6 +10,8 @@ Zentraler Speicher für Unterlagen (M11.1/M11.3, `docs/UNTERLAGEN.md`): Tickets,
 
 ## Format 5 wird gespeichert · 16.11.2026
 
+Abends ergänzt: eigene Aufgaben, Teilzahlungen einzeln, Storno für alle gebuchten Posten, Gästekarten-Status mit Beleg. Als Nächstes: Varianten-Vergleich (M05.2), Kriterien und Obergrenze (M10).
+
 Seit 16.11. mittags: Stornobedingungen mit Gebührenvorschau, Zahlungsplan mit Ratenstatus, Fristen erledigt markieren. Als Nächstes: Teilzahlungen einzeln, Stornobedingungen für Buchungsbuch-Posten, Gästekarten-Status (M09.3), eigene Aufgaben (M02.4), Varianten-Vergleich (M05.2).
 
 ## Format 5 wird gelesen · 16.11.2026

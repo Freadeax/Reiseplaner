@@ -88,6 +88,8 @@ function cardPricing(input){
    genau wie bisher in cost(). Sonst 'unbestaetigt', wenn die Unterkunft eine Karte hat oder haben könnte
    (card true oder '?'), sonst 'nicht'. Format 5 (t.guestCards, M09.3) ersetzt diese Ableitung. */
 function cardStatusOf(t,st){
+  /* Format 5 (M09.3): ein Eintrag in t.guestCards für diese Unterkunft gilt; „enthalten“ ist mit cardConfirmed gespiegelt */
+  if(st&&t&&t.schemaVersion===5&&typeof V5!=='undefined'&&V5){const g=V5.guestCardStatus(t,{stayId:t.stayId,stayCard:st.card});if(g.from==='eintrag')return g.status}
   if(st&&t&&t.cardConfirmed===true)return 'enthalten';
   if(st&&(st.card===true||st.card==='?'))return 'unbestaetigt';
   return 'nicht';

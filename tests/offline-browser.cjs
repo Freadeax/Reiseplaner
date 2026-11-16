@@ -59,6 +59,16 @@ function release(tag) {
   await p.waitForFunction(() => /Ohne Internet startbar\s*Ja/i.test(document.querySelector('[data-device]') ? document.querySelector('[data-device]').innerText : ''), null, { timeout: 5000 });
   assert(/Reisen in diesem Browser\s*1/i.test(await p.locator('[data-device]').innerText()), 'Auf diesem Gerät: Zahl der Reisen');
 
+  /* 1c. „Für unterwegs bereit?“ in der Reisemappe (O4/O5) */
+  const tid = await p.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('rp-trips') || '{}'))[0]);
+  await p.goto(base + '#r-' + tid + '-mappe');
+  await p.waitForFunction(() => { const s = document.querySelector('[data-ready]'); return s && /startet auch ohne Netz/.test(s.innerText); }, null, { timeout: 8000 });
+  let ready = await p.locator('[data-ready]').innerText();
+  assert(/Reise als Datei sichern/.test(ready) && /einmal als PDF sichern/.test(ready) && /In Dateien sichern/.test(ready), 'Bereit-Prüfung unvollständig: ' + ready);
+  await p.evaluate(() => { window.print = () => {}; });
+  await p.locator('[data-ready] [data-act="mappe-print"]').click();
+  await p.waitForFunction(() => /Druckdialog zuletzt am/.test(document.querySelector('[data-ready]').innerText), null, { timeout: 8000 });
+
   /* 2. Offline: App startet aus dem Stand, Reise bleibt, neue Reise offline anlegbar */
   await ctx.setOffline(true); state.down = true;
   await p.goto(base + '#reisen'); await p.reload();
@@ -130,5 +140,5 @@ function release(tag) {
 
   assert.deepStrictEqual(errors, [], 'Seitenfehler: ' + errors.join(' | '));
   await browser.close(); srv.close(); fs.rmSync(DIR, { recursive: true, force: true });
-  console.log('Offline im Browser (Chromium, gebaute Website): Offline-Start, Reisen offline anlegen, gescheiterte Installation ohne Mischstand, Versionswechsel, Nach neuer Version suchen mit Hinweis und Jetzt laden, langsames Netz (' + ms + ' ms) geprüft. Kein iPhone-/Safari-Test.');
+  console.log('Offline im Browser (Chromium, gebaute Website): Offline-Start, Reisen offline anlegen, gescheiterte Installation ohne Mischstand, Versionswechsel, „Für unterwegs bereit?“, Nach neuer Version suchen mit Hinweis und Jetzt laden, langsames Netz (' + ms + ' ms) geprüft. Kein iPhone-/Safari-Test.');
 })().catch(async e => { console.error(e); srv.close(); process.exit(1); });

@@ -50,7 +50,7 @@ Zusatzgruppe „Packliste: passend zur Reise“ mit stabilen Schlüsseln (`p-x-�
 - Anreise: Auto (Warnweste, Warndreieck, Verbandkasten; im Ausland Regeln prüfen), Bahn (Tickets offline), Flug
   (Handgepäckregeln prüfen, Ladegeräte ins Handgepäck).
 - Ziel: Merkmale des Katalogziels (Therme, Berge, See, Stadt …) ergänzen passende Punkte.
-- Reiseart ohne eigene Grundliste (Tagesausflug, Wochenende, Rundreise, seit Reisestil auch Wellness und Familie) bekommt wenige typische Punkte.
+- Reiseart ohne eigene Grundliste (Tagesausflug, Wochenende, Rundreise, seit Reisestil auch Wellness, Familie, Camping, Aktivurlaub und Fernreise) bekommt wenige typische Punkte.
 - Doppelte Punkte (gleiche Bezeichnung wie in der Grundliste) werden nicht wiederholt.
 
 ### 3.3 Wetter (Open-Meteo, freigegeben 23.10.)
@@ -82,3 +82,16 @@ Zusatzgruppe „Packliste: passend zur Reise“ mit stabilen Schlüsseln (`p-x-�
 nur mit Prüfhinweis und amtlichem Link, keine Gruppe im Inland, Einbindung in `checklist(t)`. Browser: Wetterkarte mit
 abgefangener Antwort in Chromium. Eine echte Abfrage gegen Open-Meteo ist aus dem Cloud-Container nicht möglich (Proxy);
 sie steht als Prüfpunkt für Philipp aus.
+
+## 6 · Liste anpassen (Format 5, 16.11. abends)
+
+Ebene „Liste anpassen“ am Ende der Checkliste, nur mit Schreibrecht und `F5_WRITE`; Schreiben über `f5Commit` (Anheben auf
+Format 5 nur nach Bestätigung):
+- **Ausblenden** abgeleiteter Pack- und Dokumentpunkte (`p-…`, `d-…`) je Zeile → `t.packing.hidden`; Buchungsaufgaben und
+  eigene Punkte nicht. Liste der ausgeblendeten Punkte mit „Zeigen“ und „Alle wieder zeigen“. Schlüssel bleiben stabil (W6).
+- **Eigene Packpunkte** mit Gruppe, Menge und Person (aus den Mitreisenden) → `t.packing.custom`, als Gruppe
+  „Packliste: <Gruppe>“ vor „Eigene Punkte“; Häkchen weiter in `t.check` (`pk-<id>`).
+- **Ausweise** je Person mit Art und Ablaufdatum, ohne Nummer → `t.idDocs`; Ergebnis über `RPV5.idDocCheck` in
+  „Dokumente & Einreise“ (z. B. „läuft vor der Rückkehr ab“). Braucht Mitreisende.
+- **Reiseland** bestätigen, ergänzen oder entfernen → `t.countries` (geht vor der Ableitung).
+Test `tests/packliste5.cjs`.

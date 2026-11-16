@@ -27,7 +27,7 @@ async function run(browser, base, name, opts, offline) {
   const raw0 = await p.evaluate(() => localStorage.getItem('rp-trips'));
   await p.evaluate(id => { location.hash = '#r-' + id + '-buchungen'; }, tid);
   await p.waitForSelector('[data-unt-privacy]');
-  assert.match(await p.textContent('[data-unt-privacy]'), /Nur auf diesem Gerät/);
+  assert.match(await p.textContent('[data-unt-privacy]'), /nur auf diesem Gerät/i);
   /* Hinzufügen */
   await p.click('[data-unt-act="add"] >> nth=0');
   await p.waitForSelector('[data-unt-form]');

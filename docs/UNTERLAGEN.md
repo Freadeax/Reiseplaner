@@ -42,13 +42,19 @@ Reise (Prüfsumme). Dateiart wird an den ersten Bytes erkannt, nicht nur an der 
 - „Gebucht, aber noch keine Unterlage auf diesem Gerät“ ist ein Hinweis, kein Fehler (Auto-Anreise braucht keinen).
 - Verknüpfung auf etwas, das es nicht mehr gibt, bleibt stehen: „Verknüpfung nicht mehr vorhanden“ (M11 Regel 5).
 
-## 3 · Stufe 2 (nächster Schritt, `F5_WRITE = true` ist seit 16.11. aktiv)
+## 3 · Stufe 2 (umgesetzt 16.11. abends)
 
-- Spiegel der Liste in `t.docs` (Format 5) mit `toTripDoc`: Titel, Art, Verknüpfung, Gültigkeit, Dateiangaben (Prüfsumme,
-  Größe, Typ), **Code nie** (`secret:{label, value:null, local:true}`), `cloud:{state:'none'}`. Damit sieht ein zweites
-  Gerät „Datei liegt auf einem anderen Gerät“. `toTripDoc` ist schon jetzt gegen `RPV5.validateV5` getestet.
-- Reise löschen fragt „3 Unterlagen, 4,2 MB werden mitgelöscht“ (`RPFiles.removeTrip`), Abmelden fragt „behalten oder löschen“.
-- Sicherung mit Unterlagen nur auf ausdrückliche Wahl (M11.5).
+- **Eintrag in der Reise** (`t.docs`, Format 5) über `f5Commit`: Häkchen „In der Reise vermerken“ im Formular. Gespeichert werden
+  Titel, Art, Verknüpfung, Gültigkeit und Dateiangaben (Prüfsumme, Größe, Typ), **nie Code, Dateiname oder Notiz**
+  (`secret:{label, value:null, local:true}`, `share:'mitglieder'`, `cloud:{state:'none'}`). Vorausgewählt nur, wenn die Reise schon
+  Format 5 ist; sonst fragt der erste Klick nach dem Umstellen, erst der zweite speichert (nichts vorher).
+- **Zweites Gerät / Mitreisende:** Einträge ohne Datei hier erscheinen mit „Datei auf einem anderen Gerät“; Blatt mit
+  „Datei hier hinzufügen“ (gleiche ID) und „Eintrag entfernen“ (zwei Schritte). Der Hinweis „noch keine Unterlage“ gilt weiter je Gerät.
+- **Löschen** einer Unterlage entfernt auch ihren Eintrag in der Reise (mit Hinweis). Ohne Schreibrecht bleibt der Eintrag und die Meldung sagt das.
+- **Reise löschen** nennt im Bestätigungsschritt „Dabei werden auch 2 Unterlagen (2 KB) auf diesem Gerät gelöscht“ und räumt danach `rp-files` dieser Reise auf.
+- **Notizen-Assistent (M11.7):** findet Buchungsnummern, PNR, Auftrags-/Reservierungs-/Bestätigungsnummern und PIN mit Code (mindestens eine Ziffer
+  oder 6 Großbuchstaben), zeigt sie verdeckt; „übernehmen“ legt je Fund eine Unterlage an und ersetzt nur den Code in den Notizen durch „(in „Tickets“)“.
+- Offen: Sicherung mit Unterlagen auf ausdrückliche Wahl (M11.5), Aufräumen von Unterlagen zu Reisen, die auf einem anderen Gerät gelöscht wurden.
 
 ## 4 · Später (eigene Entscheidung nötig)
 

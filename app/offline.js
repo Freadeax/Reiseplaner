@@ -22,7 +22,7 @@ async function deviceRead(){
 function deviceRefresh(force){
   if(Device.loading||(!force&&Device.info&&Date.now()-Device.at<5000))return;
   Device.loading=true;
-  deviceRead().then(r=>{Device.info=r;Device.at=Date.now()},()=>{}).finally(()=>{Device.loading=false;if(typeof UI!=='undefined'&&UI.view==='konto'&&typeof remoteChanged==='function')remoteChanged()});
+  deviceRead().then(r=>{Device.info=r;Device.at=Date.now()},()=>{}).finally(()=>{Device.loading=false;if(typeof remoteChanged==='function'&&((typeof UI!=='undefined'&&UI.view==='konto')||(typeof document!=='undefined'&&document.querySelector&&document.querySelector('[data-ready]'))))remoteChanged()});
 }
 function deviceMB(b){return b==null?'':(b/1048576).toLocaleString('de-DE',{maximumFractionDigits:b<10485760?1:0})+' MB'}
 /* Abschnitt auf der Konto-Seite */
@@ -123,4 +123,62 @@ if(typeof window!=='undefined'&&window.addEventListener&&typeof navigator!=='und
   window.addEventListener('load',()=>{setTimeout(()=>updCheck(false),3000);setInterval(()=>{if(document.visibilityState!=='hidden')updCheck(false)},30*60000)});
   /* Neuer Stand übernimmt die Steuerung: prüfen, ob die laufende Seite älter ist */
   try{navigator.serviceWorker.addEventListener('controllerchange',()=>{updReadyDiffers().then(n=>{if(n){AppUpdate.state='Neue Version geladen';updBanner()}},()=>{})})}catch(e){}
+}
+/* ===== „Für unterwegs bereit“ je Reise (docs/OFFLINE.md §4.4, Paket O4) und PDF-Hinweis (§4.6, O5) =====
+   Prüft nur, was die App wirklich prüfen kann, und nennt den Rest als Aufgabe. Liest Reisedaten nur, schreibt nichts
+   außer einem Merker, wann der Druckdialog der Mappe zuletzt geöffnet wurde (rp-mappe-druck:<Bereich>:<Reise>). */
+const Ready={cache:{},loading:{}};
+function readyPrintKey(t){return 'rp-mappe-druck:'+(typeof Store!=='undefined'?Store.scope:'guest')+':'+t.id}
+function readyPrintedAt(t){try{const v=localStorage.getItem(readyPrintKey(t));return v&&!isNaN(Date.parse(v))?new Date(v):null}catch(e){return null}}
+async function readyRead(t){
+  const r={photos:null,photosLocal:null,docs:null,docFiles:null};
+  const media=Array.isArray(t.media)?t.media:[];r.photos=media.length;
+  if(media.length&&typeof window!=='undefined'&&window.RPPhotos){try{const s=typeof f4PhotoStore==='function'?f4PhotoStore():window.RPPhotos.create();let n=0;for(const m of media){try{const h=await s.has(m.id);if(h&&(h.work||h.thumb))n++}catch(e){}}r.photosLocal=n}catch(e){}}
+  try{if(typeof untStore==='function'&&typeof UF==='function'&&UF()){const u=await untStore().usage(typeof untScope==='function'?untScope():Store.scope,t.id);r.docs=u.count;r.docFiles=u.files}}catch(e){}
+  return r;
+}
+function readyRefresh(t){
+  const id=t.id,c=Ready.cache[id];if(Ready.loading[id]||(c&&Date.now()-c.at<5000))return;
+  Ready.loading[id]=true;deviceRefresh(false);
+  readyRead(t).then(r=>{Ready.cache[id]={at:Date.now(),r}},()=>{}).finally(()=>{Ready.loading[id]=false;if(typeof UI!=='undefined'&&UI.view==='reise'&&typeof remoteChanged==='function')remoteChanged()});
+}
+/* Eine Zeile: Zeichen + Text, Bedeutung nie nur über Farbe */
+function readyRow(state,label,text,btn){const sign=state==='ok'?'✓':state==='todo'?'!':'○',word=state==='ok'?'Erledigt: ':state==='todo'?'Zu tun: ':'Hinweis: ';
+  return '<li class="ready-'+state+'"><span aria-hidden="true">'+sign+'</span> <span class="vh">'+word+'</span><b>'+esc(label)+'</b> · '+text+(btn||'')+'</li>'}
+function readySection(t){
+  if(!t)return '';readyRefresh(t);
+  const i=Device.info,c=Ready.cache[t.id],r=c&&c.r,rows=[];
+  if(!i||!r)return '<section class="block noprint" data-ready><h2>Für unterwegs bereit?</h2><p class="small muted">Wird geprüft …</p></section>';
+  /* 1. App ohne Internet */
+  rows.push(!i.http?readyRow('todo','App ohne Internet','als Datei geöffnet, startet ohne Netz nicht. Über die Website-Adresse öffnen.')
+    :i.ready?readyRow('ok','App ohne Internet','startet auch ohne Netz'+(i.since?' (Stand vom '+esc(i.since.toLocaleDateString('de-DE'))+')':'')+'.')
+    :readyRow('todo','App ohne Internet','noch nicht bereit. Einmal mit Internet öffnen und kurz warten.'));
+  /* 2. Daten bleiben erhalten */
+  rows.push(i.persisted===true?readyRow('ok','Speicher','der Browser löscht die Reisen nicht von sich aus.')
+    :readyRow('todo','Speicher',(i.ios&&!i.standalone?'am iPhone/iPad über Teilen → „Zum Home-Bildschirm“ öffnen, sonst darf Safari nach 7 Tagen ohne Besuch löschen.':'nicht dauerhaft zugesagt.'),i.persisted===false&&i.canPersist?' <button type="button" class="btn ghost sm" data-offline-act="persist">Dauerhaft speichern anfragen</button>':''));
+  /* 3. Stand dieser Reise */
+  if(Store.isAccount()){const q=Store.queue&&Store.queue[t.id],m=Store.meta&&Store.meta[t.id]||{};
+    rows.push(m.conflict||m.lost||m.unreadable?readyRow('todo','Abgleich','Konflikt bei dieser Reise, bitte vor der Abfahrt klären.')
+      :q?readyRow('todo','Abgleich','Änderungen nur auf diesem Gerät. Vor der Abfahrt mit Internet synchronisieren, damit Mitreisende sie haben.',' <button type="button" class="btn ghost sm" data-acc="sync">Jetzt synchronisieren</button>')
+      :readyRow('ok','Abgleich','online gespeichert, auf diesem Gerät aktuell'+(Sync.last?' (Stand '+esc(new Date(Sync.last).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}))+')':'')+'. Änderungen anderer nach diesem Zeitpunkt seht ihr erst mit Netz.'))}
+  else rows.push(readyRow('info','Sicherung','die Reise liegt nur in diesem Browser. Eine Sicherungsdatei hilft, falls das Gerät verloren geht.',' <button type="button" class="btn ghost sm" data-act="backup-trip">Reise als Datei sichern</button>'));
+  /* 4. Fotos und Tickets dieser Reise */
+  if(r.photos)rows.push(r.photosLocal==null?readyRow('info','Fotos',r.photos+' in der Reise; ob alle Bilddateien hier liegen, ließ sich nicht prüfen.')
+    :r.photosLocal>=r.photos?readyRow('ok','Fotos','alle '+r.photos+' auf diesem Gerät.')
+    :readyRow('todo','Fotos',r.photosLocal+' von '+r.photos+' auf diesem Gerät. Die übrigen liegen auf einem anderen Gerät.'));
+  if(r.docs!=null)rows.push(r.docs?readyRow('ok','Tickets und Unterlagen',r.docs+' auf diesem Gerät'+(r.docFiles<r.docs?' ('+(r.docs-r.docFiles)+' ohne Datei, nur als Eintrag)':'')+'. Sie liegen nur hier, nicht im Konto.')
+    :readyRow('info','Tickets und Unterlagen','noch keine auf diesem Gerät. Tickets und Bestätigungen unter „Tickets“ ablegen, dann sind sie offline da.',' <button type="button" class="btn ghost sm" data-go="r-'+esc(t.id)+'-buchungen">Zu den Tickets</button>'));
+  /* 5. PDF (nicht prüfbar, nur Erinnerung) */
+  const pr=readyPrintedAt(t);
+  rows.push(readyRow(pr?'info':'todo','Reisemappe als PDF',(pr?'Druckdialog zuletzt am '+esc(pr.toLocaleDateString('de-DE'))+' geöffnet. Ob das PDF gespeichert wurde, kann die App nicht sehen.':'als Rückfall ohne App: einmal als PDF sichern.'),' <button type="button" class="btn ghost sm" data-act="mappe-print">Drucken / PDF</button>'));
+  const todo=rows.filter(x=>x.startsWith('<li class="ready-todo"')).length;
+  return '<section class="block noprint" data-ready><h2>Für unterwegs bereit?</h2>'+
+    '<p class="small">'+(todo?todo+' Punkt'+(todo===1?'':'e')+' noch offen.':'Alles, was die App prüfen kann, ist bereit.')+' Ohne Internet gehen Ortssuche, Routen, Abgleich und Anbieterlinks nicht.</p>'+
+    '<ul class="plain ready-list" style="list-style:none;padding-left:0;display:grid;gap:10px">'+rows.join('')+'</ul>'+
+    '<p class="small muted">PDF am iPhone oder iPad: „Drucken / PDF“ tippen, im Druckmenü oben auf Teilen tippen und „In Dateien sichern“ wählen. Am Computer im Druckdialog „Als PDF speichern“ als Drucker wählen.</p>'+
+    '</section>';
+}
+if(typeof document!=='undefined'&&document.addEventListener){
+  /* Merker beim Öffnen des Druckdialogs der Mappe (läuft vor dem Klick-Verteiler der App nicht nötig: eigener Zuhörer) */
+  document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-act="mappe-print"]');if(!b)return;const t=typeof cur==='function'?cur():null;if(!t)return;try{localStorage.setItem(readyPrintKey(t),new Date().toISOString())}catch(err){}if(Ready.cache[t.id])Ready.cache[t.id].at=0;setTimeout(()=>readyRefresh(t),300)},true);
 }

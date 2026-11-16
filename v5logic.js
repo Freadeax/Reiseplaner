@@ -707,7 +707,8 @@
         c.guestCards = arr(c.guestCards).concat([{ id: freeId(arr(c.guestCards), 'gcard'), cardId: ctx && ctx.cardId || null, name: (ctx && ctx.cardName || 'Gästekarte').slice(0, LIMITS.gcName), scope: scope, status: 'enthalten', evidence: { on: null, note: 'aus früherer Bestätigung übernommen' }, persons: null }]);
         migrated.push('guestCards');
       }
-      if (guestCardStatus(c, ctx).status !== before.status) fail('Interner Fehler: Gästekartenstatus hätte sich beim Anheben geändert. Nichts gespeichert.');
+      /* ctx.allowCardChange: nur der ausdrückliche Gästekarten-Schreibweg darf den Status beim Anheben ändern */
+      if (!(ctx && ctx.allowCardChange) && guestCardStatus(c, ctx).status !== before.status) fail('Interner Fehler: Gästekartenstatus hätte sich beim Anheben geändert. Nichts gespeichert.');
     }
     assertNoDowngrade(from, c.schemaVersion == null ? Object.assign({}, c, { schemaVersion: 2 }) : c);
     validateV5(c);

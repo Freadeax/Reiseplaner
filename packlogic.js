@@ -142,6 +142,9 @@
     wochenende: [['p-x-kultur', 'Kulturbeutel'], ['p-x-schlaf', 'Schlafsachen']],
     wellness: [['p-x-kultur', 'Kulturbeutel'], ['p-x-schlaf', 'Schlafsachen'], ['p-x-sauna', 'Bademantel und Saunatücher']],
     familie: [['p-x-kultur', 'Kulturbeutel'], ['p-x-kinderapo', 'Kinderapotheke (Fieber, Pflaster, Sonnenschutz)'], ['p-x-fahrt', 'Beschäftigung und Snacks für die Fahrt'], ['p-x-wechsel', 'Wechselkleidung griffbereit']],
+    camping: [['p-x-kultur', 'Kulturbeutel'], ['p-x-stirnlampe', 'Stirnlampe'], ['p-x-camping', 'Campingausrüstung vorher auf Vollständigkeit prüfen']],
+    aktivurlaub: [['p-x-kultur', 'Kulturbeutel'], ['p-x-blasen', 'Blasenpflaster'], ['p-x-rucksack', 'Tagesrucksack und Trinkflasche']],
+    fernreise: [['p-x-kultur', 'Kulturbeutel'], ['p-x-adapter', 'Steckdosenadapter (Typ fürs Reiseland prüfen)'], ['p-x-reiseapo', 'Reiseapotheke']],
     rund: [['p-x-teilen', 'Gepäck so teilen, dass eine Tasche für einzelne Nächte reicht'], ['p-x-kultur', 'Kulturbeutel']]
   };
   var norm = function (s) { return String(s || '').toLocaleLowerCase('de').replace(/[^a-zäöüß]/g, ''); };
