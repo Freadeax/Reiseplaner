@@ -1289,9 +1289,11 @@ async function navFlow(browser,base,name,ctxOpts){
   await p.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
   const r=await p.evaluate(()=>{const nav=document.querySelector('#app-nav').getBoundingClientRect(),dock=document.querySelector('#dock');
    /* optisch unterstes sichtbares Element im Inhalt (nicht die DOM-Reihenfolge) und die Kostenleiste einer Reise */
-   const els=[document.querySelector('#view'),...document.querySelectorAll('#view *')].filter(e=>{const b=e.getBoundingClientRect(),d=e.closest('details:not([open])');
+   const els=[document.querySelector('#view'),...document.querySelectorAll('#view *')].filter(e=>{const b=e.getBoundingClientRect();
+    /* auch verschachtelt: ein zugeklappter Aufklapper in einem zugeklappten Aufklapper ist nicht zu sehen */
+    let hid=false,d=e.parentElement&&e.parentElement.closest('details:not([open])');while(d&&!hid){const sm=d.querySelector(':scope>summary');if(!(sm&&sm.contains(e)))hid=true;d=d.parentElement&&d.parentElement.closest('details:not([open])')}
     /* Inhalt geschlossener Aufklapper ist nicht zu sehen (Chromium meldet trotzdem Maße) */
-    return b.height>0&&getComputedStyle(e).visibility!=='hidden'&&!(d&&d!==e&&!e.closest('summary'))});
+    return b.height>0&&getComputedStyle(e).visibility!=='hidden'&&!hid});
    if(dock&&!dock.hidden)els.push(dock);
    let low=els[0];els.forEach(e=>{if(e.getBoundingClientRect().bottom>low.getBoundingClientRect().bottom)low=e});
    return {navTop:nav.top,bottom:low.getBoundingClientRect().bottom,low:low.outerHTML.slice(0,120),atEnd:Math.abs(window.scrollY+innerHeight-document.documentElement.scrollHeight)<=1}});

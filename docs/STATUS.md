@@ -142,6 +142,13 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Bedienung Schritt 3: Tagesplan bleibt beim Plan (Claude, 16.11.)
+
+- `planExtras` (app/ansichten.js) legt „Wege zwischen den Punkten“ (`fold('plan-wege')`) und „Fixpunkte & Puffer“ (`fold('plan-fix')`) als Ebenen unter den Tagesplan. Inhalte kommen unverändert aus app/wege.js und app/fixpunkte.js; die Kopfzeile nennt, wie viele Tage zu prüfen sind. Handy 390 px, Beispielreise: 4171 px → 2339 px.
+- Große Schrift am schmalen Handy: `.btn`, `.lnk`, `.opt` und „+ Hinzufügen“ brechen um. Anlass: „Familienurlaub“ (neue Reiseart) machte „Neue Reise“ bei 320 px und 200 % Schrift 2 px zu breit; dazu ragten „Lokale Sicherungspunkte“ und ein Portal-Verweis über den Rand.
+- tests/browser.cjs: Die Prüfung „letzter Inhalt nicht unter der Tab-Leiste“ erkennt jetzt auch verschachtelte zugeklappte Aufklapper.
+- Geprüft: `npm test` grün. `npm run test:browser` mit CI-Schrift lief lokal bis zur 200-%-Prüfung „Neue Reise“ (dort der oben genannte Fehler, danach behoben); nach der Korrektur nur gezielt nachgeprüft: 200 % Schrift bei 320 und 390 px auf Reisen, Neue Reise, Überblick, Kosten, Tagesplan, Angebote vergleichen, Ort & Unterkunft, Entdecken, Konto, jeweils mit zu- und aufgeklappten Ebenen ohne Überlauf und ohne abgeschnittenen Text. Der vollständige Klicktest läuft in GitHub Actions. Kein iPhone-/Safari-Test.
+
 ## Bedienung Schritt 2: „Ort & Unterkunft“ kürzer (Claude, 16.11.)
 
 - `tUnterkunft` (app/ansichten.js): Ist ein Ort gewählt, steht nur dessen Karte offen; die übrigen liegen in der Ebene „Anderen Ort wählen“ (`fold('ort-andere')`), die während der Rückfrage „Ort wechseln?“ offen bleibt. Ohne gewählten Ort wie bisher alle Karten. Gleiche Knöpfe und Kennungen.

@@ -808,6 +808,18 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
 .mappe ul.plain:not(.daylist){gap:6px}
 /* Überblick „Euer Plan“: Verweis so breit wie sein Text, nicht wie die Spalte. */
 .plan-mini>div>a{align-self:flex-start;justify-self:start;width:auto}
+/* Tagesplan: Wege und Fixpunkte als Ebenen unter dem Plan (planExtras). Der innere Abschnitt verliert seinen Rahmen. */
+.plan-extra{display:flex;flex-direction:column;gap:10px;margin-block:14px}
+.plan-extra .fold-body>section.block{margin:0;padding:0;border:0;background:none;box-shadow:none}
+.plan-extra .fold-body>section.block>h2:first-child{display:none} /* Titel steht in der Kopfzeile der Ebene; aria-labelledby gilt weiter */
+/* Auswahlknöpfe: lange Wörter (z. B. „Familienurlaub“) brechen bei 200 % Schrift um statt die Seite zu verbreitern. */
+.opt{max-width:100%;min-width:0;overflow-wrap:anywhere;hyphens:auto}
+/* Große Schrift am schmalen Handy: Knöpfe und Verweise brechen um, statt über den Rand zu ragen. */
+@media (max-width:480px){
+ .btn,.lnk{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+ .dslot .add{min-width:0;white-space:normal}
+ .dslot .add::after{min-width:0;overflow-wrap:anywhere}
+}
 /* Tippen und Zeigen: sofortige Rückmeldung, auch ohne Hover. */
 @media screen and (prefers-reduced-motion:no-preference){
  .btn,.lnk,.chipbtn,.opt,.tab,.seg,.add,.rp-star,.item,.card.click,.start-weg,.template-card,.mood-preset,.design-choice,.profile-tag,.sub-row,.foto-thumb,.app-nav .nav-item{
