@@ -1,5 +1,18 @@
 # Projektstand · 16.11.2026
 
+## Check- und Packlisten nach Ziel, Reiseart und Wetter (Claude, 16.11.)
+
+Thread „Check- und Packlisten nach Ziel und Wetter“ (Auftrag Philipp 16.11.), Konzept `docs/CHECK_PACKLISTE.md` (M03/M04).
+- **Neu `packlogic.js` (`window.RPPack`, rein) und `app/packliste.js`** (App 28 Teile). `checklist(t)` bekommt bis zu drei Zusatzgruppen; Grundliste und bestehende Schlüssel bleiben, Häkchen weiter in `t.check`.
+- **Dokumente & Einreise:** nur bei Ausland. Reiseland wird abgeleitet (Format-5-`countries`, Katalog-`country` von Ziel/Etappen, Tannheimer Tal, Ortssuche auf dem Gerät), sonst unbekannt. Prüfpunkte zu Ausweis-Gültigkeit bis Rückkehr (mit Datum), Dokumentart, Einreise/Visum außerhalb EU/Schengen, Impfungen, Krankenversicherung, Währung, Roaming außerhalb EWR, mit Auto Führerschein/Vignette/Ausrüstung. **Keine Visa-, Impf- oder Gültigkeitsregeln im Code**, Links aufs Auswärtige Amt (Reise- und Sicherheitshinweise, Reisen und Gesundheit; am 16.11. erreichbar). Format-5-Ausweise zeigen das Ergebnis von `RPV5.idDocCheck`.
+- **Packliste: passend zur Reise:** Kleidung für N Tage, Wäsche ab 8 Nächten, Medikamente, je Anreise (Auto/Bahn/Flug), je Reiseart ohne eigene Grundliste, je Merkmal des Katalogziels; keine Dubletten zur Grundliste.
+- **Wetter (Open-Meteo):** Karte „Wetter am Ziel“ oben in der Checkliste, Abruf nur auf Knopfdruck mit Hinweis (gerundete Lage + Reisedaten, kein Startort). Bis 16 Tage: Vorhersage je Tag; weiter weg: Durchschnitt der letzten drei Jahre aus dem Archiv, ausdrücklich „keine Vorhersage“. Quelle, Abrufzeit, „veraltet“ ab 12 Std.; nur auf dem Gerät gespeichert (`rp-wetter`), nie in der Reise. Gruppe „Packliste: wegen Wetter“ mit Grund je Punkt (Regen ab 60 %, Kälte < 5 °C, Frost < −5 °C, Wärme ≥ 25 °C, UV ≥ 6, Wind ≥ 50 km/h, Schnee, mit Auto Winterausrüstung).
+- Geteilte Dateien: je eine Zeile in `app/kosten.js` (`checklist`) und `app/ansichten.js` (`tCheck`: Wetterkarte, Quellenlink je Punkt), `index.html`, `sw.js` (`reiseplaner-v34`), Build-Listen. `app.css` unverändert.
+
+Tests (16.11., Cloud-Container): `npm test` (neu `packliste`, 9 Prüfungen mit Open-Meteo-Attrappen), `test:browser`, `build`, `check:artifact` grün; Wetterkarte in Chromium 390 px hell/dunkel mit abgefangener Antwort angesehen (keine Konsolenfehler, Wetter nicht in `rp-trips`). **Nicht getestet:** echte Abfrage an Open-Meteo (Proxy des Containers sperrt sie), iPhone, Safari.
+
+Nächster Schritt: echte Abfrage auf Philipps Gerät prüfen; Format 5 schreibt seit heute (`F5_WRITE = true`), daher als Nächstes Ausblenden und eigene Packpunkte je Person (`t.packing`, M03.4) sowie Ausweis-Eingabe (M04.3); Wetter auch im Tagesplan (M03.2).
+
 
 ## Gemeinsam planen, Stufe G1: Drei-Wege-Abgleich (Claude, 16.11.)
 

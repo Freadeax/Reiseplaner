@@ -151,8 +151,12 @@ function checklist(t){
   if(sortedItems(t).some(it=>actOf(t,it.act)&&actOf(t,it.act).gear)) book.push(['rent','Verleih reservieren','Schuhgröße, Körpergröße und Gewicht bereithalten']);
   if(t.travel==='bahn') book.push(['ticket','Zugtickets buchen (Sparpreise früh)','']);
   groups.push(['Buchen & Anfragen',book]);
+  const more=typeof packExtraGroups==='function'?packExtraGroups(t):{};
+  if(more.docs)groups.push(more.docs);
   const pack=PACK[t.type]||PACK.standard;
   Object.keys(pack).forEach(g=>groups.push(['Packliste: '+g,pack[g].map(x=>['p-'+x,x,''])]));
+  if(more.fit)groups.push(more.fit);
+  if(more.wx)groups.push(more.wx);
   const have=new Set([].concat(...Object.values(pack))),need={},maxDay=daysOf(t).length-1;
   sortedItems(t).forEach(it=>{const a=actOf(t,it.act);if(!a||it.day>maxDay)return;(a.bring||[]).forEach(x=>{if(have.has(x))return;(need[x]=need[x]||new Set()).add(a.t)})});
   const extra=Object.keys(need);
