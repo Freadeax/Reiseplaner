@@ -880,3 +880,9 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
  .sheet-out-panel{animation-name:rp-sheet-drop}
 }
 @media print{.sheet-out{display:none!important}}
+
+/* Drei-Wege-Abgleich: Wahl je Widerspruch (app/konto.js mergeBlock, PLAN_GEMEINSAM §4) */
+.merge-pick{border:1px solid var(--line,#d8d2c4);border-radius:10px;padding:8px 12px;margin:10px 0}
+.merge-pick legend{padding:0 4px}
+.merge-pick .chk{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:6px 0}
+.merge-pick input[type=radio]{margin-top:3px;flex:none}

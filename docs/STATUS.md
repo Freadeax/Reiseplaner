@@ -1,6 +1,19 @@
 # Projektstand · 16.11.2026
 
 
+## Gemeinsam planen, Stufe G1: Drei-Wege-Abgleich (Claude, 16.11.)
+
+Thread „Gemeinsam mit Mitreisenden planen“ (Auftrag Philipp 16.11.). Konzept und Stufen G1–G7 in `docs/PLAN_GEMEINSAM.md`.
+Bisher wurde **jede** gleichzeitige Änderung derselben Reise zum Konflikt der ganzen Reise. Jetzt:
+- **Neu `merge3.js` (`window.RPMerge`, rein):** führt Basis, eigene und Online-Fassung zusammen. Oberste Felder einzeln, gekoppelte Gruppen (Zeitraum, Zeiten, Ort/Unterkunft, Anreise/Fahrtkosten) nur zusammen, Listen mit `id` je Eintrag (ein Eintrag als Ganzes, Betrag und „bezahlt“ werden nie gemischt), Objekte wie `check` je Schlüssel, alles andere als Ganzes. Löschen gegen Ändern ist ein Widerspruch. Unbekannte und Format-5-Felder laufen durch, das Format sinkt nie.
+- **`app/speicher.js`:** `Store.put` merkt sich beim ersten Bearbeiten einer online gespeicherten Reise den Server-Stand als `meta.base` (nur bis zum erfolgreichen Speichern). `Sync.merge` läuft, wenn der Server „Version geändert“ meldet: ohne Widerspruch wird das Ergebnis geprüft (`validateExtras`, ID, kein niedrigeres Format) und gespeichert, Meldung „Änderungen von anderen übernommen, eure bleiben erhalten“; mit Widerspruch Konflikt mit Einzelwahl. Ohne Basis, ohne `merge3.js` oder bei ungültigem Ergebnis gilt der bisherige Konflikt der ganzen Reise. `Sync.resolve(id,'pick',wahl)` verlangt eine Wahl je Punkt und prüft das Ergebnis.
+- **`app/konto.js` `mergeBlock`:** Liste der Widersprüche, je Punkt „Meine: …“ / „Online: …“ (Daten lesbar, Felder benannt), „Auswahl übernehmen“; die drei bisherigen Wege unter „Andere Wege“. `app.css` kleiner Abschnitt `.merge-pick` (Ziele ≥ 44 px).
+- `index.html` lädt `merge3.js` nach `v5logic.js`; Service Worker `reiseplaner-v33`; Build- und Artefaktliste ergänzt. Keine Migration, kein Speicherformat geändert (`meta.base` liegt nur im Kontospeicher des Geräts).
+
+Tests (16.11., Cloud-Container, auf Stand `6eaee41`): `npm test` (neu `merge3` mit 14 Prüfgruppen, neu `sync-merge` mit 7 Abläufen zweier Mitglieder gegen nachgebildeten Server: zusammengeführt ohne Konflikt, Widerspruch mit Wahl „meine“ und „online“, Löschen gegen Ändern, ohne Basis, ohne `merge3.js`, gleicher Inhalt ohne erneutes Speichern, ungültiges Ergebnis → kein Abgleich), `test:browser`, `build`, `check:artifact` grün; Wahl-Ansicht in Chromium bei 390 px angesehen. Nicht getestet: echte Supabase-Datenbank mit zwei Konten (`test:e2e` läuft in CI), iPhone, Safari.
+
+Nächster Schritt: Migration G2–G5 (Realtime-Auslöser, Anzeigename, Ideen-Pinnwand, Verlauf) lokal mit Supabase testen, dann **Philipps Freigabe**.
+
 
 ## Fixpunkte, Puffer und Realismus im Tagesplan (Claude, 16.11.)
 

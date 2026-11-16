@@ -119,6 +119,9 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
       try{const s=JSON.parse(this.lastRaw||'{}');const old=s&&s.trips&&s.trips[t.id];if(old)this.trips[t.id]=old;else delete this.trips[t.id]}catch(e){}
       alertMsg(UNREADABLE_TXT+' Änderungen werden nicht gespeichert. Ihr könnt den lokalen Stand als eigene Reise behalten.');if(typeof render==='function')setTimeout(render,0);return false}
     if(this.isAccount()&&!this.canEdit(t.id)){const m=this.meta[t.id];if(m&&m.sv)this.trips[t.id]=JSON.parse(m.sv);alertMsg('Nur Leserecht: Änderungen an dieser Reise werden nicht gespeichert.');if(typeof render==='function')setTimeout(render,0);return false}
+    /* Basis für den Drei-Wege-Abgleich (merge3.js, PLAN_GEMEINSAM §4): beim ersten Bearbeiten einer online gespeicherten Reise
+       den bisherigen Stand (= Server-Stand der bekannten Version) merken, bis das Speichern online gelingt. */
+    if(this.isAccount()){const m=this.meta[t.id];if(m&&m.version&&!m.base&&!m.conflict&&!this.queue[t.id]){try{const s=JSON.parse(this.lastRaw||'{}'),old=s&&s.trips&&s.trips[t.id];if(old)m.base=JSON.stringify(old)}catch(e){}}}
     t.updated=Date.now();this.trips[t.id]=t;
     if(this.isAccount()){const q=this.queue[t.id];this.queue[t.id]={op:'upsert',at:Date.now()};if(q&&q.op==='delete')this.queue[t.id].op='upsert';if(this.meta[t.id])delete this.meta[t.id].failed}
     if(!this.saveLocal())return false;
@@ -195,9 +198,10 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
           if(Store.scope!==scope)return changed;this.apply(row,'owner');
         }else{
           const row=await c.updateTrip(id,data,m.version);if(Store.scope!==scope)return changed;
-          if(row)this.apply(row);
+          if(row){this.apply(row);if(Store.queue[id]&&Store.queue[id].at!==q.at)Store.meta[id].base=JSON.stringify(data)}
           else{const cur=await c.getTrip(id);if(Store.scope!==scope)return changed;
             if(!cur)Store.meta[id]=Object.assign(m,{lost:true});
+            else if(!cur.deleted_at&&this.merge(id,m,data,cur)){changed=true;continue}
             else Store.meta[id]=Object.assign(m,{conflict:{op:cur.deleted_at?'deleted':'update',remote:cur}});
             changed=true;continue}
         }
@@ -205,6 +209,22 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
       }catch(e){if(e&&e.network)throw e;if(/23514|22P02|22023|23502|check constraint/i.test(String(e.code)+' '+e.message)){Store.meta[id]=Object.assign(Store.meta[id]||{},{failed:e.message,failedAt:q.at});changed=true}else throw e}
     }
     return changed;
+  },
+  /* Drei-Wege-Abgleich (merge3.js, PLAN_GEMEINSAM §4): Online-Stand hat sich seit der Basis geändert. Unabhängige Änderungen
+     werden zusammengeführt und erneut gespeichert; echte Widersprüche werden als Konflikt mit Wahl je Punkt gemeldet. Ohne
+     Basis, ohne RPMerge oder bei ungültigem Ergebnis false: dann gilt der bisherige Konflikt der ganzen Reise. */
+  merge(id,m,data,cur){
+    const R=typeof window!=='undefined'&&window.RPMerge;if(!R||!m.base||serverRowProblem(cur))return false;
+    let base,r;try{base=toServer(JSON.parse(m.base));r=R.merge3(base,data,cur.data)}catch(e){return false}
+    if(!r||r.error)return false;
+    try{validateExtras(r.result);if(r.result.id!==id||(Number(r.result.schemaVersion)||0)<(Number(cur.data.schemaVersion)||0))return false}catch(e){return false}
+    if(r.conflicts.length){Store.meta[id]=Object.assign(m,{conflict:{op:'update',remote:cur,merge:{result:r.result,conflicts:r.conflicts,mine:r.mine,theirs:r.theirs}}});return true}
+    if(R.eq(Object.assign({},r.result,{updated:undefined}),Object.assign({},cur.data,{updated:undefined}))){Store.trips[id]=clone(cur.data);this.apply(cur);delete Store.queue[id];return true}
+    Store.trips[id]=r.result;m.version=cur.version;m.updatedAt=cur.updated_at;m.base=JSON.stringify(cur.data);
+    Store.queue[id]={op:'upsert',at:Date.now()};this.again=true;
+    this.notice='Gleichzeitige Änderungen zusammengeführt ('+new Date().toLocaleString('de-DE')+').';
+    if(typeof alertMsg==='function')alertMsg('Änderungen von anderen übernommen, eure bleiben erhalten.');
+    return true;
   },
   /* ID existiert bereits auf dem Server (z. B. dieselbe Sicherung in zwei Konten importiert): lokale Reise unter neuer ID weiterführen. */
   reassign(id){const t=Store.trips[id];if(!t)return null;let nid;do{nid=uid('t')}while(Store.trips[nid]);const n=clone(t);n.id=nid;Store.trips[nid]=n;Store.queue[nid]={op:'upsert',at:Date.now()};delete Store.trips[id];delete Store.queue[id];delete Store.meta[id];this.notice='Eine Reise bekam eine neue ID, weil die alte bereits vergeben war.';return nid},
@@ -235,7 +255,7 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
     return changed;
   },
   /* Konfliktlösung durch den Benutzer */
-  resolve(id,how){
+  resolve(id,how,choices){
     const m=Store.meta[id];if(!m)return;
     const remote=m.conflict&&m.conflict.remote;
     const remoteBad=m.unreadable||(remote&&!remote.deleted_at&&serverRowProblem(remote));
@@ -246,8 +266,14 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
       delete Store.trips[id];delete Store.queue[id];delete m.conflict;if(!m.unreadable)m.unreadable=remoteBad;
       Store.saveLocal();this.schedule(0);return;
     }
-    if(how==='server'&&remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote);delete Store.queue[id]}
-    else if(how==='mine'&&remote&&!remote.deleted_at){m.version=remote.version;delete m.conflict;Store.queue[id]={op:'upsert',at:Date.now()}}
+    if(how==='pick'&&remote&&!remote.deleted_at&&m.conflict.merge){
+      const R=typeof window!=='undefined'&&window.RPMerge,mg=m.conflict.merge;if(!R)throw new Error('Abgleich nicht geladen. Seite neu laden.');
+      const missing=mg.conflicts.filter(x=>!choices||!['mine','theirs'].includes(choices[x.id]));if(missing.length)throw new Error('Bitte für jeden Punkt „meine“ oder „online“ wählen.');
+      const res=R.resolve(mg.result,mg.conflicts,choices);
+      try{validateExtras(res)}catch(e){throw new Error('Diese Auswahl ergibt keine gültige Reise ('+e.message+'). Bitte anders wählen oder einen der Wege unten nutzen.')}
+      Store.trips[id]=res;m.version=remote.version;m.updatedAt=remote.updated_at;m.base=JSON.stringify(remote.data);delete m.conflict;Store.queue[id]={op:'upsert',at:Date.now()}}
+    else if(how==='server'&&remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote);delete Store.queue[id]}
+    else if(how==='mine'&&remote&&!remote.deleted_at){m.version=remote.version;m.base=JSON.stringify(remote.data);delete m.conflict;Store.queue[id]={op:'upsert',at:Date.now()}}
     else if(how==='copy'){const t=Store.trips[id]||(remote&&remote.data);if(t){let nid;do{nid=uid('t')}while(Store.trips[nid]);const n=clone(t);n.id=nid;n.title=(String(t.title||'Reise').slice(0,64)+' (eigene Kopie)').slice(0,80);Store.trips[nid]=n;Store.queue[nid]={op:'upsert',at:Date.now()}}
       if(remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote);delete Store.queue[id]}else{delete Store.trips[id];delete Store.meta[id];delete Store.queue[id]}}
     else if(how==='discard'){if(remote&&!remote.deleted_at){Store.trips[id]=clone(remote.data);this.apply(remote)}else{delete Store.trips[id];delete Store.meta[id]}delete Store.queue[id]}

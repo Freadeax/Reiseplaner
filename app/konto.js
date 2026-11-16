@@ -144,7 +144,20 @@ function conflictBlock(t){
   const r=m.conflict.remote,who=r&&r.updated_at?new Date(r.updated_at).toLocaleString('de-DE'):'';
   if(m.conflict.op==='deleted')return '<section class="block"><div class="note" role="alert"><b>Diese Reise wurde online gelöscht, während ihr sie geändert habt.</b><p>Eure Version kann als neue Reise gespeichert oder verworfen werden.</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="copy">Als neue Reise speichern</button><button type="button" class="btn ghost sm" data-acc="conf" data-how="discard">Verwerfen</button></div></div></section>';
   if(m.conflict.op==='delete')return '<section class="block"><div class="note" role="alert"><b>Löschen nicht ausgeführt:</b><p>Die Reise wurde zwischenzeitlich online geändert ('+esc(who)+').</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="server">Aktuelle Version behalten</button></div></div></section>';
+  if(m.conflict.merge&&typeof window!=='undefined'&&window.RPMerge)return mergeBlock(m.conflict,who);
   return '<section class="block"><div class="note" role="alert"><b>Gleichzeitige Bearbeitung:</b><p>Diese Reise wurde online geändert ('+esc(who)+', Version '+esc(r.version)+'), während ihr sie hier bearbeitet habt. Nichts wurde überschrieben.</p><div class="row"><button type="button" class="btn sm" data-acc="conf" data-how="server">Online-Version übernehmen</button><button type="button" class="btn ghost sm" data-acc="conf" data-how="copy">Meine Version als Kopie</button><button type="button" class="btn warn sm" data-acc="conf" data-how="mine">Meine Version speichern (überschreibt)</button></div></div></section>';
+}
+/* Drei-Wege-Abgleich mit Widersprüchen (PLAN_GEMEINSAM §4): Wahl je Punkt, alles andere ist schon zusammengeführt. */
+function mergeBlock(cf,who){
+  const R=window.RPMerge,mg=cf.merge,r=cf.remote,n=mg.conflicts.length,auto=(mg.mine||0)+(mg.theirs||0);
+  const items=mg.conflicts.map((c,i)=>{const d=R.describe(c),nm='mc-'+i;
+    return '<fieldset class="merge-pick"><legend><b>'+esc(d.title)+'</b>'+(d.what?' <small class="muted">('+esc(d.what)+')</small>':'')+'</legend>'+
+      '<label class="chk"><input type="radio" name="'+nm+'" value="mine" data-mc="'+esc(c.id)+'"><span>Meine: '+esc(d.mine)+'</span></label>'+
+      '<label class="chk"><input type="radio" name="'+nm+'" value="theirs" data-mc="'+esc(c.id)+'"><span>Online: '+esc(d.theirs)+'</span></label></fieldset>'}).join('');
+  return '<section class="block"><div class="note" role="alert"><b>Gleichzeitige Bearbeitung:</b><p>Diese Reise wurde online geändert ('+esc(who)+', Version '+esc(r.version)+'), während ihr sie hier bearbeitet habt. Nichts wurde überschrieben.'+
+    (auto?' '+auto+' Änderung'+(auto===1?' ist':'en sind')+' schon zusammengeführt.':'')+'</p><p>Bei '+(n===1?'einem Punkt':n+' Punkten')+' wurde hier und online Unterschiedliches eingetragen. Bitte je Punkt wählen:</p>'+
+    items+'<div class="row"><button type="button" class="btn sm" data-acc="conf-pick">Auswahl übernehmen</button></div>'+
+    '<details><summary>Andere Wege</summary><div class="row"><button type="button" class="btn ghost sm" data-acc="conf" data-how="server">Ganz die Online-Version übernehmen</button><button type="button" class="btn ghost sm" data-acc="conf" data-how="copy">Meine Version als Kopie</button><button type="button" class="btn warn sm" data-acc="conf" data-how="mine">Meine Version speichern (überschreibt)</button></div></details></div></section>';
 }
 function accErr(e){UI.authMsg=e&&e.message?e.message:String(e);render()}
 document.addEventListener('submit',async e=>{
@@ -189,6 +202,7 @@ document.addEventListener('click',async e=>{
       case 'invite-revoke':await c.revokeInvite(val);await shareSheet(t);return;
       case 'member-remove':await c.removeMember(t.id,val);await shareSheet(t);return;
       case 'leave':await c.removeMember(val,Auth.user.id);closeSheet();await Sync.settle();go('reisen');alertMsg('Reise verlassen.');return;
+      case 'conf-pick':{const ch={};document.querySelectorAll('[data-mc]').forEach(x=>{if(x.checked)ch[x.getAttribute('data-mc')]=x.value});try{Sync.resolve(t.id,'pick',ch);alertMsg('Auswahl übernommen.')}catch(err){alertMsg(err.message)}render();return}
       case 'conf':try{Sync.resolve(t.id,b.getAttribute('data-how'))}catch(err){alertMsg(err.message)}render();return;
     }
   }catch(err){alertMsg(err.message)}
