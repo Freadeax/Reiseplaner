@@ -591,8 +591,8 @@ function dayList(t,d,last){
   if(d.i===0){const arr=arrivalMin(t);fixed.push('Anreise ab '+(t.origin||'Start')+(t.departTime?' um '+t.departTime:'')+(arr!=null?', Ankunft ca. '+minTime(arr):''))}
   if(d.i===last&&last>0)fixed.push('Packen & Abreise');
   if(!its.length&&!fixed.length)return '<p class="muted small">Nichts eingeplant.</p>';
-  return '<ul class="plain">'+fixed.map(x=>'<li><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
-    return '<li><span class="eyebrow">'+esc(it.time||SLOTNAME[it.slot]||'')+'</span> '+esc(a.t)+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u?' '+lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</li>'}).join('')+'</ul>';
+  return '<ul class="plain daylist">'+fixed.map(x=>'<li class="dl-fix"><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
+    return '<li><span class="eyebrow">'+esc(it.time||SLOTNAME[it.slot]||'')+'</span> <span class="dl-t">'+esc(a.t)+'</span>'+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u||a.map?' <span class="dl-links">'+(u?lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</span>':'')+'</li>'}).join('')+'</ul>';
 }
 function rainBlock(t,i){
   const ideas=rainIdeas(t,i,3);if(!ideas.length)return '';

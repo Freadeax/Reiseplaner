@@ -16,6 +16,12 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Oberfläche Schritt 5: Tageslisten in Reisemappe und Heute (Claude, 16.11.)
+
+- `dayList` (app/ansichten.js) ordnet jeden Punkt neu: Zeitfenster als eigene Zeile, Titel hervorgehoben, „Info“ und „Karte“ gesammelt in einer Zeile darunter statt mitten im Fließtext. Gleiche Inhalte und Reihenfolge, nur Darstellung.
+- Überblick „Euer Plan“: Der Verweis „Inserat“ ist nur noch so breit wie sein Text.
+- Geprüft: `npm test` und `npm run test:browser` mit CI-Schrift (DejaVu Sans) grün. Kein iPhone-/Safari-Test.
+
 ## Oberfläche Schritt 4: Karten und „Neue Reise“ (Claude, 16.11.)
 
 Nur Darstellung (`app/ansichten.js`, `app.css`); keine Berechnung, kein Speicherformat, `index.html` und `sw.js` unverändert (weiter `reiseplaner-v30`).

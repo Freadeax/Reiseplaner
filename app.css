@@ -796,6 +796,18 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
  .form-group-title::before{content:counter(fg);flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--spruce-soft);color:var(--spruce);font-family:var(--f-body);font-size:.85rem;font-weight:700}
 }
 
+/* Tagesliste (Heute, Reisemappe): Zeitfenster als eigene Zeile, Titel deutlich, Verweise gesammelt darunter. */
+ul.plain.daylist{list-style:none;padding-left:0;gap:0}
+.daylist>li{padding:8px 0;border-top:1px solid var(--line)}
+.daylist>li:first-child{border-top:0;padding-top:2px}
+.daylist>li>.eyebrow{display:block;margin-bottom:1px}
+.daylist .dl-t{font-weight:600}
+.daylist .dl-fix b{font-weight:600}
+.daylist .dl-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mday h4{margin:0;padding-bottom:6px;border-bottom:2px solid var(--line)}
+.mappe ul.plain:not(.daylist){gap:6px}
+/* Überblick „Euer Plan“: Verweis so breit wie sein Text, nicht wie die Spalte. */
+.plan-mini>div>a{align-self:flex-start;justify-self:start;width:auto}
 /* Tippen und Zeigen: sofortige Rückmeldung, auch ohne Hover. */
 @media screen and (prefers-reduced-motion:no-preference){
  .btn,.lnk,.chipbtn,.opt,.tab,.seg,.add,.rp-star,.item,.card.click,.start-weg,.template-card,.mood-preset,.design-choice,.profile-tag,.sub-row,.foto-thumb,.app-nav .nav-item{
