@@ -751,7 +751,11 @@ async function appearances(browser,base,name,ctxOpts){
   await tripTab(p,'kosten');await noOverflow(p,name+' Kosten '+mode);
   await tripTab(p,'mappe');
   await p.emulateMedia({media:'print'});
-  assert.equal(await p.$eval('.tabs,.sub-head',el=>getComputedStyle(el).display),'none');
+  /* Suchen und Messen in einem Schritt: Zeichnet die Ansicht zwischen beidem neu (nachgeladene Daten), wäre das gefundene
+     Element schon aus dem Dokument gelöst und sein berechneter Stil leer. Geprüft wird weiter jedes sichtbare Kopf-/Reiterelement. */
+  {const shown=await p.evaluate(()=>{const els=[...document.querySelectorAll('.tabs,.sub-head')];return {n:els.length,d:els.map(el=>getComputedStyle(el).display)}});
+   assert(shown.n>=1,name+' '+mode+': Reiter oder Unterseiten-Kopf vorhanden');
+   assert.deepEqual(shown.d.filter(d=>d!=='none'),[],name+' '+mode+': Reiter/Unterseiten-Kopf im Druck ausgeblendet '+JSON.stringify(shown.d));}
   await p.emulateMedia({media:'screen'});
   await p.reload();assert.equal(await p.getAttribute('html','data-layout'),mode);
   await p.click('.app-nav [data-go="reisen"]');
