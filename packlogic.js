@@ -141,6 +141,8 @@
   var TYPE_PACK = {
     tag: [['p-x-tag', 'Proviant und Getränke'], ['p-x-tagplan', 'Ausweis, Geld und geladenes Handy']],
     wochenende: [['p-x-kultur', 'Kulturbeutel'], ['p-x-schlaf', 'Schlafsachen']],
+    wellness: [['p-x-kultur', 'Kulturbeutel'], ['p-x-schlaf', 'Schlafsachen'], ['p-x-sauna', 'Bademantel und Saunatücher']],
+    familie: [['p-x-kultur', 'Kulturbeutel'], ['p-x-kinderapo', 'Kinderapotheke (Fieber, Pflaster, Sonnenschutz)'], ['p-x-fahrt', 'Beschäftigung und Snacks für die Fahrt'], ['p-x-wechsel', 'Wechselkleidung griffbereit']],
     rund: [['p-x-teilen', 'Gepäck so teilen, dass eine Tasche für einzelne Nächte reicht'], ['p-x-kultur', 'Kulturbeutel']]
   };
   var norm = function (s) { return String(s || '').toLocaleLowerCase('de').replace(/[^a-zäöüß]/g, ''); };

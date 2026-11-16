@@ -50,7 +50,7 @@ Zusatzgruppe „Packliste: passend zur Reise“ mit stabilen Schlüsseln (`p-x-�
 - Anreise: Auto (Warnweste, Warndreieck, Verbandkasten; im Ausland Regeln prüfen), Bahn (Tickets offline), Flug
   (Handgepäckregeln prüfen, Ladegeräte ins Handgepäck).
 - Ziel: Merkmale des Katalogziels (Therme, Berge, See, Stadt …) ergänzen passende Punkte.
-- Reiseart ohne eigene Grundliste (Tagesausflug, Wochenende, Rundreise) bekommt wenige typische Punkte.
+- Reiseart ohne eigene Grundliste (Tagesausflug, Wochenende, Rundreise, seit Reisestil auch Wellness und Familie) bekommt wenige typische Punkte.
 - Doppelte Punkte (gleiche Bezeichnung wie in der Grundliste) werden nicht wiederholt.
 
 ### 3.3 Wetter (Open-Meteo, freigegeben 23.10.)

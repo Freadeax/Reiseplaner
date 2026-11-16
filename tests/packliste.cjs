@@ -135,6 +135,8 @@ const fcJson = { daily: { time: ['2026-12-30', '2026-12-31', '2027-01-01'], temp
   assert.ok(!text(g).includes('Badesachen und'), 'Badesachen stehen schon in der Grundliste');
   const day = P.fitGroup(trip({ type: 'tag', travel: 'bahn' }), [], [], 0);
   assert.deepEqual(keys(day), ['p-x-bahn', 'p-x-tag', 'p-x-tagplan'], 'Tagesausflug ohne Kleidung/Medikamente');
+  assert.deepEqual(keys(P.fitGroup(trip({ type: 'wellness' }), [], [], 2)).slice(-3), ['p-x-kultur', 'p-x-schlaf', 'p-x-sauna'], 'Reisestil Wellness');
+  assert.ok(keys(P.fitGroup(trip({ type: 'familie' }), [], [], 4)).includes('p-x-kinderapo'), 'Reisestil Familie');
   ok();
 }
 /* Einbindung in die App: checklist(t), Gerätespeicher, Wetterkarte */
