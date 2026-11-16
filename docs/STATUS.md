@@ -81,6 +81,14 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Bedienung Schritt 1: „Angebote vergleichen“ entschlackt (Claude, 16.11.)
+
+- `tSuche` (app/ereignisse.js) zeigt nur noch drei Grundfilter (Ort, Höchstpreis, Sortierung). Fahrzeit, Bewertung, Art, Anbieter, Muss/Wunsch-Merkmale und die beiden Häkchen liegen in der Ebene „Weitere Filter“ (`fold('suche-filter')`); sie bleibt offen, solange dort ein Filter aktiv ist (Wünsche zählen nicht als aktiver Filter, stehen aber in der Kopfzeile).
+- Suchprofile (`suche-profile`) und „Ideen, wenn nichts passt“ (`suche-ideen`) sind Ebenen; Abschnitte neu nummeriert 1–4. Gleiche Felder, gleiche `data-`Kennungen, keine Änderung an Filterlogik oder Daten.
+- Handy 390 px, Beispielreise: Seitenlänge 5926 px → 4111 px.
+- tests/browser.cjs klappt die Ebenen vor der Eingabe auf und prüft, dass „Weitere Filter“ anfangs zu ist.
+- Geprüft: `npm test` und `npm run test:browser` mit CI-Schrift grün. Kein iPhone-/Safari-Test.
+
 ## Oberfläche Schritt 5: Tageslisten in Reisemappe und Heute (Claude, 16.11.)
 
 - `dayList` (app/ansichten.js) ordnet jeden Punkt neu: Zeitfenster als eigene Zeile, Titel hervorgehoben, „Info“ und „Karte“ gesammelt in einer Zeile darunter statt mitten im Fließtext. Gleiche Inhalte und Reihenfolge, nur Darstellung.

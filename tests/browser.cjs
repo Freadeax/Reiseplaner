@@ -526,6 +526,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.press('[data-search="destination"]', 'Tab');
   const booking = await p.getAttribute('a[href*="booking.com/searchresults"]', 'href');
   assert(booking.includes('checkin=2027-05-01') && booking.includes('group_adults=2'), name + ': Anbieterparameter');
+  await p.locator('details[data-fold="suche-profile"] > summary').click();
   await p.fill('#profile-name', 'Unser Profil');
   await p.click('[data-search-act="profile-save"]');
   assert((await viewText(p)).includes('Unser Profil'), name + ': Profil nicht gespeichert');
@@ -543,6 +544,8 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-search-act="compare"]');
   assert((await viewText(p)).includes('420 €'), name + ': Restzahlung im Vergleich');
   await noOverflow(p, name + ' Suchzentrale und Vergleich');
+  assert(!(await p.locator('[data-criterion="kitchen"]').isVisible()), name + ': weitere Filter sollten anfangs zugeklappt sein');
+  await p.locator('details[data-fold="suche-filter"] > summary').click();
   await p.selectOption('[data-criterion="kitchen"]', 'must');
   assert((await viewText(p)).includes('Kein Angebot erfüllt alle Filter'), name + ': unbekannte Küche erfüllt Muss');
   await p.selectOption('[data-criterion="kitchen"]', 'any');
