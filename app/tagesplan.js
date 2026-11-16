@@ -20,13 +20,14 @@ function driveByDay(t){
    die Reise nicht ändert (Schlüssel = gespeicherte Form); Ansichten rufen dayLoad(t)[i] oft je Tag auf. */
 const LOAD_CACHE=new WeakMap();
 function dayLoad(t){
-  const key=JSON.stringify(t),hit=LOAD_CACHE.get(t);if(hit&&hit.key===key)return hit.load;
+  const key=JSON.stringify(t)+'|'+(typeof wegeVersion==='number'?wegeVersion:0),hit=LOAD_CACHE.get(t);if(hit&&hit.key===key)return hit.load;
   const days=daysOf(t),drive=driveByDay(t),byDay=new Map();
   (t.items||[]).forEach(it=>{if(!byDay.has(it.day))byDay.set(it.day,[]);byDay.get(it.day).push(it)});
   const load=days.map(d=>{let planned=0,unknown=0;
     (byDay.get(d.i)||[]).forEach(it=>{const a=actOf(t,it.act);if(!a||a.transit)return;const h=actHours(a);if(h==null)unknown++;else planned+=h});
-    const cap=Math.max(0,DAY_HOURS-drive[d.i]/60);
-    return {day:d.i,planned:Math.round(planned*10)/10,unknown,drive:drive[d.i],cap:Math.round(cap*10)/10,over:planned>cap+0.25};
+    /* Wege vor Ort (app/wege.js, docs/WEGE.md): bekannte Wegminuten des Tages, Schätzung oder berechnet */
+    const ways=typeof dayWays==='function'?dayWays(t,d.i).min:0,cap=Math.max(0,DAY_HOURS-drive[d.i]/60-ways/60);
+    return {day:d.i,planned:Math.round(planned*10)/10,unknown,drive:drive[d.i],ways,cap:Math.round(cap*10)/10,over:planned>cap+0.25};
   });
   LOAD_CACHE.set(t,{key,load});
   return load;

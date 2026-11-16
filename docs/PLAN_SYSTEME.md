@@ -59,7 +59,8 @@ Lücken:
 ## 4 · Fristen und Termine
 
 **[Code]** `deadlines(t, now)` ist die eine Quelle für Fahrplan, „Als Nächstes“, Kalenderdatei und die Wochenübersicht;
-stabile IDs, Zeitzonen, Sommerzeit. Tagesplan mit Uhrzeiten, Überschneidungen, Wegzeiten (Schätzung oder OSRM).
+stabile IDs, Zeitzonen, Sommerzeit. Tagesplan mit Uhrzeiten, Überschneidungen, Wegzeiten (Schätzung oder OSRM). **16.11.:** Wege je Tag
+mit Verkehrsmittel, Tagesskizze und Wegminuten in der Tageslast (`app/wege.js`, `docs/WEGE.md`); `dayRoutes` wird mit `F5_WRITE` geschrieben.
 
 Lücken:
 1. **„Erledigt“-Markierung** (`t.deadlineAck`) wird gelesen, aber nicht geschrieben: der Schreibweg ist ein v5-Feld.

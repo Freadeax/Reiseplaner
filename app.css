@@ -886,3 +886,32 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
 .merge-pick legend{padding:0 4px}
 .merge-pick .chk{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:6px 0}
 .merge-pick input[type=radio]{margin-top:3px;flex:none}
+/* ================= Wege und Tageskarte (app/wege.js, docs/WEGE.md) =================
+   Ohne Animation: render() zeichnet bei jeder Eingabe neu. Bedeutung steht immer als Text daneben. */
+.weg-zeile{font-size:.78rem;color:var(--ink);line-height:1.3;padding:0 2px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.weg-zeile span[aria-hidden]{color:var(--muted);margin-right:2px}
+.wege .between{flex-wrap:wrap;gap:8px}
+.wege-modus{display:flex;flex-wrap:wrap;gap:6px}
+.wege-modus .btn[aria-pressed="true"]{background:var(--spruce);color:var(--bg);border-color:var(--spruce)}
+.wege-modus .btn[aria-pressed="true"]::before{content:'✓ '}
+.weg-zeile.knapp b{color:var(--warn)}
+.wege-tag{display:flex;align-items:center;gap:6px;font-size:.85rem}.wege-tag select{min-height:36px;width:auto;max-width:100%}
+@media screen and (max-width:600px){.wege-tag{display:none}}
+.wege .row .btn,.wege .row .lnk{white-space:normal;max-width:100%;overflow-wrap:anywhere}
+.wege-summe{margin:.4em 0;overflow-wrap:anywhere}
+.wege-karte{margin:8px 0;display:flex;flex-direction:column;gap:4px}
+.wege-karte svg{width:100%;max-width:520px;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.wege-linie{fill:none;stroke:var(--spruce);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;opacity:.85}
+.wege-luft{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 4}
+.wege-pt circle{fill:var(--spruce);stroke:var(--surface);stroke-width:1.5}
+.wege-pt text{font:bold 9px var(--f-body);fill:var(--bg);text-anchor:middle}
+.wege-home rect{fill:var(--sign);stroke:var(--sign-ink);stroke-width:1}
+.wege-home text{font:bold 10px var(--f-body);fill:var(--sign-ink);text-anchor:middle}
+.wege-mass{stroke:var(--muted);stroke-width:2}
+.wege-mass-t{font:10px var(--f-body);fill:var(--muted);text-anchor:end}
+.wege-liste{margin:6px 0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.wege-liste li{display:flex;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:1px;overflow-wrap:anywhere}
+.wege-liste li>.wege-von{flex:1 1 100%}
+.wege-liste li.offen .small{color:var(--warn);font-weight:600}
+.wege-von{font-weight:600}
+@media print{.wege-modus,.wege [data-wege]{display:none}}

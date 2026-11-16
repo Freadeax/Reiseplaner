@@ -27,6 +27,21 @@ Tests (16.11., Cloud-Container, auf Stand `6eaee41`): `npm test` (neu `merge3` m
 
 Nächster Schritt: Migration G2–G5 (Realtime-Auslöser, Anzeigename, Ideen-Pinnwand, Verlauf) lokal mit Supabase testen, dann **Philipps Freigabe**.
 
+## Wege und Tageskarte im Tagesplan (Claude, 16.11.)
+
+Thread „Routen und Karten in Tagesplanung“ (Auftrag Philipp 16.11., Punkt „Visuelle Routen- und Tagesplanung“). Konzept und Regeln: `docs/WEGE.md`.
+- **Neuer Teil `app/wege.js`** (nach `app/tagesplan.js`): Stationen eines Tages (Unterkunft bzw. Etappe → Punkte in Planreihenfolge → zurück), Wege je Abschnitt mit km und Minuten. Verkehrsmittel vor Ort wählbar (Auto, zu Fuß, Fahrrad; je Reise nur auf diesem Gerät gemerkt, Standard Auto bei Anreise mit dem Auto, sonst zu Fuß).
+- **Schätzung** aus Luftlinie × 1,3 (Auto Ø 50 km/h, ab 30 km Ø 70 km/h, plus 10 Min. Parken/Fußweg; zu Fuß 4,5 km/h; Rad 15 km/h plus 5 Min.), immer als „geschätzt“ gekennzeichnet. Punkte ohne Lage ergeben „Lage unbekannt“, nie 0 Min.; die Summe heißt dann „mindestens“. Unter 300 m gilt „am selben Ort“. Ohne Unterkunftslage dient die Ortsmitte als Ausgangspunkt (sichtbar).
+- **„Wege berechnen“** nur auf Knopfdruck: fehlende Orte über Nominatim (vorhandener Takt ≥ 1,1 s, höchstens 8 je Klick, „nicht gefunden“ wird gemerkt), dann eine Anfrage an routing.openstreetmap.de (`routed-car/-foot/-bike`) für den ganzen Tag, mit Linienverlauf. Orte und Routen nur im Gerätespeicher (`rp-wege-cache-v1`, höchstens 300 Orte/60 Routen), nicht in der Reise; geänderte Reihenfolge = wieder Schätzung. Netzfehler: Meldung, Schätzung bleibt.
+- **Darstellung:** Wegzeile im Zeitstrahl vor jedem Punkt („↓ ≈ 20 km · ca. 35 Min. Auto, geschätzt“, bei zu wenig Zeit zwischen zwei Uhrzeiten „! knapp“). Abschnitt „Wege am <Tag>“ unter dem Board: Summe, SVG-Skizze ohne Kartenkacheln (Unterkunft ⌂, Nummern wie in der Liste, berechnete Linie oder gestrichelte Luftlinie, Maßstab), Liste der Abschnitte mit OSM-Link je Abschnitt, „In Karten-App öffnen“ (URL mit Koordinaten, kein API-Aufruf), Namensnennung OpenStreetMap/FOSSGIS. Am Desktop eigene Tagesauswahl im Abschnitt.
+- **Tageslast:** `dayLoad` zieht die Wegminuten von den 10 Planstunden ab (neues Feld `ways`); Tageskopf, Heute und Reisemappe nennen „Wege ca. … Std.“.
+- **Format 5:** `dayRouteRecord(t, day)` erzeugt einen gültigen `dayRoutes`-Eintrag (SCHEMA_V5 M12); noch nicht verdrahtet (seit 16.11. mittags ist `F5_WRITE = true`; Speichern auf Wunsch ist der nächste Schritt).
+- Geteilte Dateien klein: `app/ansichten.js` (zwei abgesicherte Einhängungen in `tPlan`, „Wege“ in drei Lastzeilen, doppelte Wegangabe „Weg davor“ entfällt, wenn `wege.js` geladen ist), `app/tagesplan.js` (`dayLoad`), `app/start.js` (Exporte), `index.html`, `sw.js` (`reiseplaner-v37`), `package.json`, `app.css` (eigener Abschnitt am Ende, ohne Animation). Abgestimmt mit „UI neu gestalten und animieren“ und „Fixpunkte und Pufferzeiten“ (nutzt `dayWays`).
+
+Tests (16.11., Cloud-Container, auf Stand `bf10518` mit den parallelen Modulen vom 16.11.): `npm test` (neu `tests/wege.cjs`, 7 Prüfungen mit nachgebildetem Netz), Sichtprüfung in Chromium (Handy 390 px hell/dunkel, Desktop 1280 px; ohne Netz: Meldung „Keine Verbindung zum Kartendienst“), `test:browser` mit CI-Schrift (DejaVu Sans) grün, `build`, `check:artifact` grün. Nicht getestet: echtes Routing (routing.openstreetmap.de ist aus dem Container nicht erreichbar; die Fuß-/Rad-Adressen folgen dem Schema der Auto-Route, die die App schon nutzt), iPhone, Safari.
+
+Nächster Schritt: Philipp prüft im Tagesplan einen Tag mit Katalog-Ideen und „Wege berechnen“. Danach mit `F5_WRITE` die Tagesroute auf Wunsch speichern und „kürzere Reihenfolge vorschlagen“ (nur Vorschlag, Uhrzeiten und Buchungen fest).
+
 
 ## Fixpunkte, Puffer und Realismus im Tagesplan (Claude, 16.11.)
 

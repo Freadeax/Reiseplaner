@@ -1,5 +1,9 @@
 # Roadmap
 
+## Wege und Tageskarte · 16.11.2026
+
+Tagesplan zeigt Wege zwischen den Punkten (Schätzung oder OpenStreetMap-Routing auf Knopfdruck), eine Tagesskizze ohne Kartenkacheln und rechnet Wegzeiten in die Tageslast (`docs/WEGE.md`). Als Nächstes: Tagesroute mit `F5_WRITE` in `dayRoutes` speichern, kürzere Reihenfolge vorschlagen, Wegesumme und Skizze in Reisemappe/PDF, Lage eigener Unterkünfte speichern.
+
 ## Buchungen & Tickets · 16.11.2026
 
 Zentraler Speicher für Unterlagen (M11.1/M11.3, `docs/UNTERLAGEN.md`): Tickets, Bestätigungen, Voucher und Codes je Reise, nur auf dem Gerät, offline nutzbar, mit Buchungsüberblick und „Unterlagen für heute“. Als Nächstes: Spiegel nach `t.docs`, Löschen mit der Reise, Sicherung mit Unterlagen auf Wahl; Cloud-Kopie erst nach eigener Entscheidung.
