@@ -28,11 +28,35 @@ Planung M07 (Register) und M08 (Angebote).
 Speichern läuft über `f5Commit` (Format 5, Anheben nur nach Bestätigung). Test: `tests/angebote.cjs` (31 Prüfungen, Node).
 Browser-Sichtprüfung bei 390 px Breite in Chromium (Blatt, Karte, Vergleich). **Kein iPhone-Test.**
 
+## Stufe 2 · Unterkunft-Reiter, Arten, Portale, Register (umgesetzt)
+
+Philipp 16.11.: „Komplexes Ausbauen des kompletten Unterkunft-Reiters, Anbindung an mehrere und Erweitern des Registers,
+vor allem mit exotischen Sachen. Hotel, aber auch Airbnb usw.“
+
+| Teil | Datei | Inhalt |
+| --- | --- | --- |
+| Register | `lodging.js` (`window.RPLodging`) | 28 Arten in 6 Gruppen (Hotel & Pension, Ferienwohnen, Land & Hof, Camping & Glamping, Berg & Hütte, Ausgefallen: Baumhaus, Iglu, Hausboot, Burg/Schloss, Kloster, Leuchtturm, Schlaffass …) mit Prüfpunkten; 16 Portale; 9 echte Betriebe mit Quelle und Prüfdatum, ohne Preise |
+| Reiter | `app/unterkuenfte.js` | Stand „Eure Unterkunft“ mit nächstem Schritt; Merkliste zeigt Art, Angebote je Unterkunft, „Angebot erfassen“; Arten mit Portalen und Register-Einträgen (Entfernung ab Abfahrtsort, Luftlinie); „Auf die Merkliste“ ohne Auswahlwechsel |
+| Eigene Unterkunft | `app/ereignisse.js` `stay-add` | Art wählbar; leerer Preis = „Preis offen“ statt 0 € |
+
+**Anbindung, ehrlich:** Es gibt keine Live-Schnittstelle (PROVIDER_INTEGRATION: Booking/Expedia nur für freigeschaltete
+Partner, CHECK24/Airbnb ohne offene Such-API). Booking, Airbnb und FeWo-direkt öffnen mit Ziel, Datum und Personen
+(geprüftes Linkformat); alle anderen Portale öffnen ihre Startseite. Angebote aus neuen Portalen laufen als Anbieter
+„Direkt beim Gastgeber“ mit Link, damit ältere App-Stände die Daten weiter lesen.
+
+**Register-Regeln (tests/lodging-Teil in `tests/unterkuenfte.cjs`):** stabile IDs `lg-…`, jede Quelle HTTPS mit Prüfdatum und
+Art (offiziell/magazin/portal); „bestätigt“ nur mit offizieller Quelle; keine Preise oder Verfügbarkeit im Register;
+Lage als ungefährer Ortspunkt. Einträge 16.11.2026 über Websuche geprüft (Domain und Seiten des Anbieters sichtbar), die Seiten
+selbst waren aus der Cloud nicht abrufbar. Hofgut Hopfenburg: Unterkunftsarten nur laut Magazin, als Hinweis markiert.
+
+Datenfelder: `customStays[i].kind`, `.reg`, `.geo` (optional; customStays werden nicht feldweise geprüft). Bleibt beim
+Auswählen eines Angebots erhalten (`applyOffer`). Speicherort Register: Datei, Entscheidung „Datenbank“ offen.
+
 ## Nächste Stufen (Vorschlag)
 
-2. **Ein Unterkunftsbereich statt zwei:** Merkliste von Unterkünften (Profil) mit ihren Angeboten darunter; `stayQuote` und
-   eigene Unterkunft gehen in dasselbe Angebotsmodell über; Auswahl, Buchung, Storno, Gästekarte an einer Stelle; kürzere
-   Angebotskarte am Handy (Aktionen in einem Menü).
-3. **Register in der Datenbank** (M07/D01): Unterkunftsprofile mit Quellen, Prüfdatum, bestätigt/unbestätigt je Merkmal,
-   Dublettenschutz, `stayRef`. Braucht eine Supabase-Migration und Philipps Freigabe.
-4. Erinnerung „Preis in 7 Tagen erneut prüfen“ über die Fristen (M08 F8); Lage eigener Unterkünfte (`customStays[i].geo`) für Wege.
+3. **Reisefinder ganz eingliedern:** Filter und Vergleich direkt im Reiter statt im Nachbarteil „Angebote vergleichen“;
+   `stayQuote` als Angebot führen; kürzere Angebotskarte am Handy (Aktionen in einem Menü).
+4. **Register wachsen lassen:** weitere geprüfte Einträge je Art und Region (Quelle Pflicht), Korrektur melden (M07 F7).
+5. **Register in der Datenbank** (M07/D01): Tabellen mit Verlauf und Dublettenschutz, `stayRef`. Braucht eine
+   Supabase-Migration und Philipps Freigabe.
+6. Erinnerung „Preis in 7 Tagen erneut prüfen“ über die Fristen (M08 F8); Lage eigener Unterkünfte für Wege nutzen.
