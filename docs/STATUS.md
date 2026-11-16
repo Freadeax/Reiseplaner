@@ -1,5 +1,15 @@
 # Projektstand · 16.11.2026
 
+## Planungswege: sechs Einstiege, Schritt für Schritt, Wünsche & Grenzen (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. („Planmodule in die Tiefe, Planmöglichkeiten und Oberfläche“). Details `docs/PLANUNGSWEGE.md`, Code `app/planungswege.js`.
+- **Sechs Wege** auf der Startseite und unter `#planen`: Schritt für Schritt, Alles auf einer Seite, Ziel finden, Unterkunft steht schon, Erlebnis zuerst, Vorlage. Alle legen dieselbe Reise an (gleiche Kostenrechnung, im Test verglichen).
+- **Schritt für Schritt:** 7 Schritte mit Fortschritt, Zurück, Sprung zu jedem Schritt, Prüfen-Seite mit „Ändern“, Eingaben bleiben beim Neuladen und beim Wechsel zum Formular erhalten, „Neu beginnen“ ist rückgängig zu machen.
+- **Wünsche & Grenzen** (Format 5 `criteria`): Muss/Gern/Lieber nicht, Wunschbudget unter Obergrenze, Fahrzeit, Heimkehr, Storno; im Überblick Abgleich mit dem Plan, Unbekanntes nie als Treffer.
+- **Unbekannter Unterkunftspreis** bleibt offen statt 0 € (neue Einstiege).
+
+Tests (16.11. abends, Cloud-Container, auf `cde1345`): `npm test` grün (neu `tests/planungswege.cjs`, 48 Prüfungen), `npm run build` + `check:artifact`, Klickprobe in Chromium 390 px (alle drei neuen Wege bis zur angelegten Reise, Neuladen behält Eingaben, Wünsche im Blatt geändert und als Format 5 gespeichert, keine Konsolenfehler). Voller Klicktest läuft auf GitHub. Kein iPhone-Test.
+
 ## Wege, Schritt 2: kürzere Reihenfolge, Tagesroute speichern, Reisemappe (Claude, 16.11. abends)
 
 Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Details `docs/WEGE.md` „Schritt 2“.

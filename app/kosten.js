@@ -13,6 +13,7 @@ function cost(t){
     if(offer&&v3Money(t,offer)&&offer.cancel){const m=V3.cancelMath(offer,offerAmounts(offer).total);add('unterkunft',offer.name+' (storniert)',m.unknown?'Stornogebühr noch unbekannt':'Stornogebühr laut eurer Eingabe',m.unknown?0:m.cost,m.unknown?'est':'ok','stay');if(m.unknown)lines[lines.length-1].unknownFee=true;}
     else if(offer){const a=offerAmounts(offer);add('unterkunft',offer.name,'Erfasst für '+offer.persons+' Personen · '+offer.start+' bis '+offer.end+(offerCurrent(offer,t)?'':' · Achtung: passt nicht mehr / abgelaufen'),a.total,'est','stay');}
     else if(num(t.stayQuote,0)>0) add('unterkunft',st.name,'Euer Angebotspreis gesamt',num(t.stayQuote,0),'ok','stay');
+    else if(st.custom&&st.priceOpen){add('unterkunft',st.name,'Preis noch offen · '+N+' Nächte','0','est','stay');lines[lines.length-1].open=true} /* unbekannt ist nicht 0 € (app/planungswege.js) */
     else{const sn=stayNight(t,st);add('unterkunft',st.name,(st.custom?'Planwert '+eur(sn.pn)+' / Nacht':sn.txt)+' · × '+N+' Nächte',sn.pn*N,sn.src,'stay')}
   }
   /* Stornogebühren früherer, nicht aktiver Angebote (SCHEMA_V3 §1, U1/U2) */

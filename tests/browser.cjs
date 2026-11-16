@@ -308,7 +308,7 @@ async function run(browser, base, name, ctxOpts, now) {
   /* Solange die IndexedDB-Zweitkopie geprüft wird, steht „Gespeicherte Reisen werden geladen“; danach die Einstiege */
   await p.waitForFunction(() => document.querySelector('#view').textContent.includes('Wie wollt ihr anfangen?'), null, { timeout: 5000 }).catch(() => {});
   assert((await viewText(p)).includes('Wie wollt ihr anfangen?'), name + ': Startansicht mit Einstiegen');
-  assert.equal(await p.locator('.start-weg').count(), 2, name + ': zwei direkte Einstiege plus Vorlagen');
+  assert.equal(await p.locator('.start-weg').count(), 6, name + ': sechs Planungswege (app/planungswege.js)');
   assert(!(await p.isVisible('[data-act="tpl"]')), name + ': Vorlagen zugeklappt');
   await noOverflow(p, name + ' Start');
 
@@ -488,7 +488,7 @@ async function run(browser, base, name, ctxOpts, now) {
 
   /* Reise mit Ideen-Katalog: Angebot übernehmen, Plan B, Packliste aus dem Plan */
   await p.click('[data-go="reisen"] >> nth=0');
-  await p.click('[data-go="neu"]');
+  await p.click('[data-go="planen"]');await p.click('[data-pw-weg="frei"]');
   await p.fill('#draft [data-f="title"]', 'Katalogreise');
   await p.click('[data-act="d-type"][data-val="winter"]');
   await p.click('[data-act="d-catalog"][data-val="allgaeu"]');
@@ -610,7 +610,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.locator('.card.click').count(), 3, name + ': Daten nach Neuladen');
 
   /* Tagesausflug: Anreise = Abreise, keine Unterkunftspflicht */
-  await p.click('[data-go="neu"]');
+  await p.click('[data-go="planen"]');await p.click('[data-pw-weg="frei"]');
   await p.fill('#draft [data-f="title"]', 'Bodensee');
   await p.click('[data-act="d-type"][data-val="tag"]');
   await p.click('[data-act="d-dm"][data-val="fix"]');
@@ -648,7 +648,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-act="tpl-apply"]');
   assert(/-angebote$/.test(p.url()), name + ': Winter-Vorlage nicht bei den Angeboten');
   await noOverflow(p, name + ' Vorlage Winter');
-  await p.click('header [data-go="reisen"]');await p.click('[data-go="neu"]');
+  await p.click('header [data-go="reisen"]');await p.click('[data-go="planen"]');await p.click('[data-pw-weg="frei"]');
   await p.fill('#draft [data-f="title"]','Mein offener Entwurf');await p.press('#draft [data-f="title"]','Tab');
   await p.click('summary:has-text("Oder mit einer Vorlage starten")');
   await p.click('[data-act="tpl"][data-val="wellness"]');await p.click('.sheet .x');

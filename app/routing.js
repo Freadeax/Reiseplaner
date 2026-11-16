@@ -32,6 +32,7 @@ function go(h,keepScroll,opts){
   if(pop&&previousRoute&&h===previousRoute)return; /* hashchange und popstate melden denselben Schritt */
   const previousTrip=UI.tid,after=UI.navAfter;UI.navAfter=null;UI.heuteTid=null;
   if(h==='neu'){UI.view='neu';UI.draft=UI.draft||newTrip()}
+  else if(typeof PW_ROUTES!=='undefined'&&PW_ROUTES.includes(h)){UI.view='planen';UI.pwRoute=h} /* Planungswege (app/planungswege.js) */
   else if(h==='konto'){UI.view='konto'}
   else if(h==='entdecken'){UI.view='entdecken'}
   else if(h==='heute'||h==='erinnerungen'){UI.view=h}
@@ -40,7 +41,7 @@ function go(h,keepScroll,opts){
   else {UI.view='reisen';if(/^r-/.test(h))UI.pending=h}
   if(previousTrip!==UI.tid)UI.planDay=0;
   if(after&&UI.view==='reise'&&Number.isInteger(after.day))UI.planDay=after.day;
-  const target=UI.view==='reise'?subRoute(UI.tid,UI.tab):UI.openZiel?'ziel-'+UI.openZiel:UI.view;
+  const target=UI.view==='reise'?subRoute(UI.tid,UI.tab):UI.openZiel?'ziel-'+UI.openZiel:UI.view==='planen'?UI.pwRoute:UI.view;
   UI.route=target;subHistoryApply(previousRoute,target,{mobile,pop});
   closeSheet();render();
   if(typeof viewEnter==='function')viewEnter(previousRoute,target);

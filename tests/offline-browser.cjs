@@ -66,7 +66,7 @@ function release(tag) {
   assert(/Offline ·/i.test(syncTxt), 'Kopfzeile zeigt Offline ohne Konto: ' + syncTxt + ' / onLine=' + await p.evaluate(() => navigator.onLine));
   await p.goto(base + '#reisen'); await p.reload();
   assert((await text()).includes('Offline-Test'), 'offline: Reise fehlt');
-  await p.click('[data-go="neu"]');
+  await p.click('[data-go="planen"]'); await p.click('[data-pw-weg="frei"]');
   await p.fill('#draft [data-f="title"]', 'Ohne Netz angelegt');
   await p.click('[data-act="create"]');
   await p.goto(base + '#reisen'); await p.reload();

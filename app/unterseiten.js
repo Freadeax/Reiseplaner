@@ -12,8 +12,8 @@
    Teil 1 (rein, ohne DOM) ist in tests/unterseiten.cjs geprüft; Teil 2 bindet ihn an Verlauf, Fokus und Gesten. */
 "use strict";
 const SUB_MEDIA='screen and (max-width:760px)';
-const SUB_LEVEL0=['reisen','neu','entdecken','heute','erinnerungen','konto'];
-const SUB_BACK_LABEL={reisen:'Reisen',neu:'Neue Reise',entdecken:'Entdecken',heute:'Heute',erinnerungen:'Erinnerungen',konto:'Konto'};
+const SUB_LEVEL0=['reisen','neu','entdecken','heute','erinnerungen','konto','planen','planen-schritte','planen-unterkunft','planen-erlebnis'];
+const SUB_BACK_LABEL={reisen:'Reisen',neu:'Neue Reise',planen:'Neue Reise','planen-schritte':'Schritt für Schritt','planen-unterkunft':'Unterkunft zuerst','planen-erlebnis':'Erlebnis zuerst',entdecken:'Entdecken',heute:'Heute',erinnerungen:'Erinnerungen',konto:'Konto'};
 
 /* ---------- Teil 1: reine Logik ---------- */
 function subTabs(){return typeof TABS!=='undefined'?TABS:[]}
