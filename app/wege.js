@@ -175,6 +175,13 @@ function wegeAppUrl(w){
   return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(o)+'&destination='+encodeURIComponent(o)+'&waypoints='+encodeURIComponent([...new Set(stops)].slice(0,9).join('|'))+'&travelmode='+tm;
 }
 function wegeOsmUrl(l,mode){return l.fromGeo&&l.toGeo?'https://www.openstreetmap.org/directions?engine='+WEGE_MODES[mode].osm+'&route='+encodeURIComponent((+l.fromGeo.lat).toFixed(5)+','+(+l.fromGeo.lon).toFixed(5)+';'+(+l.toGeo.lat).toFixed(5)+','+(+l.toGeo.lon).toFixed(5)):''}
+/* Kurzzeile für die zugeklappte Ebene „Wege“ (app/ansichten.js planExtras): z. B. „3 Wege · ca. 1 Std. 10 Min., geschätzt“. */
+function wegeKurz(t,day){
+  if(!CATX)return '';const w=dayWays(t,day);if(!w.stops.length)return 'Noch keine Punkte an diesem Tag';
+  const n=w.legs.filter(l=>l.src!=='gleich').length;
+  if(!w.known)return n+(n===1?' Weg':' Wege')+' · Lage noch unbekannt';
+  return n+(n===1?' Weg':' Wege')+' · '+(w.unknown?'mindestens ':'')+'ca. '+wegeH(w.min)+(w.osrm?', berechnet':', geschätzt');
+}
 /* Abschnitt unter dem Zeitstrahl für den gewählten Tag. */
 function wegeSection(t,day){
   if(!CATX)return '';const days=daysOf(t);if(!days[day])return '';

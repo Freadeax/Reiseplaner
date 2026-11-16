@@ -57,6 +57,8 @@ const plan = (t, list) => { t.items = list.map(([act, day, slot, time], i) => Ob
   assert(!/tile\.openstreetmap|maps\.googleapis/.test(html1), 'keine Kartenkacheln oder Google-Schnittstelle');
   assert(html1.includes('travelmode=driving') && html1.includes('engine=fossgis_osrm_car'));
   assert.equal(a.wegZeile(t, 1, 'i0'), '', 'gleicher Ort: keine Wegzeile');
+  assert.equal(a.wegeKurz(t, 1), '2 Wege · ca. ' + (w.min >= 60 ? Math.floor(w.min / 60) + ' Std.' + (w.min % 60 ? ' ' + w.min % 60 + ' Min.' : '') : w.min + ' Min.') + ', geschätzt', 'Kurzzeile');
+  assert.equal(a.wegeKurz(plan(trip(), []), 1), 'Noch keine Punkte an diesem Tag');
   assert(a.wegZeile(t, 1, 'i1').includes('geschätzt'));
   n++;
 }
