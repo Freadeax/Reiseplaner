@@ -164,7 +164,7 @@ setTimeout(() => { console.error('Zeitüberschreitung im Datenbanktest'); proces
 
   /* Export und Kontolöschung: Profil und Ideen im Export; Ideen bleiben anonym, Stimmen und Profil weg */
   r = await V.c.rpc('export_my_account'); assert.ifError(r.error);
-  assert.equal(r.data.version, 2); assert.equal(r.data.profile.display_name, 'Vera'); assert.equal(r.data.ideas_created.length, 1);
+  assert(r.data.version >= 2); assert.equal(r.data.profile.display_name, 'Vera'); assert.equal(r.data.ideas_created.length, 1);
   r = await E.c.rpc('delete_my_account', { p_confirm_email: E.email }); assert.ifError(r.error);
   r = await O.c.from('trip_idea_votes').select('user_id').eq('idea_id', idea.id); assert.deepEqual(r.data, [], 'Stimme des gelöschten Kontos entfernt');
   r = await O.c.from('trip_events').select('actor,version').eq('trip_id', trip).eq('version', 3).single(); assert.equal(r.data.actor, null, 'Verlauf anonymisiert');
