@@ -283,11 +283,11 @@ function departureBlock(t,now){
   const ph=tripPhase(t,now);if(!ph||ph.phase!=='vor')return '';
   const p=departurePlan(t,now);if(!p)return '';
   const when=x=>x.overdue?'<b style="color:var(--bad)">! '+esc(x.when)+'</b>':x.days===0?'<b>'+esc(x.when)+'</b>':esc(x.when);
-  const row=x=>'<li class="dp-'+x.kind+'"><span class="eyebrow">'+when(x)+'</span><br><b>'+esc(x.label)+'</b>'+(x.detail?' <small class="muted">· '+esc(x.detail)+'</small>':'')+(x.go?' <button type="button" class="lnk" data-go="r-'+t.id+'-'+x.go+'">Ansehen</button>':'')+'</li>';
+  const row=x=>'<li class="dp-'+x.kind+'"><span class="eyebrow">'+when(x)+'</span><br><b>'+esc(x.label)+'</b>'+(x.detail?' <small class="muted">· '+esc(x.detail)+'</small>':'')+(x.go?' <button type="button" class="lnk" data-go="r-'+t.id+'-'+x.go+'">Ansehen</button>':'')+(x.kind!=='abfahrt'&&typeof f5AckButton==='function'?f5AckButton(t,x.id):'')+'</li>';
   return '<section class="block" data-departure><details class="panel"'+(p.items.some(x=>x.overdue||x.days<=7&&x.kind!=='abfahrt')?' open':'')+'><summary><b>Fahrplan bis zur Abreise</b> <small class="muted">noch '+p.daysLeft+(p.daysLeft===1?' Tag':' Tage')+' · '+p.items.filter(x=>x.kind!=='abfahrt').length+' Termine'+(p.undated.length?' · '+p.undated.length+' offene Buchungen':'')+'</small></summary>'+
-   '<ol class="plain timeline">'+p.items.map(row).join('')+'</ol>'+
+   '<ol class="plain timeline">'+p.items.map(row).join('')+'</ol>'+(typeof f5DoneList==='function'?f5DoneList(t,now):'')+
    (p.undated.length?'<h3>Noch zu buchen (ohne Frist)</h3><ul class="plain">'+p.undated.map(x=>'<li>'+esc(x.label)+(x.detail?' <small class="muted">· '+esc(x.detail)+'</small>':'')+'</li>').join('')+'</ul>':'')+
-   '<p class="small muted">Nur Fristen, die ihr eingetragen habt, plus Packtag und Abfahrt. Stornofristen und Zahlungsziele aus Buchungsbestätigungen bitte unter „Buchungen & Zahlungen“ als Fälligkeit eintragen. Im Kalenderexport der Mappe erscheinen Zahlungen und Packtag mit Erinnerung.</p></details></section>';
+   '<p class="small muted">Nur Fristen, die ihr eingetragen habt, plus Packtag und Abfahrt. Stornobedingungen und Zahlungsplan der Unterkunft unter „Kosten“ eintragen, weitere Zahlungsziele unter „Buchungen & Zahlungen“ als Fälligkeit. Im Kalenderexport der Mappe erscheinen Zahlungen und Packtag mit Erinnerung.</p></details></section>';
 }
 /* Programmkosten je Tag (Claude, #8): Unternehmungen direkt, Kurs/Skipass/Verleih anteilig über ihre Tage, gebuchte Beträge
    im Verhältnis der Planwerte verteilt. Unterkunft, Essen, Anreise und Puffer sind nicht tagesbezogen und fehlen bewusst. */

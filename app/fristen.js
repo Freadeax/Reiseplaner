@@ -49,6 +49,9 @@ function deadlines(t,now){
   if(tr)[].concat(tr.out||[],tr.back||[]).forEach(sg=>{const ci=sg.checkin&&sg.checkin.opens;if(ci&&pd(ci.date)&&ci.date>=todayIso)
     add(deadlineId('checkin',sg.id),'checkin',ci,'Online-Check-in'+(sg.number?' '+sg.number:'')+(ci.time?' ab '+ci.time+(ci.tz?' ('+ci.tz+')':''):''),sg.checkin.note||'Frist laut Airline','unterkunft')});
   if(t.schemaVersion===5&&typeof V5!=='undefined'&&V5)deadlines5(t,now,todayIso,o,f,add);
+  /* Gebuchte Unterkunft ohne Stornobedingungen: Hinweis ohne Frist, sobald sie eingetragen werden können (Format 5) */
+  if(typeof F5_WRITE!=='undefined'&&F5_WRITE&&o&&o.booked&&!o.cancel&&!o.cancelTerms&&start&&iso(start)>=todayIso)
+    add('cancelterms:stay','storno',null,'Stornobedingungen eintragen: '+o.name,'Aus der Buchungsbestätigung, dann zeigt der Plan Stornofristen und Gebühr','kosten');
   const g=checklist(t),chk=t.check||{};
   if(start){
     const startIso=iso(start);

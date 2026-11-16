@@ -55,9 +55,9 @@ function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=
    (v.refundOpen||v.feeOpen||v.unknownFee?'<p class="small">'+[v.refundOpen?'Erstattungen offen: '+eur(v.refundOpen):'',v.feeOpen?'Stornogebühren offen: '+eur(v.feeOpen):'',v.unknownFee?v.unknownFee+'× Stornogebühr unbekannt':''].filter(Boolean).join(' · ')+'</p>':'')+'</div></section>'}
 /* Höchste lesbare Version: 5 mit v4logic.js und v5logic.js (SCHEMA_V5 §8 Schritt 3), 4 mit v4logic.js (Paket 7), sonst 3 */
 const SCHEMA_MAX=typeof window!=='undefined'&&window.RPV4?(window.RPV5?5:4):3;
-/* Format 5 erfassen: false = Lese-Release (SCHEMA_V5 §8 Schritt 3). v5-Reisen werden gelesen, geprüft und unverändert
-   zurückgeschrieben; keine Funktion hebt eine Reise auf Format 5 (candidate5 wird erst mit F5_WRITE=true genutzt). */
-const F5_WRITE=false;
+/* Format 5 erfassen (SCHEMA_V5 §8 Schritt 4, Freigabe Philipp 16.11.2026): Schreibwege in app/format5.js heben eine Reise
+   nur nach Bestätigung über candidate5 auf Format 5. false = Lese-Release (v5-Reisen werden nur gelesen und bewahrt). */
+const F5_WRITE=true;
 const V5=typeof window!=='undefined'&&window.RPV5||null;
 /* Format 4 ist eine Obermenge von Format 3: alle v3-Angaben gelten dort weiter (SCHEMA_V4 §0.2) */
 const isV3=t=>!!t&&(t.schemaVersion===3||t.schemaVersion===4||t.schemaVersion===5&&!!V5)&&!!V3;

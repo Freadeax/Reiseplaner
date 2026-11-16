@@ -104,22 +104,24 @@ function naechstesKnopf(t,x,cls){
  return '';
 }
 const NAECHSTES_STUFE={warn:'Wichtig',soon:'Bald fällig',info:'Hinweis'};
+/* Format 5: Frist als erledigt markieren (app/format5.js), nur wenn Schreiben möglich ist */
+const naechstesAck=(t,x)=>/^frist:/.test(x.id||'')&&typeof f5AckButton==='function'?f5AckButton(t,x.id.slice(6)):'';
 function naechstesZeile(t,x){
  const stufe='<span class="nx-level nx-'+x.level+'">'+(x.level==='warn'?'! ':'')+NAECHSTES_STUFE[x.level]+'</span>';
  const step=x.step?' data-next-step="'+aufbauEsc(x.step)+'"':'';
  if(x.check)return '<li class="nx-row"'+step+'><label class="nx-check"><input type="checkbox" data-act="check" data-val="'+aufbauEsc(x.check)+'"> <span>'+stufe+'<b>'+aufbauEsc(x.title)+'</b>'+(x.reason?'<small class="muted">'+aufbauEsc(x.reason)+'</small>':'')+'</span></label></li>';
- return '<li class="nx-row"'+step+'><span class="nx-txt">'+stufe+'<b>'+aufbauEsc(x.title)+'</b>'+(x.reason?'<small class="muted">'+aufbauEsc(x.reason)+'</small>':'')+'</span>'+naechstesKnopf(t,x,'btn ghost sm')+'</li>';
+ return '<li class="nx-row"'+step+'><span class="nx-txt">'+stufe+'<b>'+aufbauEsc(x.title)+'</b>'+(x.reason?'<small class="muted">'+aufbauEsc(x.reason)+'</small>':'')+'</span>'+naechstesKnopf(t,x,'btn ghost sm')+naechstesAck(t,x)+'</li>';
 }
 function naechstesBlock(t,now){
  const list=naechstes(t,now),v=naechstesTeilen(list);
  const head='<div class="between"><h2>Als Nächstes</h2>'+(list.length?'<span class="badge">'+list.length+(list.length===1?' Punkt':' Punkte')+'</span>':'')+'</div>';
- if(!v.haupt)return '<section class="block nx" data-next-steps>'+head+'<p>Aus eurem Plan ergibt sich gerade nichts Dringendes. Öffnungszeiten, Tarife und Buchungsbedingungen trotzdem beim Anbieter prüfen.</p></section>';
+ if(!v.haupt)return '<section class="block nx" data-next-steps>'+head+'<p>Aus eurem Plan ergibt sich gerade nichts Dringendes. Öffnungszeiten, Tarife und Buchungsbedingungen trotzdem beim Anbieter prüfen.</p>'+(typeof f5DoneList==='function'?f5DoneList(t,now):'')+'</section>';
  const h=v.haupt,hstep=h.step?' data-next-step="'+aufbauEsc(h.step)+'"':'';
  const main='<article class="card nx-main"'+hstep+'><span class="nx-level nx-'+h.level+'">'+(h.level==='warn'?'! ':'')+NAECHSTES_STUFE[h.level]+'</span><h3>'+aufbauEsc(h.title)+'</h3>'+(h.reason?'<p class="small">'+aufbauEsc(h.reason)+'</p>':'')+
-  (h.check?'<label class="nx-check"><input type="checkbox" data-act="check" data-val="'+aufbauEsc(h.check)+'"> <span>Erledigt</span></label>':'<div class="foot">'+naechstesKnopf(t,h,'btn sm')+'</div>')+'</article>';
+  (h.check?'<label class="nx-check"><input type="checkbox" data-act="check" data-val="'+aufbauEsc(h.check)+'"> <span>Erledigt</span></label>':'<div class="foot">'+naechstesKnopf(t,h,'btn sm')+naechstesAck(t,h)+'</div>')+'</article>';
  return '<section class="block nx" data-next-steps>'+head+'<p class="small muted">Aus eurem Plan abgeleitet, Dringendes zuerst. Hinweise sind keine Buchungsfreigabe und ändern nichts.</p>'+main+
   (v.weitere.length?'<ul class="plain nx-list">'+v.weitere.map(x=>naechstesZeile(t,x)).join('')+'</ul>':'')+
-  (v.rest.length?'<details class="panel nx-more"><summary><b>'+v.rest.length+(v.rest.length===1?' weiterer Punkt':' weitere Punkte')+'</b></summary><ul class="plain nx-list">'+v.rest.map(x=>naechstesZeile(t,x)).join('')+'</ul></details>':'')+'</section>';
+  (v.rest.length?'<details class="panel nx-more"><summary><b>'+v.rest.length+(v.rest.length===1?' weiterer Punkt':' weitere Punkte')+'</b></summary><ul class="plain nx-list">'+v.rest.map(x=>naechstesZeile(t,x)).join('')+'</ul></details>':'')+(typeof f5DoneList==='function'?f5DoneList(t,now):'')+'</section>';
 }
 
 /* ---------- Ebenen: aufklappbare Abschnitte mit gemerktem Zustand (KONZEPT §2, Paket A4) ----------

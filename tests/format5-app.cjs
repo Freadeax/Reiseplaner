@@ -7,7 +7,7 @@ const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 assert(html.indexOf('<script src="v5logic.js"></script>') > html.indexOf('<script src="v4logic.js"></script>'), 'index.html lädt v5logic.js nach v4logic.js');
 const code = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
-assert(/const F5_WRITE=false;/.test(code), 'Lese-Release: F5_WRITE=false');
+assert(/const F5_WRITE=(true|false);/.test(code), 'Schalter F5_WRITE vorhanden');
 const P = require('../photostore.js');
 const J = x => JSON.parse(JSON.stringify(x));
 

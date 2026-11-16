@@ -1,5 +1,9 @@
 # Roadmap
 
+## Format 5 wird gespeichert · 16.11.2026
+
+Seit 16.11. mittags: Stornobedingungen mit Gebührenvorschau, Zahlungsplan mit Ratenstatus, Fristen erledigt markieren. Als Nächstes: Teilzahlungen einzeln, Stornobedingungen für Buchungsbuch-Posten, Gästekarten-Status (M09.3), eigene Aufgaben (M02.4), Varianten-Vergleich (M05.2).
+
 ## Format 5 wird gelesen · 16.11.2026
 
 Migration (15.11.) und Lese-Release (16.11.) erledigt: die App liest Format 5, schreibt es noch nicht. Als Nächstes `F5_WRITE = true` nach einigen Tagen, dann Storno-Vorschau (M02.2), Zahlungsplan/Teilzahlungen (M08.2), Gästekarten-Status (M09.3), Aufgaben (M02.4), Varianten-Vergleich (M05.2).

@@ -1,6 +1,16 @@
 # Projektstand · 16.11.2026
 
 
+## Format 5 speichern: Stornobedingungen, Zahlungsplan, Fristen erledigt (Claude, 16.11. mittags)
+
+Freigabe Philipp 16.11. auf der Entscheidungskarte („Heute freischalten“); SCHEMA_V5 §8 Schritt 4. `F5_WRITE = true`.
+- **Ein Schreibweg** `f5Commit` (neu `app/format5.js`): geprüfte Kopie über `RPV5.candidate5`, Anheben auf Format 5 nur nach Bestätigung („bleibt dauerhaft“, Hinweis im Formular und als eigenes Blatt), bestätigte Gästekarte wird als Eintrag übernommen ohne Statuswechsel (G-R12), der Schutz gebuchter Angaben gilt weiter (Storno-, Plan- und Zahlungsangaben ergänzen eine Buchung, ändern sie nicht).
+- **Stornobedingungen** der gebuchten Unterkunft (Kosten → Weitere Werkzeuge → Unterkunft: Buchung & Zahlungen): kostenlos bis, bis zu 4 Stufen in Prozent oder festem Betrag, Quelle. Anzeige „Heute: noch 11 Tage kostenlos“, je Stufe die Gebühr auf den Cent; ohne Preis bleibt sie offen. Fehlen die Bedingungen bei einer gebuchten Unterkunft, steht „Stornobedingungen eintragen“ unter „Als Nächstes“.
+- **Zahlungsplan**: bis zu 4 Raten (Betrag, Prozent oder Restbetrag), Status je Rate (bezahlt, teilweise, offen, überfällig, Betrag unbekannt); Zahlungen füllen die Raten nach Fälligkeit. Offene Raten erscheinen als Fristen.
+- **Erledigt**: Fristen unter „Als Nächstes“ lassen sich als erledigt markieren und über „n erledigt“ wieder öffnen (`deadlineAck`, Aufgaben über `tasks[].done`).
+- Geteilte Dateien: `index.html` (eine Zeile), `sw.js` (`format5` in der Liste, `reiseplaner-v31`), `app/v3.js` (Schalter), `app/ereignisse.js` (eine Zeile in `offerFinance`), `app/aufbau.js` (Erledigt-Knopf und Liste), `app/ansichten.js` (Fahrplan-Knopf, Hinweistext), `app/fristen.js`. CI führt zusätzlich `test:format5-browser` aus.
+
+Tests (16.11., Cloud-Container): `npm test` (neu `format5-write`, 5 Prüfungen), neu `test:format5-browser` (Chromium Desktop und 390 px: Formulare ausfüllen, Bestätigung, Vorschau, Fehler im Blatt, erledigt, Neuladen), `test:browser`, `test:format4-browser`, `test:fotos-browser`, `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari. Offen: Eingabe für Buchungsbuch-Posten (Kurs, Skipass …), Teilzahlungen einzeln (`payments`), Gästekarten-Status (M09.3), eigene Aufgaben anlegen (M02.4).
 
 ## Plan und Ist: tatsächliche Ausgaben im Budget (Claude, 16.11.)
 
