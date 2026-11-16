@@ -26,6 +26,7 @@ Object.assign(window.__app,{MAX_TRIP_DAYS,tripDayCount,tripTooLong,tripLengthErr
 Object.assign(window.__app,{sheetDragDecision,sheetGripBind,fieldHidden,keepFieldVisible}); /* P0.5 iOS-Gestaltungsregeln */
 Object.assign(window.__app,{SUB_MEDIA,subParse,subRoute,subDepth,subResolve,subParent,subNavMode,subBack,subBackLabel,subSeed,subFocus,subCount,subAreas,subListHtml,subHeadHtml,subSwipeDecision,subSwipeHost,subMobile,subHistoryApply,subBackRun,subWidthChange}); /* Unterseiten, Paket 4 */
 Object.assign(window.__app,{motionOk,viewDirection,viewEnter,sheetEnter,sheetLeave,detailsOpened}); /* Bewegung */
+Object.assign(window.__app,{RB_FRESH_DAYS,rbStats,rbSteps,rbOpen,rbFresh,vRueckblick,rbReisenHint,rbCardLine,rbBackupHint,rbAgainDraft,rbAgain,rbDraftNote,kontoDaten,kontoVorlieben}); /* Rückblick, Meine Daten */
 go(location.hash||'reisen',true);
 Auth.start().catch(e=>console.error('Reiseplaner: Kontoanbindung',e));
 /* Offline-Start nur bei Auslieferung über http(s); als Datei geöffnet bleibt alles wie bisher. */

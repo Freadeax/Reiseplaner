@@ -1,5 +1,17 @@
 # Projektstand · 16.11.2026
 
+## Hauptbereiche: Rückblick in Erinnerungen, „Frisch zurück“, Konto › Meine Daten (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. (Hauptbereiche Reisen, Entdecken, Erinnerungen, Konto vertiefen). Code `app/rueckblick.js`, Test `tests/rueckblick.cjs`. Kein neues Speicherfeld, rp-trips unverändert.
+- **Bestandsaufnahme:** Reisen solide, Entdecken am weitesten (aber am Handy sehr lang), Erinnerungen am schwächsten (nur Leseliste), Konto angemeldet vollständig, ohne Ort für Sicherung und allgemeine Vorlieben.
+- **Erinnerungen** = Rückblick: „Frisch zurück“ (bis 60 Tage nach Reiseende, solange etwas offen ist) mit Nachbereitung Tagebuch x von n Tagen, Bewertungen x von y, Kosten (ohne Erfassung kein Ist, nie 0 €), Fotos, Reisebuch (freiwillig). Darunter alle begonnenen/vergangenen Reisen nach Jahren mit Kennzahlen, Highlights (5 Sterne), Tagebuch und Bewertungen zum Aufklappen. Kommende Reisen nur gezählt. Leerzustände: ohne Reise / ohne begonnene Reise.
+- **Nochmal so eine Reise:** füllt nur den Entwurf „Neue Reise“ (Art, Ziel, Startort, Personen, Budget, Nächte, Anreise) mit Hinweis; keine Termine, Angebote, Buchungen, Zahlungen, Notizen, Unterlagen.
+- **Reisen:** Hinweis „Frisch zurück“ über der nächsten Reise, Zeile „Rückblick: …“ auf vergangenen Karten. „Reisen sichern & übertragen“ ist ins Konto gezogen (Philipp per Karte 16.11.), Kurzlink bleibt; leere Startseite behält den Import.
+- **Konto › Meine Daten:** Sicherung (auch mit Fotos), Import, allgemeine Vorlieben aus Entdecken (Startort, Reisegefühl, Merkliste) nur lesend mit Weg zum Ändern. Angemeldet heißt der bisherige Block jetzt „Kontodaten“ (Export, Löschen).
+
+Tests (16.11. abends, Cloud-Container, nach Merge mit fd8adda): `npm test` grün (neu `tests/rueckblick.cjs`; `tests/navigation.cjs` an Rückblick angepasst), `tests/format4-browser.cjs` grün (Weg über Kurzlink ins Konto), Klickprobe Chromium 390 px hell und dunkel (Reisen, Erinnerungen, Konto, Nochmal, Reisebuch aus der Karte), kein Querüberlauf, keine Skriptfehler. `tests/browser.cjs` angepasst (Sicherung im Konto), läuft in „Tests & Pages“. Kein iPhone-Test.
+Nächster Schritt: Entdecken am Handy stufen (Ergebnis zuerst, Einstellungen zuklappbar); Reisestatus nach der Reise („Vorbei“) anbieten.
+
 ## Planungswege: sechs Einstiege, Schritt für Schritt, Wünsche & Grenzen (Claude, 16.11. abends)
 
 Auftrag Philipp 16.11. („Planmodule in die Tiefe, Planmöglichkeiten und Oberfläche“). Details `docs/PLANUNGSWEGE.md`, Code `app/planungswege.js`.

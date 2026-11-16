@@ -567,6 +567,9 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.locator('.card.click').count(), 2);
 
   /* Sicherung und Import ohne Überschreiben */
+  /* Sicherung liegt seit 16.11. im Konto unter „Meine Daten“; die Reiseliste behält einen Kurzlink */
+  await p.click('[data-rb-backup-link] [data-go="konto"]');
+  assert(await p.isVisible('[data-konto-daten]'), name + ': Meine Daten im Konto');
   const [bk] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="backup-all"]')]);
   const backupFile = await bk.path();
   assert.equal(JSON.parse(fs.readFileSync(backupFile, 'utf8')).trips.length, 2);
@@ -590,13 +593,15 @@ async function run(browser, base, name, ctxOpts, now) {
   assert((await p.textContent('.sheet')).includes('identischer Inhalt'), name + ': Importvorschau fehlt');
   await noOverflow(p, name + ' Passwort-Importvorschau');
   await p.click('[data-act="import-skip"]');
-  assert.equal(await p.locator('.card.click').count(), 2, name + ': Verschlüsselter Import dupliziert');
+  assert.equal(await p.evaluate(() => window.__app.Store.list().length), 2, name + ': Verschlüsselter Import dupliziert');
   await p.setInputFiles('#import-file', { name: 'b.json', mimeType: 'application/json', buffer: fs.readFileSync(backupFile) });
   await p.click('[data-act="import-skip"]');
-  assert.equal(await p.locator('.card.click').count(), 2, name + ': Import hat dupliziert');
+  assert.equal(await p.evaluate(() => window.__app.Store.list().length), 2, name + ': Import hat dupliziert');
   await p.setInputFiles('#import-file', { name: 'b.json', mimeType: 'application/json', buffer: fs.readFileSync(backupFile) });
   await p.click('[data-act="import-copy"]');
   assert.equal(await p.locator('.card.click').count(), 4, name + ': Import als Kopie');
+  await p.click('[data-go="reisen"] >> nth=0');
+  assert.equal(await p.locator('.card.click').count(), 4, name + ': Import als Kopie in der Reiseliste');
 
   /* Duplizieren und Löschen mit Rückfrage */
   await p.click('.card.click >> nth=0');

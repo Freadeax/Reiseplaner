@@ -50,8 +50,9 @@ const server = http.createServer((req, res) => {
     });
     assert.equal(made.needs, 'format4'); assert(made.notice); assert(made.ok && made.sv === 4, 'Reise mit Foto in Format 4 gespeichert');
     assert.equal(made.unchangedBefore, 'geändert', 'nach Bestätigung gespeichert');
-    /* Klickweg: Reisen → „Mit Fotos sichern“ → Datei erstellen → Download */
+    /* Klickweg: Reisen → Kurzlink → Konto › Meine Daten → „Mit Fotos sichern“ → Datei erstellen → Download */
     await a.evaluate(() => { window.__app.go('reisen'); });
+    await a.click('[data-rb-backup-link] [data-go="konto"]');
     await a.waitForSelector('[data-f4="export-open"][data-scope="all"]');
     assert(await a.isVisible('[data-f4-json-note]'), 'Hinweis „Fotos nicht in JSON“ sichtbar');
     await a.click('[data-f4="export-open"][data-scope="all"]');

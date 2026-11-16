@@ -141,7 +141,8 @@ function memoriesData(trips){
  groups.sort((a,b)=>memoryOrder(b.trip).localeCompare(memoryOrder(a.trip))||String(a.trip.title||'').localeCompare(String(b.trip.title||''),'de'));
  return {groups,without,unsupported:false};
 }
-function vErinnerungen(trips){
+function vErinnerungen(trips,now){
+ if(typeof vRueckblick==='function')return vRueckblick(trips,now); /* Rückblick und Nachbereitung, app/rueckblick.js */
  const m=memoriesData(trips),J=VJ();
  const head='<section class="block"><span class="eyebrow">Alle Reisen</span><h1>Erinnerungen</h1><p class="small muted">Tagebuch und Bewertungen aus euren Reisen, nur zum Lesen. Schreiben und ändern im Tagesplan der jeweiligen Reise. Fotos fügt ihr im Tagesplan einer Reise hinzu; Reisebücher könnt ihr unten als Entwurf ansehen.</p></section>';
  if(m.unsupported)return head+'<section class="block"><div class="note" role="status">Diese App-Version kann Tagebücher nicht anzeigen. Eure Einträge bleiben in den Reisen gespeichert.</div></section>';

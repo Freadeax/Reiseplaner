@@ -118,10 +118,13 @@ const keys = items => items.map(x => x.key).join(',');
   const { a } = load();
   /* leer */
   let h = a.vErinnerungen([]);
-  assert(h.includes('data-memories-empty') && h.includes('Noch keine Erinnerungen'));
+  assert(h.includes('data-memories-empty') && h.includes('Noch keine Reise'), 'ohne Reise: leerer Zustand mit Weg zu Reisen');
+  assert(h.includes('data-go="reisen"') && h.includes('data-go="entdecken"'));
   const plain = a.newTrip({ id: 'tplain', title: 'Ohne Tagebuch', dateMode: 'fix', start: '2026-05-01', end: '2026-05-02' });
   h = a.vErinnerungen([plain]);
-  assert(h.includes('data-memories-empty'), 'Format 2 ohne Angaben: leer');
+  assert(!h.includes('data-memories-empty') && h.includes('data-memory-trip="tplain"') && h.includes('Noch nichts festgehalten'), 'vergangene Reise ohne Angaben erscheint im Rückblick');
+  h = a.vErinnerungen([a.newTrip({ id: 'tidee', title: 'Idee' })]);
+  assert(h.includes('data-memories-empty') && h.includes('Noch keine Erinnerungen') && !h.includes('data-memory-trip'), 'nur Reise ohne Datum: noch keine Erinnerungen');
   /* Daten */
   const old = a.silvesterTemplate(); old.id = 'told'; old.title = 'Alte <script>x</script> Reise'; old.schemaVersion = 3;
   const actId = old.items.map(i => i.act).find(id => /^[a-z0-9_-]+$/i.test(id) && a.ACTS[id] && !a.ACTS[id].transit);
@@ -146,8 +149,7 @@ const keys = items => items.map(x => x.key).join(',');
   assert(h.includes('Stimmung: <b>4 von 5'));
   assert(h.includes('data-go="r-told-plan"') && h.includes('data-go="r-tneu-plan"'), 'Link zum Tagebuch im Tagesplan');
   assert(h.indexOf('data-memory-trip="tneu"') < h.indexOf('data-memory-trip="told"'));
-  assert(h.includes('1 weitere Reise hat noch kein Tagebuch'));
-  assert(!/Foto|Reisebuch erstellen/.test(h.replace('Fotos fügt ihr im Tagesplan einer Reise hinzu; Reisebücher könnt ihr unten als Entwurf ansehen.', '').replace(/<section[^>]*data-book-preview[\s\S]*$/, '')), 'keine erfundenen Fotos oder Reisebücher');
+  assert(!h.includes('data-foto-memories') && !h.includes('<img') && !/\d+ Fotos? in dieser Reise/.test(h), 'keine erfundenen Fotos');
   /* gespeicherte Daten unverändert */
   const before = JSON.stringify(old); a.vErinnerungen([old]); assert.equal(JSON.stringify(old), before, 'nur lesend');
   /* Standard: gespeicherte Reisen */
