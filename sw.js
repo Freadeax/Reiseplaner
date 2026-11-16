@@ -10,7 +10,7 @@
 const STAND = 'dev';
 const CACHE = 'reiseplaner-' + STAND;
 const RUNTIME = 'reiseplaner-laufzeit-' + STAND;
-const EXTRA = ['./manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './catalog-data.js', './catalog/index.js'];
+const EXTRA = ['./vendor/supabase-js-2.117.2.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './catalog-data.js', './catalog/index.js'];
 const NAV_TIMEOUT = 4000;
 /* Lokale Skripte und Stylesheets aus index.html, genau wie eingebunden (mit ?v=, falls vorhanden). */
 function assetsFrom(html) {

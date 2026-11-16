@@ -141,8 +141,7 @@ const fcJson = { daily: { time: ['2026-12-30', '2026-12-31', '2027-01-01'], temp
 {
   const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
   assert.ok(html.indexOf('src="packlogic.js"') > 0 && html.indexOf('src="app/packliste.js"') > 0, 'index.html lädt beide Teile');
-  const sw = fs.readFileSync(__dirname + '/../sw.js', 'utf8');
-  assert.ok(sw.includes("'./packlogic.js'") && sw.includes("'packliste'"), 'offline verfügbar');
+  /* offline verfügbar: Der Service Worker liest seine Dateiliste aus index.html (docs/OFFLINE.md §4.1) */
   let code = require('./app-code.cjs')(html);
   code = code.replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
   const store = {};

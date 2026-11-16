@@ -39,7 +39,7 @@ function makeEnv(stand, server) {
 (async () => {
   global.Response = global.Response || require('undici').Response;
   const html = v => '<link rel="stylesheet" href="app.css?v=c' + v + '"><script src="config.js?v=k' + v + '"></script><script src="app/start.js?v=s' + v + '"></script>';
-  const files = v => ({ 'index.html': html(v), 'app.css': 'css' + v, 'config.js': 'cfg' + v, 'app/start.js': 'start' + v, 'manifest.webmanifest': '{}', 'icon-192.png': 'i', 'icon-512.png': 'i', 'apple-touch-icon.png': 'i', 'catalog-data.js': 'cat' + v, 'catalog/index.js': 'idx' + v });
+  const files = v => ({ 'index.html': html(v), 'app.css': 'css' + v, 'config.js': 'cfg' + v, 'app/start.js': 'start' + v, 'vendor/supabase-js-2.117.2.js': 'lib', 'manifest.webmanifest': '{}', 'icon-192.png': 'i', 'icon-512.png': 'i', 'apple-touch-icon.png': 'i', 'catalog-data.js': 'cat' + v, 'catalog/index.js': 'idx' + v });
   let srv = files(1);
   const env = makeEnv('aaa111', f => srv[f || 'index.html']);
 
