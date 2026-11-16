@@ -63,8 +63,19 @@ const V5=typeof window!=='undefined'&&window.RPV5||null;
 const isV3=t=>!!t&&(t.schemaVersion===3||t.schemaVersion===4||t.schemaVersion===5&&!!V5)&&!!V3;
 function v3Transport(t){const tr=isV3(t)&&t.transport;return tr&&((tr.out||[]).length||(tr.back||[]).length)?tr:null}
 function v3Money(t,e){return isV3(t)&&e&&(e.cancel||(e.refunds&&e.refunds.length))?e:null}
-function validateV3(t){
+/* Format-5-Felder an Mitreisenden, Ausgaben und Anreise-Abschnitten (member, attend, fx, terminal …) prüft validateV5; die
+   Format-3-Prüfungen kennen nur ihre eigenen Felder und sehen daher eine Kopie ohne sie (G6, 16.11.). */
+function v3Plain(t){
+  if(!(t&&t.schemaVersion===5&&V5&&V5.FIELDS))return t;
+  const c=clone(t),F=V5.FIELDS,cut=(o,ks)=>{if(o&&typeof o==='object'&&!Array.isArray(o))ks.forEach(k=>delete o[k])};
+  if(Array.isArray(c.party))c.party.forEach(p=>cut(p,F.party));
+  if(Array.isArray(c.expenses))c.expenses.forEach(x=>cut(x,F.expense));
+  const tr=c.transport;if(tr&&typeof tr==='object')[].concat(Array.isArray(tr.out)?tr.out:[],Array.isArray(tr.back)?tr.back:[]).forEach(s=>cut(s,F.segment));
+  return c;
+}
+function validateV3(t0){
   if(!V3)throw new Error('Format 3 kann diese App-Version nicht prüfen.');
+  const t=v3Plain(t0);
   splitValidate(t); /* P0.2a: party, expenses, ledger/offers paidBy (v3split.js) */
   Object.keys(t.ledger||{}).forEach(k=>{const e=t.ledger[k];if(e&&(e.refunds!=null||e.cancel!=null))V3.validateMoneyMoves(e,'Buchungsbuch '+k)});
   (t.offers||[]).forEach(o=>{if(o.refunds!=null||o.cancel!=null)V3.validateMoneyMoves(o,'Angebot '+o.name)});

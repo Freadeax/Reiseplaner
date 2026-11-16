@@ -97,6 +97,46 @@ function gmIdea(t,s,i){
     (canWithdraw?'<button type="button" class="btn ghost sm" data-gm="withdraw" data-val="'+esc(i.id)+'">Zurückziehen</button>':'')+'</div></li>';
 }
 
+/* G6 „Ich bin Mitreisende/r X“: eigenes Konto mit einem Eintrag der Reisegruppe (party[].member) verknüpfen. Nur die Person
+   selbst verknüpft sich (Server: trips_party_guard, claim_party). Bearbeiter speichern über f5Commit (geht auch offline und
+   hebt die Reise nach Bestätigung auf Format 5), Leser über claim_party. Danach: eigene Aufgaben und eigener Saldo. */
+function gmParty(t){return (t.party||[]).filter(p=>p&&p.id)}
+function gmMine(t){const me=gmMe();return me?gmParty(t).find(p=>p.member===me)||null:null}
+function gmMemberIds(s){return new Set((s.members||[]).map(m=>m.user_id))}
+function gmMeBlock(t,s){
+  const party=gmParty(t),me=gmMe();if(!me||!party.length)return '';
+  const role=(Store.meta[t.id]||{}).role,owner=role==='owner',mine=gmMine(t),ids=gmMemberIds(s);
+  const who=p=>p.member===me?'du':(()=>{const m=(s.members||[]).find(x=>x.user_id===p.member);return m?(m.display_name||gmName(s,p.member)):'ehemaliges Mitglied'})();
+  const taken=party.filter(p=>p.member);
+  const links=taken.length?'<details class="small"><summary>Zuordnungen ('+taken.length+' von '+party.length+')</summary><ul class="plain">'+taken.map(p=>'<li><b>'+esc(p.name)+'</b> · '+esc(who(p))+((p.member!==me&&(owner||!ids.has(p.member)))?' <button type="button" class="lnk" data-gm="unclaim" data-val="'+esc(p.id)+'">Lösen</button>':'')+'</li>').join('')+'</ul></details>':'';
+  if(mine){
+    const tasks=(t.tasks||[]).filter(x=>x&&x.by===mine.id&&!x.done);
+    let bal='';
+    try{if(typeof splitResult==='function'&&V3S&&((t.expenses||[]).length||Object.keys(t.ledger||{}).length)){const r=splitResult(t),x=r.persons.find(p=>p.id===mine.id);if(x)bal='<li>Dein Saldo: '+splitBalText(x.balance)+' <a class="lnk" href="#r-'+esc(t.id)+'-kosten">Kosten</a></li>'}}catch(e){}
+    const items=(tasks.length?'<li>'+tasks.length+' offene Aufgabe'+(tasks.length>1?'n':'')+' für dich: '+tasks.slice(0,3).map(x=>esc(x.title)).join(', ')+(tasks.length>3?' …':'')+'</li>':'<li class="muted">Keine offenen Aufgaben für dich.</li>')+bal;
+    return '<section class="block gm-me"><h2>Du in der Reisegruppe</h2><p>Du bist <b>'+esc(mine.name)+'</b>. <button type="button" class="btn ghost sm" data-gm="unclaim" data-val="'+esc(mine.id)+'">Zuordnung lösen</button></p><ul class="plain small">'+items+'</ul>'+links+'</section>';
+  }
+  const free=party.filter(p=>!p.member||(p.member!==me&&!ids.has(p.member)));
+  const sv=Number(t.schemaVersion)||0,editor=role==='owner'||role==='editor';
+  let body;
+  if(!free.length)body='<p class="small muted">Alle Personen der Reisegruppe sind schon zugeordnet. Fehlt jemand, tragt ihn unter Kosten bei den Mitreisenden ein.</p>';
+  else if(sv<5&&!editor)body='<p class="small muted">Zuordnen geht, sobald die Reise auf Format 5 umgestellt ist. Das passiert, wenn sich jemand mit Bearbeitungsrecht hier zuordnet.</p>';
+  else body='<div class="row"><label class="fld" style="flex:1"><span>Wer bist du?</span><select id="gm-party">'+free.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join('')+'</select></label><button type="button" class="btn sm" data-gm="claim">Das bin ich</button></div><p class="small muted">Dann siehst du hier deine Aufgaben und deinen Anteil an den Kosten. Zuordnen kann sich nur jede Person selbst.</p>';
+  return '<section class="block gm-me"><h2>Du in der Reisegruppe</h2>'+body+links+'</section>';
+}
+async function gmClaim(t,pid,link){
+  const role=(Store.meta[t.id]||{}).role,me=gmMe(),c=gmCloud();
+  if((role==='owner'||role==='editor')&&typeof f5Commit==='function'&&f5CanEdit(t)){
+    const msg=link?'Zugeordnet.':'Zuordnung gelöst.';
+    const run=o=>f5Commit(t,x=>{const ps=x.party||[],p=ps.find(y=>y.id===pid);if(!p)throw new Error('Person nicht gefunden.');
+      if(link){ps.forEach(y=>{if(y.member===me)delete y.member});p.member=me}else delete p.member},o);
+    try{const r=run();if(f5Result(r,{run,msg})){render();alertMsg(msg)}}catch(e){alertMsg(e&&e.message||String(e))}
+    return;
+  }
+  if(!c)return;
+  try{await c.claimParty(t.id,pid,link);Sync.schedule(0);alertMsg(link?'Zugeordnet.':'Zuordnung gelöst.')}catch(e){alertMsg(e&&e.message||String(e))}
+}
+
 function gemeinsamBlock(t){
   if(!gmOnline(t))return '';
   gmEnsureWatch();
@@ -112,7 +152,7 @@ function gemeinsamBlock(t){
   const others=GM.here.filter(h=>h.user_id!==me).map(h=>{const m=(s.members||[]).find(x=>x.user_id===h.user_id);return (m&&m.display_name)||h.name||gmName(s,h.user_id)});
   const here=others.length?'<p class="gm-here small" role="status"><span aria-hidden="true">●</span> Gerade in der Reise: <b>'+esc(others.join(', '))+'</b></p>':'';
   const ask=!name&&!GM.editName&&(s.members||[]).length>1?'<div class="note gm-ask"><b>Wie sollen dich die anderen sehen?</b><div class="row"><label class="fld" style="flex:1"><span>Anzeigename (freiwillig)</span><input id="gm-name" maxlength="40" autocomplete="nickname" placeholder="z. B. Anna"></label><button type="button" class="btn sm" data-gm="name-save">Speichern</button></div><p class="small muted">Ohne Namen sehen die anderen „Mitglied 2“ o. Ä. Deine E-Mail-Adresse sieht nur der Eigentümer.</p></div>':'';
-  return gmChanges(t,s)+head+here+ask+
+  return gmChanges(t,s)+gmMeBlock(t,s)+head+here+ask+
     '<p class="small muted">Was wollt ihr unbedingt machen? Ideen ändern den Plan nicht, sie sammeln nur. Alle Mitglieder, auch mit Leserecht, können eintragen und mit 👍 abstimmen.</p>'+
     '<form class="form gm-form" data-gm-form="idea"><label class="fld"><span>Neue Idee</span><textarea id="gm-body" maxlength="500" rows="2" placeholder="z. B. Rodeln am Abend, Therme am Regentag"></textarea></label>'+
     '<label class="fld"><span>Link (optional, https)</span><input type="url" id="gm-link" maxlength="500" placeholder="https://…" inputmode="url"></label>'+
@@ -148,6 +188,8 @@ if(typeof document!=='undefined'&&document.addEventListener){
       /* Normaler Planweg: Ideen-Bereich öffnen, Text der Idee als Vorlage merken; Status setzt die Person danach selbst. */
       try{if(navigator.clipboard)navigator.clipboard.writeText(i.body).catch(()=>{})}catch(x){}
       go('r-'+t.id+'-unternehmen');alertMsg('Idee kopiert. Tragt sie hier als Unternehmung ein und setzt sie danach auf „Eingeplant“.');return}
+    if(act==='claim'){const sel=$('#gm-party');if(sel&&sel.value)gmClaim(t,sel.value,true);return}
+    if(act==='unclaim'){gmClaim(t,val,false);return}
     if(act==='seen'){gmAct(()=>c.markSeen(t.id,Number(val)),t.id);return}
     if(act==='name-edit'){GM.editName=true;render();const x=$('#gm-name');if(x)x.focus();return}
     if(act==='name-cancel'){GM.editName=false;render();return}

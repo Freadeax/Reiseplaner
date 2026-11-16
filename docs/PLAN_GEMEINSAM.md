@@ -36,7 +36,7 @@ Freunde) können nichts beitragen, und es gibt keinen Ort für Ideen, die (noch)
 | G3 | **Anzeigename** statt E-Mail in Mitgliederliste und Hinweisen (M06.1) | ja (`profiles`) | Datenbank und Oberfläche **[neu]** |
 | G4 | **Ideen-Pinnwand** je Reise: alle Mitglieder (auch Leser) tragen Ideen ein und stimmen mit „Daumen hoch“ ab; Bearbeiter übernehmen eine Idee in den Plan | ja (`trip_ideas`, `trip_idea_votes`) | Datenbank und Oberfläche **[neu]** |
 | G5 | **Was hat sich geändert?** Verlauf ohne Inhalte („Anna: Unterkunft, Tagesplan 31.12.“) und Hinweis beim Öffnen (M06.3) | ja (`trip_events`, `trip_seen`) | Datenbank und Oberfläche **[neu]** |
-| G6 | **Ich bin Mitreisende/r X**: `party[i].member` nur durch die Person selbst (Format 5, `claim_party`) | ja | [Plan], gemeinsam mit Format-5-Thread |
+| G6 | **Ich bin Mitreisende/r X**: `party[i].member` nur durch die Person selbst (Format 5, `claim_party`) | ja (`trips_party_guard`, `claim_party`) | Datenbank und Oberfläche **[neu]** |
 | G7 | Abstimmungen mit mehreren Optionen, Kommentare an Tag/Unternehmung (M06.4/M06.5) | ja | später, nach G4-Erfahrung |
 
 Reihenfolge: G1 sofort (rein clientseitig). G2–G5 kommen als **eine** Migration `…_gemeinsam.sql`, lokal mit Supabase
@@ -126,6 +126,23 @@ abstimmen (Philipp 16.11.), Status nur Eigentümer/Bearbeiter, Zurückziehen wei
 Eigentümer und die eigene Zeile (ältere App-Stände zeigen dann die Konto-ID statt E-Mail). Kontolöschung: Profil und Stimmen
 weg, Ideen und Verlauf bleiben anonym. `supabase/config.toml`: Realtime lokal eingeschaltet (für `tests/db/gemeinsam.cjs`).
 
+## 9b · G6 Migration `20261116200000_mitreisende.sql`
+
+Freigabe Philipp 16.11. („Beides nacheinander“, Migration lokal testen, dann live).
+- **Trigger `trips_party_guard`** (vor jedem Schreiben von `trips.data`): eine neue Verknüpfung `party[i].member` darf nur auf
+  das eigene Konto zeigen. Fremde Verknüpfungen lösen dürfen die Person selbst und der Eigentümer, die eines ehemaligen
+  Mitglieds jeder Bearbeiter. Unerlaubte Änderungen werden **zurückgesetzt statt abgelehnt**, damit ein alter Stand oder ein
+  Abgleich nicht am Speichern scheitert; die App übernimmt den zurückgegebenen Serverstand (`Sync.push`). Wird ein Eintrag der
+  Reisegruppe gelöscht, geht seine Verknüpfung mit. Ein Konto zweimal: Abbruch (23514).
+- **`claim_party(p_trip, p_party, p_link)`**: eigene Verknüpfung setzen (alte eigene wird gelöst) oder lösen, auch für Leser,
+  nur in Reisen ab Format 5. Bearbeiter speichern in der App über `f5Commit` (geht offline, hebt nach Bestätigung auf Format 5).
+- **Oberfläche** (`app/gemeinsam.js`, Block „Du in der Reisegruppe“ im Überblick): „Wer bist du?“ mit den freien Personen,
+  danach „Du bist Ben“ mit eigenen offenen Aufgaben (`tasks[].by`) und eigenem Saldo aus der Aufteilung; Zuordnungen aller als
+  aufklappbare Liste, Lösen für Eigentümer.
+- **Nebenbei behoben** (`app/v3.js` `v3Plain`): Die Format-3-Prüfungen lehnten Format-5-Felder an Mitreisenden, Ausgaben und
+  Anreise-Abschnitten (`member`, `attend`, `fx`, `terminal` …) als unbekannt ab; sie prüfen jetzt eine Kopie ohne diese Felder,
+  die `validateV5` prüft.
+
 ## 10 · Offene Entscheidungen für Philipp
 
 1. ~~Migration G2–G5~~ freigegeben 16.11.
@@ -136,6 +153,5 @@ weg, Ideen und Verlauf bleiben anonym. `supabase/config.toml`: Realtime lokal ei
 ## 11 · Stand 16.11. abends und nächste Schritte
 
 Umgesetzt: G1–G5 vollständig, aus G2 auch Anwesenheit („Gerade in der Reise“) und Rückfall-Takt 15 s.
-Offen (brauchen je eine Migration und Philipps Freigabe): **G6** `party[i].member` über `claim_party` („Ich bin Mitreisende/r X“,
-damit „meine Ausgaben/Aufgaben“ funktionieren), **G7** Abstimmungen mit mehreren Optionen und Kommentare an Tag/Unternehmung.
+G6 umgesetzt (§9b). Offen: **G7** Abstimmungen mit mehreren Optionen und Kommentare an Tag/Unternehmung.
 Ebenfalls offen: Prüfung auf iPhone/Safari mit zwei echten Konten.

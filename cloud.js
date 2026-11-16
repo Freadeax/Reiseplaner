@@ -200,6 +200,8 @@
     },
     changes: async function (tripId) { return unwrap(await need().rpc('trip_changes_since', { p_trip: tripId }), 'Änderungen nicht geladen'); },
     markSeen: async function (tripId, version) { unwrap(await need().rpc('mark_trip_seen', { p_trip: tripId, p_version: version }), 'Nicht gespeichert'); },
+    /* G6: eigenes Konto mit einem Eintrag der Reisegruppe verknüpfen (link true) oder lösen; auch für Leser. Gibt die Version zurück. */
+    claimParty: async function (tripId, partyId, link) { return unwrap(await need().rpc('claim_party', { p_trip: tripId, p_party: partyId, p_link: !!link }), link ? 'Nicht zugeordnet' : 'Zuordnung nicht gelöst'); },
     /* Realtime nur als Auslöser: cb({table, id, trip}) – Daten kommen weiter über die normalen Abfragen. */
     /* Anwesenheit auf dem privaten Kanal trip:<id> (RLS auf realtime.messages: nur Mitglieder). Nur Name und Zeit, keine Eingaben. */
     presence: function (tripId, userId, name, onSync) {

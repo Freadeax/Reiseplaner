@@ -21,7 +21,7 @@ function fakeServer() {
       if (!data.title || data.id !== id) { const e = new Error('check constraint'); e.code = '23514'; throw e; }
       S.rows[id] = { id, data, version: 1, owner: S.user, deleted_at: null, members: { [S.user]: 'owner' } }; return out(S.rows[id], S.user); },
     async updateTrip(id, data, v) { net(); S.calls.push('update ' + id + '@' + v); const r = vis(id, S.user); if (!r || !['owner', 'editor'].includes(r.members[S.user]) || r.version !== v) return null;
-      r.data = data; r.version++; return out(r, S.user); },
+      r.data = S.rewrite ? S.rewrite(JSON.parse(JSON.stringify(data))) : data; r.version++; return out(r, S.user); },
     async deleteTrip(id, v) { net(); const r = vis(id, S.user); if (!r || r.version !== v) return null; if (r.members[S.user] !== 'owner') { const e = new Error('Nur der Eigentümer'); e.code = '42501'; throw e; }
       r.deleted_at = 'x'; r.version++; return out(r, S.user); }
   };
@@ -125,5 +125,14 @@ const edit = (id, fn) => { const t = Store.get(id); fn(t); return Store.put(t); 
   assert(Store.meta[id].conflict && !Store.meta[id].conflict.merge, 'ungültiges Ergebnis wird nicht gespeichert');
   assert.notEqual(S.rows[id].data.items, 'kaputt');
 
-  console.log('sync-merge: 7 Abläufe bestanden');
+  /* 8. Server setzt beim Speichern etwas zurück (trips_party_guard, G6): Client übernimmt den Serverstand */
+  Sync.resolve(id, 'server'); await run();
+  S.rewrite = d => { d.notes = 'vom Server'; return d; };
+  edit(id, x => { x.notes = 'lokal'; }); await run(); S.rewrite = null;
+  assert.equal(Store.get(id).notes, 'vom Server', 'Serverstand übernommen'); assert.equal(Store.pending(), 0);
+  assert.equal(Store.meta[id].version, S.rows[id].version);
+  edit(id, x => { x.budget = 777; }); await run();
+  assert.equal(S.rows[id].data.notes, 'vom Server', 'nächstes Speichern überschreibt nicht'); assert.equal(S.rows[id].data.budget, 777);
+
+  console.log('sync-merge: 8 Abläufe bestanden');
 })().catch(e => { console.error(e); process.exit(1); });

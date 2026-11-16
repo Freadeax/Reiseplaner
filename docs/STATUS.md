@@ -70,6 +70,16 @@ Tests (16.11. abends, Cloud-Container, auf Stand der Neugestaltung „Reisetageb
 Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Neuer Abschnitt in Unterlagen → Mappe (`readySection` in `app/offline.js`, eine Zeile in `tMappe`), nur Darstellung, kein Speicherformat. Prüft, was die App prüfen kann, mit Zeichen und Wort (✓ Erledigt, ! Zu tun, ○ Hinweis): App ohne Internet startbar, dauerhafter Speicher (Knopf anfragen, Home-Bildschirm-Hinweis am iPhone), mit Konto Abgleich dieser Reise (ausstehend, Konflikt, Stand) bzw. ohne Konto Sicherungsdatei, Fotos dieser Reise auf dem Gerät (x von y), Tickets und Unterlagen auf dem Gerät (aus `docstore.js`), Reisemappe als PDF (nicht prüfbar: nur „Druckdialog zuletzt am …“, Merker `rp-mappe-druck:<Bereich>:<Reise>` in localStorage). Dazu der Weg zum PDF am iPhone/iPad („In Dateien sichern“) und am Computer.
 
 Tests (16.11., Cloud-Container, auf Stand `a1d5dc2` mit Neugestaltung „Reisetagebuch“): `npm test`, `test:browser`, `test:offline-browser` (neu: Bereit-Prüfung zeigt Offline-Start, Sicherung, PDF-Weg; Druckknopf setzt den Merker) grün; 390 px hell/dunkel angesehen. Nicht getestet: iPhone, iPad, Safari.
+## Gemeinsam planen G6: „Ich bin Mitreisende/r X“ (Claude, 16.11. abends)
+
+Freigabe Philipp 16.11. („Beides nacheinander“). Migration `20261116200000_mitreisende.sql`, Details `docs/PLAN_GEMEINSAM.md` §9b.
+- **Datenbank:** Trigger `trips_party_guard` schützt `party[].member` (nur das eigene Konto verknüpfbar, fremde Verknüpfungen bleiben, Eigentümer darf lösen), Funktion `claim_party` (auch für Leser, ab Format 5).
+- **Oberfläche:** Block „Du in der Reisegruppe“ im Überblick geteilter Reisen: „Wer bist du?“ → „Du bist Ben“ mit eigenen offenen Aufgaben und eigenem Saldo.
+- **Sync:** Setzt der Server beim Speichern etwas zurück, übernimmt die App den Serverstand (`Sync.push`).
+- **Behoben:** Format-5-Felder an Mitreisenden, Ausgaben und Anreise-Abschnitten wurden von den Format-3-Prüfungen abgelehnt (`app/v3.js` `v3Plain`).
+
+Tests (16.11. abends, Cloud-Container, lokaler Supabase): `supabase db lint` ohne Befund, `test:db` grün (neu `tests/db/mitreisende.cjs`), `test:e2e` grün (neu: Ben ordnet sich zu und hebt auf Format 5, Anna sieht Bens Platz nicht, Bens alter Stand lässt Annas Verknüpfung online stehen), `npm test` grün (`sync-merge` 8 Abläufe). Nicht getestet: iPhone, Safari, Produktion.
+
 ## Gemeinsam planen: Anwesenheit, Rückfall-Takt, Namensfrage (Claude, 16.11. abends)
 
 Ohne Datenbankänderung (nutzt die Kanalregeln der Migration `20261116120000`). `app/gemeinsam.js`, `cloud.js` (`presence`, `watch` meldet Verbindungsstatus), `app.css` (3 Regeln).

@@ -203,7 +203,13 @@ const Sync={state:'idle',error:'',timer:null,running:false,again:false,last:0,no
           if(Store.scope!==scope)return changed;this.apply(row,'owner');
         }else{
           const row=await c.updateTrip(id,data,m.version);if(Store.scope!==scope)return changed;
-          if(row){this.apply(row);if(Store.queue[id]&&Store.queue[id].at!==q.at)Store.meta[id].base=JSON.stringify(data)}
+          if(row){
+            /* Server hat beim Speichern etwas zurückgesetzt (z. B. fremde Verknüpfung party[].member, trips_party_guard): Serverstand übernehmen */
+            const same=(typeof window!=='undefined'&&window.RPMerge)?window.RPMerge.eq(row.data,data):JSON.stringify(row.data)===JSON.stringify(data);
+            this.apply(row);
+            if(Store.queue[id]&&Store.queue[id].at!==q.at)Store.meta[id].base=JSON.stringify(same?data:row.data);
+            else if(!same&&row.data){Store.trips[id]=clone(row.data);changed=true}
+          }
           else{const cur=await c.getTrip(id);if(Store.scope!==scope)return changed;
             if(!cur)Store.meta[id]=Object.assign(m,{lost:true});
             else if(!cur.deleted_at&&this.merge(id,m,data,cur)){changed=true;continue}

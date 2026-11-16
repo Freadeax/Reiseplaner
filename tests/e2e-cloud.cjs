@@ -186,6 +186,30 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await waitSync(B.p, /Online gespeichert/);
     await A.p.waitForFunction(id => / ✓$/.test(window.__app.Store.get(id).title), tid, { timeout: 20000 });
 
+    /* G6 „Ich bin Mitreisende/r X“: Anna trägt die Reisegruppe ein, Ben ordnet sich selbst zu (hebt auf Format 5 nach Bestätigung) */
+    await A.p.evaluate(id => { const a = window.__app, t = a.Store.get(id); t.party = [{ id: 'pann1', name: 'Anna' }, { id: 'pben1', name: 'Ben' }]; t.schemaVersion = 3; a.Store.put(t, true); }, tid);
+    await waitSync(A.p, /Online gespeichert/);
+    await B.p.waitForFunction(id => (window.__app.Store.get(id).party || []).length === 2, tid, { timeout: 20000 });
+    await B.p.goto(BASE + '#r-' + tid + '-ueber'); await B.p.waitForSelector('.gm-me >> text=Wer bist du?');
+    await B.p.selectOption('#gm-party', 'pben1'); await B.p.click('[data-gm="claim"]');
+    await B.p.click('[data-f5-act="confirm"]');
+    await B.p.waitForSelector('.gm-me >> text=Du bist Ben').catch(async e => { console.error('DBG', await B.p.evaluate(() => [document.querySelector('#msg') && document.querySelector('#msg').textContent, document.querySelector('.gm-me') && document.querySelector('.gm-me').textContent, !!document.querySelector('.sheet')])); throw e; }); await waitSync(B.p, /Online gespeichert/);
+    const benId = await B.p.evaluate(() => window.__app.Auth.user.id);
+    let srv = (await aApi.from('trips').select('data').eq('id', tid).single()).data.data;
+    assert.equal(srv.schemaVersion, 5); assert.equal(srv.party.find(p => p.id === 'pben1').member, benId, 'Ben online verknüpft');
+    await A.p.waitForFunction(id => (window.__app.Store.get(id).party || []).some(p => p.member), tid, { timeout: 20000 });
+    await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('.gm-me >> text=Wer bist du?');
+    assert.deepEqual(await A.p.$$eval('#gm-party option', o => o.map(x => x.value)), ['pann1'], 'Anna kann Bens Platz nicht wählen');
+    await A.p.click('[data-gm="claim"]'); await A.p.waitForSelector('.gm-me >> text=Du bist Anna'); await waitSync(A.p, /Online gespeichert/);
+    /* Bearbeiter Ben speichert einen Stand ohne Annas Verknüpfung: sie bleibt online, Ben übernimmt den Serverstand (trips_party_guard) */
+    const annaId = await A.p.evaluate(() => window.__app.Auth.user.id);
+    await B.p.waitForFunction(id => (window.__app.Store.get(id).party || []).filter(p => p.member).length === 2, tid, { timeout: 20000 });
+    await B.p.evaluate(id => { const a = window.__app, t = a.Store.get(id); t.party.forEach(p => { if (p.id === 'pann1') delete p.member; }); t.notes = 'Gruppe'; a.Store.put(t, true); }, tid);
+    await B.p.waitForFunction(id => window.__app.Store.pending() === 0 && window.__app.Store.get(id).notes === 'Gruppe', tid, { timeout: 15000 });
+    srv = (await aApi.from('trips').select('data').eq('id', tid).single()).data.data;
+    assert.equal(srv.party.find(p => p.id === 'pann1').member, annaId, 'fremde Verknüpfung bleibt'); assert.equal(srv.notes, 'Gruppe');
+    await B.p.waitForFunction(([id, m]) => window.__app.Store.get(id).party.find(p => p.id === 'pann1').member === m, [tid, annaId], { timeout: 5000 });
+
     if (process.env.GM_SHOT) { await A.p.setViewportSize({ width: 390, height: 1400 }); await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('section.gm details'); await A.p.evaluate(() => document.querySelectorAll('section.gm details').forEach(d => d.open = true)); await A.p.waitForTimeout(400); await (await A.p.$('section.gm')).screenshot({ path: process.env.GM_SHOT }); }
     /* Entzug: Anna entfernt Ben → Ben verliert die Reise beim nächsten Abgleich */
     await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.click('[data-acc="share"]');
