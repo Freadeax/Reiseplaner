@@ -52,16 +52,19 @@ async function gmLoad(tid){
   if(s.loading)return;s.loading=true;
   try{
     const me=gmMe();
-    const [ideas,members,changes,profile]=await Promise.all([
+    const [ideas,members,changes,profile,polls,comments]=await Promise.all([
       c.ideas(tid),
       c.members(tid).catch(()=>[]),
       c.changes(tid).catch(()=>[]),
-      GM.profileFor===me?Promise.resolve(GM.profile):c.profile(me).catch(()=>'')
+      GM.profileFor===me?Promise.resolve(GM.profile):c.profile(me).catch(()=>''),
+      c.polls?c.polls(tid).catch(()=>null):null,
+      c.comments?c.comments(tid).catch(()=>null):null
     ]);
     GM.profile=profile||'';GM.profileFor=me;
-    Object.assign(s,{list:ideas.list,votes:ideas.votes,members,changes:changes||[],at:Date.now(),changesAt:Date.now(),error:''});
+    Object.assign(s,{list:ideas.list,votes:ideas.votes,members,changes:changes||[],polls:polls?polls.list:null,pollVotes:polls?polls.votes:[],comments:comments,at:Date.now(),changesAt:Date.now(),error:''});
   }catch(e){s.error=e&&e.message||String(e);s.at=Date.now()}
   s.loading=false;
+  gmRefreshThreads(tid);
   if(typeof remoteChanged==='function'&&UI.view==='reise'&&UI.tid===tid)remoteChanged();
 }
 
@@ -159,9 +162,96 @@ function gemeinsamBlock(t){
     '<button type="submit" class="btn sm">Idee eintragen</button></form>'+
     (open.length?'<ul class="plain gm-list">'+open.map(i=>gmIdea(t,s,i)).join('')+'</ul>':'<p class="small muted">Noch keine offenen Ideen.</p>')+
     (done.length?'<details><summary>Erledigt ('+done.length+')</summary><ul class="plain gm-list">'+done.map(i=>gmIdea(t,s,i)).join('')+'</ul></details>':'')+
+    gmPolls(t,s)+gmComments(t,s)+
     (ask?'':'<p class="small gm-name">'+(GM.editName?
       '<span class="row"><label class="fld" style="flex:1"><span>Dein Anzeigename</span><input id="gm-name" maxlength="40" value="'+esc(name||'')+'" autocomplete="nickname"></label><button type="button" class="btn sm" data-gm="name-save">Speichern</button><button type="button" class="btn ghost sm" data-gm="name-cancel">Abbrechen</button></span><span class="muted">Leer lassen, um keinen Namen zu zeigen. Die anderen sehen dann „Mitglied 2“ o. Ä.</span>':
       'So sehen dich die anderen: <b>'+esc(name||'ohne Namen')+'</b> <button type="button" class="btn ghost sm" data-gm="name-edit">'+(name?'Ändern':'Namen festlegen')+'</button>')+'</p>')+'</section>';
+}
+
+/* ---------- G7 Abstimmungen und Kommentare (Migration 20261116220000, PLAN_GEMEINSAM §9c) ----------
+   Ändern den Reiseplan nie. Alle Mitglieder, auch Leser, legen an, stimmen ab und kommentieren. Kommentare hängen an der
+   Reise ('trip'), einem Tag ('day:<Datum>' bzw. 'day:<Nummer>' ohne festes Datum) oder einer Unternehmung ('item:<uid>'). */
+const GM7={editComment:null};
+function gmDayTarget(t,i){const d=daysOf(t)[i];return 'day:'+(d&&d.date?iso(d.date):i)}
+function gmTargetLabel(t,target){
+  if(target==='trip')return 'die Reise';
+  let m=/^day:(.+)$/.exec(target);
+  if(m){const ds=daysOf(t),d=/^\d+$/.test(m[1])?ds[+m[1]]:ds.find(x=>x.date&&iso(x.date)===m[1]);return d?d.label:(/^\d+$/.test(m[1])?'Tag '+(+m[1]+1):fmtLong(pd(m[1])))+' (nicht mehr im Zeitraum)'}
+  m=/^item:(.+)$/.exec(target);
+  if(m){const it=(t.items||[]).find(i=>i.uid===m[1]),a=it&&actOf(t,it.act);return a?a.t:'entfernte Unternehmung'}
+  return target;
+}
+const gmAt=x=>new Date(x).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+function gmState(t){
+  const s=GM.trips[t.id];
+  if(!s||(!s.loading&&Date.now()-(s.at||0)>60000))gmLoad(t.id);
+  return GM.trips[t.id];
+}
+function gmThread(t,target){
+  if(!gmOnline(t))return '';
+  const s=gmState(t),id=' class="gm-thread" data-gm-target="'+esc(target)+'"';
+  if(!s||s.comments===undefined)return '<div'+id+'><p class="small muted">Lade Kommentare …</p></div>';
+  if(s.comments===null)return '<div'+id+'><p class="small muted">Kommentare sind gerade nicht verfügbar.</p></div>';
+  const me=gmMe(),role=Store.role(t.id),list=s.comments.filter(c=>c.target===target);
+  const rows=list.map(c=>GM7.editComment===c.id?
+    '<li class="gm-comment"><form class="form" data-gm-form="comment-edit" data-val="'+esc(c.id)+'"><label class="fld"><span>Kommentar ändern</span><textarea name="body" maxlength="1000" rows="2">'+esc(c.body)+'</textarea></label><div class="row"><button type="submit" class="btn sm">Speichern</button><button type="button" class="btn ghost sm" data-gm="c-cancel">Abbrechen</button></div></form></li>':
+    '<li class="gm-comment"><p>'+esc(c.body)+'</p><p class="small muted">'+esc(gmName(s,c.author))+' · '+esc(gmAt(c.created_at))+(c.edited_at?' · bearbeitet':'')+
+    (c.author===me?' <button type="button" class="lnk" data-gm="c-edit" data-val="'+esc(c.id)+'">Ändern</button>':'')+
+    (c.author===me||role==='owner'?' <button type="button" class="lnk" data-gm="c-del" data-val="'+esc(c.id)+'">Zurückziehen</button>':'')+'</p></li>').join('');
+  return '<div'+id+'>'+(rows?'<ul class="plain gm-comments">'+rows+'</ul>':'<p class="small muted">Noch keine Kommentare.</p>')+
+    '<form class="form gm-form" data-gm-form="comment" data-target="'+esc(target)+'"><label class="fld"><span>'+(target==='trip'?'Dein Kommentar':'Kommentar zu '+esc(gmTargetLabel(t,target)))+'</span><textarea name="body" maxlength="1000" rows="2" placeholder="z. B. Bitte früh los, der Parkplatz ist klein."></textarea></label><button type="submit" class="btn sm">Senden</button></form></div>';
+}
+/* Kommentar-Knopf im Tageskopf des Tagesplans: Anzahl, öffnet das Gespräch zum Tag im Blatt */
+function gmDayBadge(t,i){
+  if(!gmOnline(t))return '';
+  const s=gmState(t),target=gmDayTarget(t,i),n=s&&s.comments?s.comments.filter(c=>c.target===target).length:0;
+  if(s&&s.comments===null)return '';
+  return ' <button type="button" class="lnk gm-badge" data-gm="thread" data-val="'+esc(target)+'" aria-label="Kommentare zu '+esc(gmTargetLabel(t,target))+': '+n+'">💬'+(n?' '+n:'')+'</button>';
+}
+/* Gespräch im Blatt der Unternehmung (app/blaetter.js sheetItem) */
+function gmItemThread(t,u){return gmOnline(t)?'<div class="panel gm-item-thread"><h4>Kommentare</h4>'+gmThread(t,'item:'+u)+'</div>':''}
+/* Offene Blätter mit Gespräch nach dem Laden neu zeichnen; begonnene Eingaben bleiben stehen. */
+function gmRefreshThreads(tid){
+  if(typeof document==='undefined'||!document.querySelectorAll)return;
+  const t=Store.get(tid);if(!t)return;
+  document.querySelectorAll('.sheet .gm-thread[data-gm-target]').forEach(el=>{
+    const ta=el.querySelector('form[data-gm-form="comment"] textarea'),keep=ta?ta.value:'',focus=ta&&document.activeElement===ta;
+    const box=document.createElement('div');box.innerHTML=gmThread(t,el.getAttribute('data-gm-target'));
+    const fresh=box.firstElementChild;if(!fresh)return;el.replaceWith(fresh);
+    const nt=fresh.querySelector('form[data-gm-form="comment"] textarea');if(nt&&keep){nt.value=keep;if(focus)nt.focus()}
+  });
+}
+function gmOtherThreads(t,s){
+  const by={};(s.comments||[]).forEach(c=>{if(c.target!=='trip')by[c.target]=(by[c.target]||0)+1});
+  const ks=Object.keys(by);if(!ks.length)return '';
+  ks.sort((a,b)=>{const la=(s.comments||[]).filter(c=>c.target===a).pop(),lb=(s.comments||[]).filter(c=>c.target===b).pop();return String(lb.created_at).localeCompare(String(la.created_at))});
+  return '<p class="small">Gespräche an Tagen und Unternehmungen: '+ks.slice(0,8).map(k=>'<button type="button" class="lnk" data-gm="thread" data-val="'+esc(k)+'">'+esc(gmTargetLabel(t,k))+' ('+by[k]+')</button>').join(' · ')+'</p>';
+}
+function gmPoll(t,s,p){
+  const me=gmMe(),role=Store.role(t.id),votes=(s.pollVotes||[]).filter(v=>v.poll_id===p.id),closed=!!p.closed_at;
+  const voters=new Set(votes.map(v=>v.user_id)).size,counts=p.options.map((o,i)=>votes.filter(v=>v.option===i).length),max=Math.max(0,...counts);
+  const opts=p.options.map((o,i)=>{const vs=votes.filter(v=>v.option===i),mine=vs.some(v=>v.user_id===me),n=vs.length,pct=voters?Math.round(n/voters*100):0;
+    return '<li><button type="button" class="gm-opt'+(mine?' mine':'')+(closed&&n&&n===max?' win':'')+'" data-gm="poll-vote" data-val="'+esc(p.id)+'" data-opt="'+i+'" aria-pressed="'+mine+'"'+(closed?' disabled':'')+'>'+
+      '<span class="gm-bar" aria-hidden="true" style="width:'+pct+'%"></span><span class="gm-optt">'+(mine?'✓ ':'')+esc(o)+'</span><b class="num">'+n+'</b></button>'+
+      (n?'<span class="small muted gm-who">'+esc(vs.map(v=>gmName(s,v.user_id)).join(', '))+'</span>':'')+'</li>'}).join('');
+  const canClose=p.author===me||role==='owner'||role==='editor',canDel=p.author===me||role==='owner';
+  return '<li class="gm-poll'+(closed?' gm-closed':'')+'"><p><b>'+esc(p.question)+'</b></p><p class="small muted">von '+esc(gmName(s,p.author))+' · '+(p.multi?'mehrere Antworten möglich':'eine Antwort')+(p.target!=='trip'?' · zu '+esc(gmTargetLabel(t,p.target)):'')+' · '+voters+(voters===1?' Person hat':' Personen haben')+' abgestimmt'+(closed?' · <b>geschlossen</b>':'')+'</p>'+
+    '<ul class="plain gm-opts">'+opts+'</ul>'+(canClose||canDel?'<div class="row gm-acts">'+
+    (canClose?'<button type="button" class="btn ghost sm" data-gm="poll-close" data-val="'+esc(p.id)+'" data-how="'+(closed?'open':'close')+'">'+(closed?'Wieder öffnen':'Abstimmung schließen')+'</button>':'')+
+    (canDel?'<button type="button" class="btn ghost sm" data-gm="poll-del" data-val="'+esc(p.id)+'">Zurückziehen</button>':'')+'</div>':'')+'</li>';
+}
+function gmPolls(t,s){
+  if(!s.polls)return '';
+  const open=s.polls.filter(p=>!p.closed_at),closed=s.polls.filter(p=>p.closed_at);
+  return '<h3>Abstimmungen</h3>'+(open.length?'<ul class="plain gm-list">'+open.map(p=>gmPoll(t,s,p)).join('')+'</ul>':'<p class="small muted">Keine offene Abstimmung. Gut für Fragen mit festen Antworten, z. B. „Wohin am Samstag?“.</p>')+
+    (closed.length?'<details><summary>Abgeschlossen ('+closed.length+')</summary><ul class="plain gm-list">'+closed.map(p=>gmPoll(t,s,p)).join('')+'</ul></details>':'')+
+    '<details class="panel gm-pollform"><summary><b>+ Neue Abstimmung</b></summary><form class="form" data-gm-form="poll"><label class="fld"><span>Frage</span><input id="gm-pq" maxlength="200" placeholder="z. B. Wohin am Samstag?"></label>'+
+    '<label class="fld"><span>Antworten, eine je Zeile (2 bis 8)</span><textarea id="gm-po" rows="3" maxlength="700" placeholder="Therme&#10;Rodeln&#10;Museum"></textarea></label>'+
+    '<label class="chk"><input type="checkbox" id="gm-pm"> Mehrere Antworten erlaubt</label><button type="submit" class="btn sm">Abstimmung starten</button></form></details>';
+}
+function gmComments(t,s){
+  if(s.comments===null||s.comments===undefined)return '';
+  return '<h3>Kommentare</h3>'+gmThread(t,'trip')+gmOtherThreads(t,s);
 }
 
 async function gmAct(fn,tid,msg){
@@ -169,6 +259,23 @@ async function gmAct(fn,tid,msg){
   if(GM.trips[tid])GM.trips[tid].at=0;await gmLoad(tid);
 }
 if(typeof document!=='undefined'&&document.addEventListener){
+  document.addEventListener('submit',e=>{
+    const g=e.target.closest&&e.target.closest('[data-gm-form="poll"],[data-gm-form="comment"],[data-gm-form="comment-edit"]');if(!g)return;e.preventDefault();
+    const t=cur(),c=gmCloud();if(!t||!c)return;
+    const kind=g.getAttribute('data-gm-form');
+    if(kind==='poll'){
+      const q=($('#gm-pq')&&$('#gm-pq').value||'').trim(),opts=($('#gm-po')&&$('#gm-po').value||'').split('\n').map(x=>x.trim()).filter(Boolean),multi=!!($('#gm-pm')&&$('#gm-pm').checked);
+      if(!q){alertMsg('Bitte eine Frage eingeben.');return}
+      if(opts.length<2||opts.length>8){alertMsg('Bitte 2 bis 8 Antworten eingeben, eine je Zeile.');return}
+      if(opts.some(o=>o.length>80)){alertMsg('Antworten höchstens 80 Zeichen.');return}
+      if(new Set(opts.map(o=>o.toLowerCase())).size!==opts.length){alertMsg('Jede Antwort nur einmal.');return}
+      gmAct(()=>c.addPoll(t.id,q,opts,multi,'trip'),t.id,'Abstimmung gestartet.');return}
+    const ta=g.querySelector('textarea'),body=(ta&&ta.value||'').trim();
+    if(!body){alertMsg('Bitte einen Kommentar eingeben.');return}
+    if(body.length>1000){alertMsg('Höchstens 1000 Zeichen.');return}
+    if(kind==='comment'){const target=g.getAttribute('data-target');gmAct(async()=>{await c.addComment(t.id,target,body);if(ta)ta.value=''},t.id,'Kommentar gesendet.');return}
+    GM7.editComment=null;gmAct(()=>c.setComment(g.getAttribute('data-val'),{body}),t.id,'Kommentar geändert.');
+  });
   document.addEventListener('submit',e=>{
     const f=e.target.closest&&e.target.closest('[data-gm-form="idea"]');if(!f)return;e.preventDefault();
     const t=cur(),c=gmCloud();if(!t||!c)return;
@@ -190,6 +297,16 @@ if(typeof document!=='undefined'&&document.addEventListener){
       go('r-'+t.id+'-unternehmen');alertMsg('Idee kopiert. Tragt sie hier als Unternehmung ein und setzt sie danach auf „Eingeplant“.');return}
     if(act==='claim'){const sel=$('#gm-party');if(sel&&sel.value)gmClaim(t,sel.value,true);return}
     if(act==='unclaim'){gmClaim(t,val,false);return}
+    if(act==='poll-vote'){const p=(s.polls||[]).find(x=>x.id===val);if(!p)return;const i=Number(b.getAttribute('data-opt'));
+      const mine=(s.pollVotes||[]).filter(v=>v.poll_id===val&&v.user_id===gmMe()).map(v=>v.option);
+      const next=p.multi?(mine.includes(i)?mine.filter(x=>x!==i):mine.concat(i)):(mine.includes(i)?[]:[i]);
+      gmAct(()=>c.votePoll(val,next),t.id);return}
+    if(act==='poll-close'){const how=b.getAttribute('data-how');gmAct(()=>c.setPoll(val,{closed_at:how==='close'?new Date().toISOString():null}),t.id,how==='close'?'Abstimmung geschlossen.':'Abstimmung wieder offen.');return}
+    if(act==='poll-del'){gmAct(()=>c.setPoll(val,{deleted_at:new Date().toISOString()}),t.id,'Abstimmung zurückgezogen.');return}
+    if(act==='thread'){openSheet('<span class="eyebrow">Kommentare</span><h2>'+esc(gmTargetLabel(t,val))+'</h2>'+gmThread(t,val));return}
+    if(act==='c-edit'){GM7.editComment=val;render();gmRefreshThreads(t.id);return}
+    if(act==='c-cancel'){GM7.editComment=null;render();gmRefreshThreads(t.id);return}
+    if(act==='c-del'){gmAct(()=>c.setComment(val,{deleted_at:new Date().toISOString()}),t.id,'Kommentar zurückgezogen.');return}
     if(act==='seen'){gmAct(()=>c.markSeen(t.id,Number(val)),t.id);return}
     if(act==='name-edit'){GM.editName=true;render();const x=$('#gm-name');if(x)x.focus();return}
     if(act==='name-cancel'){GM.editName=false;render();return}

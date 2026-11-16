@@ -202,6 +202,31 @@
     markSeen: async function (tripId, version) { unwrap(await need().rpc('mark_trip_seen', { p_trip: tripId, p_version: version }), 'Nicht gespeichert'); },
     /* G6: eigenes Konto mit einem Eintrag der Reisegruppe verknüpfen (link true) oder lösen; auch für Leser. Gibt die Version zurück. */
     claimParty: async function (tripId, partyId, link) { return unwrap(await need().rpc('claim_party', { p_trip: tripId, p_party: partyId, p_link: !!link }), link ? 'Nicht zugeordnet' : 'Zuordnung nicht gelöst'); },
+    /* G7 Abstimmungen und Kommentare (Migration 20261116220000) */
+    polls: async function (tripId) {
+      var list = unwrap(await need().from('trip_polls').select('id,author,question,options,multi,target,created_at,closed_at,closed_by').eq('trip_id', tripId).is('deleted_at', null).order('created_at', { ascending: true }), 'Abstimmungen nicht geladen');
+      var votes = list.length ? unwrap(await need().from('trip_poll_votes').select('poll_id,user_id,option').in('poll_id', list.map(function (p) { return p.id; })), 'Stimmen nicht geladen') : [];
+      return { list: list, votes: votes };
+    },
+    addPoll: async function (tripId, question, options, multi, target) {
+      return unwrap(await need().from('trip_polls').insert({ trip_id: tripId, question: question, options: options, multi: !!multi, target: target || 'trip' }).select('id').single(), 'Abstimmung nicht gespeichert');
+    },
+    setPoll: async function (id, patch) {
+      var rows = unwrap(await need().from('trip_polls').update(patch).eq('id', id).select('id'), 'Abstimmung nicht geändert');
+      if (!rows.length) throw new Error('Abstimmung nicht geändert (keine Berechtigung)');
+    },
+    votePoll: async function (id, options) { unwrap(await need().rpc('vote_poll', { p_poll: id, p_options: options }), 'Stimme nicht gespeichert'); },
+    comments: async function (tripId) {
+      var rows = unwrap(await need().from('trip_comments').select('id,author,target,body,created_at,edited_at').eq('trip_id', tripId).is('deleted_at', null).order('created_at', { ascending: false }).limit(500), 'Kommentare nicht geladen');
+      return rows.reverse();
+    },
+    addComment: async function (tripId, target, body) {
+      return unwrap(await need().from('trip_comments').insert({ trip_id: tripId, target: target, body: body }).select('id').single(), 'Kommentar nicht gespeichert');
+    },
+    setComment: async function (id, patch) {
+      var rows = unwrap(await need().from('trip_comments').update(patch).eq('id', id).select('id'), 'Kommentar nicht geändert');
+      if (!rows.length) throw new Error('Kommentar nicht geändert (keine Berechtigung)');
+    },
     /* Realtime nur als Auslöser: cb({table, id, trip}) – Daten kommen weiter über die normalen Abfragen. */
     /* Anwesenheit auf dem privaten Kanal trip:<id> (RLS auf realtime.messages: nur Mitglieder). Nur Name und Zeit, keine Eingaben. */
     presence: function (tripId, userId, name, onSync) {
@@ -220,10 +245,10 @@
       if (!sb || !sb.channel) return function () {};
       try { if (sb.realtime && sb.realtime.setAuth) sb.realtime.setAuth(); } catch (e) {}
       var ch = sb.channel('rp-gemeinsam-' + Math.random().toString(36).slice(2));
-      ['trips', 'trip_ideas', 'trip_idea_votes'].forEach(function (table) {
+      ['trips', 'trip_ideas', 'trip_idea_votes', 'trip_polls', 'trip_poll_votes', 'trip_comments'].forEach(function (table) {
         ch = ch.on('postgres_changes', { event: '*', schema: 'public', table: table }, function (p) {
           var row = p && (p.new && Object.keys(p.new).length ? p.new : p.old) || {};
-          try { cb({ table: table, id: row.id || row.idea_id || null, trip: table === 'trips' ? row.id : row.trip_id || null }); } catch (e) { console.error(e); }
+          try { cb({ table: table, id: row.id || row.idea_id || row.poll_id || null, trip: table === 'trips' ? row.id : row.trip_id || null }); } catch (e) { console.error(e); }
         });
       });
       ch.subscribe(function (status) { try { if (onStatus) onStatus(status); } catch (e) {} });

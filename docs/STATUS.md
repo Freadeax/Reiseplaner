@@ -70,7 +70,16 @@ Tests (16.11. abends, Cloud-Container, auf Stand der Neugestaltung „Reisetageb
 Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Neuer Abschnitt in Unterlagen → Mappe (`readySection` in `app/offline.js`, eine Zeile in `tMappe`), nur Darstellung, kein Speicherformat. Prüft, was die App prüfen kann, mit Zeichen und Wort (✓ Erledigt, ! Zu tun, ○ Hinweis): App ohne Internet startbar, dauerhafter Speicher (Knopf anfragen, Home-Bildschirm-Hinweis am iPhone), mit Konto Abgleich dieser Reise (ausstehend, Konflikt, Stand) bzw. ohne Konto Sicherungsdatei, Fotos dieser Reise auf dem Gerät (x von y), Tickets und Unterlagen auf dem Gerät (aus `docstore.js`), Reisemappe als PDF (nicht prüfbar: nur „Druckdialog zuletzt am …“, Merker `rp-mappe-druck:<Bereich>:<Reise>` in localStorage). Dazu der Weg zum PDF am iPhone/iPad („In Dateien sichern“) und am Computer.
 
 Tests (16.11., Cloud-Container, auf Stand `a1d5dc2` mit Neugestaltung „Reisetagebuch“): `npm test`, `test:browser`, `test:offline-browser` (neu: Bereit-Prüfung zeigt Offline-Start, Sicherung, PDF-Weg; Druckknopf setzt den Merker) grün; 390 px hell/dunkel angesehen. Nicht getestet: iPhone, iPad, Safari.
-## Gemeinsam planen G6: „Ich bin Mitreisende/r X“ (Claude, 16.11. abends)
+## Gemeinsam planen G7: Abstimmungen und Kommentare (Claude, 16.11. abends)
+
+Freigabe Philipp 16.11. („Beides nacheinander“). Migration `20261116220000_abstimmungen.sql`, Details `docs/PLAN_GEMEINSAM.md` §9c.
+- **Abstimmungen** auf der Pinnwand: 2–8 Antworten, Einfach- oder Mehrfachwahl, Balken und Namen, Schließen/Wiederöffnen, Zurückziehen. Auch Leser stimmen ab.
+- **Kommentare** an der Reise, an jedem Tag (💬 im Tageskopf des Tagesplans) und an jeder Unternehmung (im Blatt). Ändern nur selbst, Zurückziehen selbst oder Eigentümer.
+- Echtzeit für Abstimmungen, Stimmen und Kommentare; Kontoexport Version 3.
+
+Tests (16.11. abends, Cloud-Container, lokaler Supabase): `supabase db lint` ohne Befund, `test:db` grün (neu `tests/db/abstimmungen.cjs`: Rechte, Grenzen, Einfach-/Mehrfachwahl, Ändern nur ohne Stimmen, Realtime, Export, Kontolöschung), `test:e2e` grün (neu: Ben startet Abstimmung, Anna stimmt ab und Ben sieht es live, Kommentar an Reise und Tag), `npm test` grün; Pinnwand bei 390 px angesehen. Nicht getestet: iPhone, Safari, Produktion.
+
+## Gemeinsam planen G6:## Gemeinsam planen G6: „Ich bin Mitreisende/r X“ (Claude, 16.11. abends)
 
 Freigabe Philipp 16.11. („Beides nacheinander“). Migration `20261116200000_mitreisende.sql`, Details `docs/PLAN_GEMEINSAM.md` §9b.
 - **Datenbank:** Trigger `trips_party_guard` schützt `party[].member` (nur das eigene Konto verknüpfbar, fremde Verknüpfungen bleiben, Eigentümer darf lösen), Funktion `claim_party` (auch für Leser, ab Format 5).

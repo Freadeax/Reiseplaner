@@ -37,7 +37,7 @@ Freunde) können nichts beitragen, und es gibt keinen Ort für Ideen, die (noch)
 | G4 | **Ideen-Pinnwand** je Reise: alle Mitglieder (auch Leser) tragen Ideen ein und stimmen mit „Daumen hoch“ ab; Bearbeiter übernehmen eine Idee in den Plan | ja (`trip_ideas`, `trip_idea_votes`) | Datenbank und Oberfläche **[neu]** |
 | G5 | **Was hat sich geändert?** Verlauf ohne Inhalte („Anna: Unterkunft, Tagesplan 31.12.“) und Hinweis beim Öffnen (M06.3) | ja (`trip_events`, `trip_seen`) | Datenbank und Oberfläche **[neu]** |
 | G6 | **Ich bin Mitreisende/r X**: `party[i].member` nur durch die Person selbst (Format 5, `claim_party`) | ja (`trips_party_guard`, `claim_party`) | Datenbank und Oberfläche **[neu]** |
-| G7 | Abstimmungen mit mehreren Optionen, Kommentare an Tag/Unternehmung (M06.4/M06.5) | ja | später, nach G4-Erfahrung |
+| G7 | Abstimmungen mit mehreren Optionen, Kommentare an Tag/Unternehmung (M06.4/M06.5) | ja (`trip_polls`, `trip_poll_votes`, `trip_comments`) | Datenbank und Oberfläche **[neu]** |
 
 Reihenfolge: G1 sofort (rein clientseitig). G2–G5 kommen als **eine** Migration `…_gemeinsam.sql`, lokal mit Supabase
 getestet, dann Philipps Freigabe. Danach die Oberflächen schrittweise.
@@ -143,6 +143,22 @@ Freigabe Philipp 16.11. („Beides nacheinander“, Migration lokal testen, dann
   Anreise-Abschnitten (`member`, `attend`, `fx`, `terminal` …) als unbekannt ab; sie prüfen jetzt eine Kopie ohne diese Felder,
   die `validateV5` prüft.
 
+## 9c · G7 Migration `20261116220000_abstimmungen.sql`
+
+Freigabe Philipp 16.11. („Beides nacheinander“).
+- **Abstimmungen** (`trip_polls`, `trip_poll_votes`): Frage bis 200 Zeichen, 2–8 Antworten (je bis 80, ohne Doppelte),
+  Einfach- oder Mehrfachwahl. Alle Mitglieder (auch Leser) legen an und stimmen ab; Stimmen nur über `vote_poll` (ersetzt
+  die eigenen Stimmen atomar, leere Liste = zurücknehmen). Wer was gewählt hat, sehen alle Mitglieder. Frage/Antworten ändert
+  nur der Autor und nur vor der ersten Stimme. Schließen/Wiederöffnen: Autor, Eigentümer, Bearbeiter. Zurückziehen: Autor oder
+  Eigentümer. Höchstens 50 offene Abstimmungen je Reise.
+- **Kommentare** (`trip_comments`): an `trip`, `day:<Datum>` (ohne festes Datum `day:<Nummer>`) oder `item:<uid>`, bis 1000
+  Zeichen, höchstens 2000 je Reise. Ändern nur der Autor („bearbeitet“), Zurückziehen Autor oder Eigentümer.
+- Realtime für alle drei Tabellen, Kontoexport Version 3 (`polls_created`, `poll_votes`, `comments_created`). Kontolöschung:
+  Stimmen weg, Abstimmungen und Kommentare bleiben ohne Autor.
+- **Oberfläche** (`app/gemeinsam.js`): auf der Pinnwand im Überblick „Abstimmungen“ (Balken je Antwort, Namen der
+  Abstimmenden, „+ Neue Abstimmung“) und „Kommentare“ zur Reise mit Liste der Gespräche an Tagen und Unternehmungen; im
+  Tagesplan 💬 mit Anzahl im Tageskopf (öffnet das Gespräch zum Tag), im Blatt einer Unternehmung ein eigenes Gespräch.
+
 ## 10 · Offene Entscheidungen für Philipp
 
 1. ~~Migration G2–G5~~ freigegeben 16.11.
@@ -153,5 +169,5 @@ Freigabe Philipp 16.11. („Beides nacheinander“, Migration lokal testen, dann
 ## 11 · Stand 16.11. abends und nächste Schritte
 
 Umgesetzt: G1–G5 vollständig, aus G2 auch Anwesenheit („Gerade in der Reise“) und Rückfall-Takt 15 s.
-G6 umgesetzt (§9b). Offen: **G7** Abstimmungen mit mehreren Optionen und Kommentare an Tag/Unternehmung.
+G6 (§9b) und G7 (§9c) umgesetzt. Alle Stufen G1–G7 sind damit fertig.
 Ebenfalls offen: Prüfung auf iPhone/Safari mit zwei echten Konten.

@@ -210,6 +210,24 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     assert.equal(srv.party.find(p => p.id === 'pann1').member, annaId, 'fremde Verknüpfung bleibt'); assert.equal(srv.notes, 'Gruppe');
     await B.p.waitForFunction(([id, m]) => window.__app.Store.get(id).party.find(p => p.id === 'pann1').member === m, [tid, annaId], { timeout: 5000 });
 
+    /* G7 Abstimmungen und Kommentare: Ben startet eine Abstimmung, Anna stimmt ab (Ben sieht es live), Kommentare an Reise und Tag */
+    await B.p.goto(BASE + '#r-' + tid + '-ueber'); await B.p.waitForSelector('.gm-pollform');
+    await B.p.click('.gm-pollform summary'); await B.p.fill('#gm-pq', 'Wohin am Samstag?'); await B.p.fill('#gm-po', 'Therme\nRodeln');
+    await B.p.click('[data-gm-form="poll"] button[type="submit"]'); await B.p.waitForSelector('.gm-poll >> text=Wohin am Samstag?');
+    await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('.gm-poll >> text=Wohin am Samstag?', { timeout: 20000 });
+    await A.p.click('.gm-poll [data-gm="poll-vote"][data-opt="1"]'); await A.p.waitForSelector('.gm-poll [data-opt="1"][aria-pressed="true"]');
+    await B.p.waitForFunction(() => { const n = document.querySelector('.gm-poll [data-opt="1"] .num'); return n && n.textContent === '1'; }, null, { timeout: 20000 });
+    await A.p.click('.gm-poll [data-gm="poll-vote"][data-opt="0"]'); await A.p.waitForSelector('.gm-poll [data-opt="0"][aria-pressed="true"]');
+    assert.equal(await A.p.getAttribute('.gm-poll [data-opt="1"]', 'aria-pressed'), 'false', 'Einfachwahl ersetzt die Stimme');
+    await A.p.fill('[data-gm-form="comment"][data-target="trip"] textarea', 'Ich bringe den Schlitten mit');
+    await A.p.click('[data-gm-form="comment"][data-target="trip"] button[type="submit"]'); await A.p.waitForSelector('.gm-comment >> text=Ich bringe den Schlitten mit');
+    await B.p.waitForSelector('.gm-comment >> text=Ich bringe den Schlitten mit', { timeout: 20000 });
+    await B.p.goto(BASE + '#r-' + tid + '-plan'); await B.p.click('.gm-badge >> nth=0'); await B.p.waitForSelector('.sheet .gm-thread');
+    await B.p.fill('.sheet [data-gm-form="comment"] textarea', 'Am ersten Tag früh los'); await B.p.click('.sheet [data-gm-form="comment"] button[type="submit"]');
+    await B.p.waitForSelector('.sheet .gm-comment >> text=Am ersten Tag früh los');
+    await B.p.click('[data-act="sheet-x"]'); await B.p.waitForSelector('.gm-badge >> text=💬 1');
+    await A.p.waitForSelector('text=Gespräche an Tagen und Unternehmungen', { timeout: 20000 });
+
     if (process.env.GM_SHOT) { await A.p.setViewportSize({ width: 390, height: 1400 }); await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('section.gm details'); await A.p.evaluate(() => document.querySelectorAll('section.gm details').forEach(d => d.open = true)); await A.p.waitForTimeout(400); await (await A.p.$('section.gm')).screenshot({ path: process.env.GM_SHOT }); }
     /* Entzug: Anna entfernt Ben → Ben verliert die Reise beim nächsten Abgleich */
     await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.click('[data-acc="share"]');

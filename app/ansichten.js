@@ -383,7 +383,7 @@ function tPlan(t){
     (()=>{const dc=dcost[d.i],fs=freeSlots(t,d.i),hrs=v=>String(v).replace('.',','),
       /* Tageskopf (Claude, #8): eine kurze Zeile mit Warnungen sichtbar, alles Weitere aufklappbar */
       short=[L.planned||L.unknown?'≈ '+hrs(L.planned)+'/'+hrs(L.cap)+' Std.':'',dc&&dc.total?'≈ '+eur(dc.total):'',fs.length===SLOTS.length?'frei':fs.length?'frei: '+fs.length+'×':''].filter(Boolean).join(' · ');
-      return '<span class="dload'+(L.over?' over':'')+'">'+(L.over?'! zu voll · ':'')+(dc&&dc.open?'! '+dc.open+'× Preis offen · ':'')+(L.unknown?'! '+L.unknown+'× Dauer offen · ':'')+esc(short||'noch nichts geplant')+'</span>'+(typeof fixDayBadge==='function'?fixDayBadge(t,d.i):'')+
+      return '<span class="dload'+(L.over?' over':'')+'">'+(L.over?'! zu voll · ':'')+(dc&&dc.open?'! '+dc.open+'× Preis offen · ':'')+(L.unknown?'! '+L.unknown+'× Dauer offen · ':'')+esc(short||'noch nichts geplant')+'</span>'+(typeof fixDayBadge==='function'?fixDayBadge(t,d.i):'')+(typeof gmDayBadge==='function'?gmDayBadge(t,d.i):'')+
       '<details class="dmore"><summary>Details & Werkzeuge</summary>'+
       (L.planned||L.unknown||L.drive?'<span class="small">Programm ≈ '+hrs(L.planned)+' von '+hrs(L.cap)+' Std.'+(L.drive?' · Fahrt ca. '+hrs(Math.round(L.drive/6)/10)+' Std.':'')+(L.ways?' · Wege vor Ort ca. '+hrs(Math.round(L.ways/6)/10)+' Std.':'')+(L.unknown?' · '+L.unknown+'× Dauer offen':'')+'</span><br>':'')+
       '<span class="small muted dcost">'+(dc&&dc.total?'Programm ≈ '+eur(dc.total)+(dc.shared?' (davon '+eur(dc.shared)+' anteilig)':''):'Programm ohne Kosten')+(dc&&dc.open?' · '+dc.open+'× Preis offen':'')+(fs.length&&fs.length<SLOTS.length?' · frei: '+esc(fs.join(', ')):fs.length===SLOTS.length?' · ganzer Tag frei':'')+'</span>'+
