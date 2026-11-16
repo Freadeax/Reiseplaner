@@ -13,7 +13,7 @@ Thread „Fixpunkte und Pufferzeiten einplanen“ (Philipps Punktliste 16.11.). 
 - Abschnitt „Fixpunkte & Puffer“ unter dem Tagesplan. Einhängung: drei abgesicherte Stellen in `tPlan` (`app/ansichten.js`), je eine Zeile in `index.html`, `sw.js` (`reiseplaner-v32`), `package.json`.
 - Format 5 wird schon gelesen, falls vorhanden: `items[i].fix` (von Hand fest, nur mit Uhrzeit), `t.keepFree` (bewusst freie Tageszeit), `t.pace`. Aufnahme in SCHEMA_V5/v5logic beim Format-5-Thread angefragt; geschrieben wird erst mit `F5_WRITE = true`.
 
-Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfungen) grün, `test:browser` siehe unten; Tagesplan in Chromium (1280 px, Bewegung reduziert) mit Konflikt- und Volltag angesehen. Nicht getestet: iPhone, Safari.
+Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfungen) grün, `test:browser` grün; Tagesplan in Chromium (1280 px, Bewegung reduziert) mit Konflikt- und Volltag angesehen. Nicht getestet: iPhone, Safari.
 
 Nächster Schritt: nach `F5_WRITE = true` im Verschieben-Blatt „Als Fixpunkt markieren“ und „Tageszeit bewusst freihalten“ (schreibt `items[i].fix`, `t.keepFree`); „Lücken füllen“ lässt freigehaltene Tageszeiten aus.
 
