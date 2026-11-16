@@ -109,10 +109,10 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   pending(){return Object.keys(this.queue).length},
   put(t,now){
     /* Keine Rückstufung (SCHEMA_V4 §1): Eine Reise, die als Format 4 gespeichert ist, wird nie mit kleinerer Version überschrieben */
-    if(t&&this.lastRaw&&this.lastRaw.indexOf('"schemaVersion":4')>=0&&(t.schemaVersion==null||t.schemaVersion<4)){
+    if(t&&this.lastRaw&&/"schemaVersion":[45]/.test(this.lastRaw)&&(t.schemaVersion==null||t.schemaVersion<5)){
       let old=null;try{const s=JSON.parse(this.lastRaw);old=this.scope==='guest'?s&&s[t.id]:s&&s.trips&&s.trips[t.id]}catch(e){}
-      if(old&&old.schemaVersion===4){this.trips[t.id]=old;alertMsg('Diese Reise hat Format 4 (Fotos, Reisebücher) und darf nicht auf ein älteres Format zurückgesetzt werden. Nicht gespeichert.');if(typeof render==='function')setTimeout(render,0);return false}}
-    if(t&&(t.schemaVersion===3||t.schemaVersion===4)&&!V3_EDIT){
+      if(old&&old.schemaVersion>=4&&(t.schemaVersion==null||t.schemaVersion<old.schemaVersion)){this.trips[t.id]=old;alertMsg('Diese Reise hat Format '+old.schemaVersion+(old.schemaVersion===4?' (Fotos, Reisebücher)':'')+' und darf nicht auf ein älteres Format zurückgesetzt werden. Nicht gespeichert.');if(typeof render==='function')setTimeout(render,0);return false}}
+    if(t&&(t.schemaVersion===3||t.schemaVersion===4||t.schemaVersion===5)&&!V3_EDIT){
       try{const s=JSON.parse(this.lastRaw||'{}');const old=this.scope==='guest'?s&&s[t.id]:s&&s.trips&&s.trips[t.id];if(old)this.trips[t.id]=old;else delete this.trips[t.id]}catch(e){}
       alertMsg(V3_LOCK_TXT);if(typeof render==='function')setTimeout(render,0);return false}
     if(this.isAccount()&&this.meta[t.id]&&this.meta[t.id].unreadable){

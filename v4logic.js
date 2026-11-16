@@ -407,7 +407,8 @@
   /* v4-Felder prüfen. In Reisen unter Format 4 sind sie verboten (leere Listen ausgenommen, die serializeTrip4 entfernt). */
   function validateV4(t) {
     if (!plain(t)) fail('Reise: ungültig.');
-    if (t.schemaVersion !== 4) { if (needsV4(t)) fail('Fotos und Reisebücher gibt es erst ab Format 4.'); return true; }
+    /* Format 5 ist eine Obermenge von Format 4 (SCHEMA_V5 §0): dort gelten media/books mit denselben Regeln */
+    if (t.schemaVersion !== 4 && t.schemaVersion !== 5) { if (needsV4(t)) fail('Fotos und Reisebücher gibt es erst ab Format 4.'); return true; }
     validateMedia(t.media);
     validateReferences4(t);
     return true;

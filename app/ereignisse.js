@@ -201,7 +201,7 @@ const FEATURES={sauna:'Sauna / Wellness',kitchen:'Küche',breakfast:'Frühstück
 const FEES={tax:'Kurtaxe',cleaning:'Endreinigung',parking:'Parkgebühr',wellness:'Wellnessgebühr',mandatory:'Weitere Pflichtzuschläge'};
 function searchDefaults(t){return {version:1,destination:t.dest||(placeOf(t)||{}).name||'',maxPrice:'',maxDrive:'',minRating:'',type:'',provider:'',sort:'match',onlyFavorites:false,onlyCurrent:false,must:[],wish:['sauna','quiet'],providers:['booking','check24','fewo','airbnb']};}
 function searchState(t){return Object.assign(searchDefaults(t),t.search||{});}
-function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3)&&!(t.schemaVersion===4&&V3&&window.RPV4))throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2||t.schemaVersion===3||t.schemaVersion===4)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
+function migrateTrip(t){if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3)&&!(t.schemaVersion===4&&V3&&window.RPV4)&&!(t.schemaVersion===5&&V3&&window.RPV4&&V5))throw new Error('Unbekannte Reiseversion');if(t.schemaVersion===2||t.schemaVersion===3||t.schemaVersion===4||t.schemaVersion===5)return clone(t);const out=clone(t);out.schemaVersion=2;out.search=out.search||searchDefaults(out);out.offers=out.offers||[];out.searchProfiles=out.searchProfiles||[];return out;}
 function safeOfferUrl(value){return /^https:\/\/[^\s<>"']+$/i.test(String(value||''))?String(value):'';}
 function providerUrl(p,t,q){
  const dest=q.destination.trim();if(!dest)return p.home;
@@ -254,10 +254,12 @@ function validateSearch(s){
  return s;
 }
 function validateExtras(t){
- if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3)&&!(t.schemaVersion===4&&V3&&window.RPV4))throw new Error('Unbekannte Reiseversion.');
+ if(t.schemaVersion!=null&&t.schemaVersion!==2&&!(t.schemaVersion===3&&V3)&&!(t.schemaVersion===4&&V3&&window.RPV4)&&!(t.schemaVersion===5&&V3&&window.RPV4&&V5))throw new Error('Unbekannte Reiseversion.');
  /* Format 4 = Format 3 plus Fotos und Reisebücher; unter 4 sind volle v4-Felder verboten (validateV4) */
  if(window.RPV4)window.RPV4.validateV4(t);
- if(t.schemaVersion===3||t.schemaVersion===4)validateV3(t);
+ /* Format 5 (SCHEMA_V5): v5-Felder nur in v5-Reisen; Format 5 schließt 3 und 4 ein */
+ if(V5)V5.validateV5(t);
+ if(t.schemaVersion===3||t.schemaVersion===4||t.schemaVersion===5)validateV3(t);
  else{if(V3&&V3.needsV3(t))throw new Error('Angaben des Formats 3 in einer Reise des Formats 2.');if(Object.keys(t.ledger||{}).some(k=>k.startsWith('tr:')))throw new Error('Anreise-Abschnitte im Buchungsbuch gibt es erst ab Format 3.');}
  if(t.search)validateSearch(t.search);
  if(t.offers!=null){if(!Array.isArray(t.offers)||t.offers.length>200)throw new Error('Zu viele Angebote.');const ids=new Set();t.offers.forEach(o=>{validateOffer(o);if(ids.has(o.id))throw new Error('Doppelte Angebots-ID');ids.add(o.id)});if(t.activeOfferId&&!ids.has(t.activeOfferId))throw new Error('Aktives Angebot fehlt.');}

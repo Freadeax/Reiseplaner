@@ -53,10 +53,14 @@ const V3_LOCK_TXT='Diese Reise nutzt Angaben aus Format 3 (Anreise-Abschnitte, S
 function v3Banner(t){if(!isV3(t)||V3_EDIT)return '';const f=financeSummary(t),v=f.v3||{};
   return '<section class="block"><div class="note" role="status"><b>Nur ansehen: Format 3</b><p>'+esc(V3_LOCK_TXT)+' Kosten berücksichtigen Anreise-Abschnitte und Storno. Erstattungen und Stornogebühren stehen getrennt, ohne Verrechnung.</p>'+
    (v.refundOpen||v.feeOpen||v.unknownFee?'<p class="small">'+[v.refundOpen?'Erstattungen offen: '+eur(v.refundOpen):'',v.feeOpen?'Stornogebühren offen: '+eur(v.feeOpen):'',v.unknownFee?v.unknownFee+'× Stornogebühr unbekannt':''].filter(Boolean).join(' · ')+'</p>':'')+'</div></section>'}
-/* Höchste lesbare Version: 4 mit v4logic.js (Paket 7, SCHEMA_V4 §6), sonst 3 */
-const SCHEMA_MAX=typeof window!=='undefined'&&window.RPV4?4:3;
+/* Höchste lesbare Version: 5 mit v4logic.js und v5logic.js (SCHEMA_V5 §8 Schritt 3), 4 mit v4logic.js (Paket 7), sonst 3 */
+const SCHEMA_MAX=typeof window!=='undefined'&&window.RPV4?(window.RPV5?5:4):3;
+/* Format 5 erfassen: false = Lese-Release (SCHEMA_V5 §8 Schritt 3). v5-Reisen werden gelesen, geprüft und unverändert
+   zurückgeschrieben; keine Funktion hebt eine Reise auf Format 5 (candidate5 wird erst mit F5_WRITE=true genutzt). */
+const F5_WRITE=false;
+const V5=typeof window!=='undefined'&&window.RPV5||null;
 /* Format 4 ist eine Obermenge von Format 3: alle v3-Angaben gelten dort weiter (SCHEMA_V4 §0.2) */
-const isV3=t=>!!t&&(t.schemaVersion===3||t.schemaVersion===4)&&!!V3;
+const isV3=t=>!!t&&(t.schemaVersion===3||t.schemaVersion===4||t.schemaVersion===5&&!!V5)&&!!V3;
 function v3Transport(t){const tr=isV3(t)&&t.transport;return tr&&((tr.out||[]).length||(tr.back||[]).length)?tr:null}
 function v3Money(t,e){return isV3(t)&&e&&(e.cancel||(e.refunds&&e.refunds.length))?e:null}
 function validateV3(t){

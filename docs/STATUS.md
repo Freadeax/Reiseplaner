@@ -1,6 +1,19 @@
 # Projektstand · 16.11.2026
 
 
+## Format 5 in der App lesen (Lese-Release, Claude, 16.11.)
+
+SCHEMA_V5 §8 Schritt 3. Die App lädt `v5logic.js` und liest Format-5-Reisen, schreibt aber selbst noch keine (`F5_WRITE = false` in `app/v3.js`): keine bestehende Reise wird angehoben.
+- `SCHEMA_MAX = 5`; `validateExtras` prüft Format 5 mit `validateV5` (unbekannte Personen, Felder nur ab Format 5, Version 6 abgelehnt). `migrateTrip` gibt eine v5-Reise unverändert zurück.
+- Speicher: der Rückstufungsschutz gilt allgemein (5 → 4 wird abgelehnt). Sync, Sicherung, Import und Fotos behalten alle v5-Felder unverändert (`serializeTrip5`); `F4_SERVER_MAX = 5` passend zur Migration vom 15.11.
+- Ältere App-Stände ohne `v5logic.js` zeigen eine v5-Serverzeile als „neuere Version“ und lehnen v5-Sicherungen ab, statt sie zu kürzen (getestet).
+- Geteilte Dateien (`app/v3.js`, `app/ereignisse.js`, `app/speicher.js`, `app/format4.js`, eine Zeile in `index.html`, `sw.js`, Build-Listen); keine Darstellung geändert. Service Worker `reiseplaner-v30`.
+
+Tests (16.11., Cloud-Container): `npm test` (neu `format5-app`, 6 Prüfungen: Prüfung, Feldtreue beim Bearbeiten, keine Rückstufung, Sicherung/Import, Fotos in v5, älterer Stand, Sync über zwei Geräte), `test:browser`, `test:format4-browser`, `test:fotos-browser`, `build`, `check:artifact` grün. `test:db`/`test:e2e` laufen in CI. Ob die Migration vom 15.11. in Produktion angekommen ist, ist von hier nicht prüfbar (Supabase-Dashboard → Database → Migrations: `20261115190000_trips_schema_v5`). Nicht getestet: iPhone, Safari.
+
+Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Storno-Vorschau (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
+
+
 ## Oberfläche Schritt 3: Kosten, Tagesplan, Entdecken (Claude, 16.11.)
 
 Thread „UI neu gestalten und animieren“, Auftrag Philipp 16.11. („in die Tiefe weiterentwickeln“). Nur Darstellung; keine Berechnung, kein Speicherformat, `index.html` und `sw.js` unverändert.
@@ -15,7 +28,7 @@ Nächster Schritt: Ideen und Unterkunftskarten, Neue Reise (Formular in Schritte
 ## Datenbank nimmt Format 5 an (Claude, 15.11. abends)
 
 - Freigabe Philipp 15.11. („Ja, nach lokalem Test live“): Migration `20261115190000_trips_schema_v5.sql` erlaubt `schema_version` 2–5; bestehende Zeilen unverändert, Rückstufungsschutz gilt auch für 5 → 4/3/2 (SCHEMA_V5 §8 Schritt 2).
-- Die App selbst schreibt weiterhin höchstens Format 4 (`v5logic.js` nicht geladen). Nächster Schritt: Lese-Release (Schritt 3), abgestimmt mit dem Oberflächen-Thread.
+- Damals schrieb die App höchstens Format 4; seit 16.11. liest sie Format 5 (oben).
 
 Tests (15.11., Cloud-Container, lokaler Supabase frisch mit allen Migrationen): `supabase db lint` ohne Befund, `REQUIRE_DB=1 npm run test:db` (neu: Format 5 erlaubt, 6 abgelehnt, keine Rückstufung 5 → 4, v5-Felder unverändert zurückgelesen), `test:e2e`, `npm test` grün. Produktion nicht von hier prüfbar; Einspielen über die Supabase-GitHub-Anbindung beim Push.
 

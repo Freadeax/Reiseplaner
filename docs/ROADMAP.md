@@ -1,5 +1,9 @@
 # Roadmap
 
+## Format 5 wird gelesen · 16.11.2026
+
+Migration (15.11.) und Lese-Release (16.11.) erledigt: die App liest Format 5, schreibt es noch nicht. Als Nächstes `F5_WRITE = true` nach einigen Tagen, dann Storno-Vorschau (M02.2), Zahlungsplan/Teilzahlungen (M08.2), Gästekarten-Status (M09.3), Aufgaben (M02.4), Varianten-Vergleich (M05.2).
+
 ## Format 5 als Vertrag, Fotos frei · 15.11.2026
 
 Format 5 liegt als Vertrag mit reinen Funktionen und Tests vor (`docs/SCHEMA_V5.md`). Reihenfolge laut `docs/PLAN_SYSTEME.md` §9: (1) Format-5-Migration nach Freigabe, (2) Lese-Release, dann parallel Storno-Vorschau (M02.2), Zahlungsplan/Teilzahlungen (M08.2), Gästekarten-Status (M09.3), Aufgaben (M02.4), Varianten-Vergleich (M05.2); daneben Betreiber-Backup und Wetter (M03.1). Fotos und Reisebücher sind seit 15.11. freigeschaltet.

@@ -254,4 +254,4 @@ test('U-R1–U-R3', () => {
   throws(() => V5.outputFilter(t, 'irgendwas'), /unbekannter Zweck/);
 });
 
-console.log('Format 5 (v5logic): ' + n + ' Prüfungen bestanden (Version, Feldtreue, Prüfregeln, R1–R9, O3–O10, V2/V3/V8, G-R10/G-R12, L1–L7, U-R1–U-R4). Nicht in der App verdrahtet. Kein Browser-/iPhone-Test.');
+console.log('Format 5 (v5logic): ' + n + ' Prüfungen bestanden (Version, Feldtreue, Prüfregeln, R1–R9, O3–O10, V2/V3/V8, G-R10/G-R12, L1–L7, U-R1–U-R4). Reine Funktionen. Kein Browser-/iPhone-Test.');

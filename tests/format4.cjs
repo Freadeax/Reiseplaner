@@ -182,7 +182,7 @@ async function photo(id, bytes, extra) { return Object.assign({ id, takenAt: '20
 
   /* ---------- 5. Sync: Datenbank nimmt Format 4 nicht an (Stand vor der Migration, F4_SERVER_MAX=3) → bleibt sichtbar lokal ---------- */
   {
-    const S = fakeServer(); const { a, ctx, F, syncText, store } = makeApp({ server: S, code: baseCode.replace('const F4_SERVER_MAX=4;', 'const F4_SERVER_MAX=3;') });
+    const S = fakeServer(); const { a, ctx, F, syncText, store } = makeApp({ server: S, code: baseCode.replace(/const F4_SERVER_MAX=\d;/, 'const F4_SERVER_MAX=3;') });
     const { Store, Sync, Auth } = a;
     S.user = 'uA'; Auth.switchTo({ id: 'uA' });
     const t = Object.assign(a.newTrip({ title: 'Konto', dateMode: 'fix', start: '2027-05-01', end: '2027-05-04' }), { schemaVersion: 3, journal: { '2027-05-01': { text: 'los' } } });

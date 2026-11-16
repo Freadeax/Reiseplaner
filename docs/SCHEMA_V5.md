@@ -141,9 +141,9 @@ L1–L7, U-R1–U-R4. Nur Node; kein Browser- oder iPhone-Test.
 
 | Schritt | Inhalt | Voraussetzung |
 | --- | --- | --- |
-| 1 | Vertrag + `v5logic.js` + Tests (**dieser Stand**) | – |
-| 2 | Datenbank: neue Migration `CHECK schema_version in (2,3,4,5)`, Rückstufungsschutz bleibt; lokal `test:db`, `test:e2e` | **Freigabe Philipp** (Produktionsänderung beim Push) |
-| 3 | Lese-Release: App lädt `v5logic.js`, `SCHEMA_MAX = 5`, `validateExtras` ruft `validateV5`, Speichern/Sync/Sicherung nutzen `serializeTrip5`; `F5_WRITE = false` (keine Reise wird angehoben) | Schritt 2 live |
+| 1 | Vertrag + `v5logic.js` + Tests (erledigt 15.11., 45b830a) | – |
+| 2 | Datenbank: neue Migration `CHECK schema_version in (2,3,4,5)`, Rückstufungsschutz bleibt; lokal `test:db`, `test:e2e` | **Freigabe Philipp** (Produktionsänderung beim Push); erledigt 15.11., 0ef05dd |
+| 3 | Lese-Release: App lädt `v5logic.js`, `SCHEMA_MAX = 5`, `validateExtras` ruft `validateV5`, Speichern/Sync/Sicherung nutzen `serializeTrip5`; `F5_WRITE = false` (keine Reise wird angehoben) | Schritt 2 live; **erledigt 16.11.** (`tests/format5-app.cjs`) |
 | 4 | Nach einigen Tagen `F5_WRITE = true`, dann Funktionen einzeln: M02.2 Storno-Vorschau und `cancel:`-Fristen, M08.2 Zahlungsplan/Teilzahlungen, M09.3 Gästekarten-Status, M02.4 Aufgaben, M05.2 Varianten-Vergleich, M10 Kriterien, M04.3, M11.2 Mappe | je eigener Schritt mit Oberfläche |
 
 Schritt 3 berührt gemeinsame Dateien (`app/v3.js`, `app/ereignisse.js`, `app/speicher.js`, `index.html`, `sw.js`) und wird mit

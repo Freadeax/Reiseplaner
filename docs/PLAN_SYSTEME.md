@@ -17,7 +17,7 @@ und die Oberfläche danach in einem kleinen, abgestimmten Schritt folgt.
 | Kosten | `app/kosten.js` `cost`, `openCosts`, `costScenarios`; `app/gaestekarten.js` `cardPricing` | hoch | Teilzahlungen, Zahlungsplan, Preisstände fehlen als Daten | Format 5 Schritt 3, dann M08.2 |
 | Zahlungsbuch, Buchung, Storno | `app/zahlungsbuch.js`, v3 `refunds/cancel` | hoch | keine Stornobedingungen vor dem Storno (Gebühr erst danach bekannt) | M02.2 Storno-Vorschau (`cancelFee`) |
 | Fristen und Termine | `app/fristen.js` `deadlines`, `app/unterwegs.js` `icsData`, Tagesplan | mittel-hoch | „erledigt“ nur lesbar, keine eigenen Aufgaben, keine Storno-Fristen | Format 5 Schritt 3 + M02.4 |
-| Speicherung lokal | `rp-trips` + `rpstore.js` (IndexedDB-Zweitkopie), Format 2–4, Sicherung/Archiv | hoch | Format 5 nicht eingebunden | Format 5 Schritt 2/3 |
+| Speicherung lokal | `rp-trips` + `rpstore.js` (IndexedDB-Zweitkopie), Format 2–5 (5 nur lesen), Sicherung/Archiv | hoch | Format 5 wird gelesen, noch nicht geschrieben | Format 5 Schritt 2/3 |
 | Konto, Sync, Zugriff | `cloud.js`, `app/speicher.js`, Supabase RLS, Migrationen bis `20261024060000` | mittel | SMTP/Domain fehlt, Anzeigenamen, Fotos nicht in der Cloud, kein Betreiber-Backup | E-Mail (Philipp), dann M06.1 |
 | Fotos und Reisebuch | `app/format4.js`, `app/fotos.js`, `photostore.js`, `bookgen/bookedit/bookprint.js` | mittel-hoch | **seit 15.11. freigeschaltet**; Upload in die Cloud fehlt | P05 Storage-Bucket (Stufe E) |
 | Katalog/Register | `catalog.js`, `catalog-data.js`, Supabase `catalog_*` | mittel | keine Quellen/Prüfdatum je Feld, keine Register-Tabellen | M07.1 |
@@ -128,8 +128,8 @@ Offen: Namensnennung OSMF/FOSSGIS sichtbar prüfen, Proxy vor öffentlichem Star
 
 | # | Paket | Art | Abhängigkeit | Wer |
 | --- | --- | --- | --- | --- |
-| 1 | Format 5 Migration (lokal geprüft) | Datenbank | **Freigabe Philipp** | Claude |
-| 2 | Format 5 Lese-Release | Speicherung | 1 live; Abstimmung mit dem Oberflächen-Thread | Claude |
+| 1 | Format 5 Migration (lokal geprüft) – erledigt 15.11. | Datenbank | **Freigabe Philipp** (erteilt) | Claude |
+| 2 | Format 5 Lese-Release – erledigt 16.11. | Speicherung | 1 live; Abstimmung mit dem Oberflächen-Thread | Claude |
 | 3 | M02.2 Storno-Vorschau + `cancel:`-Fristen | Geld/Termine | 2 | Claude |
 | 4 | M08.2 Zahlungsplan + Teilzahlungen | Geld | 2 | Claude |
 | 5 | M09.3 Gästekarten-Status mit Beleg | Geld | 2 | Claude |

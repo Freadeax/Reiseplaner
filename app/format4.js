@@ -19,7 +19,7 @@
 const F4_WRITE=true;
 /* Höchstes Format, das die Datenbank annimmt: CHECK schema_version in (2,3,4) aus 20261024060000_trips_schema_v4.sql
    (Freigabe Philipp 24.10.). Mit 3 blieben Format-4-Reisen im Konto nur auf dem Gerät (localOnly). */
-const F4_SERVER_MAX=4;
+const F4_SERVER_MAX=5; /* seit 20261115190000_trips_schema_v5.sql (Freigabe Philipp 15.11.): CHECK schema_version in (2,3,4,5) */
 const RPF4=(function(){
   const W=typeof window!=='undefined'?window:{};
   const V=()=>{if(!W.RPV4)throw new Error('Format 4 kann diese App-Version nicht prüfen.');return W.RPV4};
@@ -32,7 +32,7 @@ const RPF4=(function(){
   /* Kandidat: fn ändert nur media/books einer Kopie. Hebt auf 4, wenn nötig; nie zurück. */
   function candidate(t,fn){
     if(!t||typeof t!=='object'||Array.isArray(t))fail('Reise fehlt.');
-    const from=sv(t);if(from>4)fail('Diese Reise hat Format '+from+' und ist neuer als diese App-Version.');
+    const from=sv(t);if(from>(W.RPV5?5:4))fail('Diese Reise hat Format '+from+' und ist neuer als diese App-Version.');
     const c=J(t);fn(c);
     const upgrade=from<4&&V().needsV4(c);
     if(upgrade)c.schemaVersion=4;
@@ -85,9 +85,11 @@ const RPF4=(function(){
   }
   /* Für Sync und Sicherung (nach migrateTrip). V3: window.RPV3 oder null. */
   function toServer(d,V3){
-    if(sv(d)>4)fail('Format '+sv(d)+' ist neuer als diese App-Version.');
-    if(d.schemaVersion===4){V().validateV4(d);return V().serializeTrip4(d)}
-    const x=W.RPV4?W.RPV4.serializeTrip4(d):d;
+    if(sv(d)>(W.RPV5?5:4))fail('Format '+sv(d)+' ist neuer als diese App-Version.');
+    /* Format 5: unverändert rund (Feldtreue), geprüft nach v4- und v5-Regeln (SCHEMA_V5 §1) */
+    if(d.schemaVersion===5){V().validateV4(d);W.RPV5.validateV5(d);return W.RPV5.serializeTrip5(d)}
+    if(d.schemaVersion===4){V().validateV4(d);return W.RPV5?W.RPV5.serializeTrip5(V().serializeTrip4(d)):V().serializeTrip4(d)}
+    const x0=W.RPV4?W.RPV4.serializeTrip4(d):d,x=W.RPV5?W.RPV5.serializeTrip5(x0):x0;
     return V3?V3.serializeTrip(x):x;
   }
 

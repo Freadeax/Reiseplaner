@@ -7,7 +7,8 @@ Philipp, Claude und ChatGPT arbeiten möglicherweise gleichzeitig am Reiseplaner
 Diesen Block ersetzt Claude nach jedem abgeschlossenen Paket; Details stehen in `docs/STATUS.md` (oben).
 
 - **Arbeitsmodus:** Claude arbeitet allein (ChatGPT pausiert seit 17.10.). Seit 23.10. wieder direkt auf `main` mit Veröffentlichung über „Tests & Pages“; nur Website, keine Handy-App. Parallel arbeiten mehrere Claude-Threads mit getrennten Dateien; seit 15.11. gestaltet ein Thread die Oberfläche neu (CSS, Animationen, `app/bewegung.js`), ein anderer bearbeitet Logik, Daten und Doku.
-- **Zuletzt erledigt (15.11.):** `F4_WRITE = true` (Fotos und Reisebücher speichern), Format-5-Vertrag `docs/SCHEMA_V5.md` + `v5logic.js` + `tests/v5logic.cjs` (nicht verdrahtet, keine Migration), Nominatim-Takt ≥ 1 s (`tests/nominatim.cjs`), Systemplan `docs/PLAN_SYSTEME.md`.
+- **Zuletzt erledigt (16.11.):** Format-5-Migration (CHECK 2–5, 15.11.) und Lese-Release: App liest Format 5, `F5_WRITE = false`, `tests/format5-app.cjs`. Nächstes: `F5_WRITE = true` nach einigen Tagen, dann M02.2/M08.2/M09.3.
+- **Davor (15.11.):** `F4_WRITE = true` (Fotos und Reisebücher speichern), Format-5-Vertrag `docs/SCHEMA_V5.md` + `v5logic.js` + `tests/v5logic.cjs` (nicht verdrahtet, keine Migration), Nominatim-Takt ≥ 1 s (`tests/nominatim.cjs`), Systemplan `docs/PLAN_SYSTEME.md`.
 - **Offen:** Format-5-Migration braucht Philipps Freigabe; Vorlage „Magic Link“ mit `{{ .Token }}`, SMTP/Domain (Philipp); iPhone-Prüfung der Fotos; Entscheidungen 7–14 in `docs/PLAN_SYSTEME.md` §10.
 
 ## Verbindlicher Ablauf für jede Änderung
