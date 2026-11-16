@@ -20,15 +20,22 @@ const STILE={
  rund:{label:'Rundreise & Roadtrip',kurz:'Mehrere Stationen: Etappen, Fahrtage und eine Unterkunft je Ort.',pace:'normal',namen:{ziel:'Route & Unterkünfte'},leise:[],start:{}},
  strand:{label:'Bade- & Sommerurlaub',kurz:'Ein Ort, länger bleiben, Programm nach Lust und Wetter.',pace:'normal',namen:{},leise:[],start:{}},
  winter:{label:'Winter & Schnee',kurz:'Schnee, Wärme und kleine Ausflüge. Pakete aus dem Katalog als Abkürzung.',pace:'normal',namen:{},leise:[],start:{}},
- familie:{label:'Familienurlaub',kurz:'Mit Kindern: Pausen, Regenalternativen und Ermäßigungen im Blick.',pace:'ruhig',namen:{},leise:[],start:{}}
+ familie:{label:'Familienurlaub',kurz:'Mit Kindern: Pausen, Regenalternativen und Ermäßigungen im Blick.',pace:'ruhig',namen:{},leise:[],start:{}},
+ camping:{label:'Camping',kurz:'Zelt, Wohnwagen oder Wohnmobil: Platz, Ausrüstung und Wetter im Blick.',pace:'normal',namen:{ziel:'Platz & Anreise'},leise:[],start:{}},
+ aktivurlaub:{label:'Aktivurlaub',kurz:'Wandern oder Rad: Touren nach Länge und Wetter, dazwischen Ruhetage.',pace:'normal',namen:{programm:'Touren & Programm'},leise:[],start:{}},
+ fernreise:{label:'Fernreise',kurz:'Weit weg, meist mit Flug: Dokumente, Gesundheit, Zeitverschiebung und ein ruhiger Ankunftstag.',pace:'normal',namen:{},leise:[],start:{}}
 };
 /* Neue Werte in der Art-Auswahl (TYPES, app/basis.js); bestehende Namen bleiben bis auf die Rundreise unverändert. */
 TYPES.rund=STILE.rund.label;
-if(!TYPES.wellness)TYPES.wellness=STILE.wellness.label;
-if(!TYPES.familie)TYPES.familie=STILE.familie.label;
+['wellness','familie','camping','aktivurlaub','fernreise'].forEach(k=>{if(!TYPES[k])TYPES[k]=STILE[k].label});
 /* Vorlagen: Wellness legt den passenden Stil an; neue Vorlage Familienurlaub (nur Struktur und Aufgaben, keine Preise). */
 TPL_CHECKS.familie=['Ausweise bzw. Kinderreisepässe prüfen','Unterkunft: Kinderbett, Hochstuhl, Familienzimmer anfragen','Ermäßigungen und Familienkarten für Ausflüge prüfen','Pausen auf der Anfahrt einplanen','Eine Idee für Regentage sammeln','Reiseapotheke für Kinder','Beschäftigung für die Fahrt'];
 (()=>{const w=TEMPLATES.find(x=>x.id==='wellness');if(w)w.make=()=>tplTrip({title:'Wellness-Auszeit',type:'wellness',nights:2,travel:'auto'},'wellness');
+ /* Eigene Stile (Philipp 16.11.): Camping, Aktivurlaub und Fernreise legen ihren Stil an statt Wochenende bzw. Rundreise. */
+ const umstellen=(id,base)=>{const x=TEMPLATES.find(v=>v.id===id);if(x)x.make=()=>tplTrip(base,id)};
+ umstellen('camping',{title:'Camping',type:'camping',nights:4,travel:'auto'});
+ umstellen('aktiv',{title:'Aktivurlaub',type:'aktivurlaub',nights:3,travel:'auto'});
+ umstellen('fernreise',{title:'Fernreise',type:'fernreise',nights:14,travel:'flug'});
  if(!TEMPLATES.some(x=>x.id==='familie')){const i=TEMPLATES.findIndex(x=>x.id==='silvester');TEMPLATES.splice(i<0?TEMPLATES.length:i,0,{id:'familie',name:'Familienurlaub',sub:'7 Nächte, mit Kindern',make:()=>tplTrip({title:'Familienurlaub',type:'familie',nights:7,persons:4,travel:'auto'},'familie')})}
  const g=TEMPLATE_GROUPS.find(x=>x.id==='urlaub');if(g&&!g.ids.includes('familie'))g.ids.push('familie')})();
 
@@ -105,6 +112,22 @@ function stilSchritte(t,now){
   if(t.travel==='auto')add('parken','info',58,'Parken in der Stadt klären','Parkplatz an der Unterkunft oder Park & Ride prüfen; Parkgebühren sind noch nicht in den Kosten.','kosten');
   if(acts.length)add('nahverkehr','info',66,'Tages- oder Gästeticket prüfen','Für Wege zwischen den Programmpunkten: Tageskarte, Gästekarte oder Stadtpass beim Verkehrsverbund prüfen.','plan');
  }
+ if(key==='camping'){
+  const st=typeof stayOf==='function'?stayOf(t):null,season=typeof tripSeason==='function'?tripSeason(t):null;
+  if(st)add('platzregeln','info',52,'Ankunftszeit und Platzregeln klären','Rezeption und Schranke sind oft nur bis zum Abend offen. Ankunft, Ruhezeiten, Strom und Hunde beim Platz erfragen.','check');
+  if(season==='winter'||season==='jahreswechsel')add('wintercamping','info',47,'Wintercamping: Strom und Sanitär prüfen','Im Winter haben viele Plätze geschlossen oder eingeschränkten Betrieb. Öffnung, Stromanschluss und beheizte Sanitäranlagen vorher bestätigen lassen.','unterkunft');
+ }
+ if(key==='aktivurlaub'){
+  const days=typeof daysOf==='function'?daysOf(t).length:0,voll=new Set(items.filter(i=>{const a=typeof actOf==='function'?actOf(t,i.act):null;return a&&!a.transit}).map(i=>i.day));
+  const ganze=[];for(let d=1;d<days-1;d++)ganze.push(d);
+  if(ganze.length>=3&&ganze.every(d=>voll.has(d)))add('ruhetag','info',50,'Einen Ruhetag einplanen','Jeder ganze Reisetag hat eine Tour oder Programm. Ein freier Tag fängt Wetter, müde Beine und Muskelkater auf.','plan');
+  if(acts.length)add('tourwetter','info',68,'Wetter und Bedingungen am Vortag prüfen','Für Touren: Wetterbericht, Wegsperrungen und Hüttenöffnung am Abend vorher ansehen. Eine kürzere Ersatztour merken.','plan');
+ }
+ if(key==='fernreise'){
+  if(!t.tz)add('zeitzone','info',43,'Zeitzone am Ziel eintragen','Mit Zeitzone stimmen Ankunft, Tagesplan und Kalender in Ortszeit. Eintragen unter Eckdaten → Anreise.','','edit-trip','','Eckdaten ansehen');
+  const erster=items.filter(i=>i.day===0).map(i=>typeof actOf==='function'?actOf(t,i.act):null).filter(a=>a&&!a.transit);
+  if(erster.length>=2)add('ankunftstag','info',49,'Ankunftstag leicht halten','Am Anreisetag sind '+erster.length+' Punkte geplant. Nach langem Flug und Zeitverschiebung lieber nur einen kurzen Spaziergang.','plan');
+ }
  return out;
 }
 
@@ -132,6 +155,7 @@ function stilAusProfil(p,nights){
  if(!p||!(nights>0))return null;
  if(p.party==='familie')return 'familie';
  const k=p.kinds||{};if(nights<=3&&(k.therme==='must'||k.therme==='like'&&p.pace==='ruhig'))return 'wellness';
+ if(nights>=2&&k.aktiv==='must')return 'aktivurlaub';
  return null;
 }
 if(typeof document!=='undefined'&&document.addEventListener){

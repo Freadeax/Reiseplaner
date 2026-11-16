@@ -33,6 +33,9 @@ Es gibt kein neues Speicherfeld und keine Migration. Neu sind zwei Werte:
 | `strand` | Bade- & Sommerurlaub | normal | alles | – |
 | `winter` | Winter & Schnee | normal | Pakete (Katalog) | – |
 | `familie` (neu) | Familienurlaub | ruhig | alles | – |
+| `camping` (neu 16.11. abends) | Camping | normal | Bereich „Platz & Anreise“ | – |
+| `aktivurlaub` (neu 16.11. abends) | Aktivurlaub | normal | Bereich „Touren & Programm“ | – |
+| `fernreise` (neu 16.11. abends) | Fernreise | normal | alles | – |
 
 Für alle Stile gilt: **Pakete** sind leiser, solange die Reise keinen Paket-Katalog hat (heute nur „Allgäu & Tirol“).
 
@@ -84,6 +87,9 @@ Reine Ableitungen, rangieren als Hinweis (Rang 40–75), außer Widersprüchen i
 - **Familienurlaub:** Anfahrt über 2,5 Std. → Pause einplanen; ohne Regenidee → eine Idee für drinnen sammeln;
   Ermäßigungen und Familienkarten prüfen, sobald Programmpunkte mit Preis eingeplant sind.
 - **Wellness-Auszeit:** Spa- und Behandlungstermine früh anfragen, sobald eine Unterkunft gewählt ist und die Reise feste Daten hat.
+- **Camping:** mit gewähltem Platz → Ankunftszeit und Platzregeln klären; Reise im Winter → Öffnung, Strom und Sanitär bestätigen lassen.
+- **Aktivurlaub:** jeder ganze Reisetag (mindestens drei) mit Programm → Ruhetag einplanen; mit Touren → Wetter und Wege am Vortag prüfen.
+- **Fernreise:** ohne Zeitzone → in den Eckdaten eintragen; zwei oder mehr Punkte am Anreisetag → Ankunftstag leicht halten.
 - **Städtetrip:** mit Auto → Parken an der Unterkunft oder Park & Ride klären; mit eingeplanten Programmpunkten →
   Tages- oder Gästeticket für Bus und Bahn prüfen.
 
@@ -91,6 +97,6 @@ Reine Ableitungen, rangieren als Hinweis (Rang 40–75), außer Widersprüchen i
 
 1. **[Plan]** Packlisten je Stil über den Packlisten-Thread (Vorschlag: `styleOf(t).key` als Eingabe).
 2. **[Plan]** Format 5: `origin_tpl` beim Anlegen aus einer Vorlage schreiben, sobald `F5_WRITE=true`.
-3. **[offen]** Weitere Stile (Camping, Aktiv/Wandern, Fernreise) als eigene Werte oder als Zusatz („Bausteine“) zu
-   einem Grundstil? Empfehlung: erst Rückmeldung zu den acht Stilen abwarten; Zusätze würden ein Speicherfeld brauchen.
+3. **Entschieden (Philipp 16.11. abends): eigene Stile** für Camping, Aktivurlaub und Fernreise. Die Vorlagen legen
+   seitdem `camping`, `aktivurlaub` und `fernreise` an (vorher Wochenende bzw. Rundreise); bestehende Reisen bleiben, wie sie sind.
 4. **[Plan]** Backpacking/Budget-Komfort als Stil-Zusatz erst mit Format 5 (`criteria`).

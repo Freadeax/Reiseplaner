@@ -178,7 +178,7 @@ console.log('Module: Fahrplan bis zur Abreise (Fristen, Packtag, Abfahrt, ohne e
   ids.forEach(id => {
     const tpl = a.TEMPLATES.find(x => x.id === id); assert(tpl, id);
     const t = tpl.make();
-    assert(['winter', 'stadt', 'strand', 'wochenende', 'tag', 'rund', 'wellness', 'familie'].includes(t.type), id + ': vorhandener Typ');
+    assert(['winter', 'stadt', 'strand', 'wochenende', 'tag', 'rund', 'wellness', 'familie', 'camping', 'aktivurlaub', 'fernreise'].includes(t.type), id + ': vorhandener Typ');
     assert(['auto', 'bahn', 'flug'].includes(t.travel));
     assert(t.customChecks.length >= 4 && new Set(t.customChecks.map(c => c.id)).size === t.customChecks.length, id + ': eindeutige Punkte');
     assert(!JSON.stringify(t.customChecks).match(/\d+\s*€/), id + ': keine Preise');

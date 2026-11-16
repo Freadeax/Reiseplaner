@@ -130,6 +130,29 @@ assert.equal(stilAusProfil({ kinds: { therme: 'must' } }, 6), null);
 const base = a.silvesterTemplate(), c0 = a.cost(base).total;
 for (const k of Object.keys(STILE)) { const x = JSON.parse(JSON.stringify(base)); x.type = k; if (k !== 'tag') assert.equal(a.cost(x).total, c0, k + ': gleiche Kosten'); }
 
+/* Eigene Stile Camping, Aktivurlaub, Fernreise (Philipp 16.11.) */
+assert.equal(TYPES.camping, 'Camping'); assert.equal(TYPES.aktivurlaub, 'Aktivurlaub'); assert.equal(TYPES.fernreise, 'Fernreise');
+assert.equal(tpl('camping').make().type, 'camping'); assert.equal(tpl('aktiv').make().type, 'aktivurlaub'); assert.equal(tpl('fernreise').make().type, 'fernreise');
+for (const id of ['camping', 'aktiv', 'fernreise']) assert.equal(a.validateBackup(a.backupData([tpl(id).make()])).length, 1, id + ': gültig exportierbar');
+assert(aufbauLeiste(Object.assign(a.newTrip({ type: 'camping' }), { id: 'tC' }), 'ueber').includes('Platz &amp; Anreise'));
+assert(aufbauLeiste(Object.assign(a.newTrip({ type: 'aktivurlaub' }), { id: 'tA' }), 'ueber').includes('Touren &amp; Programm'));
+const camp = a.newTrip({ type: 'camping', dateMode: 'fix', start: '2027-01-08', end: '2027-01-11', stayId: 'cs1', customStays: [{ id: 'cs1', name: 'Platz', custom: true, plan: 30 }] });
+assert.deepEqual(stilSchritte(camp, now).map(x => x.id).sort(), ['stil:platzregeln', 'stil:wintercamping']);
+const campSommer = Object.assign(JSON.parse(JSON.stringify(camp)), { start: '2027-07-08', end: '2027-07-11' });
+assert.deepEqual(stilSchritte(campSommer, now).map(x => x.id), ['stil:platzregeln']);
+const akt = a.newTrip({ type: 'aktivurlaub', dateMode: 'fix', start: '2027-06-01', end: '2027-06-06' });
+akt.customActs = [a.customActFromForm({ title: 'Tour', cat: 'eigen', cost: '', hours: '5', per: 'pp' }, 'ct')];
+akt.items = [1, 2, 3, 4].map(d => ({ uid: 'u' + d, act: 'ct', day: d, slot: 'morgen' }));
+assert.deepEqual(stilSchritte(akt, now).map(x => x.id).sort(), ['stil:ruhetag', 'stil:tourwetter']);
+akt.items = akt.items.filter(i => i.day !== 3);
+assert.deepEqual(stilSchritte(akt, now).map(x => x.id), ['stil:tourwetter'], 'ein freier Tag reicht');
+const fern = a.newTrip({ type: 'fernreise', travel: 'flug', tz: '' });
+assert.deepEqual(stilSchritte(fern, now).map(x => x.id), ['stil:zeitzone']);
+fern.tz = 'Asia/Bangkok'; fern.customActs = akt.customActs; fern.items = [{ uid: 'a', act: 'ct', day: 0, slot: 'nachm' }, { uid: 'b', act: 'ct', day: 0, slot: 'abend' }];
+assert.deepEqual(stilSchritte(fern, now).map(x => x.id), ['stil:ankunftstag']);
+assert.equal(stilAusProfil({ kinds: { aktiv: 'must' } }, 3), 'aktivurlaub');
+assert.equal(stilAusProfil({ kinds: { aktiv: 'must' } }, 0), null);
+
 const stilDauer = g('stilDauer');
 assert.equal(stilDauer(300), '5 Std.'); assert.equal(stilDauer(75), '1 Std. 15 Min.'); assert.equal(stilDauer(40), '40 Min.');
 assert(stilSchritte(weit, now).find(x => x.id === 'stil:fahrzeit').reason.includes('5 Std.'));

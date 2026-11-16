@@ -148,6 +148,12 @@ Thread „Ist-Ausgaben im Budget erfassen“ (Philipps Liste vom 16.11., Punkt B
 Tests (16.11., Cloud-Container): `npm test` (neu `istvergleich`, 95 Prüfungen), `test:browser`, `build`, `check:artifact` grün. Darstellung in Chromium bei 390 px hell/dunkel angesehen (kein seitliches Scrollen). Nicht getestet: iPhone, Safari.
 
 Nächster Schritt: in der Schnellerfassung „Das war ein geplanter Posten“ (schreibt `ledger[key].paid`, gegen Doppelzählung bei vor Ort bezahlten Unternehmungen), danach Verknüpfung als Format-5-Feld abstimmen.
+## Reisestil: eigene Stile Camping, Aktivurlaub, Fernreise (Claude, 16.11. abends)
+
+Entscheidung Philipp 16.11. („Eigene Stile“). `app/reisestil.js`: drei neue Werte für `t.type` mit Satz, Bereichsnamen („Platz & Anreise“, „Touren & Programm“) und Hinweisen (Platzregeln, Wintercamping; Ruhetag, Tourwetter; Zeitzone, ruhiger Ankunftstag). Die Vorlagen Camping, Aktivurlaub und Fernreise legen jetzt diese Stile an; bestehende Reisen bleiben unverändert. Entdecken: Wunsch „Selbst in Bewegung kommen“ als Muss mit mindestens 2 Nächten → Aktivurlaub. Kein Speicherfeld, keine Berechnung geändert. Packpunkte je Stil liegen beim Packlisten-Thread (`packlogic.js`).
+
+Tests (16.11., Cloud-Container): `npm test` (`reisestil` um die drei Stile erweitert, `module` kennt die Typen), `test:browser` grün. Nicht getestet: iPhone, Safari.
+
 ## Reisestil: der Planer passt sich an die Art der Reise an (Claude, 16.11.)
 
 Thread „Planer an Reisestil anpassen“ (Auftrag Philipp 16.11.). Konzept `docs/REISESTIL.md`. Kein neues Speicherfeld, keine Berechnung geändert: der Stil ist das vorhandene Feld `t.type`.
