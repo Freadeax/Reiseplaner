@@ -1,5 +1,16 @@
-# Projektstand · 15.11.2026
+# Projektstand · 16.11.2026
 
+
+## Oberfläche Schritt 3: Kosten, Tagesplan, Entdecken (Claude, 16.11.)
+
+Thread „UI neu gestalten und animieren“, Auftrag Philipp 16.11. („in die Tiefe weiterentwickeln“). Nur Darstellung; keine Berechnung, kein Speicherformat, `index.html` und `sw.js` unverändert.
+- **Kosten** (`budgetSection` in `app/zahlungsbuch.js`, `app.css`): Spielraum als große Zahl. Der Budgetbalken zeigt den festen Teil voll und den noch geschätzten Teil schraffiert, dieselben Zeichen stehen an den Kacheln „Fest“ und „Noch geschätzt“ (Bedeutung weiter als Text, `aria-label` nennt den festen Betrag). Über Budget färbt den Balken zusätzlich zum Satz „über dem Budget“. Die Aufstellung ist eine Liste mit rechtsbündigen Beträgen. Zahlen und Texte kommen unverändert aus `budgetCheck`.
+- **Tagesplan** (`planDayPicker` in `app/ansichten.js`, `planStep` in `app/tagesplan.js`): Tageszeiten als Zeitstrahl, Punkte als Karten, „+ Hinzufügen“ beschriftet statt leerer gestrichelter Felder. Am Handy zusätzlich Knöpfe „Vorheriger/Nächster Reisetag“ neben der Tagesauswahl; sie stellen nur die vorhandene Auswahl `#plan-day` um.
+- **Entdecken** (`app/entdecken.js` nur eine Klasse `cat-go`): Am Handy bleibt „Ziele finden“ beim Ausfüllen über der Tab-Leiste erreichbar, sobald ein Abfahrtsort gewählt ist; Wunschkarten sind bis 480 px kompakter (Feldbeschriftung bleibt für Vorlesehilfen).
+
+Tests (16.11., Cloud-Container, auf Stand `0ef05dd`): `npm test`, `test:browser` mit der CI-Schrift (DejaVu Sans) grün; Tag vor/zurück in Chromium bei 390 px von Hand durchgeklickt (Grenzen gesperrt, Fokus bleibt auf dem Knopf). Nicht getestet: iPhone, Safari. `:has()` und `color-mix()` fehlen in sehr alten Browsern; dort bleibt die Suchzeile an ihrem Platz und die Schraffur fällt weg.
+
+Nächster Schritt: Ideen und Unterkunftskarten, Neue Reise (Formular in Schritten), danach `app.css` zusammenführen.
 
 ## Datenbank nimmt Format 5 an (Claude, 15.11. abends)
 

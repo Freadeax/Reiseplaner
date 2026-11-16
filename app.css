@@ -719,6 +719,62 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
  }
 }
 
+/* Kosten: Spielraum als große Zahl; Balken zeigt fest (voll) und noch geschätzt (schraffiert).
+   Die Unterscheidung steht auch als Text in den Kacheln darunter, Schraffur und Farbe kommen nur dazu. */
+@media screen{
+ .budget-head{color:var(--muted);line-height:1.5}
+ .budget-head>b{display:block;font-family:var(--f-display);font-size:clamp(1.9rem,8vw,2.7rem);line-height:1.15;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+ .budget-bar{height:14px;border-radius:99px;border:0;background:var(--surface-2)}
+ .budget-bar>span{border-radius:99px;overflow:hidden;background:repeating-linear-gradient(135deg,var(--ok) 0 5px,color-mix(in srgb,var(--ok) 45%,var(--surface-2)) 5px 9px)}
+ .budget-bar>span>i{display:block;height:100%;background:var(--ok)}
+ .budget-bar.over>span{background:repeating-linear-gradient(135deg,var(--bad) 0 5px,color-mix(in srgb,var(--bad) 45%,var(--surface-2)) 5px 9px)}
+ .budget-bar.over>span>i{background:var(--bad)}
+ .sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px;background:var(--ok)}
+ .sw-plan{background:repeating-linear-gradient(135deg,var(--ok) 0 3px,color-mix(in srgb,var(--ok) 45%,var(--surface-2)) 3px 6px)}
+ [data-budget] table caption{text-align:left;padding-bottom:6px}
+ [data-budget] tbody tr:last-child td{border-bottom:0}
+ [data-budget] td:first-child{font-weight:600}
+ .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,11rem),1fr));gap:6px 18px}
+ .legend span{justify-content:flex-start}.legend span b{margin-left:auto;font-variant-numeric:tabular-nums}
+}
+/* Tagesplan: Tageszeiten als Zeitstrahl, Punkte als Karten, Hinzufügen als kleines beschriftetes Feld. */
+@media screen{
+ .dslot{position:relative;padding:10px 12px 12px 32px;border-bottom:0;min-height:0;gap:8px}
+ .dslot::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;background:var(--line)}
+ .dhead+.dslot::before{top:16px}.dslot:last-child::before{bottom:auto;height:22px}
+ .dslot .lbl{position:relative}
+ .dslot .lbl::before{content:'';position:absolute;left:-22px;top:50%;width:8px;height:8px;margin-top:-6px;border-radius:50%;background:var(--surface);border:2px solid var(--spruce)}
+ .item{border-radius:10px;padding:10px 12px;border-left-width:5px;font-weight:600;font-size:.92rem;gap:3px}
+ .item small{font-weight:400;font-size:.8rem;line-height:1.35}
+ .dslot .add{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 14px;min-height:44px;font-weight:600;font-size:.85rem;max-width:100%}
+ .dslot .add::after{content:'Hinzufügen'}
+ .dhead{padding:14px 14px 10px}
+ .plan-day-nav{display:none}
+}
+@media screen and (max-width:600px){
+ .plan-day-nav{display:flex;align-items:center;gap:8px;min-width:0}
+ .plan-day-nav .plan-day-picker{flex:1 1 auto}
+ .plan-day-nav .plan-day-picker>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .plan-day-nav select{font-weight:600;background:var(--surface)}
+ .plan-step{flex:none;width:44px;min-width:44px;height:44px;padding:0;justify-content:center;border-radius:50%;font-size:1.4rem;line-height:1}
+ .plan-step[disabled]{opacity:.35}
+}
+/* Entdecken: Am Handy bleibt „Ziele finden“ beim Ausfüllen erreichbar; Wunschkarten sind kompakter. */
+@media screen and (max-width:760px){
+ /* nur wenn die Suche möglich ist; gesperrt bleibt die Zeile an ihrem Platz */
+ .cat-go:not(:has([data-act="cat-search"][disabled])){position:sticky;bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 8px);z-index:4;padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-2)}
+ .cat-go .btn{flex:1 1 8rem}
+}
+@media screen and (max-width:480px){
+ .mood-grid .mood-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:2px 10px;padding:12px 14px}
+ .mood-grid .mood-card[data-level="must"]{padding:11px 13px}
+ .mood-grid .mood-symbol{font-size:1.4rem}
+ .mood-grid .mood-card h3{margin:0;font-size:1rem}
+ .mood-grid .mood-card>p,.mood-grid .mood-card .fld{grid-column:1/-1}
+ .mood-grid .mood-card .fld{padding-top:6px}
+ .mood-grid .mood-card .fld>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+
 /* Tippen und Zeigen: sofortige Rückmeldung, auch ohne Hover. */
 @media screen and (prefers-reduced-motion:no-preference){
  .btn,.lnk,.chipbtn,.opt,.tab,.seg,.add,.rp-star,.item,.card.click,.start-weg,.template-card,.mood-preset,.design-choice,.profile-tag,.sub-row,.foto-thumb,.app-nav .nav-item{

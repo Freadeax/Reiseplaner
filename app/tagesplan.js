@@ -114,3 +114,16 @@ function legsBlock(t){
    (d?'<div class="note"><b>Neue Reihenfolge noch nicht übernommen</b><p>Die Programmpunkte wandern mit ihrer Etappe, Weiterfahrten und Kilometer werden neu geschätzt'+(t.originGeo?'':' (ohne Koordinaten des Abfahrtsorts bleiben Anfahrt und Heimfahrt unverändert)')+'. Gebuchte oder bezahlte Termine werden nicht verschoben.</p><div class="row"><button type="button" class="btn sm" data-act="leg-apply">Übernehmen</button><button type="button" class="btn ghost sm" data-act="leg-cancel">Verwerfen</button></div></div>':'')+'</section>';
 }
 
+
+/* Tagesplan am Handy: einen Reisetag vor oder zurück. Stellt nur die vorhandene Tagesauswahl (#plan-day) um,
+   die Auswahl selbst verarbeitet wie bisher app/ereignisse.js. */
+function planStep(dir){
+ const sel=typeof document!=='undefined'&&document.querySelector('#plan-day');if(!sel||!sel.options)return false;
+ const next=Number(sel.value)+dir;if(!(next>=0&&next<sel.options.length))return false;
+ sel.value=String(next);sel.dispatchEvent(new Event('change',{bubbles:true}));
+ const b=document.querySelector('[data-plan-step="'+dir+'"]:not([disabled])')||document.querySelector('#plan-day');if(b&&b.focus)b.focus();
+ return true;
+}
+try{if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',e=>{
+ const b=e.target&&e.target.closest&&e.target.closest('[data-plan-step]');if(b&&!b.disabled)planStep(Number(b.getAttribute('data-plan-step')));
+})}catch(e){}
