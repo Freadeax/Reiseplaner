@@ -10,7 +10,7 @@ function load(win, doc) {
   const ctx = { window: win, document: doc, setTimeout, clearTimeout, console };
   if (win === undefined) delete ctx.window; if (doc === undefined) delete ctx.document;
   vm.createContext(ctx);
-  vm.runInContext(src + '\nthis.api={motionOk,viewDirection,viewEnter,sheetEnter,sheetLeave,detailsOpened};', ctx);
+  vm.runInContext(src + '\nthis.api={motionOk,viewDirection,viewEnter,sheetEnter,sheetLeave,detailsOpened,feiern,konfettiPlan};', ctx);
   return ctx.api;
 }
 
@@ -79,4 +79,15 @@ assert.deepEqual(bad, [], 'Bewegung ohne Prüfung auf reduzierte Bewegung: ' + b
 ok(/\.sheet-out\{[^}]*pointer-events:none/.test(part), 'Kopie des Blatts nimmt keine Eingaben an');
 ok(/#view\.rp-enter/.test(part) && !/#view>\*\{[^}]*animation/.test(part), 'Einblenden nur über rp-enter');
 ok(/ghost\.inert=true/.test(src) && /aria-hidden/.test(src) && /n==='id'/.test(src) && /startsWith\('data-'\)/.test(src), 'Kopie ohne Kennungen, verborgen für Vorlesehilfen');
+/* 7. Konfetti (Wahl „Verspielt“): rein dekorativ, ohne Browser und bei reduzierter Bewegung wirkungslos, Plan berechenbar. */
+ok(bare.feiern() === false, 'Konfetti ohne Browser wirkungslos');
+{
+  const f = fakeDoc(), api = load({ matchMedia: () => ({ matches: true }) }, f.doc);
+  ok(api.feiern() === false && f.appended.length === 0, 'reduziert: kein Konfetti');
+  const plan = api.konfettiPlan(12, () => 0.5);
+  ok(plan.length === 12 && plan.every(k => Number.isFinite(k.x) && Number.isFinite(k.y) && k.y > 0 && /^var\(--/.test(k.c)), 'Konfetti-Plan: Stücke fallen nach unten, Farben aus dem Farbsatz');
+}
+ok(/box\.inert=true/.test(src) && /rp-konfetti/.test(src) && /\.rp-konfetti\{[^}]*pointer-events:none/.test(css), 'Konfetti nimmt keine Eingaben an');
+ok(/s\.value==='gebucht'\)feiern\(\)/.test(src) && !/Store\.|save\(/.test(src), 'Konfetti liest nur den gewählten Status und ändert keine Daten');
+ok(css.includes('html[data-layout=book]') && /@media screen\{\n :root\[data-layout=book\]\{--bg:/.test(css), 'Reisetagebuch-Farbsatz nur am Bildschirm (Druck unverändert)');
 console.log('bewegung: ' + n + ' Prüfungen bestanden');

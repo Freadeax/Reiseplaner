@@ -93,7 +93,7 @@ function vNeu(){
 }
 function tripHead(t,noNav){
   const ph=tripPhase(t);
-  return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'">'+
+  return '<section class="block trip-header'+(UI.tab==='mappe'?' noprint':'')+'" data-art="'+esc(t.type||'')+'">'+
   '<span class="eyebrow">'+esc(TYPES[t.type]||'')+' · '+esc(rangeText(t))+'</span><h1>'+esc(t.title)+'</h1>'+
   (ph&&ph.phase==='vor'?'<p class="muted small">Noch <b>'+ph.days+(ph.days===1?' Tag':' Tage')+'</b> bis zur Abreise</p>':ph&&ph.phase==='unterwegs'?'<p class="small"><b>'+esc(phaseText(ph))+'</b></p>':'')+
   '<div class="trip-actions noprint"><button type="button" class="lnk" data-go="reisen">← Reisen</button><select data-f="status" aria-label="Status">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(t.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select><button type="button" class="btn ghost sm" data-act="edit-trip">Eckdaten</button></div></section>'+(noNav?'':

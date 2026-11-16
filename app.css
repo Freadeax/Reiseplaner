@@ -18,6 +18,8 @@
     14  Fünf Bereiche, Als Nächstes, Start, Ebenen   „Aufbau (app/aufbau.js)“
     15  Feinschliff und Bewegung                     „Feinschliff und Bewegung (app/bewegung.js)“: Zeit-/Schattenwerte,
                                                      Schrift, Aufklapp-Pfeil, Listen, Antippen, Seitenwechsel, Blätter
+    16  Reisetagebuch (Standard-Darstellung book)    „Reisetagebuch (Neugestaltung 16.11.2026“: Farbsatz hell/dunkel, Buchschrift,
+                                                     Rahmen mit hartem Schatten, schwebendes Dock, verspielte Bewegung
    Neue Regeln gehören in den passenden Abschnitt; Bewegung immer hinter prefers-reduced-motion:no-preference. */
 .catmap{margin:0;display:flex;flex-direction:column;gap:4px}.catmap svg{width:100%;max-width:520px;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}.catmap .ring{fill:none;stroke:var(--line);stroke-dasharray:3 3}.catmap .rl{font:10px var(--f-mono);fill:var(--muted)}.catmap .home{fill:var(--bad)}.catmap .pt{fill:var(--spruce);stroke:var(--bg);stroke-width:1.5}.catmap .pn{font:bold 9px var(--f-mono);fill:var(--bg);text-anchor:middle}.catmap a:focus .pt{stroke:var(--warn);stroke-width:3}
 .season{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;max-width:420px}.season span{text-align:center;font:600 .72rem var(--f-mono);padding:4px 0;border-radius:4px;background:var(--surface-2);color:var(--muted);display:flex;flex-direction:column;line-height:1.1}.season span.on{background:var(--spruce-soft);color:var(--spruce);outline:1px solid var(--spruce)}.season i{font-style:normal;font-size:.62rem}
@@ -937,3 +939,135 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
 .gm-acts .btn[aria-pressed="true"]{font-weight:700;border-color:currentColor}
 .gm-changes{margin-bottom:12px}
 .gm-name{margin-top:12px}
+
+/* ==========================================================================
+   Reisetagebuch (Neugestaltung 16.11.2026, Darstellung „book“ = Standard)
+   Papier und Tinte: Sepia, Rostrot, Buchschrift, klare Rahmen mit hartem Schatten wie eingeklebte Zettel.
+   Gilt nur für html[data-layout=book]; „studio“ und „compact“ behalten ihre Farbsätze. Nur Bildschirm, Druck bleibt unverändert.
+   Der Name --spruce bleibt die Hauptfarbe (hier Rostrot), damit alle älteren Regeln weiter greifen.
+   Bewegung steht wie im Abschnitt davor ausschließlich hinter prefers-reduced-motion:no-preference (tests/bewegung.cjs).
+   ========================================================================== */
+@media screen{
+ :root[data-layout=book]{--bg:#F2E9DA;--surface:#FBF6EB;--surface-2:#EADFCB;--surface-3:#DCCFB7;--ink:#33261C;--muted:#655443;--line:#D9CAB0;--spruce:#8A3B1F;--spruce-soft:#F1DCC8;--sign:#E9D4A6;--sign-ink:#3F2E12;--ok:#2B6541;--warn:#85500F;--bad:#A3243A;--blue:#2F5D7C;--c1:#8A3B1F;--c2:#2F5D62;--c3:#94701F;--c4:#6F5A86;--c5:#4A7650;--c6:#B5653F;--c7:#7A6E60;--paper-dot:#E6D9C3;--shadow-hard:#D9C7A8;--dash:#A8926C;--sh-rgb:51 38 28;--f-display:"Newsreader","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--f-serif:"Newsreader","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif}
+ :root[data-layout=book][data-theme=dark]{--bg:#1E1814;--surface:#29211B;--surface-2:#352B23;--surface-3:#46392E;--ink:#F3EADB;--muted:#C7B8A3;--line:#57483A;--spruce:#F0A583;--spruce-soft:#4A2E22;--sign:#E9D4A6;--sign-ink:#3F2E12;--ok:#6CC790;--warn:#E3A847;--bad:#F2808A;--blue:#8DB6E0;--c1:#F0A583;--c2:#7FBFC4;--c3:#E0B93A;--c4:#B7A5DC;--c5:#6CC790;--c6:#E8925F;--c7:#A89C8C;--paper-dot:#2A221C;--shadow-hard:#5A4636;--dash:#8C7860;--sh-rgb:0 0 0;color-scheme:dark}
+}
+@media screen and (prefers-color-scheme:dark){
+ :root[data-layout=book]:not([data-theme=light]){--bg:#1E1814;--surface:#29211B;--surface-2:#352B23;--surface-3:#46392E;--ink:#F3EADB;--muted:#C7B8A3;--line:#57483A;--spruce:#F0A583;--spruce-soft:#4A2E22;--sign:#E9D4A6;--sign-ink:#3F2E12;--ok:#6CC790;--warn:#E3A847;--bad:#F2808A;--blue:#8DB6E0;--c1:#F0A583;--c2:#7FBFC4;--c3:#E0B93A;--c4:#B7A5DC;--c5:#6CC790;--c6:#E8925F;--c7:#A89C8C;--paper-dot:#2A221C;--shadow-hard:#5A4636;--dash:#8C7860;--sh-rgb:0 0 0;color-scheme:dark}
+}
+@media screen{
+ html[data-layout=book] body{background-color:var(--bg);background-image:radial-gradient(var(--paper-dot) 1px,transparent 1.3px);background-size:22px 22px}
+ html[data-layout=book] h1,html[data-layout=book] h2,html[data-layout=book] h3,html[data-layout=book] h4{font-family:var(--f-display);font-weight:500;letter-spacing:-.01em}
+ html[data-layout=book] h1,html[data-layout=book] .home-hero h1{font-family:var(--f-display);font-weight:500;letter-spacing:-.015em}
+ html[data-layout=book] h2{font-size:1.6rem;line-height:1.15}
+ html[data-layout=book] h3{font-size:1.22rem;line-height:1.2}
+ html[data-layout=book] .brand b{font-family:var(--f-display);font-style:italic;font-weight:600;font-size:1.7rem;letter-spacing:-.01em}
+ html[data-layout=book] .brand-mark{border-radius:7px;background:var(--ink);color:var(--bg);rotate:-4deg;box-shadow:2px 2px 0 var(--shadow-hard)}
+ html[data-layout=book] .eyebrow{color:var(--spruce);letter-spacing:.14em}
+ html[data-layout=book] #view>.home-hero{border:1.5px solid var(--ink);border-radius:8px;background:var(--surface);box-shadow:6px 6px 0 var(--shadow-hard)}
+ html[data-layout=book] .home-hero h1{font-style:italic;line-height:1}
+ html[data-layout=book] .home-hero .hero-art{color:var(--spruce);opacity:.16}
+ html[data-layout=book] #view>section.block:first-child,html[data-layout=book] .finder-hero{border:1.5px solid var(--ink);border-radius:8px;background:var(--surface);box-shadow:6px 6px 0 var(--shadow-hard)}
+ html[data-layout=book] #view>section.block:first-child>h1,html[data-layout=book] #view>section.block:first-child .between h1,html[data-layout=book] .finder-hero h1{font-style:italic}
+ html[data-layout=book] .opt{border-radius:7px}
+ html[data-layout=book] .note{border-radius:8px;border-left:3px solid var(--spruce)}
+ html[data-layout=book] .profile-summary{border-radius:8px}
+ html[data-layout=book] .form-group-title::before{border-radius:5px;rotate:-4deg;border:1px solid var(--spruce)}
+ html[data-layout=book] .trip-header{position:relative;overflow:hidden;border:1.5px solid var(--ink)!important;border-radius:8px;background:var(--surface);box-shadow:6px 6px 0 var(--shadow-hard)}
+ html[data-layout=book] .trip-header>*{position:relative;z-index:1}
+ html[data-layout=book] .trip-header::after{content:'';position:absolute;z-index:0;right:-26px;top:-26px;width:104px;height:104px;border-radius:50%;border:2px dashed var(--spruce);opacity:.22;pointer-events:none;box-shadow:inset 0 0 0 9px var(--surface),inset 0 0 0 10.5px var(--spruce)}
+ html[data-layout=book] .trip-header h1{font-style:italic}
+ html[data-layout=book] .card,html[data-layout=book] .panel,html[data-layout=book] .kpi,html[data-layout=book] .start-weg,html[data-layout=book] .template-card{border-radius:10px;border:1px solid var(--line);box-shadow:none;background:var(--surface)}
+ html[data-layout=book] .card.sel{box-shadow:inset 0 0 0 2px var(--spruce)}
+ html[data-layout=book] .start-weg{border-style:dashed;border-color:var(--dash)}
+ html[data-layout=book] .trip-sub-list{border-radius:10px;box-shadow:none}
+ html[data-layout=book] .trip-spotlight{border-radius:8px;border:1.5px solid var(--ink);box-shadow:5px 5px 0 var(--shadow-hard)}
+ html[data-layout=book] .nx-main{border-width:1.5px;border-color:var(--ink);box-shadow:4px 4px 0 var(--shadow-hard)}
+ html[data-layout=book] .nx-row{border-radius:8px}
+ html[data-layout=book] .btn{border-radius:7px;font-weight:700;letter-spacing:.015em}
+ html[data-layout=book] .btn:not(.ghost):not(.sm):not([disabled]){box-shadow:2px 2px 0 var(--shadow-hard)}
+ html[data-layout=book] .btn.ghost:not([aria-pressed=true]){background:var(--surface)}
+ html[data-layout=book] .badge{border:1px dashed var(--dash);background:transparent;color:var(--ink);border-radius:5px}
+ html[data-layout=book] .badge.ok{border-style:solid;border-color:var(--ok);color:var(--ok)}
+ html[data-layout=book] .badge.warn{border-style:solid;border-color:var(--warn);color:var(--warn)}
+ html[data-layout=book] .badge.bad{border-style:solid;border-color:var(--bad);color:var(--bad)}
+ html[data-layout=book] input[type=text],html[data-layout=book] input[type=number],html[data-layout=book] input[type=date],html[data-layout=book] input[type=month],html[data-layout=book] input[type=url],html[data-layout=book] input[type=email],html[data-layout=book] input[type=search],html[data-layout=book] input[type=time],html[data-layout=book] select,html[data-layout=book] textarea{border-radius:7px;background:var(--surface);border-color:var(--dash)}
+ html[data-layout=book] input:focus-visible,html[data-layout=book] select:focus-visible,html[data-layout=book] textarea:focus-visible{border-color:var(--spruce);box-shadow:0 0 0 3px var(--spruce-soft)}
+ html[data-layout=book] .seg-bar{border-radius:9px;background:var(--surface-2)}
+ html[data-layout=book] .seg{border-radius:6px}
+ html[data-layout=book] .seg[aria-current=page]{box-shadow:1.5px 1.5px 0 var(--shadow-hard)}
+ html[data-layout=book] .tab{border-radius:8px}
+ html[data-layout=book] .sheet{background-color:var(--bg);background-image:radial-gradient(var(--paper-dot) 1px,transparent 1.3px);background-size:22px 22px;border-top:1.5px solid var(--ink)}
+ html[data-layout=book] .sheet .x{border-radius:7px}
+ html[data-layout=book] .item{border-radius:7px}
+ html[data-layout=book] .dslot .lbl::before{border-radius:2px;rotate:45deg}
+ html[data-layout=book] .dslot::before{width:0;border-left:2px dashed var(--dash);background:none}
+ html[data-layout=book] .dslot .add{border-radius:7px;border-style:dashed}
+ html[data-layout=book] .budget-head>b{font-weight:600}
+ html[data-layout=book] .budget-bar,html[data-layout=book] .budget-bar>span{border-radius:4px}
+ html[data-layout=book] .tbl th{font-family:var(--f-body);letter-spacing:.08em}
+ html[data-layout=book] summary{border-radius:7px}
+ html[data-layout=book] .fold,html[data-layout=book] .dmore,html[data-layout=book] details.panel,html[data-layout=book] details.note{border-radius:10px}
+ html[data-layout=book] #msg{border-radius:8px!important;box-shadow:4px 4px 0 var(--shadow-hard)!important}
+ html[data-layout=book] .gm-idea,html[data-layout=book] .merge-pick{border-radius:8px;border-style:dashed;border-color:var(--dash)}
+ html[data-layout=book] .chk input[type=checkbox],html[data-layout=book] .nx-check input{accent-color:var(--spruce)}
+ html[data-layout=book] a{text-decoration-thickness:1px;text-underline-offset:3px}
+ html[data-layout=book] hr,html[data-layout=book] .block+.block{border-color:var(--line)}
+}
+/* Schwebendes Dock am Handy: Abstand zum Rand, Inhalt läuft dahinter durch. Die Seite hält unten entsprechend mehr Platz frei. */
+@media screen and (max-width:760px){
+ html[data-layout=book] .app-nav{left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:5px;gap:2px;border:1.5px solid var(--ink);border-radius:16px;background:var(--surface);box-shadow:4px 4px 0 var(--shadow-hard)}
+ html[data-layout=book] .app-nav .nav-item{border-radius:11px;border-width:0;min-height:50px;color:var(--ink)}
+ html[data-layout=book] .app-nav .nav-item[aria-current=page]{background:var(--spruce);color:var(--bg);border-color:transparent}
+ html[data-layout=book]{scroll-padding-bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 34px)}
+ html[data-layout=book] body{padding-bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 34px)}
+ html[data-layout=book] #msg{bottom:calc(var(--tabbar-real,calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px))) + 30px)!important}
+ @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html[data-layout=book] .app-nav{background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+ }
+}
+/* Verspielte Bewegung (Wahl vom 16.11.): kleine Momente der Vorfreude. Rein dekorativ, nie Träger einer Bedeutung,
+   nicht bedienbar (pointer-events:none) und für Vorlesehilfen unsichtbar. Beträge zählen bewusst nicht hoch:
+   Ein Geldbetrag zeigt nie einen falschen Zwischenwert, er gleitet nur herein. */
+@keyframes rp-stamp{0%{opacity:0;scale:1.5;rotate:-16deg}60%{opacity:1;scale:.94;rotate:-2deg}100%{scale:1;rotate:-4deg}}
+@keyframes rp-stamp-ring{from{opacity:0;rotate:-40deg;scale:1.3}}
+@keyframes rp-snow{to{background-position:0 220px,40px 300px,90px 180px}}
+@keyframes rp-wiggle{0%,100%{rotate:0deg}30%{rotate:-7deg}65%{rotate:5deg}}
+@keyframes rp-pop{0%{scale:.6}60%{scale:1.18}100%{scale:1}}
+@keyframes rp-ink{from{opacity:0;translate:0 .45em;filter:blur(3px)}}
+@keyframes rp-underline{from{background-size:0 2px}}
+@keyframes rp-konfetti{0%{opacity:1;translate:0 0;rotate:0deg}100%{opacity:0;translate:var(--kx) var(--ky);rotate:var(--kr)}}
+@keyframes rp-dock-in{from{opacity:0;translate:0 26px}}
+@media screen{
+ /* Schnee im Kopf einer Winterreise: steht ohne Bewegung still als Muster. */
+ html[data-layout=book] .trip-header[data-art=winter]::before{content:'';position:absolute;z-index:0;inset:0;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(circle,var(--snow) 0 2px,transparent 2.6px),radial-gradient(circle,var(--snow) 0 1.4px,transparent 2px),radial-gradient(circle,var(--snow) 0 2.6px,transparent 3.2px);
+  background-size:110px 110px,150px 150px,90px 90px;background-position:0 0,40px 60px,90px 20px}
+ :root[data-layout=book]{--snow:#C9B694}
+ :root[data-layout=book][data-theme=dark]{--snow:#F3EADB}
+ .rp-konfetti{position:fixed;inset:0;z-index:40;pointer-events:none;overflow:hidden}
+ .rp-konfetti i{position:absolute;left:50%;top:38%;width:9px;height:14px;border-radius:2px;opacity:0}
+}
+@media screen and (prefers-color-scheme:dark){:root[data-layout=book]:not([data-theme=light]){--snow:#F3EADB}}
+@media screen and (prefers-reduced-motion:no-preference){
+ html[data-layout=book] .trip-header[data-art=winter]::before{animation:rp-snow 16s linear infinite}
+ /* Seitenwechsel: Stempel im Reisekopf, Marke wackelt kurz, große Überschrift und Beträge kommen wie frische Tinte. */
+ html[data-layout=book] #view.rp-enter .trip-header::after{animation:rp-stamp-ring .7s var(--ease-spring) .15s backwards}
+ html[data-layout=book] #view.rp-enter :is(.home-hero h1,.trip-header h1,#sub-title,.budget-head>b){animation:rp-ink .55s var(--ease) .12s backwards}
+ html[data-layout=book] #view.rp-enter .badge{animation:rp-pop .45s var(--ease-spring) .3s backwards}
+ html[data-layout=book] .brand:active .brand-mark{animation:rp-wiggle .5s var(--ease)}
+ html[data-layout=book] .brand-mark{transition:rotate var(--dur-3) var(--ease-spring)}
+ /* Antippen: Zettel drücken sich ins Papier (Schatten verschwindet, Fläche rückt nach). */
+ html[data-layout=book] .btn:not(.ghost):not(.sm):not([disabled]):active{transform:translate(2px,2px);box-shadow:0 0 0 var(--shadow-hard)}
+ html[data-layout=book] :is(.start-weg,.card.click,.template-card):active{transform:translate(1px,1px) rotate(-.4deg)}
+ html[data-layout=book] .app-nav [aria-current=page] .nav-ico{animation:rp-pop .45s var(--ease-spring)}
+ .rp-konfetti i{animation:rp-konfetti 1.5s cubic-bezier(.15,.7,.3,1) forwards}
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+ html[data-layout=book] .brand:hover .brand-mark{rotate:4deg}
+ html[data-layout=book] :is(.card.click,.start-weg,.template-card,.mood-preset):hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--shadow-hard);border-color:var(--ink)}
+ html[data-layout=book] .btn:not(.ghost):not(.sm):not([disabled]):hover{box-shadow:4px 4px 0 var(--shadow-hard);transform:translate(-1px,-1px)}
+}
+@media screen and (max-width:760px) and (prefers-reduced-motion:no-preference){
+ html[data-layout=book] .app-nav{animation:rp-dock-in .6s var(--ease-spring) .2s backwards}
+}
+@media print{.rp-konfetti{display:none!important}}

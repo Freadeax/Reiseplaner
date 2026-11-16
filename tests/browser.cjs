@@ -1274,7 +1274,8 @@ async function navFlow(browser,base,name,ctxOpts){
  assert.equal(await keys(),'reisen,entdecken,heute,erinnerungen,konto',name+': Heute während der Reise');
  const nav=await p.$eval('#app-nav',n=>{const r=n.getBoundingClientRect(),cs=getComputedStyle(n);return {pos:cs.position,top:r.top,bottom:r.bottom,display:cs.display,visible:r.width>0&&r.height>0}});
  if(phone){
-  assert(nav.visible&&nav.pos==='fixed'&&Math.abs(nav.bottom-ctxOpts.viewport.height)<=1,name+': Tab-Leiste unten '+JSON.stringify(nav));
+  /* Seit der Neugestaltung 16.11. schwebt die Leiste als Dock: unten, höchstens 24 px über dem Rand, nie darüber hinaus. */
+  {const gap=ctxOpts.viewport.height-nav.bottom;assert(nav.visible&&nav.pos==='fixed'&&gap>=-1&&gap<=24,name+': Tab-Leiste unten '+JSON.stringify(nav));}
   const sizes=await p.$$eval('#app-nav [data-go]',bs=>bs.map(b=>{const r=b.getBoundingClientRect(),t=b.querySelector('.nav-txt');return {w:r.width,h:r.height,txt:t&&t.getBoundingClientRect().width>0&&t.scrollWidth<=t.clientWidth+1,ico:b.querySelector('svg[aria-hidden="true"]')&&b.querySelector('svg').getBoundingClientRect().width>0}}));
   assert(sizes.every(x=>x.w>=44&&x.h>=44),name+': Tab-Ziele mindestens 44 px '+JSON.stringify(sizes));
   assert(sizes.every(x=>x.txt&&x.ico),name+': Symbol und vollständig sichtbare Beschriftung '+JSON.stringify(sizes));

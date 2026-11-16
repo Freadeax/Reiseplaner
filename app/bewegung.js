@@ -78,6 +78,29 @@ function detailsOpened(summary){
  if(typeof requestAnimationFrame==='function')requestAnimationFrame(run);else setTimeout(run,0);
  return true;
 }
+/* Konfetti: kleiner Moment der Vorfreude, wenn eine Reise auf „Gebucht“ gestellt wird. Rein dekorativ: nicht bedienbar,
+   für Vorlesehilfen verborgen, nach kurzer Zeit entfernt. Liest nur den gewählten Wert, ändert keine Daten. */
+const MOTION_KONFETTI_MS=1700,KONFETTI_FARBEN=['var(--spruce)','var(--sign)','var(--c2)','var(--c3)','var(--c5)','var(--ink)'];
+function konfettiPlan(n,rnd){
+ rnd=rnd||Math.random;const out=[];
+ for(let i=0;i<n;i++){const w=(i/n)*Math.PI*2+rnd()*.5,r=110+rnd()*190;
+  out.push({x:Math.round(Math.cos(w)*r),y:Math.round(Math.sin(w)*r*.7+160+rnd()*160),r:Math.round((rnd()-.5)*900),d:Math.round(rnd()*140),c:KONFETTI_FARBEN[i%KONFETTI_FARBEN.length]})}
+ return out;
+}
+function feiern(){
+ if(!motionOk()||typeof document==='undefined'||!document.body||!document.createElement)return false;
+ try{
+  const old=document.querySelector('.rp-konfetti');if(old&&old.parentNode)old.parentNode.removeChild(old);
+  const box=document.createElement('div');box.className='rp-konfetti';box.setAttribute('aria-hidden','true');box.inert=true;
+  for(const k of konfettiPlan(36)){const i=document.createElement('i');i.style.cssText='background:'+k.c+';--kx:'+k.x+'px;--ky:'+k.y+'px;--kr:'+k.r+'deg;animation-delay:'+k.d+'ms';box.appendChild(i)}
+  document.body.appendChild(box);
+  setTimeout(()=>{if(box.parentNode)box.parentNode.removeChild(box)},MOTION_KONFETTI_MS+200);
+  return true;
+ }catch(e){return false}
+}
+try{if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('change',e=>{
+ const s=e.target;if(s&&s.matches&&s.matches('select[data-f="status"]')&&s.value==='gebucht')feiern();
+})}catch(e){}
 try{if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',e=>{
  const s=e.target&&e.target.closest&&e.target.closest('summary');if(s)detailsOpened(s);
 })}catch(e){}
