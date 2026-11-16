@@ -53,6 +53,8 @@ Thread „Planer offline nutzbar machen“ (Auftrag Philipp 16.11.). Konzept, Ri
 
 Tests (16.11., Cloud-Container): `npm test` (neu `offline` mit nachgebildetem fetch/caches, `neueres-format`), `test:browser` (Offline-Start in der Entwicklungsfassung), neu `test:offline-browser` auf der gebauten Website in Chromium (Offline-Start, Reise offline anlegen, gescheiterte Installation ohne Mischstand, Versionswechsel, langsames Netz nach ca. 4 s, „Auf diesem Gerät“), `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari (Home-Bildschirm, 7-Tage-Regel, Druck als PDF).
 
+Nachtrag (16.11., Wunsch Philipp): **Neue Version prüfen und laden** (`app/offline.js`, OFFLINE.md §4.7). Liegt ein neuerer vollständiger Stand bereit als die laufende Seite, erscheint unten „Neue Version verfügbar“ mit „Jetzt laden“/„Später“; geprüft beim Öffnen, beim Zurückkehren in die App, alle 30 min und per Knopf „Nach neuer Version suchen“ unter „Auf diesem Gerät“. Getestet in `test:offline-browser` (kein Hinweis ohne neue Version, Hinweis nach neuem Stand, Jetzt laden aktiviert ihn), Ansicht 390 px hell/dunkel angesehen. Nicht getestet: iPhone, iPad, Safari.
+
 Nächster Schritt: O4 „Für unterwegs bereit machen“ je Reise (mit dem Unterlagen-Thread), O5 PDF-Hinweise in der Reisemappe.
 ## Fixpunkte, Puffer und Realismus im Tagesplan (Claude, 16.11.)
 

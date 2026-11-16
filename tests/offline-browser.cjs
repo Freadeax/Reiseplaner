@@ -91,6 +91,23 @@ function release(tag) {
   assert.strictEqual(await p.evaluate(() => window.RP_TESTSTAND || null), 'neu1', 'offline: neuer Stand nicht aktiv');
   assert((await text()).includes('Offline-Test'), 'Reisen nach Versionswechsel weg');
 
+  /* 4b. Nach neuer Version suchen (Wunsch Philipp 16.11.): Knopf, Hinweis „Neue Version verfügbar“, Jetzt laden */
+  await ctx.setOffline(false);
+  await p.goto(base + '#konto'); await p.reload();
+  await p.waitForSelector('[data-offline-act="update-check"]');
+  await p.click('[data-offline-act="update-check"]');
+  await p.waitForFunction(() => /neueste Version/i.test(document.querySelector('[data-device]').innerText), null, { timeout: 15000 });
+  assert.strictEqual(await p.locator('#rp-update').count(), 0, 'kein Hinweis ohne neue Version');
+  release('neu2');
+  await p.click('[data-offline-act="update-check"]');
+  await p.waitForSelector('#rp-update', { timeout: 20000 });
+  assert(/Neue Version verfügbar/.test(await p.locator('#rp-update').innerText()));
+  assert.strictEqual(await p.evaluate(() => window.RP_TESTSTAND || null), 'neu1', 'vor dem Laden läuft noch die alte Version');
+  await Promise.all([p.waitForEvent('load'), p.click('[data-offline-act="update-now"]')]);
+  assert.strictEqual(await p.evaluate(() => window.RP_TESTSTAND || null), 'neu2', 'Jetzt laden: neue Version aktiv');
+  assert.strictEqual(await p.locator('#rp-update').count(), 0, 'nach dem Laden kein Hinweis mehr');
+  await p.goto(base + '#reisen');
+
   /* 5. Langsames Netz: Start nach Zeitlimit aus dem Stand */
   await ctx.setOffline(false);
   await p.goto(base + '#reisen');
@@ -105,5 +122,5 @@ function release(tag) {
 
   assert.deepStrictEqual(errors, [], 'Seitenfehler: ' + errors.join(' | '));
   await browser.close(); srv.close(); fs.rmSync(DIR, { recursive: true, force: true });
-  console.log('Offline im Browser (Chromium, gebaute Website): Offline-Start, Reisen offline anlegen, gescheiterte Installation ohne Mischstand, Versionswechsel, langsames Netz (' + ms + ' ms) geprüft. Kein iPhone-/Safari-Test.');
+  console.log('Offline im Browser (Chromium, gebaute Website): Offline-Start, Reisen offline anlegen, gescheiterte Installation ohne Mischstand, Versionswechsel, Nach neuer Version suchen mit Hinweis und Jetzt laden, langsames Netz (' + ms + ' ms) geprüft. Kein iPhone-/Safari-Test.');
 })().catch(async e => { console.error(e); srv.close(); process.exit(1); });

@@ -40,11 +40,13 @@ function deviceSection(){
     :'Unbekannt (vom Browser nicht verraten).';
   return head+'<dl class="facts">'+
     '<dt>Verbindung</dt><dd>'+(i.online?'Online':'Offline')+'</dd>'+
+    updAppLine()+
     '<dt>Ohne Internet startbar</dt><dd>'+start+'</dd>'+
     '<dt>Dauerhaft gespeichert</dt><dd>'+keep+'</dd>'+
     '<dt>Reisen in diesem Browser</dt><dd>'+n+(pend?' · '+pend+' Änderung'+(pend===1?'':'en')+' noch nicht online gespeichert':'')+'</dd>'+
     (i.usage!=null?'<dt>Belegt</dt><dd>'+deviceMB(i.usage)+(i.quota?' von etwa '+deviceMB(i.quota):'')+'</dd>':'')+
     '</dl>'+
+    (i.http&&i.swApi?'<div class="row"><button type="button" class="btn ghost sm" data-offline-act="update-check">Nach neuer Version suchen</button>'+(AppUpdate.state==='Neue Version geladen'?'<button type="button" class="btn sm" data-offline-act="update-now">Neue Version jetzt laden</button>':'')+'</div>':'')+
     (i.persisted===false&&i.canPersist?'<div class="row"><button type="button" class="btn ghost sm" data-offline-act="persist">Dauerhaft speichern anfragen</button></div>':'')+
     (i.ios&&!i.standalone?'<div class="note"><b>Am iPhone oder iPad:</b><p>Über Teilen → „Zum Home-Bildschirm“ öffnet sich der Planer wie eine App. Sonst darf Safari die Reisen löschen, wenn ihr die Seite 7 Tage nicht öffnet.</p></div>':'')+
     '<p class="small"><b>Ohne Internet nicht verfügbar:</b> '+OFFLINE_MISSING.map(esc).join(' · ')+'. Reisemappe und Reisebuch lassen sich auch offline über „Drucken / PDF“ als PDF sichern.</p>'+
@@ -65,4 +67,60 @@ if(typeof window!=='undefined'&&window.addEventListener){
   window.addEventListener('online',changed);window.addEventListener('offline',changed);
   /* Ohne Konto ruft der Start setSync nicht auf; offline geöffnet soll die Kopfzeile es trotzdem sagen */
   window.addEventListener('load',()=>{if(typeof navigator!=='undefined'&&navigator.onLine===false&&typeof setSync==='function')setSync()});
+}
+/* ===== Neue Version prüfen und laden (Wunsch Philipp 16.11., docs/OFFLINE.md §4.7) =====
+   Der Service Worker installiert neue Stände selbst und vollständig; die geöffnete Seite läuft aber mit dem Code weiter,
+   mit dem sie geladen wurde. Daher: Liegt ein neuerer vollständiger Stand bereit als der laufende, zeigt die App unten
+   „Neue Version verfügbar – jetzt laden“. Prüfen beim Öffnen, beim Zurückkehren in die App (iPad/Handy bleiben oft
+   tagelang offen) und alle 30 Minuten, dazu der Knopf „Nach neuer Version suchen“ unter „Auf diesem Gerät“. */
+const AppUpdate={state:'',checkedAt:0,shown:false};
+/* Versionen der laufenden Seite: ?v= aller eingebundenen Skripte und Stylesheets */
+function updRunning(){const v={};try{document.querySelectorAll('script[src],link[rel="stylesheet"][href]').forEach(el=>{const u=new URL(el.src||el.href,location.href);if(u.origin===location.origin&&u.searchParams.has('v'))v[u.pathname]=u.searchParams.get('v')})}catch(e){}return v}
+/* Bereitliegender Stand: index.html aus dem Speicher des aktiven Service Workers */
+async function updReadyDiffers(){
+  if(typeof caches==='undefined')return false;
+  const k=(await caches.keys()).filter(x=>/^reiseplaner-(?!laufzeit)/.test(x));if(k.length!==1)return false;
+  const hit=await (await caches.open(k[0])).match('index.html');if(!hit)return false;
+  const run=updRunning(),html=await hit.text();if(!Object.keys(run).length)return false;
+  for(const m of html.matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)="([^"#:]+?\.(?:js|css))\?v=([^"&#]+)"/g)){const p=new URL(m[1],location.href).pathname;if(run[p]!==m[2])return true}
+  return false;
+}
+function updBanner(){
+  if(AppUpdate.shown||typeof document==='undefined'||!document.body)return;AppUpdate.shown=true;
+  const d=document.createElement('div');d.id='rp-update';d.className='note';d.setAttribute('role','status');
+  d.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:60;max-width:560px;margin:0 auto;box-shadow:0 6px 24px rgba(0,0,0,.18)';
+  d.innerHTML='<b>Neue Version verfügbar</b><p class="small">Sie ist schon geladen und funktioniert auch ohne Internet. Eure Reisen bleiben erhalten.</p><div class="row"><button type="button" class="btn sm" data-offline-act="update-now">Jetzt laden</button><button type="button" class="btn ghost sm" data-offline-act="update-later">Später</button></div>';
+  document.body.appendChild(d);
+}
+async function updCheck(manual){
+  const sw=typeof navigator!=='undefined'&&navigator.serviceWorker;
+  if(!sw||!/^https?:$/.test(location.protocol)){if(manual){AppUpdate.state='nicht möglich: Seite nicht über die Website-Adresse geöffnet';deviceRefresh(true)}return}
+  if(manual&&navigator.onLine===false){AppUpdate.state='Ohne Internet nicht möglich';deviceRefresh(true);return}
+  if(manual){AppUpdate.state='Suche …';deviceRefresh(true)}
+  try{
+    const reg=await sw.getRegistration();
+    if(reg){await reg.update();
+      const w=reg.installing||reg.waiting;
+      /* Neuer Stand wird gerade vollständig geladen: abwarten (höchstens 60 s) */
+      if(w)await new Promise(res=>{const t=setTimeout(res,60000);const f=()=>{if(w.state==='activated'||w.state==='redundant'){clearTimeout(t);res()}};w.addEventListener('statechange',f);f()});}
+    const newer=await updReadyDiffers();
+    AppUpdate.checkedAt=Date.now();AppUpdate.state=newer?'Neue Version geladen':'Ihr habt die neueste Version';
+    if(newer)updBanner();
+  }catch(e){AppUpdate.state='Prüfung fehlgeschlagen'+(navigator.onLine===false?' (offline)':'')}
+  if(manual||AppUpdate.state==='Neue Version geladen')deviceRefresh(true);
+}
+function updAppLine(){return '<dt>App-Version</dt><dd>'+(AppUpdate.state?esc(AppUpdate.state)+(AppUpdate.checkedAt&&/neueste|geladen/.test(AppUpdate.state)?' (geprüft '+esc(new Date(AppUpdate.checkedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}))+')':''):'nicht geprüft')+'</dd>'}
+if(typeof document!=='undefined'&&document.addEventListener){
+  document.addEventListener('click',e=>{
+    const b=e.target&&e.target.closest&&e.target.closest('[data-offline-act]');if(!b)return;const a=b.getAttribute('data-offline-act');
+    if(a==='update-check')updCheck(true);
+    else if(a==='update-now'){const active=document.activeElement;if(active&&active.blur)active.blur();setTimeout(()=>location.reload(),50)}
+    else if(a==='update-later'){const d=document.getElementById('rp-update');if(d)d.remove()}
+  });
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-AppUpdate.checkedAt>60000)updCheck(false)});
+}
+if(typeof window!=='undefined'&&window.addEventListener&&typeof navigator!=='undefined'&&navigator.serviceWorker){
+  window.addEventListener('load',()=>{setTimeout(()=>updCheck(false),3000);setInterval(()=>{if(document.visibilityState!=='hidden')updCheck(false)},30*60000)});
+  /* Neuer Stand übernimmt die Steuerung: prüfen, ob die laufende Seite älter ist */
+  try{navigator.serviceWorker.addEventListener('controllerchange',()=>{updReadyDiffers().then(n=>{if(n){AppUpdate.state='Neue Version geladen';updBanner()}},()=>{})})}catch(e){}
 }

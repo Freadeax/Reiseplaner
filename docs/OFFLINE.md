@@ -77,6 +77,10 @@ Bleibt beim bestehenden Weg (Warteschlange, Versionsnummer je Reise, Konflikt si
 
 Reisemappe und Reisebuch bleiben beim Druckdialog des Browsers (funktioniert offline, keine Zusatzbibliothek). Ergänzungen: Hinweis am iPhone (Teilen → Drucken → Vorschau aufziehen → „PDF sichern“), Datum und App-Stand im Fuß der Mappe, Schrift im Druck ohne Netz prüfen (Ersatzschrift).
 
+### 4.7 Neue Version prüfen und laden (Wunsch Philipp 16.11.)
+
+Am Handy und iPad bleibt die Seite oft tagelang offen und läuft mit dem Code weiter, mit dem sie geladen wurde. Der Service Worker lädt neue Stände selbst vollständig; `app/offline.js` vergleicht die `?v=` der laufenden Seite mit dem bereitliegenden Stand. Unterscheiden sie sich, erscheint unten „Neue Version verfügbar“ mit **Jetzt laden** und **Später**. Geprüft wird 3 s nach dem Öffnen, beim Zurückkehren in die App, alle 30 Minuten und auf Knopfdruck („Nach neuer Version suchen“ unter Konto → „Auf diesem Gerät“, mit Ergebnis „Ihr habt die neueste Version“ oder „Neue Version geladen“). Ohne Internet sagt der Knopf das, statt zu suchen. Jetzt laden lädt die Seite neu; Reisen liegen im Browser-Speicher und bleiben. Ein offenes Eingabefeld wird vorher verlassen, damit die Eingabe gespeichert ist.
+
 ## 5. Reihenfolge und Abstimmung
 
 | Paket | Inhalt | Dateien | Status |
@@ -85,6 +89,7 @@ Reisemappe und Reisebuch bleiben beim Druckdialog des Browsers (funktioniert off
 | O2 | Neueres Format ≠ beschädigt | `app/speicher.js` (`loadLocal`), `app/ansichten.js` (`storageRecoveryBlock`) | erledigt 16.11. |
 | O3 | Offline-Hinweis, „Auf diesem Gerät“, dauerhafter Speicher | neue Datei `app/offline.js`, eine Zeile in `setSync` | erledigt 16.11. |
 | O4 | „Für unterwegs bereit machen“ | `app/offline.js`, Mappe | geplant, nach Unterlagen-Thread |
+| O6 | Nach neuer Version suchen, Hinweis „Neue Version verfügbar“ | `app/offline.js` | erledigt 16.11. |
 | O5 | PDF-Hinweise, Mappe-Fuß | `app/ansichten.js` (Mappe) | geplant |
 
 Geteilte Dateien: `sw.js` (alle Threads zählten bisher die Nummer hoch, nach O1 nicht mehr nötig), `app/speicher.js` (Thread „Gemeinsam planen“ ändert `put`, `push`, `resolve`; O2 nur `loadLocal`), `app/ansichten.js` (Oberflächen-Thread). Format 5: Thread „Offene Punkte weiterentwickeln“ entscheidet über `F5_WRITE`; O1 und O2 sollen vorher auf `main` sein.
