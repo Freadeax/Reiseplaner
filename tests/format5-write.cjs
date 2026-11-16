@@ -8,7 +8,7 @@ const vm = require('vm');
 const assert = require('assert');
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 assert(html.indexOf('<script src="app/format5.js"></script>') > 0, 'index.html lädt app/format5.js');
-assert(/'format5'/.test(fs.readFileSync(__dirname + '/../sw.js', 'utf8')), 'Offline-Cache enthält app/format5.js');
+assert(fs.readFileSync(__dirname + '/../index.html', 'utf8').includes('app/format5.js'), 'index.html bindet app/format5.js ein (Service Worker liest die Liste daraus)');
 const base = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 assert(/const F5_WRITE=true;/.test(base), 'Schreiben freigeschaltet');
 const J = x => JSON.parse(JSON.stringify(x));

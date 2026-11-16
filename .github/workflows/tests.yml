@@ -35,6 +35,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: npm run test:format5-browser
+      - run: npm run build && npm run test:offline-browser
 
   database:
     # Migrationen, Row Level Security, Auth und Ende-zu-Ende gegen einen lokalen Supabase-Stack

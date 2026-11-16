@@ -80,7 +80,7 @@ eq(I.lastPayer([{ on: '2027-01-02', paidBy: 'weg' }], [{ id: 'pa1' }]), null, 'e
 /* ---------- Anbindung an die App ---------- */
 const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 ok(html.indexOf('<script src="istvergleich.js"></script>') > html.indexOf('<script src="v3split.js"></script>'), 'index.html lädt istvergleich.js nach v3split.js');
-ok(fs.readFileSync(__dirname + '/../sw.js', 'utf8').includes("'./istvergleich.js'"), 'Offline-Kopie enthält istvergleich.js');
+ok(fs.readFileSync(__dirname + '/../index.html', 'utf8').includes('istvergleich.js'), 'index.html bindet istvergleich.js ein (Service Worker liest die Liste daraus)');
 const code = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');
 function app(noIst) {
   const ctx = {

@@ -17,7 +17,7 @@ Projektregel: lokale Speicherung ist weder Synchronisation noch vollständige Of
 
 | Bereich | Offline | Wie |
 |---|---|---|
-| App starten, Reisen ansehen und bearbeiten | ja, nach einmaligem Laden über https | `sw.js`, Netz zuerst, sonst Zwischenspeicher |
+| App starten, Reisen ansehen und bearbeiten | ja, nach einmaligem Laden über https | `sw.js`, vollständiger Versionsstand (seit 16.11., §4.1) |
 | Reisedaten | ja | `rp-trips` / `rp-u:<id>` in localStorage, Zweitkopie in IndexedDB (`rpstore.js`), Schutz gegen Überschreiben aus einer anderen Ansicht |
 | Änderungen mit Konto | ja, als „nur lokal gespeichert“ | Warteschlange in `app/speicher.js`, Abgleich bei `online` und alle 60 s, Konflikte sichtbar |
 | Fotos und Reisebuch | ja | Bilddateien nur in IndexedDB (`photostore.js`) |
@@ -81,9 +81,9 @@ Reisemappe und Reisebuch bleiben beim Druckdialog des Browsers (funktioniert off
 
 | Paket | Inhalt | Dateien | Status |
 |---|---|---|---|
-| O1 | Service Worker mit vollständigen Versionsständen, Build setzt Kennung und Liste ein | `sw.js`, `scripts/build.mjs`, Tests | in Arbeit |
-| O2 | Neueres Format ≠ beschädigt | `app/speicher.js` (`loadLocal`), `app/ansichten.js` (`storageRecoveryBlock`) | in Arbeit |
-| O3 | Offline-Hinweis, „Auf diesem Gerät“, dauerhafter Speicher | neue Datei `app/offline.js`, eine Zeile in `setSync` | geplant |
+| O1 | Service Worker mit vollständigen Versionsständen, Build setzt Kennung und Liste ein | `sw.js`, `scripts/build.mjs`, Tests | erledigt 16.11. |
+| O2 | Neueres Format ≠ beschädigt | `app/speicher.js` (`loadLocal`), `app/ansichten.js` (`storageRecoveryBlock`) | erledigt 16.11. |
+| O3 | Offline-Hinweis, „Auf diesem Gerät“, dauerhafter Speicher | neue Datei `app/offline.js`, eine Zeile in `setSync` | erledigt 16.11. |
 | O4 | „Für unterwegs bereit machen“ | `app/offline.js`, Mappe | geplant, nach Unterlagen-Thread |
 | O5 | PDF-Hinweise, Mappe-Fuß | `app/ansichten.js` (Mappe) | geplant |
 
