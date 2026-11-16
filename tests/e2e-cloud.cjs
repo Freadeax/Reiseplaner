@@ -147,8 +147,21 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     await waitSync(A.p, /Konflikt/);
     rows = (await aApi.from('trips').select('data').eq('id', tid)).data; assert.equal(rows[0].data.notes, 'Ben online', 'Server nicht still überschrieben');
     await A.p.goto(BASE + '#r-' + tid + '-notiz'); await A.p.waitForSelector('text=Gleichzeitige Bearbeitung');
-    await A.p.click('[data-acc="conf"][data-how="server"]'); await waitSync(A.p, /Online gespeichert/);
+    /* Drei-Wege-Abgleich (PLAN_GEMEINSAM §4): derselbe Punkt unterschiedlich → Wahl je Punkt; hier „online“ */
+    await A.p.waitForSelector('text=Bitte je Punkt wählen');
+    await A.p.check('[data-mc="v:notes"][value="theirs"]'); await A.p.click('[data-acc="conf-pick"]'); await waitSync(A.p, /Online gespeichert/);
     assert.equal(await A.p.inputValue('[data-f="notes"]'), 'Ben online');
+    /* Unabhängige Änderungen: Anna offline Titel, Ben online Notizen → beides online, kein Konflikt */
+    await A.ctx.setOffline(true);
+    await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('[data-acc="share"]');
+    await A.p.evaluate(id => { const a = window.__app, t = a.Store.get(id); t.title = t.title + ' (Anna)'; a.Store.put(t); }, tid);
+    await waitSync(A.p, /Offline/);
+    await B.p.goto(BASE + '#r-' + tid + '-notiz'); await B.p.fill('[data-f="notes"]', 'Ben ergänzt'); await B.p.press('[data-f="notes"]', 'Tab');
+    await waitSync(B.p, /Online gespeichert/);
+    await A.ctx.setOffline(false); await A.p.goto(BASE + '#konto'); await A.p.click('[data-acc="sync"]');
+    await waitSync(A.p, /Online gespeichert/);
+    rows = (await aApi.from('trips').select('data').eq('id', tid)).data;
+    assert(/ \(Anna\)$/.test(rows[0].data.title), 'Annas Änderung online'); assert.equal(rows[0].data.notes, 'Ben ergänzt', 'Bens Änderung erhalten');
 
     /* Entzug: Anna entfernt Ben → Ben verliert die Reise beim nächsten Abgleich */
     await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.click('[data-acc="share"]');
