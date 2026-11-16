@@ -184,6 +184,14 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Bedienung Schritt 5: Hinweise kurz, Einzelheiten auf Wunsch (Claude, 16.11. abends)
+
+- Neuer Helfer `mehrInfo(label, html)` (app/ansichten.js): ein kurzer Satz bleibt sichtbar, die Einzelheiten stehen in einer schlichten Aufklappzeile (`details.mehr-info`).
+- Unterkunftskarten: Die lange Preisherkunft steht unter „Woher kommt der Preis?“. Sichtbar bleiben Betrag, „Planwert“ oder „laut Abfrage“ und bei älteren oder unklaren Preisen der Hinweis „Preis älter oder unklar: beim Anbieter neu abfragen“.
+- Unterkunft, Pakete und „Auf euren Lieblingsseiten suchen“: Einleitung auf den Kernsatz gekürzt (keine Zusagen, keine Live-Preise, Übernehmen ersetzt den Tagesplan), Rest unter „Woher die Preise kommen“, „Was beim Übernehmen passiert“, „Was ihr beim Anbieter prüfen solltet“. Kein Hinweis entfernt.
+- Große Schrift: Auswahl-Chips (`.chipbtn`) brechen am schmalen Handy um („Mit Ski-/Snowboardkurs“ ragte bei 320 px und 200 % Schrift über den Rand).
+- Geprüft: `npm test` grün; gezielt 200 % Schrift bei 320 und 390 px auf zwölf Ansichten mit zu- und aufgeklappten Ebenen ohne Überlauf. Vollständiger Klicktest in GitHub Actions (Philipps Entscheidung 16.11.). Kein iPhone-/Safari-Test.
+
 ## Bedienung Schritt 4: Kosten ohne doppelte Bereichsliste (Claude, 16.11.)
 
 - `budgetSection` (app/zahlungsbuch.js): Die Tabelle „Je Bereich“ (Plan, Aktuell, Fest, Bezahlt) liegt in `fold('budget-bereiche')`. Sie startet zugeklappt, solange kein Bereich feste, bezahlte oder geänderte Beträge hat, weil sie dann nur die „Aufstellung“ darunter wiederholt; sonst startet sie offen. Zahlen unverändert aus budgetCheck. Handy 390 px, Beispielreise: 3129 px → 2762 px.
