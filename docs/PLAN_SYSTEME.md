@@ -22,7 +22,7 @@ und die Oberfläche danach in einem kleinen, abgestimmten Schritt folgt.
 | Fotos und Reisebuch | `app/format4.js`, `app/fotos.js`, `photostore.js`, `bookgen/bookedit/bookprint.js` | mittel-hoch | **seit 15.11. freigeschaltet**; Upload in die Cloud fehlt | P05 Storage-Bucket (Stufe E) |
 | Katalog/Register | `catalog.js`, `catalog-data.js`, Supabase `catalog_*` | mittel | keine Quellen/Prüfdatum je Feld, keine Register-Tabellen | M07.1 |
 | Externe Dienste | `app/reise.js` Ortssuche/Routing, `platform.js` | mittel | kein Proxy; Bedingungen von OSMF/FOSSGIS ungeprüft | Proxy-Entscheidung [offen] |
-| Varianten, Vorlagen, Kriterien | `app/varianten.js` `variantCopy`, Vorlagen in `kosten.js` | mittel | Vergleich und Obergrenze getrennt vom Wunschbudget fehlen | M05.2 + M10 nach Format 5 |
+| Varianten, Vorlagen, Kriterien | `app/varianten.js` `variantCopy`, Vorlagen in `kosten.js`, Reisestil `app/reisestil.js` (REISESTIL.md) | mittel | Vergleich und Obergrenze getrennt vom Wunschbudget fehlen | M05.2 + M10 nach Format 5 |
 
 ## 2 · Kosten
 

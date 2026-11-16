@@ -37,6 +37,8 @@ function aufbauMerken(tid,tab){if(tid&&tab)aufbauZuletzt[tid+':'+aufbauBereich(t
 function aufbauZiel(t,key){
  const b=BEREICHE.find(x=>x.key===key)||BEREICHE[0],last=t&&aufbauZuletzt[t.id+':'+b.key];
  if(last&&b.parts.includes(last))return last;
+ /* Reisestil (app/reisestil.js): eigener Startteil, z. B. Städtetrip öffnet das Programm bei den Ideen */
+ const stil=t&&typeof stilStart==='function'?stilStart(t,b.key):'';if(stil&&b.parts.includes(stil))return stil;
  /* Programm: ohne eingeplante Termine erst Ideen sammeln, sonst direkt in den Tagesplan */
  if(b.key==='programm')return t&&(t.items||[]).length?'plan':'unternehmen';
  return b.parts[0];
@@ -54,13 +56,15 @@ function aufbauStand(t,key){
 
 /* Teilleiste oben im Bereich. Nur bei mehreren Teilen; jeder Teil bleibt ein normaler Link (#r-<id>-<teil>). */
 function aufbauTeile(t,tab){
- const b=aufbauBereich(tab);if(!t||b.parts.length<2)return '';
- return '<nav class="seg-bar noprint" aria-label="Teile von '+aufbauEsc(b.label)+'">'+b.parts.map(p=>'<button type="button" class="seg" data-go="r-'+aufbauEsc(t.id)+'-'+p+'" data-seg="'+p+'"'+(p===tab?' aria-current="page"':'')+'>'+aufbauEsc(aufbauTeilName(p))+'</button>').join('')+'</nav>';
+ const b=aufbauBereich(tab),parts=t&&typeof stilTeile==='function'?stilTeile(t,b.parts,tab):b.parts;if(!t||parts.length<2)return '';
+ return '<nav class="seg-bar noprint" aria-label="Teile von '+aufbauEsc(aufbauName(t,b))+'">'+parts.map(p=>'<button type="button" class="seg" data-go="r-'+aufbauEsc(t.id)+'-'+p+'" data-seg="'+p+'"'+(p===tab?' aria-current="page"':'')+'>'+aufbauEsc(aufbauTeilName(p))+'</button>').join('')+'</nav>';
 }
+/* Name eines Bereichs, angepasst an den Reisestil (z. B. Tagesausflug: „Ziel & Anreise“) */
+function aufbauName(t,b){return t&&typeof stilBereichName==='function'?stilBereichName(t,b.key,b.label):b.label}
 /* Bereichsleiste am Desktop: fünf Einträge, der aktive Bereich ist markiert. */
 function aufbauLeiste(t,tab){
  return '<div class="tab-links">'+BEREICHE.map(b=>{const n=aufbauStand(t,b.key),on=b.parts.includes(tab);
-  return '<button type="button" class="tab" data-go="r-'+aufbauEsc(t.id)+'-'+(on?tab:aufbauZiel(t,b.key))+'" data-bereich="'+b.key+'" data-sub-parts="'+b.parts.join(' ')+'"'+(on?' aria-current="page"':'')+'>'+aufbauEsc(b.label)+(n&&b.key!=='ziel'?'<span class="n">'+aufbauEsc(n)+'</span>':'')+'</button>'}).join('')+'</div>';
+  return '<button type="button" class="tab" data-go="r-'+aufbauEsc(t.id)+'-'+(on?tab:aufbauZiel(t,b.key))+'" data-bereich="'+b.key+'" data-sub-parts="'+b.parts.join(' ')+'"'+(on?' aria-current="page"':'')+'>'+aufbauEsc(aufbauName(t,b))+(n&&b.key!=='ziel'?'<span class="n">'+aufbauEsc(n)+'</span>':'')+'</button>'}).join('')+'</div>';
 }
 
 /* ---------- Überblick: eine Liste „Als Nächstes“ (KONZEPT §6, Paket A2) ----------
@@ -85,6 +89,8 @@ function naechstes(t,now){
  aufbauFristen(t,now).forEach(f=>add({id:f.id,level:f.state==='overdue'?'warn':f.state==='due'&&f.days!=null&&f.days<=7?'soon':'info',rank:f.state==='overdue'?0:f.state==='due'?(f.days<=14?25:70):60,title:f.title,reason:f.reason,tab:f.tab,action:'',value:'',label:'Ansehen',check:f.check,kind:f.kind}));
  const steps=typeof planningNextSteps==='function'?planningNextSteps(t):[];
  steps.forEach(s=>add({id:'schritt:'+s.id,step:s.id,level:s.priority<20?'warn':'info',rank:s.priority<20?10:30+s.priority/10,title:s.title,reason:s.reason,tab:s.tab,action:s.action,value:s.value,label:s.label||'Ansehen'}));
+ /* Hinweise passend zum Reisestil (app/reisestil.js) */
+ (typeof stilSchritte==='function'?stilSchritte(t,now):[]).forEach(s=>add(s));
  const hasStay=steps.some(s=>s.id==='stay');
  (typeof checks==='function'?checks(t):[]).forEach((c,i)=>{
   if(c[0]==='ok')return;if(hasStay&&/^Noch keine Unterkunft/.test(c[1]))return;

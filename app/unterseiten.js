@@ -95,7 +95,7 @@ function subCount(t,key){return typeof aufbauStand==='function'?aufbauStand(t,ke
 /* Bereiche der Reise aus BEREICHE (app/aufbau.js): je Bereich eine Zeile, Ziel ist der passende Teil, Stand in Worten. */
 function subAreas(t){
  if(typeof BEREICHE==='undefined')return subGroups().map(([group,keys])=>({group,items:keys.filter(k=>subTabLabel(k)).map(key=>({key,label:subTabLabel(key),hint:'',count:'',parts:[key],route:subRoute(t.id,key)}))}));
- return [{group:'',items:BEREICHE.map(b=>({key:b.key,label:b.label,hint:b.hint,count:subCount(t,b.key),parts:b.parts.slice(),route:subRoute(t.id,aufbauZiel(t,b.key))}))}];
+ return [{group:'',items:BEREICHE.map(b=>({key:b.key,label:typeof aufbauName==='function'?aufbauName(t,b):b.label,hint:b.hint,count:subCount(t,b.key),parts:b.parts.slice(),route:subRoute(t.id,aufbauZiel(t,b.key))}))}];
 }
 function subListHtml(t){
  return '<nav class="sub-areas noprint" aria-label="Bereiche dieser Reise">'+subAreas(t).map((g,i)=>'<section class="block sub-group">'+(g.group?'<h2 class="sub-group-title" id="sub-g'+i+'">'+subEsc(g.group)+'</h2><ul class="sub-list" aria-labelledby="sub-g'+i+'">':'<ul class="sub-list" aria-label="Bereiche">')+

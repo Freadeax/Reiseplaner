@@ -110,6 +110,20 @@ Thread „Ist-Ausgaben im Budget erfassen“ (Philipps Liste vom 16.11., Punkt B
 Tests (16.11., Cloud-Container): `npm test` (neu `istvergleich`, 95 Prüfungen), `test:browser`, `build`, `check:artifact` grün. Darstellung in Chromium bei 390 px hell/dunkel angesehen (kein seitliches Scrollen). Nicht getestet: iPhone, Safari.
 
 Nächster Schritt: in der Schnellerfassung „Das war ein geplanter Posten“ (schreibt `ledger[key].paid`, gegen Doppelzählung bei vor Ort bezahlten Unternehmungen), danach Verknüpfung als Format-5-Feld abstimmen.
+## Reisestil: der Planer passt sich an die Art der Reise an (Claude, 16.11.)
+
+Thread „Planer an Reisestil anpassen“ (Auftrag Philipp 16.11.). Konzept `docs/REISESTIL.md`. Kein neues Speicherfeld, keine Berechnung geändert: der Stil ist das vorhandene Feld `t.type`.
+- **Neuer Teil `app/reisestil.js`** (App jetzt 31 Teile, geladen nach `kosten.js` und `packliste.js`): acht Stile (Tagesausflug, Wochenende, Städtetrip, **Wellness-Auszeit** neu, **Rundreise & Roadtrip**, Bade- & Sommerurlaub, Winter, **Familienurlaub** neu) mit Satz, Tempo-Vorgabe (ruhig für Wellness und Familie, sonst ausgewogen; „aktiv“ nur als eigene Wahl über `t.pace`), Bereichsnamen, leisen Teilen und Startteil.
+- **Leise Teile statt starrer Vorgaben:** Tagesausflug ohne „Angebote vergleichen“, „Pakete“ nur mit Paket-Katalog. Ein Teil mit Inhalt oder der gerade geöffnete Teil bleibt immer sichtbar; alle Adressen bleiben gültig; im Überblick (aufklappbar „Reisestil“) mit Link und dem Schalter „Immer alle Teile zeigen“ (je Browser, `rp-stil`).
+- **Bereichsnamen:** Tagesausflug „Ziel & Anreise“, Rundreise „Route & Unterkünfte“. Städtetrip öffnet „Programm“ bei den Ideen.
+- **Als Nächstes** bekommt Stil-Hinweise: Rundreise ohne Etappen, Etappen-Nächte ≠ Reisedauer (Wichtig), Etappe über 5 Std.; Tagesausflug mit über 4 Std. Fahrt; Familie: Pausen, Regenidee, Ermäßigungen prüfen; Wellness: Spa-Termine anfragen; Städtetrip: Parken, Nahverkehrsticket.
+- **Eckdaten / Neue Reise:** unter „Art“ ein Satz, wie sich der Planer einrichtet. **Vorlagen:** Wellness legt `wellness` an, neue Vorlage „Familienurlaub“. **Entdecken:** Profil „Mit Kindern“ mit Übernachtung → Familienurlaub, Therme bei 1–3 Nächten → Wellness.
+- Schnittstelle `styleOf(t)` → `{key,label,pace,paceSrc}`; der Thread „Fixpunkte und Pufferzeiten“ liest `pace`. `t.pace` (Format-5-Vorschlag) hat Vorrang, sobald es geschrieben werden kann.
+- Einbindungen: je ein abgesicherter Aufruf in `app/aufbau.js` (Startteil, Teilleiste, Bereichsname, Als Nächstes), `app/unterseiten.js` (Bereichsname), `app/ansichten.js` (Eckdaten, Überblick), `app/entdecken.js` (Stil beim Anlegen); `index.html` (der Service Worker übernimmt die Dateiliste seit dem Offline-Paket aus `index.html`). Ältere App-Stände zeigen die neuen Stile als „Reise“ und behalten den Wert.
+
+Tests (16.11., Cloud-Container): `npm test` (neu `reisestil`, Stil/Tempo, leise Teile, Startteil, Hinweise, Vorlagen, Entdecken, Kosten unabhängig vom Stil; `module` kennt die neuen Typen), `test:browser` grün; Neue Reise und Überblick in Chromium bei 390 px angesehen. Nicht getestet: iPhone, Safari.
+
+Nächster Schritt: Packlisten je Stil (Thread „Check- und Packlisten“), `origin_tpl` mit Format 5, Rückmeldung Philipp zu den acht Stilen (REISESTIL §6).
 
 ## Format 5 in der App lesen (Lese-Release, Claude, 16.11.)
 

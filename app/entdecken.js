@@ -394,7 +394,7 @@ function catCreate(){
   if(!s.origin||x.roadKm==null){alertMsg('Bitte zuerst einen Abfahrtsort wählen.');return}
   const p=x.place,nights=Math.max(0,Math.min(30,Math.round(num($('#cat-n').value,0)))),persons=Math.max(1,Math.min(20,Math.round(num($('#cat-p').value,2))));
   const picked=catPicked();
-  const t=newTrip({title:p.name,type:catTripType(p,nights,s.month),nights,persons,budget:0,origin:s.origin.label,originGeo:{lat:s.origin.lat,lon:s.origin.lon},dest:p.name+(p.region?', '+p.region:''),travel:'auto',km:x.roadKm,kmSrc:'schaetzung',
+  const t=newTrip({title:p.name,type:(typeof stilAusProfil==='function'&&stilAusProfil(catProfile(),nights))||catTripType(p,nights,s.month),nights,persons,budget:0,origin:s.origin.label,originGeo:{lat:s.origin.lat,lon:s.origin.lon},dest:p.name+(p.region?', '+p.region:''),travel:'auto',km:x.roadKm,kmSrc:'schaetzung',
     destGeo:{lat:p.lat,lon:p.lon,place:p.id,v:x.version},
     notes:'Aus dem Umkreis-Katalog (Version '+x.version+', '+(x.source==='db'?'Datenbank':'Offline-Kopie')+'). '+p.summary+(p.angle?'\nIdee: '+p.angle:'')+'\nFahrstrecke '+x.roadKm+' km ist eine Schätzung; Preise und Öffnungszeiten vor Ort prüfen.'});
   if(s.month){t.dateMode='flex';t.month=catNextMonth(s.month)}
