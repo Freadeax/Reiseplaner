@@ -8,7 +8,11 @@
    * Konto: Schlüssel rp-u:<Benutzer-ID> mit {trips, meta, queue} als Offline-Cache. meta hält die zuletzt
      bestätigte Serverversion und Rolle, queue die noch nicht bestätigten Änderungen und Löschungen.
    Beim Wechsel des Bereichs wird der Arbeitsspeicher geleert, damit nie Daten eines anderen Kontos sichtbar bleiben. */
-const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
+/* Höchstes Reiseformat im gespeicherten Text, falls es über dem liegt, was diese App lesen kann (sonst 0).
+   Dann stammen die Daten aus einer neueren App-Version (z. B. offline läuft noch ein älterer Stand) und sind nicht beschädigt. */
+function newerSchema(raw){try{const s=JSON.parse(raw);const trips=s&&typeof s==='object'?(s.v===1&&s.trips&&typeof s.trips==='object'?s.trips:s):{};let max=0;
+  Object.values(trips).forEach(t=>{const v=t&&typeof t==='object'?Number(t.schemaVersion):NaN;if(Number.isFinite(v)&&v>SCHEMA_MAX&&v>max)max=v});return max}catch(e){return 0}}
+const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,newerFormat:0,
   /* Zweitkopie in IndexedDB über rpstore.js (P0.4). localStorage bleibt Commit-Punkt: jeder Stand wird wie bisher
      synchron dorthin geschrieben und erst danach nach IndexedDB durchgeschrieben; Strategie und Abgleichsregeln im Kopf
      von rpstore.js. backend: null = ohne RPStore (Node-Tests, Datei fehlt; Verhalten wie bisher), 'laden' bis zum
@@ -28,8 +32,8 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
   loadLocal(){
     let raw;
     try{raw=localStorage.getItem(this.key());const s=this.parse(raw,this.scope==='guest');this.trips=s.trips;if(this.isAccount()){this.meta=s.meta;this.queue=s.queue}
-      this.lastRaw=raw;this.startRaw=raw;this.corruptRaw=null;this.localError=false}
-    catch(e){this.trips={};this.meta={};this.queue={};this.localError=true;this.startRaw=raw;if(raw!=null)this.corruptRaw=raw;setSync('storage-error')}
+      this.lastRaw=raw;this.startRaw=raw;this.corruptRaw=null;this.newerFormat=0;this.localError=false}
+    catch(e){this.trips={};this.meta={};this.queue={};this.localError=true;this.startRaw=raw;if(raw!=null)this.corruptRaw=raw;this.newerFormat=newerSchema(raw);setSync('storage-error')}
     /* Sicherungspunkte beim Laden: nur dieser Stand entscheidet, ob die Kopie zurückgeholt wird (Review R2) */
     try{this.startHist=localStorage.getItem(this.historyKey())}catch(e){this.startHist=undefined}
   },
@@ -47,7 +51,8 @@ const Store={scope:'guest',trips:{},meta:{},queue:{},corruptRaw:null,
     const seen=new Set(a.map(x=>x&&x.raw)),all=a.concat(b.filter(x=>x&&typeof x.raw==='string'&&!seen.has(x.raw))).sort((x,y)=>String(y&&y.at||'').localeCompare(String(x&&x.at||'')));
     const hr=JSON.stringify(all.slice(0,5));localStorage.setItem(k,hr);this.mirror(k,hr)}catch(e){this.historyError=true}},
   resetCorrupt(){
-    if(this.corruptRaw===null)return false;
+    /* Neueres Format ist kein Schaden (docs/OFFLINE.md §4.2): nie zurücksetzen, eine aktuelle App liest die Daten */
+    if(this.corruptRaw===null||this.newerFormat)return false;
     try{const dropped=this.corruptRaw;localStorage.removeItem(this.key());this.corruptRaw=null;this.trips={};this.meta={};this.queue={};this.lastRaw=null;this.startRaw=null;this.idbBackup=null;this.localError=false;setSync('local');
       /* beschädigter Text verschwindet auch aus der Kopie; eine lesbare ältere Kopie wird danach wiederhergestellt */
       this.syncBackend({drop:dropped});return true}
@@ -361,8 +366,8 @@ function setSync(s){
   const el=$('#sync');if(!el)return;
   let txt,on=false;
   if(s==='conflict')txt='Neuere Daten in anderer Ansicht – Änderungen sichern und neu laden';
-  else if(s==='storage-error')txt='Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen';
-  else if(!Store.isAccount())txt=Sync.cloud()?'Gast · nur in diesem Browser':'Nur in diesem Browser';
+  else if(s==='storage-error')txt=Store.newerFormat?'Reisen aus neuerer App-Version – bitte App aktualisieren':'Nicht dauerhaft gespeichert – Browser-Speicher fehlgeschlagen';
+  else if(!Store.isAccount())txt=(typeof navigator!=='undefined'&&navigator.onLine===false?'Offline · ':'')+(Sync.cloud()?'Gast · nur in diesem Browser':'Nur in diesem Browser');
   else{const n=Store.pending(),k=Object.values(Store.meta).filter(m=>m.conflict||m.lost||m.unreadable).length;
     if(k)txt='Konflikt bei '+k+(k===1?' Reise':' Reisen')+' – bitte prüfen';
     else if(Sync.state==='error')txt='Speicherfehler online: '+Sync.error+(n?' · '+n+' lokal gespeichert':'');

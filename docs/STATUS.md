@@ -43,6 +43,17 @@ Tests (16.11., Cloud-Container, auf Stand `bf10518` mit den parallelen Modulen v
 Nächster Schritt: Philipp prüft im Tagesplan einen Tag mit Katalog-Ideen und „Wege berechnen“. Danach mit `F5_WRITE` die Tagesroute auf Wunsch speichern und „kürzere Reihenfolge vorschlagen“ (nur Vorschlag, Uhrzeiten und Buchungen fest).
 
 
+## Offline: vollständige App-Stände, neueres Format, „Auf diesem Gerät“ (Claude, 16.11.)
+
+Thread „Planer offline nutzbar machen“ (Auftrag Philipp 16.11.). Konzept, Risiken und nächste Pakete: `docs/OFFLINE.md`.
+- **Service Worker (O1):** `sw.js` liest seine Dateiliste bei der Installation aus `index.html` (genau die eingebundenen Dateien mit `?v=`) plus Symbole, Manifest und Katalog-Offline-Kopie, lädt alles mit `cache:'reload'` und speichert erst, wenn alles da ist. Scheitert eine Datei, bleibt der vorige vollständige Stand aktiv; es gibt keinen Mischstand aus alten und neuen Teilen mehr. Netzantworten überschreiben den Stand nicht. Seite: Netz mit 4 s Zeitlimit, sonst der gespeicherte Stand. Katalogkacheln, die online geladen wurden, bleiben offline nutzbar.
+- **Keine Handnummern mehr:** `scripts/build.mjs` setzt `STAND` in `public/sw.js` als Hash über alle ausgelieferten Dateien. Neue Dateien in `index.html` müssen nicht mehr in `sw.js` eingetragen werden, der Cache-Name muss nicht mehr hochgezählt werden (ersetzt `reiseplaner-v31`).
+- **Neueres Format ist kein Schaden (O2):** Liest eine ältere App-Version eine Reise mit höherem Format aus dem Browser-Speicher, sperrt sie Änderungen und zeigt „Reisen aus einer neueren Version“ mit „App aktualisieren“. „Speicher zurücksetzen“ wird dann nicht angeboten und `resetCorrupt` verweigert. Echte Beschädigung wie bisher.
+- **Offline sichtbar (O3, neue Datei `app/offline.js`):** Kopfzeile „Offline · …“ auch ohne Konto; Konto-Seite mit Abschnitt „Auf diesem Gerät“: ohne Internet startbar (App-Stand vom …), dauerhaft gespeichert (mit Knopf „Dauerhaft speichern anfragen“), Reisen und ausstehende Änderungen, Belegung, Hinweis „Zum Home-Bildschirm“ am iPhone, Liste der Funktionen, die Netz brauchen.
+
+Tests (16.11., Cloud-Container): `npm test` (neu `offline` mit nachgebildetem fetch/caches, `neueres-format`), `test:browser` (Offline-Start in der Entwicklungsfassung), neu `test:offline-browser` auf der gebauten Website in Chromium (Offline-Start, Reise offline anlegen, gescheiterte Installation ohne Mischstand, Versionswechsel, langsames Netz nach ca. 4 s, „Auf diesem Gerät“), `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari (Home-Bildschirm, 7-Tage-Regel, Druck als PDF).
+
+Nächster Schritt: O4 „Für unterwegs bereit machen“ je Reise (mit dem Unterlagen-Thread), O5 PDF-Hinweise in der Reisemappe.
 ## Fixpunkte, Puffer und Realismus im Tagesplan (Claude, 16.11.)
 
 Thread „Fixpunkte und Pufferzeiten einplanen“ (Philipps Punktliste 16.11.). Konzept `docs/FIXPUNKTE_PUFFER.md`. Neuer Teil `app/fixpunkte.js` (nach `app/tagesplan.js`), reine Ableitung, **kein neues Speicherfeld**.

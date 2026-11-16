@@ -10,7 +10,7 @@ assert(html.includes('<script src="app/navigation.js"></script>'), 'navigation.j
 assert(html.indexOf('app/navigation.js') > html.indexOf('app/tagebuch.js') && html.indexOf('app/navigation.js') < html.indexOf('app/start.js'), 'Ladereihenfolge');
 assert(/<nav class="app-nav" id="app-nav" aria-label="Hauptnavigation">/.test(html), 'eine Hauptnavigation mit Namen');
 assert.equal((html.match(/data-act="appearance-open"/g) || []).length, 0, 'Darstellung nicht mehr im Kopf, nur in der Kontoansicht (pakete/aufbau)');
-assert(fs.readFileSync(__dirname + '/../sw.js', 'utf8').includes("'navigation'"), 'Service Worker kennt navigation.js');
+assert(fs.readFileSync(__dirname + '/../index.html', 'utf8').includes('app/navigation.js'), 'index.html bindet navigation.js ein (Service Worker liest die Liste daraus)');
 
 function load() {
   const code = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '')

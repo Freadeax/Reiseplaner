@@ -66,6 +66,19 @@ await fs.writeFile(path.join(out, 'config.js'),
   html = html.replace(/(<(?:script|link)\b[^>]*?\b(?:src|href)=")([^"#?:]+\.(?:js|css))"/g, (all, pre, f) => pre + f + '?v=' + hashes.get(f) + '"');
   await fs.writeFile(idx, html);
 }
+/* Service Worker (docs/OFFLINE.md §4.1): STAND = Hash über alle ausgelieferten Dateien. So ändert sich sw.js bei jeder
+   neuen Version, der Browser installiert einen vollständigen neuen Stand, und niemand zählt mehr Nummern von Hand hoch. */
+{
+  const swPath = path.join(out, 'sw.js');
+  const sw = await fs.readFile(swPath, 'utf8');
+  if (!/^const STAND = 'dev';$/m.test(sw)) fail("sw.js: Zeile const STAND = 'dev'; fehlt.");
+  const all = (await fs.readdir(out, { recursive: true, withFileTypes: true })).filter(d => d.isFile()).map(d => path.relative(out, path.join(d.parentPath || d.path, d.name))).filter(f => f !== 'sw.js').sort();
+  const h = createHash('sha256');
+  for (const f of all) { h.update(f + '\0'); h.update(await fs.readFile(path.join(out, f))); }
+  const stand = h.digest('hex').slice(0, 12);
+  await fs.writeFile(swPath, sw.replace(/^const STAND = 'dev';$/m, 'const STAND = ' + JSON.stringify(stand) + ';'));
+  console.log('Service Worker: Stand ' + stand);
+}
 /* GitHub Pages: keine Jekyll-Verarbeitung. Unbekannte Pfade zurück zur App (Hash-Routing). */
 await fs.writeFile(path.join(out, '.nojekyll'), '');
 await fs.writeFile(path.join(out, '404.html'),

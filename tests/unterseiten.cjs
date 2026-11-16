@@ -199,7 +199,7 @@ if (!html.includes('<script src="app/unterseiten.js"></script>')) {
   process.exit(0);
 }
 assert(html.indexOf('app/unterseiten.js') > html.indexOf('app/routing.js') && html.indexOf('app/unterseiten.js') < html.indexOf('app/ansichten.js'), 'Ladereihenfolge: nach routing.js, vor ansichten.js');
-assert(read('sw.js').includes("'unterseiten'"), 'Service Worker kennt unterseiten.js');
+assert(read('index.html').includes('app/unterseiten.js'), 'index.html bindet unterseiten.js ein (Service Worker liest die Liste daraus)');
 
 function loadApp(mobile) {
   const J = require('../v3journal.js');
