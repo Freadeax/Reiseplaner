@@ -1076,3 +1076,6 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
  html[data-layout=book] .app-nav{animation:rp-dock-in .5s ease backwards}
 }
 @media print{.rp-konfetti{display:none!important}}
+.gm-here{display:flex;gap:6px;align-items:center;margin:4px 0 10px}
+.gm-here span{color:var(--ok,#2e7d4f)}
+.gm-ask{margin:8px 0 12px}

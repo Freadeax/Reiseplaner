@@ -165,12 +165,16 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
 
     /* Gemeinsam planen G2–G5 (app/gemeinsam.js): Anzeigename, Ideen-Pinnwand, Stimmen, Status, Echtzeit, Änderungshinweis */
     await B.p.goto(BASE + '#r-' + tid + '-ueber'); await B.p.waitForSelector('text=Ideen von allen'); await B.p.waitForSelector('[data-gm-form="idea"]');
-    await B.p.click('[data-gm="name-edit"]'); await B.p.fill('#gm-name', 'Ben'); await B.p.click('[data-gm="name-save"]');
+    await B.p.waitForSelector('.gm-ask >> text=Wie sollen dich die anderen sehen?');
+    await B.p.fill('#gm-name', 'Ben'); await B.p.click('[data-gm="name-save"]');
     await B.p.waitForSelector('.gm-name >> text=Ben');
     await B.p.fill('#gm-body', 'Rodeln am Abend'); await B.p.click('[data-gm-form="idea"] button[type="submit"]');
     await B.p.waitForSelector('.gm-idea >> text=Rodeln am Abend');
     await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('.gm-idea >> text=Rodeln am Abend');
     assert((await A.p.textContent('.gm-idea')).includes('von Ben'), 'Anzeigename statt E-Mail');
+    /* Anwesenheit: beide sind in der Reise, jede Seite zeigt die andere Person */
+    await A.p.waitForSelector('.gm-here >> text=Ben', { timeout: 20000 });
+    await B.p.waitForSelector('.gm-here >> text=Mitglied', { timeout: 20000 });
     assert(/Seit deinem letzten Besuch/.test(await A.p.textContent('#view')), 'Änderungshinweis zu Bens Notizen');
     await A.p.click('[data-gm="seen"]'); await A.p.waitForFunction(() => !document.querySelector('.gm-changes'));
     await A.p.click('.gm-idea [data-gm="vote"]'); await A.p.waitForSelector('.gm-idea [data-gm="vote"][aria-pressed="true"]');

@@ -3,7 +3,7 @@
    Nur für online gespeicherte Reisen eines angemeldeten Kontos. Ideen ändern den Plan nie selbst; Realtime-Ereignisse lösen nur
    den normalen Abgleich bzw. ein Neuladen der Pinnwand aus, sie sind nie Datenquelle. */
 
-const GM={trips:{},profile:undefined,profileFor:null,stopWatch:null,watchFor:null,editName:false,timer:null};
+const GM={trips:{},profile:undefined,profileFor:null,stopWatch:null,watchFor:null,editName:false,timer:null,live:false,presFor:null,stopPres:null,here:[],lastPoll:0};
 const GM_AREA={eckdaten:'Eckdaten',zeitraum:'Zeitraum',unterkunft:'Unterkunft',anreise:'Anreise',tagesplan:'Tagesplan',kosten:'Kosten',vorbereitung:'Vorbereitung',mitreisende:'Mitreisende',erinnerungen:'Erinnerungen',notizen:'Notizen',sonstiges:'Sonstiges',geloescht:'Reise gelöscht',wiederhergestellt:'Reise wiederhergestellt'};
 const GM_STATUS={neu:'neu',eingeplant:'eingeplant',verworfen:'verworfen'};
 
@@ -17,15 +17,34 @@ function gmEnsureWatch(){
   if(!c||!c.watch){if(GM.stopWatch){GM.stopWatch();GM.stopWatch=null;GM.watchFor=null}return}
   if(GM.watchFor===me)return;
   if(GM.stopWatch)GM.stopWatch();
-  GM.watchFor=me;
+  GM.watchFor=me;GM.live=false;
   GM.stopWatch=c.watch(ev=>{
     if(ev.table==='trips'){Sync.schedule(300);if(ev.trip&&GM.trips[ev.trip])GM.trips[ev.trip].changesAt=0;return}
     const tid=ev.trip||Object.keys(GM.trips).find(k=>GM.trips[k].list&&GM.trips[k].list.some(i=>i.id===ev.id));
     if(tid&&GM.trips[tid]){GM.trips[tid].at=0;if(UI.view==='reise'&&UI.tid===tid)gmLoad(tid)}
     else if(UI.view==='reise'&&UI.tid&&GM.trips[UI.tid]){GM.trips[UI.tid].at=0;gmLoad(UI.tid)}
-  });
+  },st=>{GM.live=st==='SUBSCRIBED'});
 }
-if(typeof setInterval==='function'&&typeof window!=='undefined')GM.timer=setInterval(()=>{try{gmEnsureWatch()}catch(e){}},10000);
+/* Anwesenheit: nur solange die Reise offen ist. Wechsel oder Verlassen beendet den Kanal. */
+function gmPresence(t){
+  const c=gmCloud(),want=t&&gmOnline(t)&&c&&c.presence?t.id:null;
+  if(GM.presFor===want)return;
+  if(GM.stopPres){GM.stopPres();GM.stopPres=null}
+  GM.presFor=want;GM.here=[];
+  if(!want)return;
+  GM.stopPres=c.presence(want,gmMe(),GM.profile||'',list=>{const before=JSON.stringify(GM.here);GM.here=list;
+    if(JSON.stringify(list)!==before&&typeof remoteChanged==='function'&&UI.view==='reise'&&UI.tid===want)remoteChanged()});
+}
+/* Takt: Echtzeit prüfen; ohne Verbindung bei offener geteilter Reise alle 15 s abgleichen (Rückfall, sonst 60 s). */
+function gmTick(){
+  gmEnsureWatch();
+  const t=UI.view==='reise'&&typeof cur==='function'?cur():null;
+  gmPresence(t);
+  if(t&&gmOnline(t)&&!GM.live&&(typeof document==='undefined'||document.visibilityState!=='hidden')&&Date.now()-GM.lastPoll>=15000){
+    GM.lastPoll=Date.now();Sync.schedule(0);if(GM.trips[t.id])GM.trips[t.id].at=0;gmLoad(t.id);
+  }
+}
+if(typeof setInterval==='function'&&typeof window!=='undefined')GM.timer=setInterval(()=>{try{gmTick()}catch(e){}},5000);
 
 async function gmLoad(tid){
   const c=gmCloud();if(!c)return;
@@ -88,17 +107,21 @@ function gemeinsamBlock(t){
   const open=s.list.filter(i=>i.status==='neu'),done=s.list.filter(i=>i.status!=='neu');
   const score=i=>(s.votes||[]).filter(v=>v.idea_id===i.id).length;
   open.sort((a,b)=>score(b)-score(a)||String(a.created_at).localeCompare(String(b.created_at)));
-  const name=GM.profile;
-  return gmChanges(t,s)+head+
+  const name=GM.profile,me=gmMe();
+  gmPresence(t);
+  const others=GM.here.filter(h=>h.user_id!==me).map(h=>{const m=(s.members||[]).find(x=>x.user_id===h.user_id);return (m&&m.display_name)||h.name||gmName(s,h.user_id)});
+  const here=others.length?'<p class="gm-here small" role="status"><span aria-hidden="true">●</span> Gerade in der Reise: <b>'+esc(others.join(', '))+'</b></p>':'';
+  const ask=!name&&!GM.editName&&(s.members||[]).length>1?'<div class="note gm-ask"><b>Wie sollen dich die anderen sehen?</b><div class="row"><label class="fld" style="flex:1"><span>Anzeigename (freiwillig)</span><input id="gm-name" maxlength="40" autocomplete="nickname" placeholder="z. B. Anna"></label><button type="button" class="btn sm" data-gm="name-save">Speichern</button></div><p class="small muted">Ohne Namen sehen die anderen „Mitglied 2“ o. Ä. Deine E-Mail-Adresse sieht nur der Eigentümer.</p></div>':'';
+  return gmChanges(t,s)+head+here+ask+
     '<p class="small muted">Was wollt ihr unbedingt machen? Ideen ändern den Plan nicht, sie sammeln nur. Alle Mitglieder, auch mit Leserecht, können eintragen und mit 👍 abstimmen.</p>'+
     '<form class="form gm-form" data-gm-form="idea"><label class="fld"><span>Neue Idee</span><textarea id="gm-body" maxlength="500" rows="2" placeholder="z. B. Rodeln am Abend, Therme am Regentag"></textarea></label>'+
     '<label class="fld"><span>Link (optional, https)</span><input type="url" id="gm-link" maxlength="500" placeholder="https://…" inputmode="url"></label>'+
     '<button type="submit" class="btn sm">Idee eintragen</button></form>'+
     (open.length?'<ul class="plain gm-list">'+open.map(i=>gmIdea(t,s,i)).join('')+'</ul>':'<p class="small muted">Noch keine offenen Ideen.</p>')+
     (done.length?'<details><summary>Erledigt ('+done.length+')</summary><ul class="plain gm-list">'+done.map(i=>gmIdea(t,s,i)).join('')+'</ul></details>':'')+
-    '<p class="small gm-name">'+(GM.editName?
+    (ask?'':'<p class="small gm-name">'+(GM.editName?
       '<span class="row"><label class="fld" style="flex:1"><span>Dein Anzeigename</span><input id="gm-name" maxlength="40" value="'+esc(name||'')+'" autocomplete="nickname"></label><button type="button" class="btn sm" data-gm="name-save">Speichern</button><button type="button" class="btn ghost sm" data-gm="name-cancel">Abbrechen</button></span><span class="muted">Leer lassen, um keinen Namen zu zeigen. Die anderen sehen dann „Mitglied 2“ o. Ä.</span>':
-      'So sehen dich die anderen: <b>'+esc(name||'ohne Namen')+'</b> <button type="button" class="btn ghost sm" data-gm="name-edit">'+(name?'Ändern':'Namen festlegen')+'</button>')+'</p></section>';
+      'So sehen dich die anderen: <b>'+esc(name||'ohne Namen')+'</b> <button type="button" class="btn ghost sm" data-gm="name-edit">'+(name?'Ändern':'Namen festlegen')+'</button>')+'</p>')+'</section>';
 }
 
 async function gmAct(fn,tid,msg){
@@ -129,6 +152,6 @@ if(typeof document!=='undefined'&&document.addEventListener){
     if(act==='name-edit'){GM.editName=true;render();const x=$('#gm-name');if(x)x.focus();return}
     if(act==='name-cancel'){GM.editName=false;render();return}
     if(act==='name-save'){const v=($('#gm-name')&&$('#gm-name').value||'').trim();if(v.length>40){alertMsg('Höchstens 40 Zeichen.');return}
-      GM.editName=false;gmAct(async()=>{GM.profile=await c.setProfile(gmMe(),v);GM.profileFor=gmMe();Object.values(GM.trips).forEach(x=>x.at=0)},t.id,v?'Anzeigename gespeichert.':'Anzeigename entfernt.');return}
+      GM.editName=false;gmAct(async()=>{GM.profile=await c.setProfile(gmMe(),v);GM.profileFor=gmMe();GM.presFor='neu';Object.values(GM.trips).forEach(x=>x.at=0)},t.id,v?'Anzeigename gespeichert.':'Anzeigename entfernt.');return}
   });
 }

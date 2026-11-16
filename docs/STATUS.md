@@ -1,6 +1,14 @@
 # Projektstand · 16.11.2026
 
 
+## Gemeinsam planen: Anwesenheit, Rückfall-Takt, Namensfrage (Claude, 16.11. abends)
+
+Ohne Datenbankänderung (nutzt die Kanalregeln der Migration `20261116120000`). `app/gemeinsam.js`, `cloud.js` (`presence`, `watch` meldet Verbindungsstatus), `app.css` (3 Regeln).
+- **Gerade in der Reise:** privater Kanal `trip:<id>` nur für Mitglieder, solange die Reise offen ist; zeigt die anderen mit Anzeigename (sonst „Mitglied n“). Übertragen werden nur Name und Zeitpunkt.
+- **Rückfall-Takt:** Ist Echtzeit nicht verbunden, gleicht eine offene geteilte Reise alle 15 s ab (sonst 60 s) und lädt die Pinnwand neu.
+- **Namensfrage:** Ohne Anzeigenamen fragt die Pinnwand in geteilten Reisen direkt „Wie sollen dich die anderen sehen?“ (z. B. gleich nach Annahme einer Einladung), freiwillig.
+
+Tests (16.11., Cloud-Container, lokaler Supabase, auf Stand `a1d5dc2`): `test:e2e` (zweimal; neu: Namensfrage, Anwesenheit in beide Richtungen), `npm test`, `test:browser` grün; Pinnwand im neuen Stil „Reisetagebuch“ bei 390 px angesehen. Nicht getestet: iPhone, Safari, Produktion.
 ## Fixpunkte und Puffer, Runde 2: Tempo, Aufbruch spätestens, Blatt (Claude, 16.11. abends)
 
 Auftrag Philipp 16.11. abends („Threads komplett weiterentwickeln“). Aufbauend auf der Neugestaltung „Reisetagebuch“, nur `app/fixpunkte.js` plus abgesicherte Einhängezeilen.

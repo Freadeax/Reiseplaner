@@ -132,3 +132,10 @@ weg, Ideen und Verlauf bleiben anonym. `supabase/config.toml`: Realtime lokal ei
 2. ~~Leser: Ideen und Stimmen~~ ja (Philipp 16.11.).
 3. Anzeigename freiwillig (Entscheidung 7)? Vorschlag: ja.
 4. Verlauf 90 Tage aufbewahren? Vorschlag: ja.
+
+## 11 · Stand 16.11. abends und nächste Schritte
+
+Umgesetzt: G1–G5 vollständig, aus G2 auch Anwesenheit („Gerade in der Reise“) und Rückfall-Takt 15 s.
+Offen (brauchen je eine Migration und Philipps Freigabe): **G6** `party[i].member` über `claim_party` („Ich bin Mitreisende/r X“,
+damit „meine Ausgaben/Aufgaben“ funktionieren), **G7** Abstimmungen mit mehreren Optionen und Kommentare an Tag/Unternehmung.
+Ebenfalls offen: Prüfung auf iPhone/Safari mit zwei echten Konten.

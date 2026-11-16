@@ -201,7 +201,20 @@
     changes: async function (tripId) { return unwrap(await need().rpc('trip_changes_since', { p_trip: tripId }), 'Änderungen nicht geladen'); },
     markSeen: async function (tripId, version) { unwrap(await need().rpc('mark_trip_seen', { p_trip: tripId, p_version: version }), 'Nicht gespeichert'); },
     /* Realtime nur als Auslöser: cb({table, id, trip}) – Daten kommen weiter über die normalen Abfragen. */
-    watch: function (cb) {
+    /* Anwesenheit auf dem privaten Kanal trip:<id> (RLS auf realtime.messages: nur Mitglieder). Nur Name und Zeit, keine Eingaben. */
+    presence: function (tripId, userId, name, onSync) {
+      if (!sb || !sb.channel) return function () {};
+      try { if (sb.realtime && sb.realtime.setAuth) sb.realtime.setAuth(); } catch (e) {}
+      var ch = sb.channel('trip:' + tripId, { config: { private: true, presence: { key: userId } } });
+      ch.on('presence', { event: 'sync' }, function () {
+        var st = ch.presenceState(), out = [];
+        Object.keys(st).forEach(function (k) { var m = st[k] && st[k][0] || {}; out.push({ user_id: k, name: m.name || '' }); });
+        try { onSync(out); } catch (e) { console.error(e); }
+      });
+      ch.subscribe(function (status) { if (status === 'SUBSCRIBED') ch.track({ name: name || '', at: new Date().toISOString() }); });
+      return function () { try { sb.removeChannel(ch); } catch (e) {} };
+    },
+    watch: function (cb, onStatus) {
       if (!sb || !sb.channel) return function () {};
       try { if (sb.realtime && sb.realtime.setAuth) sb.realtime.setAuth(); } catch (e) {}
       var ch = sb.channel('rp-gemeinsam-' + Math.random().toString(36).slice(2));
@@ -211,7 +224,7 @@
           try { cb({ table: table, id: row.id || row.idea_id || null, trip: table === 'trips' ? row.id : row.trip_id || null }); } catch (e) { console.error(e); }
         });
       });
-      ch.subscribe();
+      ch.subscribe(function (status) { try { if (onStatus) onStatus(status); } catch (e) {} });
       return function () { try { sb.removeChannel(ch); } catch (e) {} };
     },
 
