@@ -775,6 +775,27 @@ h1,h2,h3,h4{-webkit-hyphens:auto;hyphens:auto}
  .mood-grid .mood-card .fld>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 }
 
+/* Karten: Vor- und Nachteile mit Zeichen (und unsichtbarem Wort für Vorlesehilfen), Auswahl deutlich, Preis der Idee lesbar. */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media screen{
+ ul.proscons{list-style:none;padding-left:0;gap:6px}
+ ul.proscons>li{position:relative;padding-left:24px}
+ ul.proscons>li::before{position:absolute;left:0;top:.1em;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.8rem;line-height:1}
+ ul.proscons>li.pro::before{content:'+';background:var(--spruce-soft);color:var(--spruce)}
+ ul.proscons>li.con::before{content:'–';background:var(--surface-2);color:var(--muted)}
+ .trip-content>section.block .card.sel{background:var(--spruce-soft)}
+ .card.sel .foot>.badge.ok{background:var(--spruce);color:var(--bg);font-weight:700;padding:6px 12px}
+ .card.sel .foot>.badge.ok::before{content:'✓ '}
+ .idea-price{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:.95rem}
+ .idea-price+.foot{margin-top:0}
+ /* Formular in Gruppen (Neue Reise, Eckdaten) */
+ .form-groups{counter-reset:fg;gap:0}
+ .form-group{counter-increment:fg;display:flex;flex-direction:column;gap:14px;padding-block:20px;border-top:1px solid var(--line)}
+ .form-group:first-child{border-top:0;padding-top:4px}
+ .form-group-title{display:flex;align-items:center;gap:10px;font-size:1.1rem}
+ .form-group-title::before{content:counter(fg);flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--spruce-soft);color:var(--spruce);font-family:var(--f-body);font-size:.85rem;font-weight:700}
+}
+
 /* Tippen und Zeigen: sofortige Rückmeldung, auch ohne Hover. */
 @media screen and (prefers-reduced-motion:no-preference){
  .btn,.lnk,.chipbtn,.opt,.tab,.seg,.add,.rp-star,.item,.card.click,.start-weg,.template-card,.mood-preset,.design-choice,.profile-tag,.sub-row,.foto-thumb,.app-nav .nav-item{

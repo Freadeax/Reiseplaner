@@ -16,6 +16,15 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Oberfläche Schritt 4: Karten und „Neue Reise“ (Claude, 16.11.)
+
+Nur Darstellung (`app/ansichten.js`, `app.css`); keine Berechnung, kein Speicherformat, `index.html` und `sw.js` unverändert (weiter `reiseplaner-v30`).
+- **Neue Reise und Eckdaten** (`tripForm`): fünf Gruppen mit Überschrift statt einer langen Feldliste (Was für eine Reise? · Wann? · Wer und wie viel? · Anreise · Ideen). Dieselben Felder und `data-f`, nur neu geordnet: Datum steht beim Zeitraum, Start-Ort und Zeiten bei der Anreise.
+- **Ortskarten:** Vor- und Nachteile mit Plus- und Minus-Zeichen und unsichtbarem Wort „Vorteil:“/„Nachteil:“ für Vorlesehilfen (bisher nur über gedämpfte Farbe unterscheidbar).
+- **Gewählter Ort, gewählte Unterkunft:** Karte farbig hinterlegt, Kennzeichen „✓ ausgewählt“ deutlich; **Ideen:** Preiszeile abgesetzt.
+
+Tests (16.11., Cloud-Container, auf Stand `6a14887`): `npm test`, `test:browser` mit der CI-Schrift (DejaVu Sans) grün. Nicht getestet: iPhone, Safari.
+
 ## Oberfläche Schritt 3: Kosten, Tagesplan, Entdecken (Claude, 16.11.)
 
 Thread „UI neu gestalten und animieren“, Auftrag Philipp 16.11. („in die Tiefe weiterentwickeln“). Nur Darstellung; keine Berechnung, kein Speicherformat, `index.html` und `sw.js` unverändert.
