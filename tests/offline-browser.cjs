@@ -73,8 +73,14 @@ function release(tag) {
   /* 3. Neue Version, Installation scheitert (fehlende Datei): alter Stand bleibt vollständig */
   await ctx.setOffline(false);
   release('neu1'); state.missing = '/app/start.js';
-  await p.evaluate(() => navigator.serviceWorker.getRegistration().then(r => r.update()).catch(() => {}));
-  await p.waitForTimeout(800);
+  /* Bis die Installation tatsächlich gescheitert ist (in CI langsamer als lokal) */
+  const failed = await p.evaluate(async () => {
+    const r = await navigator.serviceWorker.getRegistration();
+    await r.update().catch(() => {});
+    const w = r.installing || r.waiting; if (!w) return 'keine Installation';
+    return await new Promise(res => { const f = () => { if (w.state === 'redundant' || w.state === 'activated') res(w.state); }; w.addEventListener('statechange', f); f(); setTimeout(() => res('Zeitlimit ' + w.state), 20000); });
+  });
+  assert.strictEqual(failed, 'redundant', 'neue Installation mit fehlender Datei muss scheitern');
   assert.deepStrictEqual((await keys()).filter(k => !k.includes('laufzeit')), ['reiseplaner-' + s1], 'gescheiterte Installation: nur der alte Stand');
   state.missing = null;
   await ctx.setOffline(true);
