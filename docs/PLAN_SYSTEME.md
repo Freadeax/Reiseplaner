@@ -66,7 +66,8 @@ Lücken:
 2. **Storno- und Ratenfristen** (seit 16.11. in `deadlines` gelesen, Eingabe folgt mit `F5_WRITE`): `cancelDeadlines` (`cancel:<key>:<n>`) und offene
    Raten (`plan:<offer>:<rate>`) einhängen. IDs sind so gewählt, dass bestehende `pay:`-Fristen nicht wechseln.
 3. **Eigene Aufgaben** (`t.tasks`) mit Zuständigkeit (M02.4/M06).
-4. Mitteilungen gibt es auf der Website nicht; Kalenderdatei bleibt der Weg (M02 §7). Web-Push erst mit gemeinsamen Reisen.
+4. **Fixpunkte und Puffer** (16.11., `app/fixpunkte.js`, `docs/FIXPUNKTE_PUFFER.md`): abgeleitet, Format-5-Felder `items[i].fix`, `t.keepFree`, `t.pace` vorgeschlagen.
+5. Mitteilungen gibt es auf der Website nicht; Kalenderdatei bleibt der Weg (M02 §7). Web-Push erst mit gemeinsamen Reisen.
 
 ## 5 · Speicherung
 

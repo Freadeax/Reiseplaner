@@ -1,6 +1,22 @@
 # Projektstand · 16.11.2026
 
 
+
+## Fixpunkte, Puffer und Realismus im Tagesplan (Claude, 16.11.)
+
+Thread „Fixpunkte und Pufferzeiten einplanen“ (Philipps Punktliste 16.11.). Konzept `docs/FIXPUNKTE_PUFFER.md`. Neuer Teil `app/fixpunkte.js` (nach `app/tagesplan.js`), reine Ableitung, **kein neues Speicherfeld**.
+- **Fixpunkte** aus vorhandenen Angaben: Abfahrt (`departTime`, Ankunft als Schätzung), Check-in ab, Abschnitte der Anreise (Format 3) mit Uhrzeit, gebuchte/angefragte/bezahlte Programmpunkte (dieselbe Regel wie der Buchungsschutz), Termine mit festem Datum, Abreise (Uhrzeit offen, wenn kein Rückweg-Abschnitt). Im Tagesplan mit Kennzeichen „Fix“ (Text für Vorlesehilfen).
+- **Puffer-Richtwerte** vor Fixpunkten (Flug 120 Min., Bahn/Bus/Fähre/Termine 15 Min.) plus Weg, wenn bekannt (`dayWays` aus dem Routen-Thread, sonst `transferGaps`). Überschneidung = Konflikt, zu kleine Lücke = „Puffer knapp“, Programm nach Abfahrt des Rückwegs = Konflikt.
+- **Fehlende Uhrzeit oder Dauer neben einem Fixpunkt = „nicht sicher“**, nie „passt“ (Projektregel 12).
+- **Realismus je Tag** nach Tempo (ruhig/normal/aktiv, aus `styleOf(t).pace` des Reisestil-Threads, sonst normal): höchstens Programmpunkte, Mindestanteil freier Zeit, freier Halbtag. Zustand als Wort im Tageskopf (Konflikt, überladen, Puffer knapp, voll, nicht sicher, mit Luft, frei).
+- Über die Reise: drei volle Tage hintereinander, kein freier Halbtag, Heimkehrzeit offen, viel Programm am Abreisetag. Je vollem Tag ein Vorschlag (größter verschiebbarer Punkt → Tag mit der meisten Luft); der Knopf öffnet das vorhandene Verschieben-Blatt, nichts wird still geändert.
+- Abschnitt „Fixpunkte & Puffer“ unter dem Tagesplan. Einhängung: drei abgesicherte Stellen in `tPlan` (`app/ansichten.js`), je eine Zeile in `index.html`, `sw.js` (`reiseplaner-v32`), `package.json`.
+- Format 5 wird schon gelesen, falls vorhanden: `items[i].fix` (von Hand fest, nur mit Uhrzeit), `t.keepFree` (bewusst freie Tageszeit), `t.pace`. Aufnahme in SCHEMA_V5/v5logic beim Format-5-Thread angefragt; geschrieben wird erst mit `F5_WRITE = true`.
+
+Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfungen) grün, `test:browser` siehe unten; Tagesplan in Chromium (1280 px, Bewegung reduziert) mit Konflikt- und Volltag angesehen. Nicht getestet: iPhone, Safari.
+
+Nächster Schritt: nach `F5_WRITE = true` im Verschieben-Blatt „Als Fixpunkt markieren“ und „Tageszeit bewusst freihalten“ (schreibt `items[i].fix`, `t.keepFree`); „Lücken füllen“ lässt freigehaltene Tageszeiten aus.
+
 ## Format 5 speichern: Stornobedingungen, Zahlungsplan, Fristen erledigt (Claude, 16.11. mittags)
 
 Freigabe Philipp 16.11. auf der Entscheidungskarte („Heute freischalten“); SCHEMA_V5 §8 Schritt 4. `F5_WRITE = true`.
