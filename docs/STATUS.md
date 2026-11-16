@@ -1,5 +1,16 @@
 # Projektstand · 16.11.2026
 
+## Neugestaltung „Reisetagebuch“ (Claude, 16.11. abends)
+
+Philipp hat per Auswahlkarte entschieden: Stil **B Reisetagebuch**, Handy-Navigation **schwebendes Dock**, Bewegung **verspielt**, Veröffentlichung freigegeben.
+
+- **Geändert:** `app.css` (neuer letzter Abschnitt „Reisetagebuch (Neugestaltung 16.11.2026“, nur `html[data-layout=book]` und nur Bildschirm; Farbsatz hell/dunkel, Schriften Newsreader und Source Sans 3, Rahmen mit hartem Schatten, Dock, Bewegung), `index.html` (Schriften, theme-color), `app/bewegung.js` (`feiern`, `konfettiPlan`: Konfetti beim Status „Gebucht“, rein dekorativ), `app/ansichten.js` (`data-art` am Reisekopf für Schnee bei Winterreisen), `tests/bewegung.cjs`, `tests/browser.cjs` (Dock darf bis 24 px über dem Rand schweben).
+- **Unverändert:** Daten, Berechnung, Speicherung, Druck, Darstellungen „studio“ und „compact“. `--spruce` bleibt der Name der Hauptfarbe (jetzt Rostrot).
+- **Geprüft:** `npm test` grün; voller Klicktest auf GitHub grün (Lauf 156, Commit 5f236b3); Kontrast, Tippflächen und Überlauf in 14 Ansichten bei 390 hell, 320 dunkel, 1280 hell/dunkel mit der Prüf-Funktion aus `tests/ui-audit.cjs`. **Nicht geprüft:** iPhone/Safari.
+- **Bewusst nicht gebaut:** hochzählende Beträge (ein Geldbetrag zeigt nie einen falschen Zwischenwert).
+- **Bekannt:** `tests/ui-audit.cjs` erreicht die Reise-Ansichten nicht mehr (wartet auf `.tabs`); App-Symbole und `manifest.webmanifest` tragen noch das alte Grün.
+- **Nächster Schritt:** Symbole/Manifest an den neuen Farbsatz anpassen, `ui-audit.cjs` reparieren, Rückmeldung von Philipp vom iPhone einarbeiten.
+
 ## Integrations-Prüfung aller Module (Claude, 16.11.)
 
 Thread „Alle Module prüfen und live bringen“. Bericht: `docs/PRUEFBERICHT_2026-11-16.md`. Geprüft `64bcfbd`: `npm test` grün, Actions-Lauf 150 komplett grün inkl. Deploy, GitHub Pages liefert `64bcfbd61615` (SW-Stand `d9e8175caccb`) aus.
