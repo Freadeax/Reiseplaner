@@ -8,8 +8,10 @@ if (!fs.existsSync(path.join(PUB, 'sw.js'))) { console.error('Erst npm run build
 const DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'rp-offline-'));
 fs.cpSync(PUB, DIR, { recursive: true });
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
-const state = { slowNav: 0, missing: null };
+const state = { slowNav: 0, missing: null, down: false };
 const srv = http.createServer(async (req, res) => {
+  /* Offline auch serverseitig: setOffline greift in CI nicht zuverlässig für Anfragen des Service Workers */
+  if (state.down) { req.socket.destroy(); return; }
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/Reiseplaner/, '');
   if (p === '/' || p === '') p = '/index.html';
   if (req.headers['sec-fetch-mode'] === 'navigate' && state.slowNav) await new Promise(r => setTimeout(r, state.slowNav));
@@ -58,7 +60,7 @@ function release(tag) {
   assert(/Reisen in diesem Browser\s*1/i.test(await p.locator('[data-device]').innerText()), 'Auf diesem Gerät: Zahl der Reisen');
 
   /* 2. Offline: App startet aus dem Stand, Reise bleibt, neue Reise offline anlegbar */
-  await ctx.setOffline(true);
+  await ctx.setOffline(true); state.down = true;
   await p.goto(base + '#reisen'); await p.reload();
   await p.waitForTimeout(300); const syncTxt = await p.locator('#sync').innerText();
   assert(/Offline ·/i.test(syncTxt), 'Kopfzeile zeigt Offline ohne Konto: ' + syncTxt + ' / onLine=' + await p.evaluate(() => navigator.onLine));
@@ -71,7 +73,7 @@ function release(tag) {
   assert((await text()).includes('Ohne Netz angelegt'), 'offline: offline angelegte Reise nach Neuladen weg');
 
   /* 3. Neue Version, Installation scheitert (fehlende Datei): alter Stand bleibt vollständig */
-  await ctx.setOffline(false);
+  await ctx.setOffline(false); state.down = false;
   release('neu1'); state.missing = '/app/start.js';
   /* Bis die Installation tatsächlich gescheitert ist (in CI langsamer als lokal) */
   const failed = await p.evaluate(async () => {
@@ -83,22 +85,22 @@ function release(tag) {
   assert.strictEqual(failed, 'redundant', 'neue Installation mit fehlender Datei muss scheitern');
   assert.deepStrictEqual((await keys()).filter(k => !k.includes('laufzeit')), ['reiseplaner-' + s1], 'gescheiterte Installation: nur der alte Stand');
   state.missing = null;
-  await ctx.setOffline(true);
+  await ctx.setOffline(true); state.down = true;
   await p.goto(base + '#reisen'); await p.reload();
   assert((await text()).includes('Ohne Netz angelegt'), 'nach gescheiterter Installation offline nicht startbar');
   assert.strictEqual(await p.evaluate(() => window.RP_TESTSTAND || null), null, 'offline darf der neue Teil nicht im alten Stand landen');
 
   /* 4. Neue Version vollständig: wird installiert, ersetzt den alten Stand, offline kommt der neue */
-  await ctx.setOffline(false);
+  await ctx.setOffline(false); state.down = false;
   await p.evaluate(() => navigator.serviceWorker.getRegistration().then(r => r.update()));
   await waitStand('neu1');
-  await ctx.setOffline(true);
+  await ctx.setOffline(true); state.down = true;
   await p.goto(base + '#reisen'); await p.reload();
   assert.strictEqual(await p.evaluate(() => window.RP_TESTSTAND || null), 'neu1', 'offline: neuer Stand nicht aktiv');
   assert((await text()).includes('Offline-Test'), 'Reisen nach Versionswechsel weg');
 
   /* 4b. Nach neuer Version suchen (Wunsch Philipp 16.11.): Knopf, Hinweis „Neue Version verfügbar“, Jetzt laden */
-  await ctx.setOffline(false);
+  await ctx.setOffline(false); state.down = false;
   await p.goto(base + '#konto'); await p.reload();
   await p.waitForSelector('[data-offline-act="update-check"]');
   await p.click('[data-offline-act="update-check"]');
@@ -115,7 +117,7 @@ function release(tag) {
   await p.goto(base + '#reisen');
 
   /* 5. Langsames Netz: Start nach Zeitlimit aus dem Stand */
-  await ctx.setOffline(false);
+  await ctx.setOffline(false); state.down = false;
   await p.goto(base + '#reisen');
   state.slowNav = 9000;
   const t0 = Date.now();
