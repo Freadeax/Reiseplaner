@@ -1,5 +1,15 @@
 # Projektstand · 16.11.2026
 
+## Wege, Schritt 2: kürzere Reihenfolge, Tagesroute speichern, Reisemappe (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Details `docs/WEGE.md` „Schritt 2“.
+- **Kürzere Reihenfolge** als Vorschlag im Abschnitt Wege (spart mindestens 10 Min.): nur Punkte ohne Uhrzeit, Buchung oder Fixpunkt, nur innerhalb ihrer Tageszeit; Übernehmen ändert nur die Reihenfolge.
+- **Tagesroute in der Reise speichern** (Format 5 `dayRoutes`, über `f5Commit` mit Bestätigung): Mitreisende und andere Geräte sehen dieselbe Wegsumme, die Tageslast nutzt sie, solange die Reihenfolge gleich ist. Entfernen möglich.
+- **Reisemappe:** Wegsumme und Skizze je Tag (druckbar).
+- Geteilte Dateien: eine abgesicherte Zeile in `tMappe` (`app/ansichten.js`), `app/start.js` (Exporte), `package.json`, `app.css` (Wege-Abschnitt). Kein neuer Teil, `sw.js` unverändert.
+
+Tests (16.11. abends, Cloud-Container, auf Stand `a1d5dc2` mit Neugestaltung „Reisetagebuch“): `npm test` (neu `tests/wege-schreiben.cjs`, 4 Prüfungen), Sichtprüfung in Chromium 390 px hell/dunkel (Vorschlag übernommen: 2 Std. 10 Min. → 1 Std. 45 Min., Mappe mit Skizze), `test:browser` mit CI-Schrift grün. Nicht getestet: echtes Routing, iPhone, Safari.
+
 
 ## Gemeinsam planen: Anwesenheit, Rückfall-Takt, Namensfrage (Claude, 16.11. abends)
 

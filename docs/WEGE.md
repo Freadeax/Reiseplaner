@@ -1,6 +1,6 @@
 # Wege und Tageskarte im Tagesplan (Konzept und Stand)
 
-Stand 16.11.2026 · Thread „Routen und Karten in Tagesplanung“ · Modul `app/wege.js` (Teil nach `app/tagesplan.js`)
+Stand 16.11.2026 (abends: Schritt 2) · Thread „Routen und Karten in Tagesplanung“ · Modul `app/wege.js` (Teil nach `app/tagesplan.js`)
 
 ## Ziel
 
@@ -49,9 +49,23 @@ Kostenlos und werbefrei: keine Google-Schnittstellen, keine Kartenkacheln eines 
   geringe Nutzung), gehören aber zur offenen Proxy-Entscheidung (PLAN_SYSTEME §8).
 - routing.openstreetmap.de ist ein freiwillig betriebener Dienst ohne Zusage; bei Ausfall bleibt die Schätzung.
 
+## Schritt 2 (16.11. abends)
+
+- **Kürzere Reihenfolge:** `wegeOrderProposal(t, day)` probiert je Tageszeit alle Reihenfolgen der beweglichen Punkte (ohne
+  Uhrzeit, ohne Buchung/Anfrage/Zahlung, ohne Fixpunkt `items[].fix`, ohne festes Datum; höchstens 7 je Tageszeit) und
+  schlägt die kürzeste vor, wenn sie mindestens 10 Min. spart. Nur mit bekannter Lage aller Punkte. „Reihenfolge
+  übernehmen“ (`wegeOrderApply`) ändert nur die Lage im `items`-Array: Tag, Tageszeit und Uhrzeit bleiben, Buchungsschutz
+  über `commitmentIssues`, veralteter Vorschlag wird abgelehnt.
+- **Tagesroute in der Reise:** „Route in der Reise speichern“ schreibt nach einer Berechnung `dayRoutes[Tag]` = {order, km,
+  min, src:'osrm', at} über `f5Commit` (Format-5-Bestätigung wie bei Storno/Zahlungsplan). Keine Orte, keine Linie.
+  Andere Geräte und Mitreisende sehen die Summe („berechnet, in der Reise gespeichert“), und die Tageslast nutzt sie,
+  solange die Reihenfolge gleich ist; sonst „passt nicht mehr zur Reihenfolge“ und die Schätzung gilt. „Entfernen“ löscht
+  den Eintrag (leeres `dayRoutes` wird entfernt).
+- **Reisemappe/Druck:** je Tag „Wege: … km · ca. …“ und die Skizze (`wegeMappe`).
+- **Kurzzeile** `wegeKurz` für die zugeklappte Ebene „Wege zwischen den Punkten“.
+
 ## Nächste Schritte
 
-1. Mit `F5_WRITE = true`: berechnete Tagesroute auf Wunsch in `t.dayRoutes` speichern (geteilt mit Mitreisenden), Reihenfolge
-   optimieren („kürzeste Reihenfolge vorschlagen“, nur als Vorschlag mit Übernehmen/Verwerfen, gebuchte Uhrzeiten fest).
-2. Reisemappe/PDF: Wegesumme je Tag und Skizze übernehmen (Offline-Thread).
-3. Eigene Unterkunft mit Adresse: Lage einmal suchen und in der Unterkunft speichern (heute nur im Gerätespeicher).
+1. Eigene Unterkunft mit Adresse: Lage einmal suchen und in der Unterkunft speichern (heute nur im Gerätespeicher).
+2. Reihenfolge über Tageszeiten hinweg nur mit Rückfrage (Vormittag/Abend hat oft einen Grund).
+3. Echtes Routing einmal auf dem iPhone prüfen (aus dem Cloud-Container nicht erreichbar).

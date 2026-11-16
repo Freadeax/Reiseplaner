@@ -76,8 +76,17 @@ function dayWays(t,day){
     out.km=Math.round(out.km*10)/10;
     if(hit&&out.legs.some(l=>l.src==='osrm')){out.osrm=true;out.at=hit.at||null;out.geom=Array.isArray(hit.geom)?hit.geom:null}
   }
+  /* In der Reise gespeicherte Tagesroute (Format 5 dayRoutes): gilt nur, solange die Reihenfolge gleich ist.
+     Ohne eigene Berechnung auf diesem Gerät liefert sie die Summe, damit alle Mitreisenden dieselbe Tageslast sehen. */
+  const sv=wegeSaved(t,day);
+  if(sv){out.saved=sv;if(sv.match&&!out.osrm&&sv.src==='osrm'&&sv.min!=null){out.km=sv.km!=null?sv.km:out.km;out.min=sv.min;out.unknown=0;out.fromSaved=true}}
   const m=memo||{};m[day]={key,val:out};if(!memo)WAYS_CACHE.set(t,m);
   return out;
+}
+function wegeSaved(t,day){
+  const r=t&&t.dayRoutes&&typeof t.dayRoutes==='object'?t.dayRoutes[String(day)]:null;if(!r||!Array.isArray(r.order))return null;
+  const now=sortedItems(t).filter(it=>it.day===day&&(()=>{const a=actOf(t,it.act);return a&&!a.transit})()).map(it=>it.uid);
+  return {km:r.km!=null?+r.km:null,min:r.min!=null?+r.min:null,src:r.src,at:r.at||null,match:now.length===r.order.length&&now.every((u,i)=>u===r.order[i])};
 }
 /* Gültiger dayRoutes-Eintrag für Format 5 (SCHEMA_V5 M12). Erst mit F5_WRITE speichern; null ohne bekannten Weg. */
 function dayRouteRecord(t,day){
@@ -85,6 +94,49 @@ function dayRouteRecord(t,day){
   const r={order:w.stops.map(s=>s.uid).slice(0,30),km:Math.min(5000,Math.round(w.km*10)/10),min:Math.min(3000,Math.round(w.min)),src:w.osrm?'osrm':'schaetzung'};
   if(w.osrm)r.at=w.at&&/^\d{4}-\d{2}-\d{2}T/.test(w.at)?w.at:new Date().toISOString();
   return r;
+}
+
+/* ---------- Kürzere Reihenfolge (nur Vorschlag) ----------
+   Getauscht werden nur Punkte ohne Uhrzeit, ohne Buchung/Zahlung, ohne Fixpunkt und ohne festes Datum, und nur innerhalb
+   ihrer Tageszeit: Vormittag bleibt Vormittag. Alle Punkte brauchen eine bekannte Lage, sonst kein Vorschlag. */
+function wegeMovable(t,it){const a=actOf(t,it.act);return !!(a&&!a.transit&&timeMin(it.time)==null&&it.fix!==true&&!a.onlyDate&&!(typeof activityCommitted==='function'&&activityCommitted(t,it.act)))}
+function wegePerms(n){const out=[],a=[...Array(n).keys()],go=k=>{if(k===n){out.push(a.slice());return}for(let i=k;i<n;i++){[a[k],a[i]]=[a[i],a[k]];go(k+1);[a[k],a[i]]=[a[i],a[k]]}};go(0);return out}
+function wegeOrderProposal(t,day){
+  if(!CATX)return null;
+  const w0=dayWays(t,day);if(w0.stops.length<3||w0.unknown||w0.legs.some(l=>l.src==='unbekannt'))return null;
+  const items=sortedItems(t).filter(it=>it.day===day&&(()=>{const a=actOf(t,it.act);return a&&!a.transit})());
+  const geo=uid=>w0.stops.find(s=>s.uid===uid).geo,mode=w0.mode,base=w0.base.geo;
+  const cost=seq=>{let m=0,prev=base;seq.forEach(it=>{const g=geo(it.uid),air=CATX.airKm(prev,g);m+=air<WEGE_SAME_KM?0:wegeEstimate(air,mode).min;prev=g});const air=CATX.airKm(prev,base);return m+(air<WEGE_SAME_KM?0:wegeEstimate(air,mode).min)};
+  const before=cost(items);let best=items.slice();
+  SLOTS.forEach(([slot])=>{
+    const idx=best.map((it,i)=>i).filter(i=>best[i].slot===slot&&wegeMovable(t,best[i]));
+    if(idx.length<2||idx.length>7)return;
+    let top=null,topCost=Infinity;
+    wegePerms(idx.length).forEach(p=>{const cand=best.slice();idx.forEach((pos,k)=>{cand[pos]=best[idx[p[k]]]});const c=cost(cand);if(c<topCost-0.01){topCost=c;top=cand}});
+    if(top)best=top;
+  });
+  const after=cost(best),save=before-after;
+  if(save<10||best.every((it,i)=>it.uid===items[i].uid))return null;
+  return {day,before,after,save,order:best.map(it=>it.uid),labels:best.map(it=>(actOf(t,it.act)||{}).t||'Punkt'),source:JSON.stringify(t.items||[])};
+}
+/* Neue Reihenfolge übernehmen: nur die Lage der Punkte im items-Array ändert sich (Tag, Tageszeit, Uhrzeit bleiben). */
+function wegeOrderApply(t,prop){
+  if(!prop||prop.source!==JSON.stringify(t.items||[]))throw new Error('Der Tagesplan hat sich geändert. Bitte den Vorschlag neu öffnen.');
+  const items=(t.items||[]).slice(),pos=[];items.forEach((it,i)=>{if(prop.order.includes(it.uid))pos.push(i)});
+  const byUid=Object.fromEntries(items.map(it=>[it.uid,it]));
+  const so={morgen:0,mittag:1,nachm:2,abend:3},inPlan=pos.map(i=>items[i]).sort((a,b)=>so[a.slot]-so[b.slot]);
+  /* Punkte der neuen Reihenfolge in die bisherigen Plätze dieses Tages schreiben; je Tageszeit bleibt die Menge gleich */
+  const want=prop.order.map(u=>byUid[u]);
+  if(want.length!==inPlan.length||want.some((it,i)=>!it||it.slot!==inPlan[i].slot))throw new Error('Vorschlag passt nicht mehr zum Plan.');
+  pos.sort((a,b)=>a-b).forEach((p,k)=>{items[p]=want[k]});
+  const c=clone(t);c.items=items;
+  const iss=typeof commitmentIssues==='function'?commitmentIssues(t,c):[];if(iss.length)throw new Error('Nicht geändert: '+iss.join(' · '));
+  return c;
+}
+/* Berechnete Tagesroute in der Reise speichern (Format 5 dayRoutes) oder entfernen; Schreibweg über f5Commit. */
+function wegeStoreRoute(t,day,on,opt){
+  const rec=on?dayRouteRecord(t,day):null;if(on&&(!rec||rec.src!=='osrm'))throw new Error('Zuerst die Wege berechnen.');
+  return f5Commit(t,c=>{const m=c.dayRoutes&&typeof c.dayRoutes==='object'?Object.assign({},c.dayRoutes):{};if(on)m[String(day)]=rec;else delete m[String(day)];if(Object.keys(m).length)c.dayRoutes=m;else delete c.dayRoutes},opt);
 }
 
 /* ---------- Netz (nur auf Knopfdruck) ---------- */
@@ -182,6 +234,24 @@ function wegeKurz(t,day){
   if(!w.known)return n+(n===1?' Weg':' Wege')+' · Lage noch unbekannt';
   return n+(n===1?' Weg':' Wege')+' · '+(w.unknown?'mindestens ':'')+'ca. '+wegeH(w.min)+(w.osrm?', berechnet':', geschätzt');
 }
+/* Vorschlag „kürzere Reihenfolge“ mit Vorher/Nachher; Übernehmen ändert nur die Reihenfolge innerhalb einer Tageszeit. */
+function wegeOrderBlock(t,day){
+  let p=null;try{p=wegeOrderProposal(t,day)}catch(e){p=null}if(!p)return '';
+  return '<div class="note wege-vorschlag"><b>Kürzere Reihenfolge möglich: spart ca. '+esc(wegeH(Math.round(p.save/5)*5))+'</b><p class="small">Neu: '+esc(p.labels.join(' → '))+'</p><p class="small muted">Nur Punkte ohne Uhrzeit, Buchung oder Fixpunkt wechseln die Reihenfolge, und nur innerhalb ihrer Tageszeit. Schätzung aus Luftlinie.</p><div class="row"><button type="button" class="btn sm" data-wege="order|'+day+'">Reihenfolge übernehmen</button></div></div>';
+}
+/* Gespeicherte Tagesroute: für alle Mitreisenden sichtbar; Speichern nur mit eigener Berechnung. */
+function wegeSavedBlock(t,day,w,edit){
+  const sv=w.saved,canF5=typeof f5CanEdit==='function'&&f5CanEdit(t);
+  let h='';
+  if(sv)h+='<p class="small wege-gespeichert">In der Reise gespeichert: '+(sv.km!=null?'≈ '+esc(wegeKm(sv.km))+' km · ':'')+(sv.min!=null?'ca. '+esc(wegeH(sv.min)):'')+(sv.at?' (berechnet am '+esc(fmtLong(pd(sv.at.slice(0,10))))+')':'')+(sv.match?'':' · <b>passt nicht mehr zur Reihenfolge</b>')+(edit&&canF5?' <button type="button" class="lnk" data-wege="unstore|'+day+'">Entfernen</button>':'')+'</p>';
+  if(edit&&canF5&&w.osrm&&!(sv&&sv.match&&sv.min===dayRouteRecord(t,day).min))h+='<div class="row"><button type="button" class="btn ghost sm" data-wege="store|'+day+'">Route in der Reise speichern</button></div><p class="small muted">Gespeichert werden Reihenfolge, km und Minuten, damit Mitreisende dieselben Wege sehen. Keine Orte oder Linien.</p>';
+  return h;
+}
+/* Kurzfassung für die Reisemappe (Druck/PDF): Summe und Skizze, nur wenn etwas bekannt ist. */
+function wegeMappe(t,day){
+  if(!CATX)return '';const w=dayWays(t,day);if(!w.stops.length||!w.known)return '';
+  return '<div class="wege-mappe"><p class="small"><b>Wege:</b> '+esc((w.unknown?'mindestens ':'')+'≈ '+wegeKm(w.km)+' km · ca. '+wegeH(w.min)+' '+WEGE_MODES[w.mode].label+(w.osrm||w.fromSaved?', berechnet':', geschätzt'))+'</p>'+wegeSkizze(w)+'</div>';
+}
 /* Abschnitt unter dem Zeitstrahl für den gewählten Tag. */
 function wegeSection(t,day){
   if(!CATX)return '';const days=daysOf(t);if(!days[day])return '';
@@ -193,11 +263,12 @@ function wegeSection(t,day){
   else{
     const sum=w.known?(w.unknown?'mindestens ':'')+'≈ '+wegeKm(w.km)+' km · ca. '+wegeH(w.min)+' unterwegs':'Wege noch unbekannt';
     const unk=w.stops.filter(s=>!s.geo);
-    body='<p class="wege-summe"><b>'+esc(sum)+'</b> <span class="small muted">'+esc(WEGE_MODES[w.mode].label)+(w.osrm?' · berechnet'+(w.at?' am '+fmtLong(pd(w.at.slice(0,10))):''):w.known?' · geschätzt':'')+'</span></p>'+
+    body='<p class="wege-summe"><b>'+esc(sum)+'</b> <span class="small muted">'+esc(WEGE_MODES[w.mode].label)+(w.osrm?' · berechnet'+(w.at?' am '+fmtLong(pd(w.at.slice(0,10))):''):w.fromSaved?' · berechnet, in der Reise gespeichert'+(w.saved.at?' am '+fmtLong(pd(w.saved.at.slice(0,10))):''):w.known?' · geschätzt':'')+'</span></p>'+
      (w.base.approx?'<p class="small muted">Lage der Unterkunft unbekannt: Ausgangspunkt ist die Ortsmitte.</p>':'')+
-     wegeSkizze(w)+
+     wegeSkizze(w)+(edit?wegeOrderBlock(t,day):'')+
      '<ol class="wege-liste">'+w.legs.map((l,i)=>{const u=wegeOsmUrl(l,w.mode);return '<li'+(l.src==='unbekannt'?' class="offen"':'')+'><span class="wege-von">'+(i===0?'⌂ ':'')+esc(l.from)+' → '+(i===w.legs.length-1?'⌂ ':'')+esc(l.to)+'</span><span class="small">'+esc(wegeLegText(l,w.mode))+'</span>'+(u&&l.src!=='gleich'?lk(u,'OSM'):'')+'</li>'}).join('')+'</ol>'+
-     (unk.length?'<p class="small muted">Ohne Lage: '+esc(unk.map(s=>s.label+(s.missing?' (nicht gefunden)':s.query?'':' (kein Ort eingetragen)')).join(', '))+'.</p>':'');
+     (unk.length?'<p class="small muted">Ohne Lage: '+esc(unk.map(s=>s.label+(s.missing?' (nicht gefunden)':s.query?'':' (kein Ort eingetragen)')).join(', '))+'.</p>':'')+
+     wegeSavedBlock(t,day,w,edit);
   }
   const app=wegeAppUrl(w);
   /* Breite Ansicht zeigt alle Tage nebeneinander, die Tagesauswahl des Handys ist dort ausgeblendet: eigene Auswahl. */
@@ -212,6 +283,9 @@ async function wegeAction(v){
   const t=typeof cur==='function'?cur():null;if(!t)return;
   const [kind,val]=String(v||'').split('|');
   if(kind==='mode'){wegeSetMode(t,val);render();return}
+  if(kind==='order'){const day=Number(val);try{const c=wegeOrderApply(t,wegeOrderProposal(t,day));t.items=c.items;t.packageId='';save(t);render();alertMsg('Reihenfolge übernommen.')}catch(e){alertMsg(e.message)}return}
+  if(kind==='store'||kind==='unstore'){const day=Number(val),on=kind==='store',msg=on?'Route in der Reise gespeichert.':'Gespeicherte Route entfernt.';
+    try{const run=o=>wegeStoreRoute(t,day,on,o),r=run({});if(f5Result(r,{run,msg})){render();alertMsg(msg)}}catch(e){alertMsg(e.message)}return}
   if(kind==='calc'){const day=Number(val),key=t.id+'|'+day;if(UI.wegeBusy)return;UI.wegeBusy=key;UI.wegeMsg=null;render();
     try{UI.wegeMsg={key,text:await wegeCalc(t,day)}}catch(e){const m=e&&e.name==='TypeError'?'Keine Verbindung zum Kartendienst.':String(e&&e.message||'Fehler').replace(/\.?$/,'.');UI.wegeMsg={key,text:'Nicht berechnet: '+m+' Die Schätzung bleibt.'}}
     UI.wegeBusy=null;render()}

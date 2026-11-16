@@ -933,7 +933,9 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
 .wege-liste li>.wege-von{flex:1 1 100%}
 .wege-liste li.offen .small{color:var(--warn);font-weight:600}
 .wege-von{font-weight:600}
-@media print{.wege-modus,.wege [data-wege]{display:none}}
+.wege-vorschlag{margin:8px 0}
+.wege-mappe .wege-karte svg{max-width:340px}
+@media print{.wege-modus,.wege [data-wege]{display:none}.wege-mappe .wege-karte{break-inside:avoid}}
 
 /* Gemeinsam planen: Ideen-Pinnwand und Änderungshinweis (app/gemeinsam.js) */
 .gm-list{display:grid;gap:8px;margin:10px 0;list-style:none;padding-left:0}
