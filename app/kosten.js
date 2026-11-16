@@ -59,8 +59,11 @@ function cost(t){
     if(c>0||a.custom){add(a.custom?(a.cat||'eigen'):a.cat,a.t,(d?d.label+' · '+SLOTNAME[it.slot]:''),c,a.custom?'ok':a.src,'act:'+a.id);lines[lines.length-1].day=it.day}
   });
   /* Essen */
-  const f=FOOD[t.food]||FOOD.selbst;let fpp=f[1]*(N+1);if(st&&st.breakfast)fpp-=7*N;
-  add('essen','Essen & Trinken · '+f[0],f[2]+' · ≈ '+f[1]+' € p. P. / Tag'+(st&&st.breakfast?' · Frühstück inklusive':''),Math.max(0,fpp)*P);lines[lines.length-1].pot=true; /* Topf für den Plan-Ist-Vergleich (istvergleich.js): laufend ausgegeben, keine Einzelbuchung */
+  const f=FOOD[t.food]||FOOD.selbst,board=(activeOffer(t)||{}).board,bf=!!(st&&st.breakfast);let fpp=f[1]*(N+1);
+  /* Verpflegung im Angebot (Format 5 board, app/angebote.js boardCut) zählt nicht doppelt; ohne board wie bisher Frühstück 7 € */
+  const cut=board&&typeof boardCut==='function'?boardCut(f[1],board,bf):bf?7:0;fpp-=cut*N;
+  const boardTxt=board&&board!=='none'&&typeof BOARD!=='undefined'?' · '+BOARD[board]+' inklusive (−'+cut+' € p. P. / Nacht, Planannahme)':bf?' · Frühstück inklusive':'';
+  add('essen','Essen & Trinken · '+f[0],f[2]+' · ≈ '+f[1]+' € p. P. / Tag'+boardTxt,Math.max(0,fpp)*P);lines[lines.length-1].pot=true; /* Topf für den Plan-Ist-Vergleich (istvergleich.js): laufend ausgegeben, keine Einzelbuchung */
   (t.extraCosts||[]).forEach(e=>add('eigen',e.t||'Eigener Posten',e.note||'',num(e.c,0),'ok','xc:'+e.id));
   /* Zahlungsbuch: ein erfasster Buchungsbetrag ersetzt den Planwert dieses Postens (auch für den Puffer). */
   const lg=t.ledger&&typeof t.ledger==='object'?t.ledger:{};
