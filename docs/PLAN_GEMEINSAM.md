@@ -32,10 +32,10 @@ Freunde) können nichts beitragen, und es gibt keinen Ort für Ideen, die (noch)
 | Stufe | Inhalt | Migration | Stand |
 | --- | --- | --- | --- |
 | G1 | **Drei-Wege-Abgleich**: unabhängige Änderungen werden zusammengeführt, nur echte Widersprüche erscheinen, Wahl je Punkt | nein | **[neu]** |
-| G2 | **Schneller Abgleich**: Supabase Realtime meldet „Reise geändert“ → sofortiger Abgleich; „Anna ist gerade in der Reise“ | ja (Publikation) | Datenbank **[neu]**, Oberfläche [Plan] |
-| G3 | **Anzeigename** statt E-Mail in Mitgliederliste und Hinweisen (M06.1) | ja (`profiles`) | Datenbank **[neu]**, Oberfläche [Plan] |
-| G4 | **Ideen-Pinnwand** je Reise: alle Mitglieder (auch Leser) tragen Ideen ein und stimmen mit „Daumen hoch“ ab; Bearbeiter übernehmen eine Idee in den Plan | ja (`trip_ideas`, `trip_idea_votes`) | Datenbank **[neu]**, Oberfläche [Plan] |
-| G5 | **Was hat sich geändert?** Verlauf ohne Inhalte („Anna: Unterkunft, Tagesplan 31.12.“) und Hinweis beim Öffnen (M06.3) | ja (`trip_events`, `trip_seen`) | Datenbank **[neu]**, Oberfläche [Plan] |
+| G2 | **Schneller Abgleich**: Supabase Realtime meldet „Reise geändert“ → sofortiger Abgleich; „Anna ist gerade in der Reise“ | ja (Publikation) | Datenbank und Oberfläche **[neu]** |
+| G3 | **Anzeigename** statt E-Mail in Mitgliederliste und Hinweisen (M06.1) | ja (`profiles`) | Datenbank und Oberfläche **[neu]** |
+| G4 | **Ideen-Pinnwand** je Reise: alle Mitglieder (auch Leser) tragen Ideen ein und stimmen mit „Daumen hoch“ ab; Bearbeiter übernehmen eine Idee in den Plan | ja (`trip_ideas`, `trip_idea_votes`) | Datenbank und Oberfläche **[neu]** |
+| G5 | **Was hat sich geändert?** Verlauf ohne Inhalte („Anna: Unterkunft, Tagesplan 31.12.“) und Hinweis beim Öffnen (M06.3) | ja (`trip_events`, `trip_seen`) | Datenbank und Oberfläche **[neu]** |
 | G6 | **Ich bin Mitreisende/r X**: `party[i].member` nur durch die Person selbst (Format 5, `claim_party`) | ja | [Plan], gemeinsam mit Format-5-Thread |
 | G7 | Abstimmungen mit mehreren Optionen, Kommentare an Tag/Unternehmung (M06.4/M06.5) | ja | später, nach G4-Erfahrung |
 

@@ -163,6 +163,26 @@ const waitSync = (p, re, ms) => p.waitForFunction(r => new RegExp(r).test(docume
     rows = (await aApi.from('trips').select('data').eq('id', tid)).data;
     assert(/ \(Anna\)$/.test(rows[0].data.title), 'Annas Änderung online'); assert.equal(rows[0].data.notes, 'Ben ergänzt', 'Bens Änderung erhalten');
 
+    /* Gemeinsam planen G2–G5 (app/gemeinsam.js): Anzeigename, Ideen-Pinnwand, Stimmen, Status, Echtzeit, Änderungshinweis */
+    await B.p.goto(BASE + '#r-' + tid + '-ueber'); await B.p.waitForSelector('text=Ideen von allen'); await B.p.waitForSelector('[data-gm-form="idea"]');
+    await B.p.click('[data-gm="name-edit"]'); await B.p.fill('#gm-name', 'Ben'); await B.p.click('[data-gm="name-save"]');
+    await B.p.waitForSelector('.gm-name >> text=Ben');
+    await B.p.fill('#gm-body', 'Rodeln am Abend'); await B.p.click('[data-gm-form="idea"] button[type="submit"]');
+    await B.p.waitForSelector('.gm-idea >> text=Rodeln am Abend');
+    await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('.gm-idea >> text=Rodeln am Abend');
+    assert((await A.p.textContent('.gm-idea')).includes('von Ben'), 'Anzeigename statt E-Mail');
+    assert(/Seit deinem letzten Besuch/.test(await A.p.textContent('#view')), 'Änderungshinweis zu Bens Notizen');
+    await A.p.click('[data-gm="seen"]'); await A.p.waitForFunction(() => !document.querySelector('.gm-changes'));
+    await A.p.click('.gm-idea [data-gm="vote"]'); await A.p.waitForSelector('.gm-idea [data-gm="vote"][aria-pressed="true"]');
+    /* Echtzeit: Bens Seite zeigt Annas Stimme ohne Neuladen */
+    await B.p.waitForSelector('.gm-idea [data-gm="vote"]:has-text("👍 1")', { timeout: 20000 });
+    await A.p.click('.gm-idea [data-gm="status"][data-how="eingeplant"]'); await A.p.waitForSelector('details >> text=Erledigt (1)');
+    /* Echtzeit: Bens Titeländerung erscheint bei Anna ohne Klick auf Synchronisieren */
+    await B.p.evaluate(id => { const a = window.__app, t = a.Store.get(id); t.title = t.title + ' ✓'; a.Store.put(t, true); }, tid);
+    await waitSync(B.p, /Online gespeichert/);
+    await A.p.waitForFunction(id => / ✓$/.test(window.__app.Store.get(id).title), tid, { timeout: 20000 });
+
+    if (process.env.GM_SHOT) { await A.p.setViewportSize({ width: 390, height: 1400 }); await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.waitForSelector('section.gm details'); await A.p.evaluate(() => document.querySelectorAll('section.gm details').forEach(d => d.open = true)); await A.p.waitForTimeout(400); await (await A.p.$('section.gm')).screenshot({ path: process.env.GM_SHOT }); }
     /* Entzug: Anna entfernt Ben → Ben verliert die Reise beim nächsten Abgleich */
     await A.p.goto(BASE + '#r-' + tid + '-ueber'); await A.p.click('[data-acc="share"]');
     await A.p.click('[data-acc="member-remove"]'); await A.p.waitForSelector('[data-acc="invite-create"]');

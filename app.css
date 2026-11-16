@@ -927,3 +927,13 @@ ul.plain.daylist{list-style:none;padding-left:0;gap:0}
 .wege-liste li.offen .small{color:var(--warn);font-weight:600}
 .wege-von{font-weight:600}
 @media print{.wege-modus,.wege [data-wege]{display:none}}
+
+/* Gemeinsam planen: Ideen-Pinnwand und Änderungshinweis (app/gemeinsam.js) */
+.gm-list{display:grid;gap:8px;margin:10px 0;list-style:none;padding-left:0}
+.gm-idea{border:1px solid var(--line,#d8d2c4);border-radius:10px;padding:10px 12px}
+.gm-idea p{margin:0 0 4px}
+.gm-idea.gm-verworfen .gm-body p:first-child{text-decoration:line-through}
+.gm-acts{flex-wrap:wrap;gap:6px}
+.gm-acts .btn[aria-pressed="true"]{font-weight:700;border-color:currentColor}
+.gm-changes{margin-bottom:12px}
+.gm-name{margin-top:12px}

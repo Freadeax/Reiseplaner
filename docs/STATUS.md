@@ -23,6 +23,16 @@ Nachtrag (16.11. mittags, Bedienbarkeit auf Hinweis des Oberflächen-Threads): G
 Nächster Schritt: echte Abfrage auf Philipps Gerät prüfen; Format 5 schreibt seit heute (`F5_WRITE = true`), daher als Nächstes Ausblenden und eigene Packpunkte je Person (`t.packing`, M03.4) sowie Ausweis-Eingabe (M04.3); Wetter auch im Tagesplan (M03.2).
 
 
+## Gemeinsam planen, Oberfläche G2–G5 (Claude, 16.11.)
+
+Neuer Teil `app/gemeinsam.js` (Script-Zeile nach `app/konto.js`), Aufruf als ein Block im Überblick (`tUeber`, `gemeinsamBlock`), Zugriffe nur über `cloud.js` (neu: `profile`, `setProfile`, `ideas`, `addIdea`, `setIdea`, `vote`, `changes`, `markSeen`, `watch`). Nur für online gespeicherte Reisen eines angemeldeten Kontos; Gastmodus unverändert.
+- **Ideen von allen:** Eingabe (≤ 500 Zeichen, Link nur https), Karten nach Stimmen sortiert, 👍 mit Zähler und `aria-pressed`, Eigentümer/Bearbeiter setzen „Eingeplant“, „Verwerfen“, „Wieder offen“, „In den Plan …“ (öffnet Unternehmungen, kopiert den Text; der Plan ändert sich nie automatisch), Autor oder Eigentümer ziehen zurück. Erledigte unter „Erledigt (n)“.
+- **Anzeigename** unter der Pinnwand festlegen/ändern/entfernen. Mitgliederliste beim Teilen zeigt Name, sonst E-Mail (nur Eigentümer), sonst „Mitglied n“.
+- **Seit deinem letzten Besuch:** Änderungen anderer mit Name, Zeit und Bereich (ohne Inhalte), „Gesehen“ setzt die Marke.
+- **Echtzeit:** ein Kanal je Konto; geänderte Reise → Abgleich nach 0,3 s, geänderte Idee/Stimme → Pinnwand neu laden. Rückfall bleibt der 60-s-Takt.
+
+Tests (16.11., Cloud-Container, lokaler Supabase): `test:e2e` erweitert um zwei Konten im Browser (Name festlegen, Idee eintragen, beim anderen sichtbar mit Namen statt E-Mail, Änderungshinweis und „Gesehen“, Stimme, Stimme erscheint beim anderen ohne Neuladen, Status „eingeplant“, Titeländerung erscheint per Echtzeit ohne Synchronisieren-Klick) grün; `npm test`, `test:browser`, `build`, `check:artifact` grün; Pinnwand bei 390 px angesehen. Nicht getestet: iPhone, Safari, Produktion.
+
 ## Gemeinsam planen, Datenbank G2–G5 (Claude, 16.11.)
 
 Migration `20261116120000_gemeinsam.sql` nach Freigabe Philipp (16.11., „live bringen der neuen Sachen“): Realtime-Publikation für `trips`, `trip_ideas`, `trip_idea_votes` und private Kanäle `trip:<id>` nur für Mitglieder (G2); `profiles` mit freiwilligem Anzeigenamen, `trip_member_list` zeigt fremde E-Mails nur dem Eigentümer (G3); Ideen-Pinnwand `trip_ideas`/`trip_idea_votes`, Leser dürfen eintragen und abstimmen (Philipp 16.11.), Status nur Eigentümer/Bearbeiter (G4); Verlauf `trip_events` ohne Inhalte (90 Tage), `trip_seen`, `mark_trip_seen`, `trip_changes_since` (G5); Kontoexport Version 2 mit Profil und eigenen Ideen. Bestehende Tabellen unverändert. Die App nutzt das noch nicht; die Oberfläche folgt.

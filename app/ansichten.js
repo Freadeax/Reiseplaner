@@ -143,7 +143,7 @@ function tUeber(t){
   return journalRetro(t)+todayBlock(t)+naechstesBlock(t)+'<section class="block"><div class="between"><h2>Kosten</h2><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-kosten">Aufstellung</button></div><div class="kpis"><div class="kpi"><small>Geplant gesamt</small><b class="num">'+eur(c.total)+'</b><small>'+eur(c.total/c.P)+' pro Person · '+c.N+' Nächte, '+c.P+' Personen</small></div>'+
   '<div class="kpi"><small>Budget</small><b class="num" style="color:'+(b&&c.total>b?'var(--bad)':'var(--ok)')+'">'+(b?eur(b-c.total):'–')+'</b><small>'+(b?(c.total>b?'über':'übrig von')+' '+eur(b):'kein Budget gesetzt')+(oc.length?' · noch '+oc.length+(oc.length===1?' Angabe':' Angaben')+' offen':'')+'</small></div></div>'+
   stackBar(c)+(c.saved?'<p class="small" style="color:var(--ok)">Durch die Gästekarte spart ihr beim Skipass ≈ '+eur(c.saved)+'.</p>':'')+'</section>'+
-  legsBlock(t)+(typeof stilBlock==='function'?stilBlock(t):'')+
+  legsBlock(t)+(typeof stilBlock==='function'?stilBlock(t):'')+(typeof gemeinsamBlock==='function'?gemeinsamBlock(t):'')+
   '<section class="block"><div class="between"><h2>Euer Plan</h2><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-unterkunft">Ändern</button></div><div class="plan-mini">'+
    '<div><span class="eyebrow">Ort</span><b>'+esc(pl?pl.name:(t.dest||'Noch offen'))+'</b></div>'+
    '<div><span class="eyebrow">Unterkunft</span><b>'+esc(st?st.name:'Noch keine')+'</b>'+(st?'<small class="muted">'+esc(st.ort||'')+(num(t.stayQuote,0)>0?' · Angebot '+eur(t.stayQuote):'')+'</small>':'')+(st&&st.url?lk(st.url,'Inserat'):'')+'</div>'+

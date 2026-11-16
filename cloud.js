@@ -170,6 +170,51 @@
     },
     acceptInvite: async function (token) { return unwrap(await need().rpc('accept_trip_invite', { p_token: token }), 'Einladung ungültig'); },
 
+    /* ---------- Gemeinsam planen (Migration 20261116120000, docs/PLAN_GEMEINSAM.md) ---------- */
+    profile: async function (userId) {
+      var r = await need().from('profiles').select('display_name').eq('user_id', userId).maybeSingle();
+      var d = unwrap(r, 'Anzeigename nicht geladen'); return d ? d.display_name : '';
+    },
+    setProfile: async function (userId, name) {
+      name = String(name || '').trim();
+      if (!name) { unwrap(await need().from('profiles').delete().eq('user_id', userId), 'Anzeigename nicht entfernt'); return ''; }
+      var rows = unwrap(await need().from('profiles').update({ display_name: name }).eq('user_id', userId).select('display_name'), 'Anzeigename nicht gespeichert');
+      if (!rows.length) unwrap(await need().from('profiles').insert({ user_id: userId, display_name: name }), 'Anzeigename nicht gespeichert');
+      return name;
+    },
+    ideas: async function (tripId) {
+      var list = unwrap(await need().from('trip_ideas').select('id,author,body,link,day,status,status_by,created_at').eq('trip_id', tripId).is('deleted_at', null).order('created_at', { ascending: true }), 'Ideen nicht geladen');
+      var votes = list.length ? unwrap(await need().from('trip_idea_votes').select('idea_id,user_id').in('idea_id', list.map(function (i) { return i.id; })), 'Stimmen nicht geladen') : [];
+      return { list: list, votes: votes };
+    },
+    addIdea: async function (tripId, body, link) {
+      return unwrap(await need().from('trip_ideas').insert({ trip_id: tripId, body: body, link: link || null }).select('id').single(), 'Idee nicht gespeichert');
+    },
+    setIdea: async function (id, patch) {
+      var rows = unwrap(await need().from('trip_ideas').update(patch).eq('id', id).select('id'), 'Idee nicht geändert');
+      if (!rows.length) throw new Error('Idee nicht geändert (keine Berechtigung)');
+    },
+    vote: async function (id, on) {
+      if (on) unwrap(await need().from('trip_idea_votes').insert({ idea_id: id }), 'Stimme nicht gespeichert');
+      else unwrap(await need().from('trip_idea_votes').delete().eq('idea_id', id), 'Stimme nicht entfernt');
+    },
+    changes: async function (tripId) { return unwrap(await need().rpc('trip_changes_since', { p_trip: tripId }), 'Änderungen nicht geladen'); },
+    markSeen: async function (tripId, version) { unwrap(await need().rpc('mark_trip_seen', { p_trip: tripId, p_version: version }), 'Nicht gespeichert'); },
+    /* Realtime nur als Auslöser: cb({table, id, trip}) – Daten kommen weiter über die normalen Abfragen. */
+    watch: function (cb) {
+      if (!sb || !sb.channel) return function () {};
+      try { if (sb.realtime && sb.realtime.setAuth) sb.realtime.setAuth(); } catch (e) {}
+      var ch = sb.channel('rp-gemeinsam-' + Math.random().toString(36).slice(2));
+      ['trips', 'trip_ideas', 'trip_idea_votes'].forEach(function (table) {
+        ch = ch.on('postgres_changes', { event: '*', schema: 'public', table: table }, function (p) {
+          var row = p && (p.new && Object.keys(p.new).length ? p.new : p.old) || {};
+          try { cb({ table: table, id: row.id || row.idea_id || null, trip: table === 'trips' ? row.id : row.trip_id || null }); } catch (e) { console.error(e); }
+        });
+      });
+      ch.subscribe();
+      return function () { try { sb.removeChannel(ch); } catch (e) {} };
+    },
+
     /* ---------- Umkreis-Katalog (Issue #7), öffentlich lesbar, auch ohne Anmeldung ---------- */
     /* Katalog K2: catalog_search_v2 (Vorfilter, Seiten, Gesamtzahl); fehlt die Funktion noch, die bisherige Suche */
     catalogSearch: async function (q, page) {

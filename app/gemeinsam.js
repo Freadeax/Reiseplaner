@@ -1,0 +1,134 @@
+/* Reiseplaner · Gemeinsam planen: Ideen-Pinnwand, Anzeigename, „Was hat sich geändert“, Realtime-Auslöser
+   (docs/PLAN_GEMEINSAM.md Stufen G2–G5, Migration 20261116120000_gemeinsam).
+   Nur für online gespeicherte Reisen eines angemeldeten Kontos. Ideen ändern den Plan nie selbst; Realtime-Ereignisse lösen nur
+   den normalen Abgleich bzw. ein Neuladen der Pinnwand aus, sie sind nie Datenquelle. */
+
+const GM={trips:{},profile:undefined,profileFor:null,stopWatch:null,watchFor:null,editName:false,timer:null};
+const GM_AREA={eckdaten:'Eckdaten',zeitraum:'Zeitraum',unterkunft:'Unterkunft',anreise:'Anreise',tagesplan:'Tagesplan',kosten:'Kosten',vorbereitung:'Vorbereitung',mitreisende:'Mitreisende',erinnerungen:'Erinnerungen',notizen:'Notizen',sonstiges:'Sonstiges',geloescht:'Reise gelöscht',wiederhergestellt:'Reise wiederhergestellt'};
+const GM_STATUS={neu:'neu',eingeplant:'eingeplant',verworfen:'verworfen'};
+
+function gmCloud(){return typeof Sync!=='undefined'&&Sync.active()?Sync.cloud():null}
+function gmOnline(t){return !!(t&&gmCloud()&&Store.meta[t.id]&&Store.meta[t.id].version)}
+function gmMe(){return Auth.user&&Auth.user.id}
+
+/* Realtime: ein Kanal je Konto. Reise geändert → Abgleich; Idee/Stimme geändert → Pinnwand neu laden. */
+function gmEnsureWatch(){
+  const c=gmCloud(),me=gmMe();
+  if(!c||!c.watch){if(GM.stopWatch){GM.stopWatch();GM.stopWatch=null;GM.watchFor=null}return}
+  if(GM.watchFor===me)return;
+  if(GM.stopWatch)GM.stopWatch();
+  GM.watchFor=me;
+  GM.stopWatch=c.watch(ev=>{
+    if(ev.table==='trips'){Sync.schedule(300);if(ev.trip&&GM.trips[ev.trip])GM.trips[ev.trip].changesAt=0;return}
+    const tid=ev.trip||Object.keys(GM.trips).find(k=>GM.trips[k].list&&GM.trips[k].list.some(i=>i.id===ev.id));
+    if(tid&&GM.trips[tid]){GM.trips[tid].at=0;if(UI.view==='reise'&&UI.tid===tid)gmLoad(tid)}
+    else if(UI.view==='reise'&&UI.tid&&GM.trips[UI.tid]){GM.trips[UI.tid].at=0;gmLoad(UI.tid)}
+  });
+}
+if(typeof setInterval==='function'&&typeof window!=='undefined')GM.timer=setInterval(()=>{try{gmEnsureWatch()}catch(e){}},10000);
+
+async function gmLoad(tid){
+  const c=gmCloud();if(!c)return;
+  const s=GM.trips[tid]=GM.trips[tid]||{};
+  if(s.loading)return;s.loading=true;
+  try{
+    const me=gmMe();
+    const [ideas,members,changes,profile]=await Promise.all([
+      c.ideas(tid),
+      c.members(tid).catch(()=>[]),
+      c.changes(tid).catch(()=>[]),
+      GM.profileFor===me?Promise.resolve(GM.profile):c.profile(me).catch(()=>'')
+    ]);
+    GM.profile=profile||'';GM.profileFor=me;
+    Object.assign(s,{list:ideas.list,votes:ideas.votes,members,changes:changes||[],at:Date.now(),changesAt:Date.now(),error:''});
+  }catch(e){s.error=e&&e.message||String(e);s.at=Date.now()}
+  s.loading=false;
+  if(typeof remoteChanged==='function'&&UI.view==='reise'&&UI.tid===tid)remoteChanged();
+}
+
+function gmName(s,uid){
+  if(!uid)return 'ehemaliges Mitglied';
+  if(uid===gmMe())return 'du';
+  const m=(s.members||[]).find(x=>x.user_id===uid);
+  if(m&&m.display_name)return m.display_name;
+  const i=(s.members||[]).findIndex(x=>x.user_id===uid);
+  return i>=0?'Mitglied '+(i+1):'ein Mitglied';
+}
+
+/* Hinweis „Seit deinem letzten Besuch“ – nur Änderungen anderer, ohne Inhalte. */
+function gmChanges(t,s){
+  const other=(s.changes||[]).filter(e=>!e.by_me);
+  if(!other.length)return '';
+  const rows=other.slice(0,5).map(e=>'<li><b>'+esc(e.actor_name||'Ein Mitglied')+'</b> · '+esc(new Date(e.at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}))+' · '+esc((e.kinds||[]).map(k=>GM_AREA[k]||k).join(', '))+'</li>').join('');
+  return '<div class="note gm-changes" role="status"><b>Seit deinem letzten Besuch '+(other.length===1?'eine Änderung':other.length+' Änderungen')+' von anderen:</b><ul class="plain small">'+rows+'</ul>'+(other.length>5?'<p class="small muted">… und '+(other.length-5)+' weitere.</p>':'')+
+    '<button type="button" class="btn ghost sm" data-gm="seen" data-val="'+esc(Math.max(...(s.changes||[]).map(e=>e.version)))+'">Gesehen</button></div>';
+}
+
+function gmIdea(t,s,i){
+  const me=gmMe(),role=Store.role(t.id),votes=(s.votes||[]).filter(v=>v.idea_id===i.id),mine=votes.some(v=>v.user_id===me);
+  const canStatus=role==='owner'||role==='editor',canWithdraw=i.author===me||role==='owner';
+  return '<li class="gm-idea'+(i.status!=='neu'?' gm-'+i.status:'')+'"><div class="gm-body"><p>'+esc(i.body)+'</p>'+
+    (i.link?'<p class="small"><a href="'+esc(i.link)+'" target="_blank" rel="noopener noreferrer">Link öffnen</a></p>':'')+
+    '<p class="small muted">von '+esc(gmName(s,i.author))+(i.status!=='neu'?' · <b>'+esc(GM_STATUS[i.status])+'</b>':'')+'</p></div>'+
+    '<div class="row gm-acts"><button type="button" class="btn ghost sm" data-gm="vote" data-val="'+esc(i.id)+'" aria-pressed="'+mine+'" aria-label="'+(mine?'Daumen zurücknehmen':'Daumen hoch')+', bisher '+votes.length+'">👍 '+votes.length+(mine?' · du':'')+'</button>'+
+    (canStatus&&i.status!=='eingeplant'?'<button type="button" class="btn ghost sm" data-gm="status" data-how="eingeplant" data-val="'+esc(i.id)+'">Eingeplant</button>':'')+
+    (canStatus&&i.status!=='verworfen'?'<button type="button" class="btn ghost sm" data-gm="status" data-how="verworfen" data-val="'+esc(i.id)+'">Verwerfen</button>':'')+
+    (canStatus&&i.status!=='neu'?'<button type="button" class="btn ghost sm" data-gm="status" data-how="neu" data-val="'+esc(i.id)+'">Wieder offen</button>':'')+
+    (canStatus&&i.status==='neu'?'<button type="button" class="btn ghost sm" data-gm="plan" data-val="'+esc(i.id)+'">In den Plan …</button>':'')+
+    (canWithdraw?'<button type="button" class="btn ghost sm" data-gm="withdraw" data-val="'+esc(i.id)+'">Zurückziehen</button>':'')+'</div></li>';
+}
+
+function gemeinsamBlock(t){
+  if(!gmOnline(t))return '';
+  gmEnsureWatch();
+  const s=GM.trips[t.id];
+  if(!s||(!s.loading&&Date.now()-(s.at||0)>60000)){gmLoad(t.id)}
+  const head='<section class="block gm"><div class="between"><h2>Ideen von allen</h2><span class="small muted">für alle Mitglieder sichtbar</span></div>';
+  if(!s||!s.list){return head+(s&&s.error?'<p class="small">Pinnwand nicht geladen: '+esc(s.error)+'</p>':'<p class="small muted">Lade Pinnwand …</p>')+'</section>'}
+  const open=s.list.filter(i=>i.status==='neu'),done=s.list.filter(i=>i.status!=='neu');
+  const score=i=>(s.votes||[]).filter(v=>v.idea_id===i.id).length;
+  open.sort((a,b)=>score(b)-score(a)||String(a.created_at).localeCompare(String(b.created_at)));
+  const name=GM.profile;
+  return gmChanges(t,s)+head+
+    '<p class="small muted">Was wollt ihr unbedingt machen? Ideen ändern den Plan nicht, sie sammeln nur. Alle Mitglieder, auch mit Leserecht, können eintragen und mit 👍 abstimmen.</p>'+
+    '<form class="form gm-form" data-gm-form="idea"><label class="fld"><span>Neue Idee</span><textarea id="gm-body" maxlength="500" rows="2" placeholder="z. B. Rodeln am Abend, Therme am Regentag"></textarea></label>'+
+    '<label class="fld"><span>Link (optional, https)</span><input type="url" id="gm-link" maxlength="500" placeholder="https://…" inputmode="url"></label>'+
+    '<button type="submit" class="btn sm">Idee eintragen</button></form>'+
+    (open.length?'<ul class="plain gm-list">'+open.map(i=>gmIdea(t,s,i)).join('')+'</ul>':'<p class="small muted">Noch keine offenen Ideen.</p>')+
+    (done.length?'<details><summary>Erledigt ('+done.length+')</summary><ul class="plain gm-list">'+done.map(i=>gmIdea(t,s,i)).join('')+'</ul></details>':'')+
+    '<p class="small gm-name">'+(GM.editName?
+      '<span class="row"><label class="fld" style="flex:1"><span>Dein Anzeigename</span><input id="gm-name" maxlength="40" value="'+esc(name||'')+'" autocomplete="nickname"></label><button type="button" class="btn sm" data-gm="name-save">Speichern</button><button type="button" class="btn ghost sm" data-gm="name-cancel">Abbrechen</button></span><span class="muted">Leer lassen, um keinen Namen zu zeigen. Die anderen sehen dann „Mitglied 2“ o. Ä.</span>':
+      'So sehen dich die anderen: <b>'+esc(name||'ohne Namen')+'</b> <button type="button" class="btn ghost sm" data-gm="name-edit">'+(name?'Ändern':'Namen festlegen')+'</button>')+'</p></section>';
+}
+
+async function gmAct(fn,tid,msg){
+  try{await fn();if(msg)alertMsg(msg)}catch(e){alertMsg(e&&e.message||String(e))}
+  if(GM.trips[tid])GM.trips[tid].at=0;await gmLoad(tid);
+}
+if(typeof document!=='undefined'&&document.addEventListener){
+  document.addEventListener('submit',e=>{
+    const f=e.target.closest&&e.target.closest('[data-gm-form="idea"]');if(!f)return;e.preventDefault();
+    const t=cur(),c=gmCloud();if(!t||!c)return;
+    const body=($('#gm-body')&&$('#gm-body').value||'').trim(),link=($('#gm-link')&&$('#gm-link').value||'').trim();
+    if(!body){alertMsg('Bitte eine Idee eingeben.');return}
+    if(link&&!/^https:\/\/\S+$/.test(link)){alertMsg('Links bitte mit https:// angeben.');return}
+    gmAct(()=>c.addIdea(t.id,body,link),t.id,'Idee eingetragen.');
+  });
+  document.addEventListener('click',e=>{
+    const b=e.target.closest&&e.target.closest('[data-gm]');if(!b)return;
+    const t=cur(),c=gmCloud();if(!t||!c)return;
+    const act=b.getAttribute('data-gm'),val=b.getAttribute('data-val'),s=GM.trips[t.id]||{};
+    if(act==='vote'){const mine=(s.votes||[]).some(v=>v.idea_id===val&&v.user_id===gmMe());gmAct(()=>c.vote(val,!mine),t.id);return}
+    if(act==='status'){gmAct(()=>c.setIdea(val,{status:b.getAttribute('data-how')}),t.id,'Status geändert.');return}
+    if(act==='withdraw'){gmAct(()=>c.setIdea(val,{deleted_at:new Date().toISOString()}),t.id,'Idee zurückgezogen.');return}
+    if(act==='plan'){const i=(s.list||[]).find(x=>x.id===val);if(!i)return;
+      /* Normaler Planweg: Ideen-Bereich öffnen, Text der Idee als Vorlage merken; Status setzt die Person danach selbst. */
+      try{if(navigator.clipboard)navigator.clipboard.writeText(i.body).catch(()=>{})}catch(x){}
+      go('r-'+t.id+'-unternehmen');alertMsg('Idee kopiert. Tragt sie hier als Unternehmung ein und setzt sie danach auf „Eingeplant“.');return}
+    if(act==='seen'){gmAct(()=>c.markSeen(t.id,Number(val)),t.id);return}
+    if(act==='name-edit'){GM.editName=true;render();const x=$('#gm-name');if(x)x.focus();return}
+    if(act==='name-cancel'){GM.editName=false;render();return}
+    if(act==='name-save'){const v=($('#gm-name')&&$('#gm-name').value||'').trim();if(v.length>40){alertMsg('Höchstens 40 Zeichen.');return}
+      GM.editName=false;gmAct(async()=>{GM.profile=await c.setProfile(gmMe(),v);GM.profileFor=gmMe();Object.values(GM.trips).forEach(x=>x.at=0)},t.id,v?'Anzeigename gespeichert.':'Anzeigename entfernt.');return}
+  });
+}
