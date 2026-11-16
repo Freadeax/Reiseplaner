@@ -71,7 +71,8 @@ function fixPoints(t){
 /* Wegminuten von Punkt a nach Punkt b (uids), wenn bekannt: zuerst dayWays (Routen-Thread), sonst transferGaps. */
 function fixWayMin(t,day,fromUid,toUid,gaps){
   try{if(typeof dayWays==='function'){const w=dayWays(t,day),legs=w&&Array.isArray(w.legs)?w.legs:[];
-    const id=x=>x&&typeof x==='object'?x.uid:x;const l=legs.find(l=>id(l.from)===fromUid&&id(l.to)===toUid);if(l&&Number.isFinite(+l.min))return +l.min}}catch(e){}
+    /* app/wege.js: Abschnitte in Planreihenfolge, Ziel über toUid; der Abschnitt zum Fixpunkt beginnt am Punkt davor */
+    const l=legs.find(l=>l&&l.toUid===toUid&&(l.fromUid==null||l.fromUid===fromUid));if(l&&Number.isFinite(+l.min))return +l.min}}catch(e){}
   const g=(gaps||[]).find(g=>g.from&&g.to&&g.from.it.uid===fromUid&&g.to.it.uid===toUid);
   return g&&Number.isFinite(g.need)?g.need:null;
 }
@@ -135,7 +136,7 @@ function fixDayEval(t,day,ctx){
 /* Ganze Reise: Tage, Hinweise über mehrere Tage und Vorschläge. Gemerkt je Reiseobjekt, solange es sich nicht ändert. */
 const FIX_CACHE=new WeakMap();
 function fixTrip(t){
-  const key=JSON.stringify(t)+'|'+fixPace(t),hit=FIX_CACHE.get(t);if(hit&&hit.key===key)return hit.res;
+  const key=JSON.stringify(t)+'|'+fixPace(t)+'|'+(typeof wegeVersion!=='undefined'?wegeVersion:''),hit=FIX_CACHE.get(t);if(hit&&hit.key===key)return hit.res;
   const pace=fixPace(t),load=dayLoad(t),points=fixPoints(t),gaps=typeof transferGaps==='function'?transferGaps(t):[];
   const days=daysOf(t).map(d=>Object.assign(fixDayEval(t,d.i,{pace,load,points,gaps}),{dayLabel:d.label}));
   const notes=[],tight=s=>['konflikt','ueberladen','knapp','voll'].includes(s);

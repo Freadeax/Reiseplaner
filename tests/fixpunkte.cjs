@@ -178,4 +178,19 @@ const trip = o => a.newTrip(Object.assign({ dateMode: 'fix', start: '2026-12-30'
   n++;
 }
 
+/* 7 · Wegzeit aus app/wege.js (dayWays) geht in den Puffer ein */
+{
+  const t = trip({});
+  t.customActs = [act('cmass', 'Massage', 1), act('crod', 'Rodeln', 2)];
+  t.ledger = { 'act:cmass': { status: 'gebucht', amount: 80, paid: 0 } };
+  t.items = [{ uid: 'm', act: 'cmass', day: 2, slot: 'nachm', time: '15:00' }, { uid: 'r', act: 'crod', day: 2, slot: 'mittag', time: '12:30' }];
+  const orig = ctx.dayWays;
+  ctx.dayWays = () => ({ legs: [{ from: 'Rodelbahn', to: 'Massage', toUid: 'm', min: 25 }] });
+  const d = F.fixTrip(t).days[2];
+  ctx.dayWays = orig;
+  assert.equal(d.state, 'knapp', '30 Min. Lücke < 15 Min. Puffer + 25 Min. Weg');
+  assert(/empfohlen 40 Min\. \(davon ≈ 25 Min\. Weg\)/.test(d.issues[0].text), d.issues[0].text);
+  n++;
+}
+
 console.log('Fixpunkte & Puffer: ' + n + ' Prüfungen bestanden (abgeleitete Fixpunkte, Überschneidung, Puffer-Richtwerte, fehlende Uhrzeit/Dauer = nicht sicher, Tempo, Vorschläge, Abschnitte, Format-5-Felder, Darstellung). Kein Browser-/iPhone-Test.');

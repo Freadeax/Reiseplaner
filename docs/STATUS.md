@@ -71,6 +71,8 @@ Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfu
 
 **Stufe 2 (gleicher Tag, nach `F5_WRITE = true`):** Im Abschnitt je Tag „… als Fixpunkt“ (nur mit Uhrzeit, schreibt `items[i].fix`) und „Tageszeit freihalten“ mit Grund Erholung/Wetter-Reserve/Spontanes (`t.keepFree`), beides über `f5Commit` mit Bestätigung beim Anheben auf Format 5. Uhrzeit entfernen löst die Markierung (`protectedPlanChange`). „Lücken füllen“ (`app/tagesplan.js`, eine Zeile) lässt freigehaltene Tageszeiten aus. Test `tests/fixpunkte-write.cjs` (3 Prüfungen).
 
+Nachtrag (16.11. mittags): Wegzeiten aus `app/wege.js` (`dayWays`, Abschnitt über `toUid`) gehen in den Puffer vor einem Fixpunkt ein; Tempo kommt aus `styleOf` (Reisestil). Test 7 in `tests/fixpunkte.cjs`.
+
 Nächster Schritt: Tempo der Reise (`t.pace`) im Eckdaten-Formular wählbar machen (mit dem Reisestil-Thread abstimmen); iPhone-Sichtprüfung.
 
 ## Buchungen & Tickets: zentraler Speicher für Unterlagen (Claude, 16.11.)
