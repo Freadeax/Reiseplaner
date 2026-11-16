@@ -32,10 +32,10 @@ Freunde) können nichts beitragen, und es gibt keinen Ort für Ideen, die (noch)
 | Stufe | Inhalt | Migration | Stand |
 | --- | --- | --- | --- |
 | G1 | **Drei-Wege-Abgleich**: unabhängige Änderungen werden zusammengeführt, nur echte Widersprüche erscheinen, Wahl je Punkt | nein | **[neu]** |
-| G2 | **Schneller Abgleich**: Supabase Realtime meldet „Reise geändert“ → sofortiger Abgleich; „Anna ist gerade in der Reise“ | ja (Publikation) | [Plan] [Freigabe] |
-| G3 | **Anzeigename** statt E-Mail in Mitgliederliste und Hinweisen (M06.1) | ja (`profiles`) | [Plan] [Freigabe] |
-| G4 | **Ideen-Pinnwand** je Reise: alle Mitglieder (auch Leser) tragen Ideen ein und stimmen mit „Daumen hoch“ ab; Bearbeiter übernehmen eine Idee in den Plan | ja (`trip_ideas`, `trip_idea_votes`) | [Plan] [Freigabe] |
-| G5 | **Was hat sich geändert?** Verlauf ohne Inhalte („Anna: Unterkunft, Tagesplan 31.12.“) und Hinweis beim Öffnen (M06.3) | ja (`trip_events`, `trip_seen`) | [Plan] [Freigabe] |
+| G2 | **Schneller Abgleich**: Supabase Realtime meldet „Reise geändert“ → sofortiger Abgleich; „Anna ist gerade in der Reise“ | ja (Publikation) | Datenbank **[neu]**, Oberfläche [Plan] |
+| G3 | **Anzeigename** statt E-Mail in Mitgliederliste und Hinweisen (M06.1) | ja (`profiles`) | Datenbank **[neu]**, Oberfläche [Plan] |
+| G4 | **Ideen-Pinnwand** je Reise: alle Mitglieder (auch Leser) tragen Ideen ein und stimmen mit „Daumen hoch“ ab; Bearbeiter übernehmen eine Idee in den Plan | ja (`trip_ideas`, `trip_idea_votes`) | Datenbank **[neu]**, Oberfläche [Plan] |
+| G5 | **Was hat sich geändert?** Verlauf ohne Inhalte („Anna: Unterkunft, Tagesplan 31.12.“) und Hinweis beim Öffnen (M06.3) | ja (`trip_events`, `trip_seen`) | Datenbank **[neu]**, Oberfläche [Plan] |
 | G6 | **Ich bin Mitreisende/r X**: `party[i].member` nur durch die Person selbst (Format 5, `claim_party`) | ja | [Plan], gemeinsam mit Format-5-Thread |
 | G7 | Abstimmungen mit mehreren Optionen, Kommentare an Tag/Unternehmung (M06.4/M06.5) | ja | später, nach G4-Erfahrung |
 
@@ -118,9 +118,17 @@ Namen verwenden.
   G1–G10 plus: Leser legt Idee an → ja, Leser setzt Status → nein, Fremder liest Ideen → 0 Zeilen, Realtime-Ereignis nur für
   Mitglieder). E2E mit zwei Browser-Kontexten.
 
+## 9a · Migration `20261116120000_gemeinsam.sql`
+
+Freigabe Philipp 16.11. („auf live bringen der neuen Sachen“). Inhalt wie §5–§8; dazu: Leser dürfen Ideen eintragen und
+abstimmen (Philipp 16.11.), Status nur Eigentümer/Bearbeiter, Zurückziehen weich (Autor oder Eigentümer), kein hartes Löschen
+über die API, höchstens 200 Ideen je Reise, nur `https`-Links. `trip_member_list` liefert `display_name`; E-Mail nur für den
+Eigentümer und die eigene Zeile (ältere App-Stände zeigen dann die Konto-ID statt E-Mail). Kontolöschung: Profil und Stimmen
+weg, Ideen und Verlauf bleiben anonym. `supabase/config.toml`: Realtime lokal eingeschaltet (für `tests/db/gemeinsam.cjs`).
+
 ## 10 · Offene Entscheidungen für Philipp
 
-1. Migration G2–G5 nach lokalem Test einspielen (Produktion)? **[Freigabe]**
-2. Dürfen Leser Ideen eintragen und abstimmen? Vorschlag: ja (sie planen nicht, tragen aber bei).
+1. ~~Migration G2–G5~~ freigegeben 16.11.
+2. ~~Leser: Ideen und Stimmen~~ ja (Philipp 16.11.).
 3. Anzeigename freiwillig (Entscheidung 7)? Vorschlag: ja.
 4. Verlauf 90 Tage aufbewahren? Vorschlag: ja.

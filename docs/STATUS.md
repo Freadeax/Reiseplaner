@@ -16,6 +16,12 @@ Nachtrag (16.11. mittags, Bedienbarkeit auf Hinweis des Oberflächen-Threads): G
 Nächster Schritt: echte Abfrage auf Philipps Gerät prüfen; Format 5 schreibt seit heute (`F5_WRITE = true`), daher als Nächstes Ausblenden und eigene Packpunkte je Person (`t.packing`, M03.4) sowie Ausweis-Eingabe (M04.3); Wetter auch im Tagesplan (M03.2).
 
 
+## Gemeinsam planen, Datenbank G2–G5 (Claude, 16.11.)
+
+Migration `20261116120000_gemeinsam.sql` nach Freigabe Philipp (16.11., „live bringen der neuen Sachen“): Realtime-Publikation für `trips`, `trip_ideas`, `trip_idea_votes` und private Kanäle `trip:<id>` nur für Mitglieder (G2); `profiles` mit freiwilligem Anzeigenamen, `trip_member_list` zeigt fremde E-Mails nur dem Eigentümer (G3); Ideen-Pinnwand `trip_ideas`/`trip_idea_votes`, Leser dürfen eintragen und abstimmen (Philipp 16.11.), Status nur Eigentümer/Bearbeiter (G4); Verlauf `trip_events` ohne Inhalte (90 Tage), `trip_seen`, `mark_trip_seen`, `trip_changes_since` (G5); Kontoexport Version 2 mit Profil und eigenen Ideen. Bestehende Tabellen unverändert. Die App nutzt das noch nicht; die Oberfläche folgt.
+
+Tests (16.11., Cloud-Container, lokaler Supabase frisch mit allen Migrationen, auf Stand `64bcfbd`): `supabase db lint --level warning --fail-on warning` ohne Befund, `REQUIRE_DB=1 npm run test:db` (neu `tests/db/gemeinsam.cjs`: Anzeigename und E-Mail-Sichtbarkeit, Ideen mit Rechten, Status, Zurückziehen und Grenzen, Stimmen, Realtime nur für Mitglieder, Verlauf ohne Inhalte, Gelesen-Marke, Export, Kontolöschung; dreimal hintereinander grün), `test:e2e`, `npm test` grün. `supabase/config.toml`: Realtime lokal an. Ob die Migration in Produktion angekommen ist, ist von hier nicht prüfbar (Supabase-Dashboard → Database → Migrations).
+
 ## Gemeinsam planen, Stufe G1: Drei-Wege-Abgleich (Claude, 16.11.)
 
 Thread „Gemeinsam mit Mitreisenden planen“ (Auftrag Philipp 16.11.). Konzept und Stufen G1–G7 in `docs/PLAN_GEMEINSAM.md`.
