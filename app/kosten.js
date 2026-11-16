@@ -163,7 +163,7 @@ function checklist(t){
   if(extra.length) groups.push(['Packliste: für eure Unternehmungen',extra.map(x=>['p-'+x,x,'für: '+[...need[x]].join(', ')])]);
   if(t.type==='winter') groups.push(['Kurz vorher',[['snow','Schneebericht und Straßenlage checken','ab 3 Tage vorher'],['open','Öffnungszeiten über die Feiertage prüfen','']]]);
   groups.push(['Eigene Punkte',(t.customChecks||[]).map(c=>['c-'+c.id,c.t,'',c.id])]);
-  return groups;
+  return typeof packFilter==='function'?packFilter(t,groups):groups;
 }
 
 /* Angebot anwenden */

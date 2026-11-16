@@ -11,6 +11,16 @@ Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Details `docs/W
 Tests (16.11. abends, Cloud-Container, auf Stand `a1d5dc2` mit Neugestaltung „Reisetagebuch“): `npm test` (neu `tests/wege-schreiben.cjs`, 4 Prüfungen), Sichtprüfung in Chromium 390 px hell/dunkel (Vorschlag übernommen: 2 Std. 10 Min. → 1 Std. 45 Min., Mappe mit Skizze), `test:browser` mit CI-Schrift grün. Nicht getestet: echtes Routing, iPhone, Safari.
 
 
+## Checkliste anpassen: Ausblenden, eigene Packpunkte, Ausweise, Reiseland (Claude, 16.11. abends)
+
+Thread „Check- und Packlisten nach Ziel und Wetter“ (Auftrag Philipp 16.11. abends: Bereiche fertig ausbauen). Nutzt den Format-5-Schreibweg (`f5Commit`), Anheben nur nach Bestätigung.
+- Neue Ebene „Liste anpassen“ am Ende der Checkliste (zugeklappt): Reiseland bestätigen/ergänzen (`t.countries`), Ausweise je Mitreisender mit Art und Ablaufdatum ohne Nummer (`t.idDocs`, Prüfung „läuft vor der Rückkehr ab“ in „Dokumente & Einreise“), eigene Packpunkte mit Gruppe, Menge und Person (`t.packing.custom`), ausgeblendete Punkte wieder zeigen.
+- Je abgeleitetem Pack- oder Dokumentpunkt „Ausblenden“ (`t.packing.hidden`, Schlüssel stabil); Buchungsaufgaben lassen sich nicht ausblenden. Ohne Schreibrecht bleibt die Liste wie bisher.
+- Reisestile Camping, Aktivurlaub, Fernreise mit eigenen Packpunkten (Hinweis Reisestil-Thread).
+- Geteilte Dateien: je eine Zeile in `app/kosten.js` (`checklist` → `packFilter`) und `app/ansichten.js` (Zeilenwerkzeuge, Ebene, eigene Packgruppen offen). `app.css` unverändert.
+
+Tests (16.11. abends, Cloud-Container, auf Stand der Neugestaltung „Reisetagebuch“): `npm test` (neu `packliste5`, 2 Prüfungsgruppen: Bestätigung, Ausblenden, eigene Packpunkte, unbekannte Person abgelehnt, Ausweis ohne Nummer, Reiseland, ohne Schreibrecht), `test:browser` grün; in Chromium 390 px hell/dunkel von Hand: Packpunkt anlegen mit Umstell-Bestätigung, Ausweis eintragen, Punkt ausblenden, kein Überlauf, keine Konsolenfehler. Nicht getestet: iPhone, Safari, echte Open-Meteo-Abfrage.
+
 ## Gemeinsam planen: Anwesenheit, Rückfall-Takt, Namensfrage (Claude, 16.11. abends)
 
 Ohne Datenbankänderung (nutzt die Kanalregeln der Migration `20261116120000`). `app/gemeinsam.js`, `cloud.js` (`presence`, `watch` meldet Verbindungsstatus), `app.css` (3 Regeln).
