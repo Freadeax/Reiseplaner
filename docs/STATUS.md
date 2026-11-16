@@ -1,6 +1,19 @@
 # Projektstand · 16.11.2026
 
 
+
+## Plan und Ist: tatsächliche Ausgaben im Budget (Claude, 16.11.)
+
+Thread „Ist-Ausgaben im Budget erfassen“ (Philipps Liste vom 16.11., Punkt Budget- und Kostenüberblick). Konzept und Regeln: `docs/IST_AUSGABEN.md`.
+- **Neu `istvergleich.js`** (rein, `window.RPIST`): je Bereich Plan (aus `cost(t)`), bisher ausgegeben (bezahlt an Anbieter + Ausgaben unterwegs) und Hochrechnung bis Reiseende. Verpflegung und Sprit sind Töpfe (`lines[i].pot` in `cost()`): Ausgaben füllen dort zuerst den Planwert statt ihn zu verdoppeln, unterwegs sinkt die Hochrechnung nie unter den Plan, nicht Erfasstes bleibt Planwert. Offene Preise verhindern „im Budget“. Puffer getrennt.
+- **Rechenfehler behoben:** Buchungsbuch-Posten mit „bezahlt“ über dem Plan und ohne erfassten Betrag (Import/Sync/Altdaten) zählten in `cost()` und `ledgerRows` nur mit dem Planwert; jetzt zählt das Bezahlte. Die Eingabegrenze beim Bearbeiten bleibt der Planwert.
+- **Oberfläche:** Kosten → Budget hat den Abschnitt „Plan und Ist“ (sobald Geld geflossen ist oder die Reise läuft/vorbei ist), der Heute-Block unterwegs eine Zeile „Heute ausgegeben · bisher · Hochrechnung“ mit „+ Ausgabe erfassen“. Erfassen: Betrag zuerst, Bezeichnung freiwillig (leer = Kategorie), zuletzt Zahlende/r vorgewählt; Vorschau/Bestätigung bleibt.
+- Kein Speicherfeld, kein Formatwechsel. Geteilte Dateien: je eine Zeile in `app/zahlungsbuch.js` (`budgetSection`), `app/ansichten.js` (`todayBlock`), `index.html`, `sw.js` (Dateiliste, Version unverändert v30: Netz zuerst, ohne Datei fehlt nur der Abschnitt), Build-Listen; `app/kosten.js` (Topf-Kennzeichen, bezahlt über Plan).
+
+Tests (16.11., Cloud-Container): `npm test` (neu `istvergleich`, 95 Prüfungen), `test:browser`, `build`, `check:artifact` grün. Darstellung in Chromium bei 390 px hell/dunkel angesehen (kein seitliches Scrollen). Nicht getestet: iPhone, Safari.
+
+Nächster Schritt: in der Schnellerfassung „Das war ein geplanter Posten“ (schreibt `ledger[key].paid`, gegen Doppelzählung bei vor Ort bezahlten Unternehmungen), danach Verknüpfung als Format-5-Feld abstimmen.
+
 ## Format 5 in der App lesen (Lese-Release, Claude, 16.11.)
 
 SCHEMA_V5 §8 Schritt 3. Die App lädt `v5logic.js` und liest Format-5-Reisen, schreibt aber selbst noch keine (`F5_WRITE = false` in `app/v3.js`): keine bestehende Reise wird angehoben.

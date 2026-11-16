@@ -607,7 +607,7 @@ function todayBlock(t,now){
   return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+
    (L&&(L.planned||L.drive)?'<p class="small muted">Programm ≈ '+String(L.planned).replace('.',',')+' Std.'+(L.drive?' · Fahrt ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std.':'')+(L.over?' · <b>zu voll</b>, einen Punkt verschieben':'')+'</p>':'')+
    (ru||outs.length?'<div class="row">'+(ru?lk(ru,'Route für heute'):'')+outs.map(x=>'<button type="button" class="btn ghost sm" data-act="item" data-val="'+esc(x.it.uid)+'">☂ Regen-Alternative: '+esc(x.a.t)+'</button>').join('')+'</div>':'')+'</div>'+
-   rainBlock(t,ph.day)+journalToday(t,ph.day)+
+   (typeof istToday==='function'?istToday(t,now):'')+rainBlock(t,ph.day)+journalToday(t,ph.day)+
    (next?'<h3>Morgen · '+esc(next.label)+'</h3><div class="panel">'+dayList(t,next,last)+'</div>':'')+
    '<div class="row"><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-plan">Ganzer Tagesplan</button><button type="button" class="btn ghost sm" data-go="r-'+t.id+'-mappe">Reisemappe</button></div></section>';
 }

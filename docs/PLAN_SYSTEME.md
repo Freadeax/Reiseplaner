@@ -36,6 +36,7 @@ Lücken nach Gewicht:
 2. **Verpflegung doppelt möglich.** `board:'half'` gibt es noch nicht; ein Halbpension-Angebot und `t.food='auswaerts'`
    zählen Abendessen zweimal (M08 O2). Paket M08.3 nach Format 5: Verpflegungsplan zieht inklusive Mahlzeiten ab.
 3. **Wunschbudget und Obergrenze sind ein Feld** (`t.budget`). `criteria.budgetMax` + `budgetVerdict` trennen das (V2/V3).
+**16.11.:** Plan-Ist-Vergleich je Bereich mit Hochrechnung (`istvergleich.js`, `docs/IST_AUSGABEN.md`) [Code].
 4. Szenarien variieren nur die Verpflegung. M05 `assumptions` (Sprit, Aktivitäten, Unterkunft als Spannen) folgt mit M05.2.
 
 Abnahme je Paket: Regressionsvergleich wie G-R12 (alle Vorlagen, Pakete, Katalog-Unterkünfte centgenau gleich), dann die

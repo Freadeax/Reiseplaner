@@ -28,9 +28,9 @@ function ledgerRows(t){
   const plan=cost(Object.assign({},t,{ledger:{}})).lines,lg=t.ledger||{},rows=[],seen=new Set();
   plan.forEach(l=>{if(!l.key||l.key==='stay'||seen.has(l.key))return;seen.add(l.key);
     const planned=plan.filter(x=>x.key===l.key).reduce((x,y)=>x+y.c,0),e=lg[l.key]||{},amount=e.amount!=null?+e.amount:null,paid=num(e.paid,0),openPrice=keyPriceOpen(t,l.key,plan);
-    let c=amount!=null?amount:planned;const row={key:l.key,planOpen:openPrice,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,status:e.status||'offen',paid,due:e.due||'',orphan:false};
+    let c=amount!=null?amount:Math.max(planned,paid); /* bezahlt über Plan bleibt Reisekosten (wie cost) */const row={key:l.key,planOpen:openPrice,label:l.key.startsWith('act:')?((actOf(t,l.key.slice(4))||{}).t||l.t):l.t,cat:l.cat,plan:planned,amount,status:e.status||'offen',paid,due:e.due||'',orphan:false};
     /* Format 3: Storno/Erstattungen je Posten; ohne bekannten Preis keine Überzahlung ableiten */
-    if(v3Money(t,e)){const m=V3.cancelMath(e,amount!=null?amount:openPrice?null:planned);Object.assign(row,{cancelled:m.cancelled,unknown:m.unknown,netPaid:m.netPaid,refundsReceived:m.refundsReceived,refundOpen:m.refundOpen||0,feeOpen:m.feeOpen||0});c=m.cost==null?0:m.cost;row.open=m.unknown?0:(m.open||0)}
+    if(v3Money(t,e)){const m=V3.cancelMath(e,amount!=null?amount:openPrice?null:Math.max(planned,paid));Object.assign(row,{cancelled:m.cancelled,unknown:m.unknown,netPaid:m.netPaid,refundsReceived:m.refundsReceived,refundOpen:m.refundOpen||0,feeOpen:m.feeOpen||0});c=m.cost==null?0:m.cost;row.open=m.unknown?0:(m.open||0)}
     else if(openPrice&&amount==null){row.unknown=true;row.open=0} /* ohne Preis kein „Vollständig bezahlt“ */
     else row.open=Math.max(0,c-paid);
     row.cost=c;rows.push(row);
@@ -78,7 +78,7 @@ function setLedger(t,key,field,value){
      storniert zählt der Betrag vor dem Storno (bzw. eine höhere Gebühr), nicht nur die Gebühr */
   if(row&&(field==='paid'||field==='amount')){
     const pre=row.amount!=null?row.amount:row.planOpen||row.orphan?null:row.plan,fee=e.cancel&&e.cancel.fee!=null?+e.cancel.fee:0;
-    const lim=row.cancelled?(pre==null?null:Math.max(pre,fee)+refC/100):row.cost+refC/100;
+    const lim=row.cancelled?(pre==null?null:Math.max(pre,fee)+refC/100):(row.amount!=null?row.cost:row.plan)+refC/100; /* ohne Betrag gilt der Planwert als Grenze, auch wenn Altdaten schon mehr bezahlt zeigen */
     if(lim!=null&&e.paid>lim+0.005)throw new Error('Bezahlt ('+eur(e.paid)+') ist höher als der Betrag des Postens ('+eur(lim)+'). Bitte zuerst den gebuchten Betrag eintragen.');
   }
   /* Nur wirklich leere Einträge entfernen: weitere Felder (künftig z. B. Erstattungen/Storno, SCHEMA_V3 §5 Feldtreue) bleiben erhalten */
@@ -141,7 +141,7 @@ function budgetSection(t,now){
   return '<section class="block" data-budget><h2>Budget</h2><p class="budget-head">'+head+'</p>'+bar+
    '<div class="kpis"><div class="kpi"><small><i class="sw sw-fest" aria-hidden="true"></i>Fest</small><b class="num">'+eur(x.fixed)+'</b><small>gebucht oder Betrag erfasst</small></div><div class="kpi"><small><i class="sw sw-plan" aria-hidden="true"></i>Noch geschätzt</small><b class="num">'+eur(x.estimated)+'</b><small>Planwerte, können sich ändern</small></div>'+(x.reserve?'<div class="kpi"><small>Puffer</small><b class="num">'+eur(x.reserve)+'</b><small>Reserve, kein fester Posten</small></div>':'')+'</div>'+
    (rows?'<div class="tbl-wrap"><table><caption class="small muted">Je Bereich: ursprünglicher Plan, aktueller Stand, davon fest und bezahlt</caption><thead><tr><th>Bereich</th><th class="r">Plan</th><th class="r">Aktuell</th><th class="r">Fest</th><th class="r">Bezahlt</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+
-   devs+retro+'</section>';
+   devs+(typeof istSection==='function'?istSection(t,now):'')+retro+'</section>';
 }
 function fileSafe(s){return String(s||'Reise').replace(/[^\wäöüÄÖÜß\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'Reise'}
 

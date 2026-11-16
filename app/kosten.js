@@ -23,12 +23,12 @@ function cost(t){
     const tc=V3.transportCost(trv,{persons:P,verb:num(t.verb,7.5),preis:num(t.preis,2.15)});
     tc.lines.forEach(l=>{add('anreise',l.label,l.open?'Preis offen':'eure Eingabe',l.open?0:l.c,l.open?'est':'ok',l.key);if(l.open)lines[lines.length-1].open=true});
     if(t.travel==='auto'||[].concat(trv.out||[],trv.back||[]).some(x=>x.mode==='auto'||x.mode==='mietwagen')){let km=pl?pl.local:0;items.forEach(it=>{const a=actOf(t,it.act);km+=(a.kmBy&&pl&&a.kmBy[t.place]!=null)?a.kmBy[t.place]:(a.km||0)});
-      if(km>0){const l=km*num(t.verb,7.5)/100;add('anreise','Sprit vor Ort · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' €',l*num(t.preis,2.15),'est','anreise')}}
+      if(km>0){const l=km*num(t.verb,7.5)/100;add('anreise','Sprit vor Ort · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' €',l*num(t.preis,2.15),'est','anreise');lines[lines.length-1].pot=true}}
   } else if(t.travel==='auto'){
     let km=routeKm(t)*2+(pl?pl.local:0);
     items.forEach(it=>{const a=actOf(t,it.act);km+=(a.kmBy&&pl&&a.kmBy[t.place]!=null)?a.kmBy[t.place]:(a.km||0)});
     const l=km*num(t.verb,7.5)/100;
-    add('anreise','Sprit · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' € · inkl. Fahrten vor Ort',l*num(t.preis,2.15),'est','anreise');
+    add('anreise','Sprit · ≈ '+Math.round(km)+' km',dec(l,1)+' l × '+dec(num(t.preis,2.15),2)+' € · inkl. Fahrten vor Ort',l*num(t.preis,2.15),'est','anreise');lines[lines.length-1].pot=true;
   } else if(num(t.ticket,0)>0) add('anreise',t.travel==='bahn'?'Bahn-Tickets':'Flug / Ticket','eure Eingabe',num(t.ticket,0),'ok','anreise');
   if(pl&&!(activeOffer(t)&&activeOffer(t).fees.tax.state!=='unknown')) add('gebuehren','Kurbeitrag','≈ '+dec(pl.taxe,2)+' € p. P. / Nacht',pl.taxe*P*N,'est','kurbeitrag');
   /* Schneesport */
@@ -59,7 +59,7 @@ function cost(t){
   });
   /* Essen */
   const f=FOOD[t.food]||FOOD.selbst;let fpp=f[1]*(N+1);if(st&&st.breakfast)fpp-=7*N;
-  add('essen','Essen & Trinken · '+f[0],f[2]+' · ≈ '+f[1]+' € p. P. / Tag'+(st&&st.breakfast?' · Frühstück inklusive':''),Math.max(0,fpp)*P);
+  add('essen','Essen & Trinken · '+f[0],f[2]+' · ≈ '+f[1]+' € p. P. / Tag'+(st&&st.breakfast?' · Frühstück inklusive':''),Math.max(0,fpp)*P);lines[lines.length-1].pot=true; /* Topf für den Plan-Ist-Vergleich (istvergleich.js): laufend ausgegeben, keine Einzelbuchung */
   (t.extraCosts||[]).forEach(e=>add('eigen',e.t||'Eigener Posten',e.note||'',num(e.c,0),'ok','xc:'+e.id));
   /* Zahlungsbuch: ein erfasster Buchungsbetrag ersetzt den Planwert dieses Postens (auch für den Puffer). */
   const lg=t.ledger&&typeof t.ledger==='object'?t.ledger:{};
@@ -67,8 +67,14 @@ function cost(t){
     if(v3Money(t,le)&&le.cancel){const hit=lines.filter(l=>l.key===k);if(!hit.length)return;const m=V3.cancelMath(le,0),planned=hit.reduce((x,l)=>x+l.c,0);
       for(let i=lines.length-1;i>=0;i--)if(lines[i].key===k)lines.splice(i,1);
       lines.push({cat:hit[0].cat,t:(k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t)+' (storniert)',s:(m.unknown?'Stornogebühr noch unbekannt':'Stornogebühr laut eurer Eingabe')+' · Plan war '+eur(planned),c:m.unknown?0:m.cost,src:m.unknown?'est':'ok',key:k,booked:true,cancelled:true,unknownFee:m.unknown});return}
-    if(le.amount==null||!Number.isFinite(+le.amount))return;const hit=lines.filter(l=>l.key===k);if(!hit.length)return;
-    const planned=hit.reduce((x,l)=>x+l.c,0),label=k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t;
+    const hit=lines.filter(l=>l.key===k);if(!hit.length)return;const planned=hit.reduce((x,l)=>x+l.c,0);
+    /* Bezahlt über Plan ohne erfassten Betrag: Bezahltes bleibt Reisekosten (Projektregel §11), der Planwert ist dann zu klein. */
+    if(le.amount==null||!Number.isFinite(+le.amount)){const pd0=num(le.paid,0);if(!(pd0>planned+0.005))return;
+      const lb=k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t,op=hit.some(l=>l.open);
+      for(let i=lines.length-1;i>=0;i--)if(lines[i].key===k)lines.splice(i,1);
+      const sp=[];hit.forEach(l=>{const ds=l.day!=null?[l.day]:(l.days||[]);ds.forEach(dd=>sp.push({day:dd,share:(planned>0?l.c/planned:1/hit.length)/ds.length}))});
+      lines.push({cat:hit[0].cat,t:lb,s:'bezahlt, mehr als geplant · Plan war '+eur(planned)+(op?' · Preis weiter offen':''),c:pd0,src:'ok',key:k,split:sp,overpaid:true,open:op||undefined});return}
+    const label=k.startsWith('act:')?(actOf(t,k.slice(4))||{t:hit[0].t}).t:hit[0].t;
     for(let i=lines.length-1;i>=0;i--)if(lines[i].key===k)lines.splice(i,1);
     const split=[];hit.forEach(l=>{const ds=l.day!=null?[l.day]:(l.days||[]);ds.forEach(dd=>split.push({day:dd,share:(planned>0?l.c/planned:1/hit.length)/ds.length}))});
     lines.push({cat:hit[0].cat,t:label,s:'laut eurer Buchung · Plan war '+eur(planned)+(hit.length>1?' ('+hit.length+' Termine)':''),c:+le.amount,src:'ok',key:k,booked:true,split})});

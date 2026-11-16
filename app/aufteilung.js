@@ -102,7 +102,7 @@ function splitCandidate(t,action,target,f,newId){
   return v3Candidate(t,c=>{
     if(action==='person-add')V3S.mutate(c,'person-add',{id:newId,name:f.name});
     else if(action==='person-rename'||action==='person-remove')V3S.mutate(c,action,{id:a.id,name:f.name});
-    else if(action==='expense-add'||action==='expense-edit')V3S.mutate(c,'expense-put',{add:action==='expense-add',expense:V3S.readExpense(f,c.party||[],{id:action==='expense-add'?newId:a.id})});
+    else if(action==='expense-add'||action==='expense-edit'){if(!String(f.label==null?'':f.label).trim())f=Object.assign({},f,{label:V3S.CATS[String(f.cat||'').trim()]||'Ausgabe'});V3S.mutate(c,'expense-put',{add:action==='expense-add',expense:V3S.readExpense(f,c.party||[],{id:action==='expense-add'?newId:a.id})})}
     else if(action==='expense-remove')V3S.mutate(c,'expense-remove',{id:a.id});
     else throw new Error('Unbekannte Aktion.');
   });
@@ -142,10 +142,10 @@ function splitForm(t,s){
     return '<h2>Zahler wählen</h2><p><b>'+esc(p.label)+'</b></p><p class="small">Brutto bezahlt '+esc(V3S.fmt(num(p.entry.paid,0)))+' · zurückerhalten '+esc(V3S.fmt(m.refundsReceived))+' · <b>netto '+esc(V3S.fmt(m.netPaid))+'</b>. Der Nettobetrag wird gleich auf alle Mitreisenden verteilt.</p><div class="form"><label class="fld"><span>Bezahlt von</span><select name="paidBy"><option value="">Keine Angabe</option>'+party.map(x=>'<option value="'+esc(x.id)+'"'+(p.entry.paidBy===x.id?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select></label></div><p class="small muted">Je Posten ein Zahler. Betrag, Status und Zahlungen bleiben unverändert.</p>'+check}
   const x=s.action==='expense-edit'?(t.expenses||[]).find(e=>e.id===a.id):null;if(s.action==='expense-edit'&&!x)throw new Error('Diese Ausgabe gibt es nicht mehr.');
   const sp=x?V3S.splitOf(x,party):{among:party.map(p=>p.id),weights:party.map(()=>1)},mode=x&&x.split&&x.split.mode==='shares'?'shares':'equal';
-  return '<h2>'+(x?'Ausgabe bearbeiten':'Ausgabe erfassen')+'</h2><div class="form">'+inp('on','Datum',x?x.on:splitDefaultDate(t),'type="date" required')+inp('label','Wofür',x?x.label:'','type="text" maxlength="80" autocomplete="off" required placeholder="z. B. Abendessen"')+
-    inp('amount','Betrag · €',x?String(x.amount).replace('.',','):'','type="text" inputmode="decimal" maxlength="14" autocomplete="off" required placeholder="z. B. 12,50"')+
+  return '<h2>'+(x?'Ausgabe bearbeiten':'Ausgabe erfassen')+'</h2><div class="form">'+inp('amount','Betrag · €',x?String(x.amount).replace('.',','):'','type="text" inputmode="decimal" maxlength="14" autocomplete="off" required placeholder="z. B. 12,50"'+(x?'':' autofocus'))+inp('on','Datum',x?x.on:splitDefaultDate(t),'type="date" required')+
+    inp('label','Wofür (freiwillig)',x?x.label:'','type="text" maxlength="80" autocomplete="off" placeholder="leer = Name der Kategorie"')+
     '<label class="fld"><span>Kategorie</span><select name="cat">'+Object.entries(V3S.CATS).map(([k,l])=>'<option value="'+k+'"'+((x?x.cat:'essen')===k?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select></label>'+
-    '<label class="fld"><span>Bezahlt von</span><select name="paidBy"><option value="">Noch offen / unbekannt</option>'+party.map(p=>'<option value="'+esc(p.id)+'"'+(x&&x.paidBy===p.id?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label></div>'+
+    '<label class="fld"><span>Bezahlt von</span><select name="paidBy"><option value="">Noch offen / unbekannt</option>'+party.map(p=>'<option value="'+esc(p.id)+'"'+((x?x.paidBy:IST&&IST.lastPayer(t.expenses,party))===p.id?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label></div>'+
     (party.length?'<fieldset class="panel" style="margin:0 0 12px"><legend><b>Aufteilung</b></legend><label class="fld"><span>Art</span><select name="mode"><option value="equal"'+(mode==='equal'?' selected':'')+'>Gleich auf die Ausgewählten</option><option value="shares"'+(mode==='shares'?' selected':'')+'>Nach Gewichten (z. B. 2 : 1)</option></select></label>'+
       party.map(p=>{const i=sp.among.indexOf(p.id);return '<div class="row"><label class="small"><input type="checkbox" name="in.'+esc(p.id)+'"'+(i>=0?' checked':'')+'> '+esc(p.name)+' ist beteiligt</label><label class="fld" data-split-weight'+(mode==='shares'?'':' hidden')+'><span>Gewicht '+esc(p.name)+'</span><input name="w.'+esc(p.id)+'" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="'+(i>=0?sp.weights[i]:1)+'"></label></div>'}).join('')+
       '<p class="small muted">Gewichte sind ganze Zahlen von 1 bis 100. Restcents gehen an die größten Reste, bei Gleichstand an die zuerst Genannten.</p></fieldset>':'<p class="small muted">Ohne Mitreisende wird die Ausgabe nur gezählt, nicht aufgeteilt.</p>')+
@@ -173,3 +173,56 @@ document.addEventListener('click',e=>{
   }catch(err){const box=$('#split-error');if(box){box.textContent=err.message;box.hidden=false;box.focus()}else alertMsg(err.message)}
 });
 /* ================= Ende P0.2a ================= */
+/* ================= Plan-Ist-Vergleich je Bereich (Claude, 16.11.; istvergleich.js, docs/IST_AUSGABEN.md) =================
+   Eingabe kommt aus derselben Rechnung wie alle Ansichten: cost(t) (Planzeilen, Töpfe), ledgerRows/financeSummary
+   (Nettozahlungen) und t.expenses. Keine Speicherfelder, nichts wird geschrieben. */
+const IST=typeof window!=='undefined'&&window.RPIST?window.RPIST:null;
+function istInput(t,now){
+  const c=cost(t),lg=t.ledger||{},f=financeSummary(t),labels={};
+  Object.keys(COSTCAT).forEach(k=>labels[k]=COSTCAT[k][0]);
+  /* Ein Topf hört auf, Topf zu sein, sobald sein Posten gebucht, mit Betrag erfasst oder angezahlt ist (dann zählt das Buchungsbuch). */
+  const fixedKey=k=>{const e=k&&lg[k];return !!(e&&(e.amount!=null||e.status==='gebucht'||num(e.paid,0)>0))};
+  const openKeys=new Set();
+  const lines=c.lines.map(l=>{const u=!!(l.open||l.unknownFee);if(u&&l.key)openKeys.add(l.key);return {cat:l.cat,c:l.c,pot:!!l.pot&&!fixedKey(l.key),unknown:u}});
+  f.rows.filter(r=>!r.orphan&&r.unknown&&!openKeys.has(r.key)).forEach(r=>lines.push({cat:r.cat||'eigen',c:0,unknown:true}));
+  if(f.stay&&(f.stay.unknown||f.stay.unknownFee))lines.push({cat:'unterkunft',c:0,unknown:true});
+  const payments=f.rows.filter(r=>!r.orphan).map(r=>({cat:r.cat||'eigen',netPaid:r.netPaid!=null?r.netPaid:r.paid}));
+  if(f.stay)payments.push({cat:'unterkunft',netPaid:f.stay.netPaid});
+  const act=activeOffer(t);
+  if(isV3(t))(t.offers||[]).forEach(o=>{if(o.cancel&&!(act&&act.id===o.id))payments.push({cat:'unterkunft',netPaid:V3.cancelMath(o,null).netPaid||0})});
+  return {lines,payments,expenses:(t.expenses||[]).map(x=>({on:x.on,amount:x.amount,cat:x.cat})),phase:tripPhase(t,now),budget:num(t.budget,0),labels,today:iso(todayUTC(now))};
+}
+/* Tatsächlich geflossenes Geld mit Cent (V3S.fmt), Plan und Hochrechnung wie überall gerundet (eur) */
+function istCt(v){return V3S?esc(V3S.fmt(v)):eur(v)}
+function istResult(t,now){return IST?IST.compare(istInput(t,now)):null}
+function istDiffText(d){return Math.abs(d)<0.005?'wie geplant':(d>0?'+'+eur(d)+' mehr':'−'+eur(-d)+' weniger')+' als geplant'}
+function istAddButton(t,label){return V3S&&v3CanEdit(t)&&(t.expenses||[]).length<V3S.LIMITS.expenses?'<button type="button" class="btn ghost sm" data-split-act="open" data-split-action="expense-add">'+(label||'+ Ausgabe erfassen')+'</button>':''}
+/* Budget-Ansicht: Plan, bisher ausgegeben und Hochrechnung je Bereich. Vor der Reise nur, wenn schon Geld geflossen ist. */
+function istSection(t,now){
+  if(!IST)return '';
+  let r;try{r=istResult(t,now)}catch(e){return ''}
+  const ph=tripPhase(t,now),p=ph?ph.phase:null;
+  if(!(r.ist>0.004||p==='unterwegs'||p==='nach'))return '';
+  const verdict={ueber:'<b>Hochrechnung '+eur(r.forecast)+': '+(r.left!=null?eur(-r.left):'')+' über dem Budget.</b>',unsicher:'Hochrechnung '+eur(r.forecast)+', noch '+eur(r.left)+' bis zum Budget. <b>Noch nicht sicher im Budget:</b> '+r.unknown+' Preis(e) offen.',
+    'im-budget':'Hochrechnung '+eur(r.forecast)+': voraussichtlich <b>'+eur(r.left)+' unter dem Budget</b>.','kein-budget':'Hochrechnung bis Reiseende: <b>'+eur(r.forecast)+'</b> (kein Budget angegeben).'}[r.verdict];
+  const rows=r.areas.map(a=>{
+    const notes=[];
+    if(a.unknown)notes.push('Preis offen');
+    if(a.untracked)notes.push('nichts erfasst, Planwert bleibt');
+    if(a.pace)notes.push('bis heute geplant ≈ '+eur(a.pace.soFar)+', ausgegeben '+istCt(a.pace.spent)+(a.pace.spent>a.pace.soFar+0.005?' · <b>schneller als geplant</b>':''));
+    if(a.extra>0.004)notes.push(istCt(a.extra)+' zusätzlich unterwegs');
+    return '<li data-ist-area="'+esc(a.key)+'"><div class="between"><b>'+esc(a.label)+'</b><b class="num">'+eur(a.forecast)+'</b></div><p class="small">Plan '+eur(a.plan)+(a.ist>0.004?' · bisher ausgegeben '+istCt(a.ist):'')+(a.spent>0.004&&a.paid>0.004?' ('+istCt(a.paid)+' bezahlt, '+istCt(a.spent)+' unterwegs)':'')+' · '+istDiffText(a.diff)+'</p>'+(notes.length?'<p class="small muted">'+notes.join(' · ')+'</p>':'')+'</li>'}).join('');
+  return '<div data-ist><h3>Plan und Ist</h3><p>'+verdict+'</p>'+
+   '<div class="kpis"><div class="kpi"><small>Bisher ausgegeben</small><b class="num">'+istCt(r.ist)+'</b><small>bezahlt '+istCt(r.paid)+' · unterwegs '+istCt(r.spent)+'</small></div><div class="kpi"><small>Hochrechnung</small><b class="num">'+eur(r.forecast)+'</b><small>'+istDiffText(r.diff)+' (Plan '+eur(r.plan)+')</small></div>'+(p==='unterwegs'?'<div class="kpi"><small>Heute ausgegeben</small><b class="num">'+istCt(r.todaySpent)+'</b><small>Ausgaben unterwegs</small></div>':'')+'</div>'+
+   '<ul class="plain" style="list-style:none;padding-left:0;gap:10px" data-ist-areas>'+rows+'</ul>'+istAddButton(t)+
+   '<p class="small muted">Rechte Zahl = Hochrechnung bis Reiseende, ohne Puffer'+(r.reserve>0.004?' ('+eur(r.reserve)+' Reserve, keine Ausgabe)':'')+'. Verpflegung und Sprit sind Töpfe: Ausgaben dort füllen zuerst den Planwert, die Hochrechnung sinkt unterwegs aber nie unter den Plan. In anderen Bereichen kommen Ausgaben unterwegs zum Plan dazu; habt ihr einen geplanten Posten vor Ort bezahlt, tragt das unter „Buchungen & Zahlungen“ ein, sonst zählt er doppelt. Nur so genau wie eure Erfassung.</p></div>';
+}
+/* Heute-Block unterwegs: eine Zeile mit heutigen Ausgaben und dem Knopf zur Schnellerfassung */
+function istToday(t,now){
+  if(!IST||!V3S)return '';
+  let r;try{r=istResult(t,now)}catch(e){return ''}
+  const b=istAddButton(t);if(!b&&!(r.todaySpent>0.004))return '';
+  return '<div class="between" data-ist-today><span class="small">Heute ausgegeben: <b class="num">'+istCt(r.todaySpent)+'</b> · bisher '+istCt(r.ist)+(r.budget?' · Hochrechnung '+eur(r.forecast)+' von '+eur(r.budget):'')+'</span>'+b+'</div>';
+}
+/* ================= Ende Plan-Ist ================= */
+
