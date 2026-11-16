@@ -450,7 +450,7 @@ function protectedPlanChange(t,action,args={}){
   if(!it)throw new Error('Termin nicht mehr vorhanden. Bitte neu öffnen.');
   if(!Number.isInteger(args.day)||args.day<0||args.day>=daysOf(c).length||!SLOTS.some(s=>s[0]===args.slot))throw new Error('Bitte gültigen Tag und Tageszeit wählen.');
   it.day=args.day;it.slot=args.slot;c.packageId='';
-  if(args.time!==undefined){if(args.time===''||args.time==null)delete it.time;else{if(!TIME_RE.test(args.time))throw new Error('Bitte eine gültige Uhrzeit (HH:MM) eingeben.');it.time=args.time;it.slot=slotForTime(args.time)}}
+  if(args.time!==undefined){if(args.time===''||args.time==null){delete it.time;delete it.fix}else{if(!TIME_RE.test(args.time))throw new Error('Bitte eine gültige Uhrzeit (HH:MM) eingeben.');it.time=args.time;it.slot=slotForTime(args.time)}}
  }else if(action==='remove'){if(!(c.items||[]).some(i=>i.uid===args.uid))throw new Error('Termin nicht mehr vorhanden.');c.items=c.items.filter(i=>i.uid!==args.uid);c.packageId='';}
  else if(action==='clear'){c.items=[];c.packageId='';}
  else if(action==='package'){const p=PKGS.find(x=>x.id===args.id);if(!p)throw new Error('Paket nicht mehr vorhanden.');applyPkg(c,p);}

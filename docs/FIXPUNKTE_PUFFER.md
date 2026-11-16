@@ -26,7 +26,7 @@ Ohne neues Speicherfeld, nur aus vorhandenen Angaben:
 5. **Termine mit festem Datum** (`act.onlyDate`, z. B. Silvesterfeier am 31.12.).
 6. **Abreise** am letzten Tag; Uhrzeit aus dem Rückweg-Abschnitt, sonst „Uhrzeit offen“.
 
-[Plan, Format 5] Von Hand: `items[i].fix: true` (nur mit Uhrzeit gültig), z. B. für eine geführte Tour ohne Buchung in der App.
+[Code, Format 5] Von Hand: `items[i].fix: true` (nur mit Uhrzeit gültig), z. B. für eine geführte Tour ohne Buchung in der App.
 
 ### 1.2 Richtwerte für Puffer (unverbindlich, als Richtwert angezeigt)
 
@@ -95,7 +95,7 @@ still geändert.
 - Programmpunkt: Kennzeichen „Fix“ (mit Text für Vorlesehilfen „Fixpunkt:“) vor dem Titel.
 - Unter dem Tagesplan: Abschnitt „Fixpunkte & Puffer“ je Tag mit Uhrzeit, Puffer davor, Hinweisen und Vorschlag.
 
-## 4 · Datenmodell [Plan, Format 5, abgestimmt mit Thread „Offene Punkte / Systeme“]
+## 4 · Datenmodell [Code, Format 5, in v5logic.js seit d3b69bf]
 
 | Feld | Form | Zweck |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ still geändert.
 | `t.keepFree` | `[{day, slot, why:'erholung'\|'wetter'\|'spontan'}]` ≤ 100, Tag+Tageszeit eindeutig | bewusst freigehaltene Zeit; „Lücken füllen“ lässt sie aus |
 | `t.pace` | `'ruhig'\|'normal'\|'aktiv'` | Tempo der Reise (gelesen über `styleOf`) |
 
-Geschrieben werden die Felder erst mit `F5_WRITE = true`. Bis dahin liest `fixpunkte.js` sie bereits, falls vorhanden.
+Geschrieben über den gemeinsamen Weg `f5Commit` (`fixSetFix`, `fixSetKeepFree`); die erste Änderung hebt die Reise nach Bestätigung auf Format 5. Bedienung im Abschnitt „Fixpunkte & Puffer“ je Tag: „… als Fixpunkt“ (nur Punkte mit Uhrzeit), „Nachmittag freihalten“ mit Grund, „wieder verplanbar“. Uhrzeit entfernen löst die Markierung. „Lücken füllen“ lässt freigehaltene Tageszeiten aus.
 
 ## 5 · Abgrenzung
 

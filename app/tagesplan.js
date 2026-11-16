@@ -56,7 +56,7 @@ async function planFillSheet(t){
     for(const q of pts){const r=await catalogQuery({lat:+q.lat,lon:+q.lon,maxKm:60,minKm:0});src=src||r;
       r.places.forEach(pl=>pl.spots.forEach(sp=>{if(have.has(sp.id)||found.has(sp.id)||CATX.spotSeason(sp,month)===false)return;const d=CATX.airKm(q,sp);if(d<=35)found.set(sp.id,{spot:sp,place:pl,d})}))}
     const list=[...found.values()].sort((a,b)=>a.d-b.d).slice(0,24);
-    const occ=(t.items||[]).map(it=>it.day+'|'+it.slot);
+    const occ=(t.items||[]).map(it=>it.day+'|'+it.slot).concat((Array.isArray(t.keepFree)?t.keepFree:[]).map(k=>k.day+'|'+k.slot)); /* bewusst freie Zeit bleibt frei */
     const prop=CATX.dayPlan(list.map(e=>e.spot),nightsOf(t),occ);
     const days=daysOf(t);
     UI.fillDraft={tripId:t.id,source:JSON.stringify(t.items||[]),items:prop.map(pr=>({pr,e:found.get(pr.spotId)}))};

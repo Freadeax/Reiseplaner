@@ -41,7 +41,9 @@ Thread „Fixpunkte und Pufferzeiten einplanen“ (Philipps Punktliste 16.11.). 
 
 Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfungen) grün, `test:browser` grün; Tagesplan in Chromium (1280 px, Bewegung reduziert) mit Konflikt- und Volltag angesehen. Nicht getestet: iPhone, Safari.
 
-Nächster Schritt: nach `F5_WRITE = true` im Verschieben-Blatt „Als Fixpunkt markieren“ und „Tageszeit bewusst freihalten“ (schreibt `items[i].fix`, `t.keepFree`); „Lücken füllen“ lässt freigehaltene Tageszeiten aus.
+**Stufe 2 (gleicher Tag, nach `F5_WRITE = true`):** Im Abschnitt je Tag „… als Fixpunkt“ (nur mit Uhrzeit, schreibt `items[i].fix`) und „Tageszeit freihalten“ mit Grund Erholung/Wetter-Reserve/Spontanes (`t.keepFree`), beides über `f5Commit` mit Bestätigung beim Anheben auf Format 5. Uhrzeit entfernen löst die Markierung (`protectedPlanChange`). „Lücken füllen“ (`app/tagesplan.js`, eine Zeile) lässt freigehaltene Tageszeiten aus. Test `tests/fixpunkte-write.cjs` (3 Prüfungen).
+
+Nächster Schritt: Tempo der Reise (`t.pace`) im Eckdaten-Formular wählbar machen (mit dem Reisestil-Thread abstimmen); iPhone-Sichtprüfung.
 
 ## Format 5 speichern: Stornobedingungen, Zahlungsplan, Fristen erledigt (Claude, 16.11. mittags)
 

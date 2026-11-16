@@ -198,9 +198,54 @@ function fixSection(t){
       (d.reasons.length?'<ul class="plain small">'+d.reasons.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
       (d.freeSlots.length&&d.points?'<p class="small">Frei: '+esc(d.freeSlots.map(k=>SLOTNAME[k]).join(', '))+(d.kept.length?' · bewusst freigehalten: '+esc(d.kept.map(k=>SLOTNAME[k.slot]+' ('+(FIX_WHY[k.why]||'frei')+')').join(', ')):'')+'</p>':'')+
       (sug&&canEdit?'<p class="small"><b>Vorschlag:</b> '+esc(sug.title)+(sug.toDay!=null?' auf '+esc(sug.toLabel)+' verschieben, dort ist am meisten Luft.':' verschieben oder weglassen.')+' <button type="button" class="lnk" data-act="item" data-val="'+esc(sug.uid)+'">Verschieben …</button></p>':'')+
-      '</details>'};
+      fixDayTools(t,d)+'</details>'};
   return '<section class="block" id="fixpunkte" aria-labelledby="fix-h"><h2 id="fix-h">Fixpunkte & Puffer</h2>'+
     '<p class="small muted">Fixpunkte sind Termine, die nicht wandern: Abfahrt, Check-in, gebuchte oder bezahlte Programmpunkte, Termine mit festem Datum. Davor plant die App einen Puffer ein (Richtwerte, unverbindlich). Ohne Uhrzeit gilt ein Tag nie als sicher konfliktfrei. Tempo dieser Reise: <b>'+esc(r.paceLabel)+'</b>.</p>'+
     noteHtml+view.map(dayHtml).join('')+longTripNote(t,'Die Übersicht')+'</section>';
 }
-try{if(typeof window!=='undefined')window.RPFix={fixPoints,fixDayEval,fixTrip,fixPace,fixSection,fixDayBadge,fixItemMark,PACE:FIX_PACE,BUFFER:FIX_BUFFER,STATES:FIX_STATES}}catch(e){}
+/* ================= Schreiben (Format 5, über den gemeinsamen Weg f5Commit aus app/format5.js) ================= */
+function fixCanWrite(t){return typeof f5CanEdit==='function'&&f5CanEdit(t)}
+/* Programmpunkt von Hand als Fixpunkt markieren oder lösen. Nur mit Uhrzeit; gebuchte Punkte sind ohnehin fix. */
+function fixSetFix(t,uid,on,opt){
+  return f5Commit(t,c=>{const it=(c.items||[]).find(i=>i.uid===uid);if(!it)throw new Error('Programmpunkt nicht mehr vorhanden.');
+    if(on){if(timeMin(it.time)==null)throw new Error('Zuerst eine Uhrzeit eintragen: ein Fixpunkt ohne Uhrzeit lässt sich nicht prüfen.');it.fix=true}else delete it.fix},opt);
+}
+/* Tageszeit bewusst freihalten (why) oder wieder freigeben (why null) */
+function fixSetKeepFree(t,day,slot,why,opt){
+  if(!Number.isInteger(day)||day<0||day>=daysOf(t).length||!SLOTNAME[slot])throw new Error('Tag oder Tageszeit ungültig.');
+  if(why!=null&&!FIX_WHY[why])throw new Error('Grund ungültig.');
+  return f5Commit(t,c=>{const k=(Array.isArray(c.keepFree)?c.keepFree:[]).filter(x=>!(x.day===day&&x.slot===slot));
+    if(why)k.push({day,slot,why});k.sort((a,b)=>a.day-b.day||SLOTS.findIndex(s=>s[0]===a.slot)-SLOTS.findIndex(s=>s[0]===b.slot));
+    if(k.length>100)throw new Error('Höchstens 100 freigehaltene Tageszeiten.');
+    if(k.length)c.keepFree=k;else delete c.keepFree},opt);
+}
+/* Bedienelemente je Tag im Abschnitt „Fixpunkte & Puffer“ */
+function fixDayTools(t,d){
+  if(!fixCanWrite(t))return '';
+  const fixU=new Set(d.fixed.filter(f=>f.uid&&f.why!=='von Hand festgelegt').map(f=>f.uid));
+  const its=sortedItems(t).filter(it=>it.day===d.day).map(it=>({it,a:actOf(t,it.act)})).filter(x=>x.a&&!x.a.transit&&!fixU.has(x.it.uid));
+  const fixBtns=its.filter(x=>x.it.fix===true||timeMin(x.it.time)!=null).map(x=>x.it.fix===true
+    ?'<button type="button" class="lnk" data-fix-act="unfix" data-uid="'+esc(x.it.uid)+'">'+esc(x.a.t)+': nicht mehr fix</button>'
+    :'<button type="button" class="lnk" data-fix-act="fix" data-uid="'+esc(x.it.uid)+'">'+esc(x.a.t)+' ('+esc(x.it.time)+') als Fixpunkt</button>');
+  const keptK=new Set(d.kept.map(k=>k.slot));
+  const keepBtns=d.freeSlots.filter(k=>!keptK.has(k)).map(k=>'<button type="button" class="lnk" data-fix-act="keep" data-day="'+d.day+'" data-slot="'+k+'">'+esc(SLOTNAME[k])+' freihalten</button>');
+  const unkeep=d.kept.map(k=>'<button type="button" class="lnk" data-fix-act="unkeep" data-day="'+d.day+'" data-slot="'+k.slot+'">'+esc(SLOTNAME[k.slot])+' ('+esc(FIX_WHY[k.why]||'frei')+') wieder verplanbar</button>');
+  if(!fixBtns.length&&!keepBtns.length&&!unkeep.length)return '';
+  return '<div class="fix-tools small">'+(fixBtns.length?'<p><b>Fest machen:</b> '+fixBtns.join(' · ')+'</p>':'')+
+    (keepBtns.length||unkeep.length?'<p><b>Bewusst frei:</b> '+(keepBtns.length?'<label class="small">Grund <select data-fix-why="'+d.day+'" style="width:auto;display:inline-block;min-height:36px" aria-label="Grund fürs Freihalten am '+esc(d.dayLabel)+'">'+Object.keys(FIX_WHY).map(k=>'<option value="'+k+'">'+FIX_WHY[k]+'</option>').join('')+'</select></label> ':'')+keepBtns.concat(unkeep).join(' · ')+'</p>':'')+'</div>';
+}
+if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',e=>{
+  const el=e.target&&e.target.closest&&e.target.closest('[data-fix-act]');if(!el)return;
+  const t=typeof cur==='function'&&cur();if(!t)return;
+  const act=el.getAttribute('data-fix-act'),uid=el.getAttribute('data-uid'),day=Number(el.getAttribute('data-day')),slot=el.getAttribute('data-slot');
+  try{
+    let run,msg;
+    if(act==='fix'||act==='unfix'){const on=act==='fix';run=o=>fixSetFix(t,uid,on,o);msg=on?'Als Fixpunkt markiert.':'Nicht mehr fix.'}
+    else if(act==='keep'){const sel=document.querySelector('[data-fix-why="'+day+'"]'),why=sel&&FIX_WHY[sel.value]?sel.value:'erholung';run=o=>fixSetKeepFree(t,day,slot,why,o);msg=SLOTNAME[slot]+' bleibt frei ('+FIX_WHY[why]+').'}
+    else if(act==='unkeep'){run=o=>fixSetKeepFree(t,day,slot,null,o);msg=SLOTNAME[slot]+' ist wieder verplanbar.'}
+    else return;
+    const r=run();
+    if(f5Result(r,{run,msg})){render();alertMsg(msg)}
+  }catch(err){alertMsg(err.message)}
+});
+try{if(typeof window!=='undefined')window.RPFix={fixSetFix,fixSetKeepFree,fixDayTools,fixPoints,fixDayEval,fixTrip,fixPace,fixSection,fixDayBadge,fixItemMark,PACE:FIX_PACE,BUFFER:FIX_BUFFER,STATES:FIX_STATES}}catch(e){}
