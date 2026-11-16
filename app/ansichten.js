@@ -654,7 +654,7 @@ function tMappe(t){
    '<button type="button" class="btn ghost sm" data-act="mappe-ics"'+(ics?'':' disabled')+'>Kalender (.ics)</button>'+
    '<button type="button" class="btn ghost sm" data-act="mappe-share">Als Text teilen</button></div>'+
    (ics?'<p class="small muted">Kalender: '+ics.events+' Einträge'+(ics.reminders?', davon '+ics.reminders+' Erinnerungen (Zahlungen, Packtag) mit Alarm um 9 Uhr':'')+'. Zeitfenster sind grob (Vormittag 9–12, Mittag 12–14, Nachmittag 14–18, Abend 18–22 Uhr) und als vorläufig markiert.'+(ics.skipped?' '+ics.skipped+' Punkt(e) nach dem letzten Reisetag werden nicht exportiert.':'')+'</p>':'<p class="small muted">Kalenderexport nur mit festem An- und Abreisedatum möglich. Unter „Eckdaten“ einstellen.</p>')+
-   '<label class="small"><input type="checkbox" data-act="mappe-notes"'+(UI.mappeNotes?' checked':'')+'> Notizen in Mappe und Text aufnehmen (können Buchungsnummern enthalten)</label>'+journalMappeToggle(t)+'</section>'+
+   '<label class="small"><input type="checkbox" data-act="mappe-notes"'+(UI.mappeNotes?' checked':'')+'> Notizen in Mappe und Text aufnehmen (können Buchungsnummern enthalten)</label>'+journalMappeToggle(t)+'</section>'+(typeof readySection==='function'?readySection(t):'')+
    '<section class="block mappe"><span class="eyebrow">Reisemappe · Stand '+esc(fmtLong(todayUTC()))+'</span><h2>'+esc(t.title)+'</h2>'+
    '<dl class="facts"><dt>Zeitraum</dt><dd>'+esc(rangeText(t))+'</dd><dt>Personen</dt><dd>'+c.P+'</dd><dt>Ziel</dt><dd>'+esc(pl?pl.name+' · '+pl.region:(t.dest||'noch offen'))+'</dd>'+
    '<dt>Anreise</dt><dd>'+esc(({auto:'Auto',bahn:'Bahn'})[t.travel]||'Ticket')+(t.origin?' ab '+esc(t.origin):'')+'</dd>'+

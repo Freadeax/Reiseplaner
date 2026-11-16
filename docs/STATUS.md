@@ -21,6 +21,11 @@ Thread „Check- und Packlisten nach Ziel und Wetter“ (Auftrag Philipp 16.11. 
 
 Tests (16.11. abends, Cloud-Container, auf Stand der Neugestaltung „Reisetagebuch“): `npm test` (neu `packliste5`, 2 Prüfungsgruppen: Bestätigung, Ausblenden, eigene Packpunkte, unbekannte Person abgelehnt, Ausweis ohne Nummer, Reiseland, ohne Schreibrecht), `test:browser` grün; in Chromium 390 px hell/dunkel von Hand: Packpunkt anlegen mit Umstell-Bestätigung, Ausweis eintragen, Punkt ausblenden, kein Überlauf, keine Konsolenfehler. Nicht getestet: iPhone, Safari, echte Open-Meteo-Abfrage.
 
+## Offline O4/O5: „Für unterwegs bereit?“ in der Reisemappe (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Neuer Abschnitt in Unterlagen → Mappe (`readySection` in `app/offline.js`, eine Zeile in `tMappe`), nur Darstellung, kein Speicherformat. Prüft, was die App prüfen kann, mit Zeichen und Wort (✓ Erledigt, ! Zu tun, ○ Hinweis): App ohne Internet startbar, dauerhafter Speicher (Knopf anfragen, Home-Bildschirm-Hinweis am iPhone), mit Konto Abgleich dieser Reise (ausstehend, Konflikt, Stand) bzw. ohne Konto Sicherungsdatei, Fotos dieser Reise auf dem Gerät (x von y), Tickets und Unterlagen auf dem Gerät (aus `docstore.js`), Reisemappe als PDF (nicht prüfbar: nur „Druckdialog zuletzt am …“, Merker `rp-mappe-druck:<Bereich>:<Reise>` in localStorage). Dazu der Weg zum PDF am iPhone/iPad („In Dateien sichern“) und am Computer.
+
+Tests (16.11., Cloud-Container, auf Stand `a1d5dc2` mit Neugestaltung „Reisetagebuch“): `npm test`, `test:browser`, `test:offline-browser` (neu: Bereit-Prüfung zeigt Offline-Start, Sicherung, PDF-Weg; Druckknopf setzt den Merker) grün; 390 px hell/dunkel angesehen. Nicht getestet: iPhone, iPad, Safari.
 ## Gemeinsam planen: Anwesenheit, Rückfall-Takt, Namensfrage (Claude, 16.11. abends)
 
 Ohne Datenbankänderung (nutzt die Kanalregeln der Migration `20261116120000`). `app/gemeinsam.js`, `cloud.js` (`presence`, `watch` meldet Verbindungsstatus), `app.css` (3 Regeln).
