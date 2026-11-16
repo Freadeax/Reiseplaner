@@ -1,5 +1,20 @@
-<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#8A3B1F"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Reiseplaner"></head><body>
-<title>Reiseplaner</title>
+<!doctype html><html lang="de" data-layout="book"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reiseplaner – Ausflüge, Wochenenden und Urlaub entspannt planen</title>
+<meta name="description" content="Kostenloser, werbefreier Reiseplaner: Ziele finden, Tage planen, Gesamtkosten im Blick behalten, Packliste, Gästekarten und Reisetagebuch – allein oder gemeinsam.">
+<meta name="theme-color" content="#8A3B1F"><meta name="color-scheme" content="light dark">
+<!-- Öffentliche Adresse (GitHub Pages): scripts/build.mjs setzt bei anderer Adresse (RP_PUBLIC_URL) überall die neue ein (z. B. Cloudflare Pages). -->
+<link rel="canonical" href="https://freadeax.github.io/Reiseplaner/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Reiseplaner"><meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://freadeax.github.io/Reiseplaner/">
+<meta property="og:title" content="Reiseplaner – Die Vorfreude beginnt hier">
+<meta property="og:description" content="Ideen sammeln, gemeinsam abwägen, entspannt losfahren. Kostenlos und ohne Werbung.">
+<meta property="og:image" content="https://freadeax.github.io/Reiseplaner/og-image.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Reiseplaner im Stil eines Reisetagebuchs: Die Vorfreude beginnt hier.">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Reiseplaner – Die Vorfreude beginnt hier"><meta name="twitter:description" content="Ideen sammeln, gemeinsam abwägen, entspannt losfahren. Kostenlos und ohne Werbung."><meta name="twitter:image" content="https://freadeax.github.io/Reiseplaner/og-image.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Reiseplaner", "url": "https://freadeax.github.io/Reiseplaner/", "inLanguage": "de", "applicationCategory": "TravelApplication", "operatingSystem": "Web", "isAccessibleForFree": true, "description": "Kostenloser, werbefreier Reiseplaner: Ziele finden, Tage planen, Gesamtkosten im Blick behalten, Packliste, Gästekarten und Reisetagebuch – allein oder gemeinsam.", "image": "https://freadeax.github.io/Reiseplaner/og-image.png", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Reiseplaner">
+<noscript><style>#view .vorab-laedt,#view .vorab-hilfe{display:none}</style></noscript>
+</head><body>
 <!-- Entwicklungsstand 1.4 · 13.10.2026
 Grundlage: bereitgestellte Reiseplaner(1).html. Bestehender Speicherschlüssel rp-trips bleibt erhalten.
 Neu: explizite Gästekartenbestätigung, gemeinsames Top-Leistungs-Tageslimit,
@@ -39,7 +54,28 @@ Nächster Schritt: echter Browser-/iPhone-Klicktest, dann Angebots-/Kostenmodell
     <nav class="app-nav" id="app-nav" aria-label="Hauptnavigation"><button type="button" class="lnk nav-item" data-go="reisen">Reisen</button><button type="button" class="lnk nav-item" data-go="entdecken">Entdecken</button><button type="button" class="lnk nav-item" data-go="erinnerungen">Erinnerungen</button><button type="button" class="lnk nav-item" data-go="konto">Konto</button></nav>
     <button type="button" class="sync" id="sync" data-go="konto" aria-label="Konto und Speicherstatus"><i></i><span>Nur in diesem Browser</span></button>
   </header>
-  <main id="view" tabindex="-1"><section class="block"><h1>Reiseplaner lädt …</h1><p>Falls dieser Text stehen bleibt, blockiert die Datei-Vorschau die App. Öffne den Planer im Browser.</p></section></main>
+  <main id="view" tabindex="-1">
+    <!-- Vorab-Startseite: steht im Quelltext für Suchmaschinen, Link-Vorschauen und den ersten Eindruck, bis die App #view zum ersten Mal neu zeichnet.
+         Nur allgemeine Texte, keine Reisedaten. Aussehen: Abschnitt „Vorab-Startseite“ in app.css. -->
+    <section class="block home-hero vorab" aria-busy="true"><svg class="hero-art" viewBox="0 0 280 280" fill="none" aria-hidden="true"><circle cx="140" cy="140" r="120" stroke="currentColor"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="2"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg><span class="eyebrow">Dein nächstes schönes Stück Auszeit</span><h1>Die Vorfreude beginnt hier.</h1><p class="lead muted">Der Reiseplaner hilft euch, Ausflüge, Wochenenden und längere Reisen zu planen: Ideen sammeln, gemeinsam abwägen und entspannt losfahren. Kostenlos und ohne Werbung.</p>
+      <div class="start-wege" role="group" aria-label="Wie wollt ihr anfangen?"><a class="start-weg" href="#planen"><b>Reise planen</b><span class="small muted">Schritt für Schritt, alles auf einer Seite, ab Unterkunft oder Erlebnis: Jeder Weg führt zur selben Reise.</span><span class="start-pfeil" aria-hidden="true">→</span></a><a class="start-weg" href="#entdecken"><b>Ziel finden</b><span class="small muted">Ziele im Umkreis nach Art, Entfernung, Saison und Stimmung suchen.</span><span class="start-pfeil" aria-hidden="true">→</span></a></div>
+      <p class="vorab-laedt" role="status"><span class="vorab-feder" aria-hidden="true"><i></i><i></i><i></i></span>Dein Reisetagebuch wird aufgeschlagen …</p>
+      <p class="vorab-hilfe small">Bleibt diese Seite so stehen? Dann läuft die App hier nicht, etwa in einer Datei-Vorschau oder mit ausgeschaltetem JavaScript. <a href="https://freadeax.github.io/Reiseplaner/">Reiseplaner direkt im Browser öffnen</a>.</p>
+      <noscript><p class="vorab-noscript"><b>JavaScript ist ausgeschaltet.</b> Der Reiseplaner braucht JavaScript, um Reisen zu speichern und zu berechnen. Bitte schalte es für diese Seite ein.</p></noscript>
+    </section>
+    <section class="block vorab-mehr" aria-labelledby="vorab-mehr-h"><h2 id="vorab-mehr-h">Was der Reiseplaner kann</h2>
+      <ul class="vorab-liste">
+        <li><b>Ziele finden</b><span>Orte, Unterkünfte und Aktivitäten im Umkreis nach Reiseart, Entfernung und Wetter.</span></li>
+        <li><b>Tage planen</b><span>Tagesplan mit festen Terminen, Wegen und Plan B für Regentage.</span></li>
+        <li><b>Kosten im Blick</b><span>Gesamtkosten aus nachvollziehbaren Posten: bezahlt, offen, Reserve. Unbekanntes bleibt sichtbar offen.</span></li>
+        <li><b>Gästekarten und Fristen</b><span>Was eine Gästekarte wirklich enthält, und welche Stornofristen bald ablaufen.</span></li>
+        <li><b>Packliste</b><span>Passend zu Ziel, Reiseart und Wetter.</span></li>
+        <li><b>Gemeinsam planen</b><span>Mit eigenem Konto auf mehreren Geräten und zusammen mit Mitreisenden.</span></li>
+        <li><b>Reisetagebuch</b><span>Erinnerungen, Fotos und ein Reisebuch zum Drucken.</span></li>
+      </ul>
+      <p class="small muted">Ohne Konto bleiben eure Reisen nur in diesem Browser. Sicherungen lassen sich jederzeit als Datei exportieren.</p>
+    </section>
+  </main>
 </div>
 <div class="dock" id="dock" hidden role="status" aria-live="polite"><div class="in"><span class="nm" id="dock-nm"></span><span class="sum num" id="dock-sum"></span><div class="bar" id="dock-bar"><i></i></div></div></div>
 <div id="sheet-root"></div>

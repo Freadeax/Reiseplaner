@@ -5,7 +5,9 @@
      RP_SUPABASE_URL                 z. B. https://<ref>.supabase.co   (leer = Gastmodus)
      RP_SUPABASE_PUBLISHABLE_KEY     sb_publishable_…                  (niemals Secret/service_role)
      RP_SITE_URL                     optional, feste Weiterleitungsadresse für E-Mails
-     RP_BASE_PATH                    Pfad der Website, Standard /Reiseplaner/ (GitHub Pages), / für Cloudflare Pages */
+     RP_BASE_PATH                    Pfad der Website, Standard /Reiseplaner/ (GitHub Pages), / für Cloudflare Pages
+     RP_PUBLIC_URL                   optional, öffentliche Adresse für Suchmaschinen und Link-Vorschauen (canonical, og:url,
+                                     og:image, sitemap.xml). Standard: RP_SITE_URL, falls es auf / endet, sonst GitHub Pages. */
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +16,7 @@ import { checkArtifact } from './check-artifact.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public');
-const FILES = ['index.html', 'app.css', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3split.js', 'istvergleich.js', 'rpstore.js', 'platform.js', 'v3journal.js', 'v4logic.js', 'v5logic.js', 'packlogic.js', 'merge3.js', 'bookgen.js', 'bookedit.js', 'bookprint.js', 'photostore.js', 'docstore.js', 'catalog-data.js',
+const FILES = ['index.html', 'app.css', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'og-image.png', 'cloud.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'v3split.js', 'istvergleich.js', 'rpstore.js', 'platform.js', 'v3journal.js', 'v4logic.js', 'v5logic.js', 'packlogic.js', 'merge3.js', 'bookgen.js', 'bookedit.js', 'bookprint.js', 'photostore.js', 'docstore.js', 'catalog-data.js',
   'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt'];
 /* Kachel-Katalog: Index und Kacheln (nicht die Quelle catalog/src) */
 /* App-Code seit P0.6 in app/*.js */
@@ -26,6 +28,9 @@ const url = (env.RP_SUPABASE_URL || '').trim().replace(/\/+$/, '');
 const key = (env.RP_SUPABASE_PUBLISHABLE_KEY || '').trim();
 const site = (env.RP_SITE_URL || '').trim();
 const base = (env.RP_BASE_PATH || '/Reiseplaner/').trim();
+/* Adresse, die in index.html steht (canonical, Open Graph). Der Build ersetzt sie, wenn die Seite woanders liegt. */
+const PAGES_URL = 'https://freadeax.github.io/Reiseplaner/';
+const publicUrl = (env.RP_PUBLIC_URL || '').trim() || (/^https:\/\/.+\/$/.test(site) ? site : PAGES_URL);
 
 function fail(msg) { console.error('Build abgebrochen: ' + msg); process.exit(1); }
 function jwtRole(k) { try { return JSON.parse(Buffer.from(k.split('.')[1], 'base64url').toString()).role; } catch (e) { return null; } }
@@ -41,6 +46,7 @@ if (key) {
 }
 if (site && !/^https?:\/\//.test(site)) fail('RP_SITE_URL muss mit https:// beginnen.');
 if (!/^\/([A-Za-z0-9._-]+\/)*$/.test(base)) fail('RP_BASE_PATH muss mit / beginnen und enden.');
+if (!/^https:\/\/[a-z0-9.-]+(:\d+)?(\/[A-Za-z0-9._~-]+)*\/$/i.test(publicUrl)) fail('RP_PUBLIC_URL muss mit https:// beginnen und mit / enden.');
 
 await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(path.join(out, 'vendor'), { recursive: true });
@@ -53,6 +59,19 @@ await fs.writeFile(path.join(out, 'config.js'),
   '/* Erzeugt von scripts/build.mjs. Nur öffentliche Werte. */\n' +
   'window.RP_CONFIG = ' + JSON.stringify({ supabaseUrl: url, supabaseKey: key, siteUrl: site || undefined }, null, 2) + ';\n' +
   'window.RP_BUILD = ' + JSON.stringify({ commit, builtAt: new Date().toISOString() }) + ';\n');
+/* Suchmaschinen und Link-Vorschauen: öffentliche Adresse einsetzen, robots.txt und sitemap.xml erzeugen.
+   Hinweis: Auf GitHub Pages (Projektseite unter /Reiseplaner/) lesen Suchmaschinen robots.txt nur im Wurzelpfad
+   der Domain; die Datei wirkt erst mit eigener Domain oder Cloudflare Pages. Die Sitemap lässt sich trotzdem
+   in der Google Search Console angeben. */
+{
+  const idx = path.join(out, 'index.html');
+  const html = await fs.readFile(idx, 'utf8');
+  if (!html.includes(PAGES_URL)) fail('index.html: öffentliche Adresse ' + PAGES_URL + ' fehlt (canonical/Open Graph).');
+  await fs.writeFile(idx, html.split(PAGES_URL).join(publicUrl));
+  await fs.writeFile(path.join(out, 'robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: ' + publicUrl + 'sitemap.xml\n');
+  await fs.writeFile(path.join(out, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + publicUrl + '</loc><lastmod>' + new Date().toISOString().slice(0, 10) + '</lastmod></url>\n</urlset>\n');
+}
 /* Cache-Bust: Lokale Skripte und das Stylesheet bekommen ?v=<Inhaltshash>, damit Browser- und CDN-Caches
    nach einer neuen Version keine alten Einzeldateien mit neuen mischen (seit P0.6 besteht die App aus vielen Dateien). */
 {

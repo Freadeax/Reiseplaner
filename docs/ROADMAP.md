@@ -1,5 +1,9 @@
 # Roadmap
 
+## Startseite für Suche und Link-Vorschau · 16.11.2026
+
+Vor dem JavaScript steht jetzt eine echte Startseite im Quelltext, dazu Titel, Beschreibung, Open Graph mit Vorschaubild, robots.txt und sitemap.xml (`docs/STATUS.md`). Als Nächstes: eigener Seitentitel je Ansicht (z. B. „Entdecken · Reiseplaner“), Manifest und App-Symbole im Reisetagebuch-Stil, Sitemap in der Google Search Console eintragen (Philipp), mit eigener Domain oder Cloudflare Pages `RP_PUBLIC_URL` setzen, damit robots.txt greift.
+
 ## Wege und Tageskarte · 16.11.2026
 
 Tagesplan zeigt Wege zwischen den Punkten (Schätzung oder OpenStreetMap-Routing auf Knopfdruck), eine Tagesskizze ohne Kartenkacheln und rechnet Wegzeiten in die Tageslast (`docs/WEGE.md`). Als Nächstes: Tagesroute mit `F5_WRITE` in `dayRoutes` speichern, kürzere Reihenfolge vorschlagen, Wegesumme und Skizze in Reisemappe/PDF, Lage eigener Unterkünfte speichern.

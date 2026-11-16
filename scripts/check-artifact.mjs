@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ALLOWED = new Set(['index.html', '404.html', '.nojekyll', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
+const ALLOWED = new Set(['index.html', '404.html', '.nojekyll', 'sw.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'og-image.png', 'robots.txt', 'sitemap.xml',
   'app.css', 'cloud.js', 'config.js', 'catalog.js', 'v3logic.js', 'v3forms.js', 'v3editor.js', 'rpstore.js', 'v3journal.js', 'v4logic.js', 'v5logic.js', 'packlogic.js', 'merge3.js', 'bookgen.js', 'bookedit.js', 'bookprint.js', 'photostore.js', 'docstore.js', 'platform.js', 'v3split.js', 'istvergleich.js', 'catalog-data.js', 'vendor/supabase-js-2.117.2.js', 'vendor/supabase-js-LICENSE.txt']);
 const SECRET = [
   [/sb_secret_[A-Za-z0-9_-]{8,}/, 'Supabase Secret Key'],

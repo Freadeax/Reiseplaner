@@ -1,0 +1,28 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<!-- Vorschaubild für Link-Vorschauen (og-image.png, 1200 × 630). Neu erzeugen, wenn sich Stil oder Leitsatz ändert:
+     node -e "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1200,height:630}});await p.goto('file://'+process.cwd()+'/scripts/og-bild.html');await p.waitForTimeout(800);await p.screenshot({path:'og-image.png'});await b.close()})()"
+     Schriften kommen von Google Fonts (Netz nötig). Farben aus app.css, Reisetagebuch-Farbsatz hell. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1200px;height:630px;overflow:hidden}
+body{background:#F2E9DA radial-gradient(#E0D2BA 1.4px,transparent 1.6px) 0 0/22px 22px;font-family:"Source Sans 3",sans-serif;color:#33261C;padding:44px 52px}
+.blatt{position:relative;height:100%;background:#FBF6EB;border:2px solid #33261C;border-radius:14px;box-shadow:10px 10px 0 #D9C7A8;padding:46px 56px;overflow:hidden}
+.kopf{display:flex;align-items:center;gap:16px}
+.marke{width:62px;height:62px;border-radius:14px;background:#33261C;color:#FBF6EB;display:grid;place-items:center;font-size:34px;transform:rotate(-4deg);box-shadow:3px 3px 0 #D9C7A8}
+.name{font-family:Newsreader,serif;font-style:italic;font-size:44px;font-weight:500}
+.eyebrow{margin-top:40px;font-size:19px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#8A3B1F}
+h1{margin:8px 0 0;font-family:Newsreader,serif;font-style:italic;font-weight:500;font-size:96px;line-height:.98;letter-spacing:-.02em;max-width:720px}
+p{margin:22px 0 0;font-size:27px;color:#655443;max-width:640px}
+.chips{position:absolute;left:56px;bottom:40px;display:flex;gap:12px}
+.chips span{border:1.5px dashed #A8926C;border-radius:999px;padding:7px 18px;font-size:20px;font-weight:600;color:#33261C}
+svg{position:absolute;right:-30px;top:110px;width:440px;height:440px;color:#E3CBB8}
+.stempel{position:absolute;right:70px;top:46px;transform:rotate(8deg);border:3px solid #8A3B1F;color:#8A3B1F;border-radius:10px;padding:8px 16px;font-weight:700;font-size:20px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+</style></head><body><div class="blatt">
+<svg viewBox="0 0 280 280" fill="none"><circle cx="140" cy="140" r="120" stroke="currentColor" stroke-width="2"/><circle cx="140" cy="140" r="86" stroke="currentColor" stroke-width="2" stroke-dasharray="3 9"/><path d="M140 12v28m0 200v28M12 140h28m200 0h28M184 92l-29 63-63 29 29-63Z" stroke="currentColor" stroke-width="3"/><path d="m140 140 44-48-29 63Z" fill="currentColor"/></svg>
+<div class="stempel">Kostenlos · ohne Werbung</div>
+<div class="kopf"><div class="marke">↗</div><div class="name">Reiseplaner</div></div>
+<div class="eyebrow">Dein nächstes schönes Stück Auszeit</div>
+<h1>Die Vorfreude beginnt hier.</h1>
+<p>Ausflüge, Wochenenden und Urlaub entspannt planen.</p>
+<div class="chips"><span>Ziele finden</span><span>Tagesplan</span><span>Kosten im Blick</span><span>Reisetagebuch</span></div>
+</div></body></html>

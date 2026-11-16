@@ -1,5 +1,16 @@
 # Projektstand · 16.11.2026
 
+
+## Startseite für Suchmaschinen und Link-Vorschauen (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. (SEO und Ladezustand: vorher stand vor dem JavaScript nur „Reiseplaner lädt …“ im Quelltext).
+- **Kopf von `index.html`:** Titel jetzt im `<head>` („Reiseplaner – Ausflüge, Wochenenden und Urlaub entspannt planen“), Beschreibung, `canonical`, Open Graph und Twitter-Karte mit Vorschaubild, strukturierte Daten (`WebApplication`, kostenlos), `<html data-layout="book">`, damit schon vor dem Skript der Reisetagebuch-Stil gilt.
+- **Vorab-Startseite in `#view`:** sieht aus wie die echte Startseite (Kompass, „Die Vorfreude beginnt hier.“), mit Text zum Planer, zwei Links (`#planen`, `#entdecken`), Abschnitt „Was der Reiseplaner kann“ und Ladezustand „Dein Reisetagebuch wird aufgeschlagen …“ (Tintenpunkte, nur bei erlaubter Bewegung). Nach 8 s erscheint ein Hinweis, falls die App nicht startet; ohne JavaScript ein klarer Hinweis statt ewigem Laden. Die App ersetzt den Inhalt beim ersten Zeichnen wie bisher. Keine Reisedaten im Quelltext. CSS: Abschnitt „Vorab-Startseite“ am Ende von `app.css`.
+- **Vorschaubild `og-image.png`** (1200 × 630, 110 KB), Quelle `scripts/og-bild.html` mit Befehl zum Neuerzeugen.
+- **Build:** `og-image.png` im Artefakt, neu `robots.txt` und `sitemap.xml`. Neue optionale Variable `RP_PUBLIC_URL` (sonst `RP_SITE_URL`, wenn es auf `/` endet, sonst GitHub Pages) setzt die öffentliche Adresse überall ein, z. B. für Cloudflare Pages. `check-artifact` kennt die drei Dateien.
+- Grenze: Auf GitHub Pages (Projektseite unter `/Reiseplaner/`) lesen Suchmaschinen `robots.txt` nur im Domain-Wurzelpfad; die Sitemap kann in der Google Search Console eingetragen werden. Kein Seitentitel je Ansicht (alle Ansichten heißen gleich). `manifest.webmanifest` hat noch die alten grünen Farben.
+
+Tests (16.11. abends, Cloud-Container): `npm test` grün (neu `tests/startseite.cjs`: Kopf, Vorschaubild, statischer Inhalt ohne persönliche Angaben, Build mit Adresswechsel), `npm run build` + `check:artifact`, `test:offline-browser` grün, Chromium-Ansicht ohne JavaScript (390 px hell/dunkel, 1280 px) und mit JavaScript (Vorab-Inhalt verschwindet, keine Konsolenfehler, `og-image.png`/`robots.txt`/`sitemap.xml` werden ausgeliefert). Voller Klicktest läuft auf GitHub. Keine echte WhatsApp-Vorschau und kein iPhone-Test.
 ## Hauptbereiche: Rückblick in Erinnerungen, „Frisch zurück“, Konto › Meine Daten (Claude, 16.11. abends)
 
 Auftrag Philipp 16.11. (Hauptbereiche Reisen, Entdecken, Erinnerungen, Konto vertiefen). Code `app/rueckblick.js`, Test `tests/rueckblick.cjs`. Kein neues Speicherfeld, rp-trips unverändert.
