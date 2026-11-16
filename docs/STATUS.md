@@ -142,6 +142,12 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Bedienung Schritt 4: Kosten ohne doppelte Bereichsliste (Claude, 16.11.)
+
+- `budgetSection` (app/zahlungsbuch.js): Die Tabelle „Je Bereich“ (Plan, Aktuell, Fest, Bezahlt) liegt in `fold('budget-bereiche')`. Sie startet zugeklappt, solange kein Bereich feste, bezahlte oder geänderte Beträge hat, weil sie dann nur die „Aufstellung“ darunter wiederholt; sonst startet sie offen. Zahlen unverändert aus budgetCheck. Handy 390 px, Beispielreise: 3129 px → 2762 px.
+- Tagesplan: Die Kopfzeile der Wege-Ebene nennt Anzahl und Zeit (`wegeKurz` aus app/wege.js).
+- Geprüft: `npm test` grün; gezielt 200 % Schrift bei 320 und 390 px auf neun Ansichten ohne Überlauf. Vollständiger Klicktest in GitHub Actions. Kein iPhone-/Safari-Test.
+
 ## Bedienung Schritt 3: Tagesplan bleibt beim Plan (Claude, 16.11.)
 
 - `planExtras` (app/ansichten.js) legt „Wege zwischen den Punkten“ (`fold('plan-wege')`) und „Fixpunkte & Puffer“ (`fold('plan-fix')`) als Ebenen unter den Tagesplan. Inhalte kommen unverändert aus app/wege.js und app/fixpunkte.js; die Kopfzeile nennt, wie viele Tage zu prüfen sind. Handy 390 px, Beispielreise: 4171 px → 2339 px.
