@@ -189,7 +189,7 @@ function fixSection(t){
   const noteHtml=r.notes.length?'<ul class="plain small">'+r.notes.map(n=>'<li>'+(n.level==='hinweis'?'<b>Hinweis:</b> ':'')+esc(n.text)+'</li>').join('')+'</ul>':'';
   const fixLine=f=>'<li><b class="num">'+esc(f.time||(f.soft?'Uhrzeit offen':'– : –'))+'</b> '+esc(f.label)+(f.why?' <span class="small muted">· '+esc(f.why)+'</span>':'')+
     (f.end!=null&&!f.point?' <span class="small muted">· bis '+(f.estimate?'ca. ':'')+minTime(f.end)+(f.estimate?' (Schätzung)':'')+'</span>':'')+
-    (f.buffer?' <span class="small muted">· Puffer davor '+f.buffer+' Min. (Richtwert)</span>':'')+'</li>';
+    (f.buffer?' <span class="small muted">· Puffer davor '+f.buffer+' Min. (Richtwert)</span>':'')+fixLeaveText(t,f,' · ')+'</li>';
   const dayHtml=d=>{
     const sug=r.suggestions.find(s=>s.day===d.day),bad=fixIsBad(d.state);
     return '<details class="panel fixday-panel"'+(bad?' open':'')+' data-fix-day="'+d.day+'"><summary><b>'+esc(d.dayLabel)+'</b> · '+(bad?'! ':'')+esc(d.label)+
@@ -201,7 +201,7 @@ function fixSection(t){
       (sug&&canEdit?'<p class="small"><b>Vorschlag:</b> '+esc(sug.title)+(sug.toDay!=null?' auf '+esc(sug.toLabel)+' verschieben, dort ist am meisten Luft.':' verschieben oder weglassen.')+' <button type="button" class="lnk" data-act="item" data-val="'+esc(sug.uid)+'">Verschieben …</button></p>':'')+
       fixDayTools(t,d)+'</details>'};
   return '<section class="block" id="fixpunkte" aria-labelledby="fix-h"><h2 id="fix-h">Fixpunkte & Puffer</h2>'+
-    '<p class="small muted">Fixpunkte sind Termine, die nicht wandern: Abfahrt, Check-in, gebuchte oder bezahlte Programmpunkte, Termine mit festem Datum. Davor plant die App einen Puffer ein (Richtwerte, unverbindlich). Ohne Uhrzeit gilt ein Tag nie als sicher konfliktfrei. Tempo dieser Reise: <b>'+esc(r.paceLabel)+'</b>.</p>'+
+    '<p class="small muted">Fixpunkte sind Termine, die nicht wandern: Abfahrt, Check-in, gebuchte oder bezahlte Programmpunkte, Termine mit festem Datum. Davor plant die App einen Puffer ein (Richtwerte, unverbindlich). Ohne Uhrzeit gilt ein Tag nie als sicher konfliktfrei. Tempo dieser Reise: <b>'+esc(r.paceLabel)+'</b>.</p>'+fixPaceControl(t)+
     noteHtml+view.map(dayHtml).join('')+longTripNote(t,'Die Übersicht')+'</section>';
 }
 /* ================= Schreiben (Format 5, über den gemeinsamen Weg f5Commit aus app/format5.js) ================= */
@@ -244,9 +244,66 @@ if(typeof document!=='undefined'&&document.addEventListener)document.addEventLis
     if(act==='fix'||act==='unfix'){const on=act==='fix';run=o=>fixSetFix(t,uid,on,o);msg=on?'Als Fixpunkt markiert.':'Nicht mehr fix.'}
     else if(act==='keep'){const sel=document.querySelector('[data-fix-why="'+day+'"]'),why=sel&&FIX_WHY[sel.value]?sel.value:'erholung';run=o=>fixSetKeepFree(t,day,slot,why,o);msg=SLOTNAME[slot]+' bleibt frei ('+FIX_WHY[why]+').'}
     else if(act==='unkeep'){run=o=>fixSetKeepFree(t,day,slot,null,o);msg=SLOTNAME[slot]+' ist wieder verplanbar.'}
+    else if(act==='pace'){const sel=document.querySelector('[data-fix-pace]'),v=sel?sel.value:'';run=o=>fixSetPace(t,v||null,o);msg=v?'Tempo „'+FIX_PACE[v].label+'“ gespeichert.':'Tempo folgt wieder dem Reisestil.'}
     else return;
+    const inSheet=!!(el.closest&&el.closest('.sheet'));
     const r=run();
-    if(f5Result(r,{run,msg})){render();alertMsg(msg)}
+    if(f5Result(r,{run,msg})){if(inSheet&&typeof closeSheet==='function')closeSheet();render();alertMsg(msg)}
   }catch(err){alertMsg(err.message)}
 });
-try{if(typeof window!=='undefined')window.RPFix={fixSetFix,fixSetKeepFree,fixDayTools,fixPoints,fixDayEval,fixTrip,fixPace,fixSection,fixDayBadge,fixItemMark,PACE:FIX_PACE,BUFFER:FIX_BUFFER,STATES:FIX_STATES}}catch(e){}
+/* ================= Runde 2: Tempo wählen, Aufbruch spätestens, Blatt eines Programmpunkts ================= */
+/* Tempo der Reise speichern (t.pace, Format 5); null = Vorgabe des Reisestils */
+function fixSetPace(t,pace,opt){
+  if(pace!=null&&!FIX_PACE[pace])throw new Error('Tempo ungültig.');
+  return f5Commit(t,c=>{if(pace)c.pace=pace;else delete c.pace},opt);
+}
+function fixPaceControl(t){
+  if(!fixCanWrite(t))return '';
+  let stil='';try{if(typeof styleOf==='function'){const s=styleOf(Object.assign({},t,{pace:undefined}));stil=s&&FIX_PACE[s.pace]?FIX_PACE[s.pace].label:''}}catch(e){}
+  const cur=FIX_PACE[t.pace]?t.pace:'';
+  return '<div class="row fix-pace"><label class="small">Tempo <select data-fix-pace style="width:auto;display:inline-block;min-height:36px">'+
+    '<option value=""'+(cur?'':' selected')+'>Wie Reisestil'+(stil?' ('+esc(stil)+')':'')+'</option>'+
+    Object.keys(FIX_PACE).map(k=>'<option value="'+k+'"'+(cur===k?' selected':'')+'>'+FIX_PACE[k].label+' · bis '+FIX_PACE[k].maxPoints+' Punkte, '+Math.round(FIX_PACE[k].share*100)+' % frei</option>').join('')+
+    '</select></label><button type="button" class="btn ghost sm" data-fix-act="pace">Tempo übernehmen</button></div>';
+}
+/* Spätester Aufbruch zu einem Fixpunkt: Beginn − Puffer − Weg (Weg aus dayWays/transferGaps zum Fixpunkt).
+   {min, way, known}: known=false, wenn ein Weg nötig wäre, aber unbekannt ist. Nur für Programmpunkte und Abschnitte. */
+function fixLeaveBy(t,f){
+  if(!f||f.start==null||f.point||f.kind==='anreise'||f.kind==='abreise')return null;
+  let way=null;
+  if(f.uid){
+    try{if(typeof dayWays==='function'){const w=dayWays(t,f.day),l=w&&Array.isArray(w.legs)?w.legs.find(l=>l&&l.toUid===f.uid):null;if(l&&Number.isFinite(+l.min)&&l.min!=null)way=+l.min}}catch(e){}
+    if(way==null){const g=(typeof transferGaps==='function'?transferGaps(t):[]).find(g=>g.to&&g.to.it.uid===f.uid);if(g&&Number.isFinite(g.need))way=g.need}
+  }
+  const min=f.start-f.buffer-(way||0);
+  return {min,way,known:!f.uid||way!=null};
+}
+function fixLeaveText(t,f,lead){
+  const l=fixLeaveBy(t,f);if(!l||l.min<0)return '';
+  if(!l.known)return '<span class="small muted">'+lead+'Weg dorthin unbekannt: Aufbruch vor '+minTime(l.min)+' plus Weg</span>';
+  return '<span class="small">'+lead+'<b>Aufbruch spätestens '+minTime(l.min)+'</b>'+(l.way?' (≈ '+l.way+' Min. Weg'+(f.buffer?' + '+f.buffer+' Min. Puffer':'')+')':'')+'</span>';
+}
+/* Heute-Ansicht: nächster Fixpunkt des Tages mit spätestem Aufbruch. now = Date (Ortszeit des Geräts). */
+function fixTodayLine(t,day,now){
+  try{
+    const d=fixTrip(t).days[day];if(!d)return '';
+    const n=now&&typeof now.getHours==='function'?now:new Date(),nm=n.getHours()*60+n.getMinutes();
+    const next=d.fixed.filter(f=>f.start!=null&&!f.point&&f.start>=nm).sort((a,b)=>a.start-b.start)[0];
+    const issues=d.issues.filter(i=>i.level!=='unsicher').length;
+    if(!next&&!issues)return '';
+    return '<p class="small fix-today" data-fix-today>'+(next?'<b>Nächster Fixpunkt:</b> '+esc(next.time)+' '+esc(next.label)+fixLeaveText(t,next,' · '):'')+
+      (issues?(next?'<br>':'')+'! '+issues+'× Puffer knapp oder Überschneidung heute. Im Tagesplan unter „Fixpunkte &amp; Puffer“ ansehen.':'')+'</p>';
+  }catch(e){return ''}
+}
+/* Im Blatt eines Programmpunkts: Fixpunkt-Status und Schalter */
+function fixItemSheetTools(t,it){
+  try{
+    const f=fixTrip(t).points.find(p=>p.uid===it.uid),own=it.fix===true,w=fixCanWrite(t);
+    if(f&&!own)return '<div class="note small" data-fix-sheet><b>Fixpunkt ('+esc(f.why||'fester Termin')+').</b> Verschieben ändert die Buchung nicht: neuen Termin zuerst beim Anbieter klären.'+(f.start==null?' Uhrzeit eintragen, damit Puffer und Überschneidungen geprüft werden.':'')+'</div>';
+    if(!w)return own?'<p class="small" data-fix-sheet><b>Fixpunkt</b> (von Hand festgelegt).</p>':'';
+    if(own)return '<div class="row" data-fix-sheet><span class="small"><b>Fixpunkt</b> (von Hand festgelegt). Uhrzeit entfernen löst ihn.</span><button type="button" class="btn ghost sm" data-fix-act="unfix" data-uid="'+esc(it.uid)+'">Nicht mehr fix</button></div>';
+    if(timeMin(it.time)==null)return '<p class="small muted" data-fix-sheet>Mit Uhrzeit lässt sich dieser Punkt als Fixpunkt markieren (z. B. geführte Tour, Tischreservierung).</p>';
+    return '<div class="row" data-fix-sheet><button type="button" class="btn ghost sm" data-fix-act="fix" data-uid="'+esc(it.uid)+'">Als Fixpunkt markieren</button><span class="small muted">Dann plant die App Puffer davor ein und warnt bei Überschneidungen.</span></div>';
+  }catch(e){return ''}
+}
+try{if(typeof window!=='undefined')window.RPFix={fixSetPace,fixPaceControl,fixLeaveBy,fixTodayLine,fixItemSheetTools,fixSetFix,fixSetKeepFree,fixDayTools,fixPoints,fixDayEval,fixTrip,fixPace,fixSection,fixDayBadge,fixItemMark,PACE:FIX_PACE,BUFFER:FIX_BUFFER,STATES:FIX_STATES}}catch(e){}

@@ -626,7 +626,7 @@ function dayList(t,d,last){
   if(d.i===last&&last>0)fixed.push('Packen & Abreise');
   if(!its.length&&!fixed.length)return '<p class="muted small">Nichts eingeplant.</p>';
   return '<ul class="plain daylist">'+fixed.map(x=>'<li class="dl-fix"><b>'+esc(x)+'</b></li>').join('')+its.map(it=>{const a=actOf(t,it.act),u=actUrl(a);
-    return '<li><span class="eyebrow">'+esc(it.time||SLOTNAME[it.slot]||'')+'</span> <span class="dl-t">'+esc(a.t)+'</span>'+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u||a.map?' <span class="dl-links">'+(u?lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</span>':'')+'</li>'}).join('')+'</ul>';
+    return '<li><span class="eyebrow">'+esc(it.time||SLOTNAME[it.slot]||'')+'</span> <span class="dl-t">'+(typeof fixItemMark==='function'?fixItemMark(t,it):'')+esc(a.t)+'</span>'+(a.dur||a.ort?' <small class="muted">· '+esc([a.dur,a.ort].filter(Boolean).join(' · '))+'</small>':'')+(openHoursText(a)?'<br><small class="muted">Laut Katalog (unbestätigt): '+esc(openHoursText(a))+'</small>':'')+(u||a.map?' <span class="dl-links">'+(u?lk(u,'Info'):'')+(a.map?' '+lk(mp(a.map),'Karte'):'')+'</span>':'')+'</li>'}).join('')+'</ul>';
 }
 function rainBlock(t,i){
   const ideas=rainIdeas(t,i,3);if(!ideas.length)return '';
@@ -638,7 +638,7 @@ function todayBlock(t,now){
   const L=dayLoad(t)[ph.day],ru=dayRouteUrl(t,ph.day);
   /* Draußen-Ideen aus dem Katalog: direkter Weg zum Regenzwilling im Punkt-Blatt (Tausch dort geschützt) */
   const outs=dayItems(t,ph.day).map(it=>({it,a:actOf(t,it.act)})).filter(x=>x.a&&x.a.catalogSpot&&!x.a.indoor&&!x.a.transit&&CATX);
-  return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+
+  return '<section class="block"><span class="eyebrow">'+esc(phaseText(ph))+'</span><h2>Heute · '+esc(d.label)+'</h2><div class="panel">'+dayList(t,d,last)+(typeof fixTodayLine==='function'?fixTodayLine(t,ph.day,now):'')+
    (L&&(L.planned||L.drive)?'<p class="small muted">Programm ≈ '+String(L.planned).replace('.',',')+' Std.'+(L.drive?' · Fahrt ca. '+String(Math.round(L.drive/6)/10).replace('.',',')+' Std.':'')+(L.ways?' · Wege ca. '+String(Math.round(L.ways/6)/10).replace('.',',')+' Std.':'')+(L.over?' · <b>zu voll</b>, einen Punkt verschieben':'')+'</p>':'')+
    (ru||outs.length?'<div class="row">'+(ru?lk(ru,'Route für heute'):'')+outs.map(x=>'<button type="button" class="btn ghost sm" data-act="item" data-val="'+esc(x.it.uid)+'">☂ Regen-Alternative: '+esc(x.a.t)+'</button>').join('')+'</div>':'')+'</div>'+
    (typeof istToday==='function'?istToday(t,now):'')+rainBlock(t,ph.day)+journalToday(t,ph.day)+

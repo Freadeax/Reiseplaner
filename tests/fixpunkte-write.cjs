@@ -87,4 +87,23 @@ let n = 0;
   assert.equal(run('fixDayTools')(a.Store.get(t.id), run('fixTrip')(a.Store.get(t.id)).days[1]), '');
   n++;
 }
-console.log('Fixpunkte schreiben (Format 5): ' + n + ' Prüfungen bestanden (fix nur mit Uhrzeit, Bestätigung beim Anheben, Uhrzeit entfernen löst fix, keepFree ersetzen/prüfen/entfernen, Lücken füllen, Sperre ohne F5_WRITE). Kein Browser-/iPhone-Test.');
+/* 4 · Tempo der Reise speichern (t.pace) und zurück auf den Reisestil */
+{
+  const { a, run } = makeApp();
+  const t = a.newTrip({ title: 'Tempo', dateMode: 'fix', start: '2026-12-30', end: '2027-01-03', type: 'wellness' });
+  t.schemaVersion = 5;
+  assert(a.Store.put(J(t)));
+  assert.equal(run('fixPace')(a.Store.get(t.id)), 'ruhig', 'Wellness: Vorgabe ruhig');
+  assert(/Wie Reisestil \(ruhig\)/.test(run('fixPaceControl')(a.Store.get(t.id))));
+  assert(run('fixSetPace')(a.Store.get(t.id), 'aktiv').ok);
+  assert.equal(a.Store.get(t.id).pace, 'aktiv'); assert.equal(run('fixPace')(a.Store.get(t.id)), 'aktiv');
+  assert.throws(() => run('fixSetPace')(a.Store.get(t.id), 'rasant'), /Tempo ungültig/);
+  assert(run('fixSetPace')(a.Store.get(t.id), null).ok);
+  const t2 = J(a.Store.get(t.id)); t2.customActs = [act('ctour', 'Tour', 2)]; t2.items = [{ uid: 'x', act: 'ctour', day: 1, slot: 'morgen', time: '10:00' }];
+  assert(/Als Fixpunkt markieren/.test(run('fixItemSheetTools')(t2, t2.items[0])), 'Punkt mit Uhrzeit lässt sich im Blatt festmachen');
+  t2.items[0].fix = true; assert(/Nicht mehr fix/.test(run('fixItemSheetTools')(t2, t2.items[0])));
+  delete t2.items[0].fix; delete t2.items[0].time; assert(/Mit Uhrzeit lässt sich/.test(run('fixItemSheetTools')(t2, t2.items[0])));
+  assert(!('pace' in a.Store.get(t.id)));
+  n++;
+}
+console.log('Fixpunkte schreiben (Format 5): ' + n + ' Prüfungen bestanden (fix nur mit Uhrzeit, Bestätigung beim Anheben, Uhrzeit entfernen löst fix, keepFree ersetzen/prüfen/entfernen, Lücken füllen, Sperre ohne F5_WRITE, Tempo speichern). Kein Browser-/iPhone-Test.');

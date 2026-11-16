@@ -1,5 +1,16 @@
 # Projektstand · 16.11.2026
 
+
+## Fixpunkte und Puffer, Runde 2: Tempo, Aufbruch spätestens, Blatt (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. abends („Threads komplett weiterentwickeln“). Aufbauend auf der Neugestaltung „Reisetagebuch“, nur `app/fixpunkte.js` plus abgesicherte Einhängezeilen.
+- **Tempo wählbar:** im Abschnitt „Fixpunkte & Puffer“ (Ebene im Tagesplan) Auswahl „Wie Reisestil (…)“ / ruhig / normal / aktiv, speichert `t.pace` über `f5Commit` (`fixSetPace`); „Wie Reisestil“ entfernt das Feld.
+- **Aufbruch spätestens:** Beginn − Puffer − Weg (Weg aus `dayWays`, sonst `transferGaps`). Unbekannter Weg wird als „Weg dorthin unbekannt“ gezeigt, nie als 0. Im Abschnitt je Fixpunkt und in der **Heute-Ansicht** als „Nächster Fixpunkt“ (`fixTodayLine`, eine Zeile in `todayBlock`), dort auch „! n× Puffer knapp oder Überschneidung heute“.
+- **Blatt eines Programmpunkts** (`sheetItem`, eine Zeile in `app/blaetter.js`): gebuchter Fixpunkt mit Hinweis „Verschieben ändert die Buchung nicht“, sonst „Als Fixpunkt markieren“ / „Nicht mehr fix“ (nur mit Uhrzeit).
+- **Reisemappe und Heute-Liste** (`dayList`): Kennzeichen „Fix“ vor dem Titel.
+
+Tests (16.11. abends, Cloud-Container): `npm test` (fixpunkte 8, fixpunkte-write 4 Prüfungen), `test:browser` grün; in Chromium Ebene „Fixpunkte & Puffer“ und Blatt „Massage“ angesehen. Nicht getestet: iPhone, Safari.
+
 ## Neugestaltung „Reisetagebuch“ (Claude, 16.11. abends)
 
 Philipp hat per Auswahlkarte entschieden: Stil **B Reisetagebuch**, Handy-Navigation **schwebendes Dock**, Bewegung **verspielt**, Veröffentlichung freigegeben.

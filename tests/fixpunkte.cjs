@@ -193,4 +193,29 @@ const trip = o => a.newTrip(Object.assign({ dateMode: 'fix', start: '2026-12-30'
   n++;
 }
 
+/* 8 · Aufbruch spätestens, Heute-Zeile, Blatt eines Programmpunkts */
+{
+  const t = trip({});
+  t.customActs = [act('cmass', 'Massage', 1), act('crod', 'Rodeln', 2)];
+  t.ledger = { 'act:cmass': { status: 'gebucht', amount: 80, paid: 0 } };
+  t.items = [{ uid: 'm', act: 'cmass', day: 2, slot: 'nachm', time: '15:00' }, { uid: 'r', act: 'crod', day: 2, slot: 'mittag', time: '12:00' }];
+  const f = F.fixTrip(t).days[2].fixed.find(x => x.uid === 'm');
+  const orig = ctx.dayWays;
+  ctx.dayWays = () => ({ legs: [{ toUid: 'm', min: 25 }] });
+  assert.deepEqual(JSON.parse(JSON.stringify(F.fixLeaveBy(t, f))), { min: 14 * 60 + 20, way: 25, known: true });
+  const line = F.fixTodayLine(t, 2, new Date(2027, 0, 1, 10, 0));
+  assert(/Nächster Fixpunkt:<\/b> 15:00 Massage/.test(line) && /Aufbruch spätestens 14:20/.test(line), line);
+  assert.equal(F.fixTodayLine(t, 2, new Date(2027, 0, 1, 16, 0)), '', 'nach dem Fixpunkt und ohne Probleme keine Zeile');
+  ctx.dayWays = () => ({ legs: [{ toUid: 'm', min: null }] });
+  assert.equal(F.fixLeaveBy(t, f).known, false, 'unbekannter Weg zählt nicht als 0');
+  assert(/Weg dorthin unbekannt/.test(F.fixTodayLine(t, 2, new Date(2027, 0, 1, 10, 0))));
+  ctx.dayWays = orig;
+  const sheet = F.fixItemSheetTools(t, t.items[0]);
+  assert(/Fixpunkt \(gebucht\)/.test(sheet) && /beim Anbieter klären/.test(sheet));
+  assert.equal(F.fixItemSheetTools(t, t.items[1]), '', 'ohne Schreibrecht (Format 5) keine Schalter; Schreibweg in fixpunkte-write.cjs');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'app', 'blaetter.js'), 'utf8') + fs.readFileSync(path.join(__dirname, '..', 'app', 'ansichten.js'), 'utf8');
+  assert(src.includes("typeof fixItemSheetTools==='function'") && src.includes("typeof fixTodayLine==='function'"), 'Blatt und Heute abgesichert eingehängt');
+  n++;
+}
+
 console.log('Fixpunkte & Puffer: ' + n + ' Prüfungen bestanden (abgeleitete Fixpunkte, Überschneidung, Puffer-Richtwerte, fehlende Uhrzeit/Dauer = nicht sicher, Tempo, Vorschläge, Abschnitte, Format-5-Felder, Darstellung). Kein Browser-/iPhone-Test.');

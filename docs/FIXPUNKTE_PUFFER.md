@@ -110,3 +110,9 @@ Geschrieben über den gemeinsamen Weg `f5Commit` (`fixSetFix`, `fixSetKeepFree`)
 - Wegzeiten und Tageskarte: Thread „Routen und Karten“ (`app/wege.js`, `dayWays`); hier nur gelesen.
 - Tempo je Reiseart: Thread „Reisestil“ (`app/reisestil.js`, `styleOf`); hier nur gelesen.
 - Fristen vor der Reise (Zahlung, Storno, Online-Check-in): `app/fristen.js`, nicht Teil des Tagesplans.
+
+## 6 · Runde 2 (16.11. abends) [Code]
+
+- Tempo der Reise wählbar (`fixSetPace`, `t.pace`), Vorgabe sonst aus dem Reisestil.
+- „Aufbruch spätestens“ = Beginn − Puffer − Weg; unbekannter Weg bleibt unbekannt. Im Abschnitt und in der Heute-Ansicht.
+- Fixpunkt-Hinweis und Schalter im Blatt eines Programmpunkts; „Fix“ auch in Reisemappe und Heute-Liste.
