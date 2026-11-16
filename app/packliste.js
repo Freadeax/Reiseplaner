@@ -72,25 +72,28 @@ function wxPanel(t){
   if(!window.RPPack)return '';
   if(!window.RP_CATALOG&&typeof catLoadLocal==='function'&&((t.destGeo&&t.destGeo.place)||(t.legs||[]).some(l=>l.place)))catLoadLocal().then(()=>{if(cur()&&cur().id===t.id&&UI.tab==='check')render()}).catch(()=>{});
   const w=wxCurrent(t),plan=w.plan,busy=WX_STATE.busy===t.id,err=WX_STATE.err[t.id];
-  const head='<h3>Wetter am Ziel</h3>';
-  if(plan.mode==='none')return '<div class="panel wx-panel">'+head+'<p class="small muted">Für Wetter und passende Packpunkte braucht die Reise feste An- und Abreisedaten (Eckdaten).</p></div>';
+  /* Zugeklappte Ebene mit Einzeiler (Bedienbarkeit, UI-Thread 16.11.); offen beim Laden oder nach Fehler */
+  const box=(sum,body)=>typeof fold==='function'?fold('check-wetter','Wetter am Ziel',sum,'<div class="wx-panel">'+body+'</div>',{force:busy||!!err}):'<div class="panel wx-panel"><h3>Wetter am Ziel</h3>'+body+'</div>';
+  if(plan.mode==='none')return box('braucht feste Reisedaten','<p class="small muted">Für Wetter und passende Packpunkte braucht die Reise feste An- und Abreisedaten (Eckdaten).</p>');
   if(plan.mode==='past')return '';
-  if(!w.point&&!String(t.dest||'').trim())return '<div class="panel wx-panel">'+head+'<p class="small muted">Erst ein Ziel festlegen (Ort &amp; Unterkunft oder Eckdaten), dann lässt sich das Wetter laden.</p></div>';
+  if(!w.point&&!String(t.dest||'').trim())return box('erst Ziel festlegen','<p class="small muted">Erst ein Ziel festlegen (Ort &amp; Unterkunft oder Eckdaten), dann lässt sich das Wetter laden.</p>');
   const pl=typeof placeOf==='function'?placeOf(t):null,where=(w.point&&w.point.label)||(pl&&pl.name)||t.dest||'das Ziel';
   const btn=label=>'<button type="button" class="btn ghost sm" data-act="wx-load"'+(busy?' disabled aria-busy="true"':'')+'>'+(busy?'Lädt …':label)+'</button>';
   const privacy='<p class="small muted">Sendet nur die gerundete Lage des Ziels und die Reisedaten an Open-Meteo'+(w.point?'':' (vorher eine Ortssuche bei OpenStreetMap)')+'. Keine Personen, kein Startort. Gespeichert wird nur auf diesem Gerät.</p>';
   const e=w.entry,errHtml=err?'<p class="small" role="alert">⚠ '+esc(err)+(e?' Die zuletzt geladenen Werte bleiben sichtbar.':'')+'</p>':'';
-  if(!e)return '<div class="panel wx-panel">'+head+'<p class="small">'+(plan.mode==='forecast'?'Vorhersage für '+esc(where)+' laden?':'Bis zur Reise ist es noch weit. Typische Werte der letzten Jahre für '+esc(where)+' laden? Eine Vorhersage gibt es ab '+window.RPPack.fmtDate(plan.forecastFrom)+'.')+'</p>'+errHtml+'<div class="row">'+btn(plan.mode==='forecast'?'Vorhersage laden':'Typische Werte laden')+'</div>'+privacy+'</div>';
+  if(!e)return box(busy?'lädt …':err?'Fehler beim Laden':plan.mode==='forecast'?'Vorhersage laden':'typische Werte laden','<p class="small">'+(plan.mode==='forecast'?'Vorhersage für '+esc(where)+' laden?':'Bis zur Reise ist es noch weit. Typische Werte der letzten Jahre für '+esc(where)+' laden? Eine Vorhersage gibt es ab '+window.RPPack.fmtDate(plan.forecastFrom)+'.')+'</p>'+errHtml+'<div class="row">'+btn(plan.mode==='forecast'?'Vorhersage laden':'Typische Werte laden')+'</div>'+privacy);
   const stale=window.RPPack.isStale(e,Date.now()),at=new Date(e.fetchedAt);
   const atText=String(at.getDate()).padStart(2,'0')+'.'+String(at.getMonth()+1).padStart(2,'0')+'. '+String(at.getHours()).padStart(2,'0')+':'+String(at.getMinutes()).padStart(2,'0');
   const fc=e.kind==='forecast';
   const rows=e.days.map(d=>'<li><b>'+window.RPPack.fmtDay(d.date)+'</b> '+esc(window.RPPack.dayText(d,e.kind))+'</li>').join('');
   const missing=fc&&plan.cut?'<li class="muted">Ab '+window.RPPack.fmtDay(window.RPPack.addDays(plan.to,1))+' noch keine Vorhersage</li>':'';
-  return '<div class="panel wx-panel">'+head+
+  const lows=e.days.map(d=>d.tmin).filter(v=>v!=null),highs=e.days.map(d=>d.tmax).filter(v=>v!=null);
+  const sum=(fc?'Vorhersage':'Durchschnitt')+(lows.length&&highs.length?' · '+dec(Math.min(...lows),0)+' bis '+dec(Math.max(...highs),0)+' °C':'')+(stale?' · veraltet':'');
+  return box(sum,
    '<p class="small"><b>'+(fc?'Vorhersage':'Durchschnitt '+e.years[0]+(e.years.length>1?'–'+e.years[e.years.length-1]:'')+', keine Vorhersage')+'</b> für '+esc(where)+'</p>'+
    '<ul class="wx-days small">'+rows+missing+'</ul>'+
    '<p class="small muted">Quelle: <a href="'+window.RPPack.LINKS.openMeteo.url+'" target="_blank" rel="noopener">Open-Meteo ↗</a> (CC BY 4.0), abgerufen '+atText+(stale?' · <b>veraltet, bitte neu laden</b>':'')+(fc?'':' · Vorhersage ab '+window.RPPack.fmtDate(plan.forecastFrom))+'. Wetter ist keine Zusage, Schnee nicht garantiert. Passende Punkte stehen unten unter „Packliste: wegen Wetter“.</p>'+
-   errHtml+'<div class="row">'+btn('Neu laden')+'</div></div>';
+   errHtml+'<div class="row">'+btn('Neu laden')+'</div>');
 }
 document.addEventListener('click',async e=>{
   const b=e.target&&e.target.closest&&e.target.closest('[data-act="wx-load"]');if(!b)return;

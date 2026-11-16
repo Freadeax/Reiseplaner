@@ -100,8 +100,7 @@
       items.push(item('d-gueltig', 'Ausweise aller Mitreisenden: gültig bis nach der Rückkehr' + (range ? ' am ' + fmtDate(range.to) : '') + '?',
         'Ablaufdatum ansehen. Ob ' + names + ' eine Mindestgültigkeit verlangt, steht beim Auswärtigen Amt.', LINKS.aa));
       items.push(item('d-dokument', 'Welches Dokument reicht (Personalausweis oder Reisepass)?',
-        (allSch ? 'Innerhalb von EU und Schengen genügt oft der Personalausweis, aber nicht für jede Staatsangehörigkeit. ' : '') +
-        'Hängt von Staatsangehörigkeit und Reiseland ab, Kinder brauchen eigene Dokumente: für ' + names + ' prüfen.', LINKS.aa));
+        (allSch ? 'In EU und Schengen oft der Personalausweis. ' : '') + 'Hängt von Staatsangehörigkeit und Reiseland ab; Kinder brauchen eigene Dokumente.'));
       if (!allSch) items.push(item('d-einreise', 'Einreise und Visum für ' + names + ' prüfen', 'Einreisebestimmungen ändern sich; vor Buchung und kurz vor Abreise erneut ansehen.', LINKS.aa));
       if (anyNonEu || flight) items.push(item('d-impf', 'Impfungen und Gesundheitshinweise für ' + names + ' prüfen', 'Bei Bedarf reisemedizinische Beratung (Hausarzt, Tropeninstitut) rechtzeitig vor der Reise.', LINKS.aaHealth));
       if (info.some(function (c) { return c && c.eu; })) items.push(item('d-ehic', 'Krankenversichertenkarte einpacken', 'Bei gesetzlich Versicherten gilt die Rückseite meist als Europäische Krankenversicherungskarte; sie deckt keinen Rücktransport.'));

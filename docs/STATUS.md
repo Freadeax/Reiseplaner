@@ -11,6 +11,8 @@ Thread „Check- und Packlisten nach Ziel und Wetter“ (Auftrag Philipp 16.11.)
 
 Tests (16.11., Cloud-Container): `npm test` (neu `packliste`, 9 Prüfungen mit Open-Meteo-Attrappen), `test:browser`, `build`, `check:artifact` grün; Wetterkarte in Chromium 390 px hell/dunkel mit abgefangener Antwort angesehen (keine Konsolenfehler, Wetter nicht in `rp-trips`). **Nicht getestet:** echte Abfrage an Open-Meteo (Proxy des Containers sperrt sie), iPhone, Safari.
 
+Nachtrag (16.11. mittags, Bedienbarkeit auf Hinweis des Oberflächen-Threads): Gruppen der Checkliste starten zugeklappt außer „Buchen & Anfragen“, der ersten weiteren Gruppe mit offenen Punkten und „Eigene Punkte“; Zustand je Gruppe über `data-fold` gemerkt, bei Suche/Filter alles offen. „Wetter am Ziel“ ist eine zugeklappte Ebene mit Einzeiler (z. B. „Vorhersage · −7 bis 4 °C“). Suche und Filter erst ab 15 Punkten. Reisestil Wellness/Familie mit eigenen Packpunkten. Tests: `npm test`, `test:browser` grün (Browsertest-Reise bekommt dafür 12 weitere eigene Punkte).
+
 Nächster Schritt: echte Abfrage auf Philipps Gerät prüfen; Format 5 schreibt seit heute (`F5_WRITE = true`), daher als Nächstes Ausblenden und eigene Packpunkte je Person (`t.packing`, M03.4) sowie Ausweis-Eingabe (M04.3); Wetter auch im Tagesplan (M03.2).
 
 

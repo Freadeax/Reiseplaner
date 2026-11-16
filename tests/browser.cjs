@@ -761,7 +761,7 @@ async function checklistModules(browser,base,name,ctxOpts){
  const ctx=await browser.newContext(Object.assign({serviceWorkers:'block'},ctxOpts));const p=await ctx.newPage();
  p.on('pageerror',e=>errors.push(name+' Module: '+e.message));
  await p.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());await p.goto(base+'/index.html');
- const id=await p.evaluate(()=>{const a=window.__app,t=a.newTrip({customChecks:[{id:'k1',t:'Handtuch Test'},{id:'k2',t:'Unterlagen Test'}],check:{'c-k1':true}});a.Store.put(t,true);a.go('r-'+t.id+'-check');return t.id});
+ const id=await p.evaluate(()=>{const a=window.__app,t=a.newTrip({customChecks:[{id:'k1',t:'Handtuch Test'},{id:'k2',t:'Unterlagen Test'}].concat(Array.from({length:12},(_,i)=>({id:'kx'+i,t:'Weiterer Punkt '+i}))),check:{'c-k1':true}}) /* Suche erscheint erst ab 15 Punkten */;a.Store.put(t,true);a.go('r-'+t.id+'-check');return t.id});
  await p.click('[data-act="check-filter"][data-val="done"]');
  assert.equal(await p.locator('[data-act="check"]').count(),1);
  await p.fill('#check-q','Kein Treffer');await p.click('#check-search button');

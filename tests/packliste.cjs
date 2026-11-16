@@ -184,6 +184,10 @@ const fcJson = { daily: { time: ['2026-12-30', '2026-12-31', '2027-01-01'], temp
   /* Checkliste rendert Links der Dokumentpunkte */
   const view = context.tCheck(t);
   assert.ok(view.includes('Wetter am Ziel') && view.includes(P.LINKS.aa.url), 'Wetterkarte und amtlicher Link in der Checkliste');
+  /* Bedienbarkeit: nur Buchen und erste offene Gruppe offen (eigene Punkte, sobald vorhanden), Wetter zugeklappt mit Einzeiler */
+  const opened = [...view.matchAll(/<details class="panel check-group" data-fold="([a-z0-9-]+)"( open)?/g)].filter(m => m[2]).map(m => m[1]);
+  assert.deepEqual(opened, ['check-buchen-anfragen', 'check-dokumente-einreise-oesterreich'], opened.join(','));
+  assert.ok(/data-fold="check-wetter"><summary><b>Wetter am Ziel<\/b> <small/.test(view), 'Wetter zugeklappt mit Einzeiler');
   ok();
 }
 console.log('Check- und Packlisten: ' + n + ' Prüfungen bestanden (Horizont W1, Adressen, W2–W7, Klima, Länder, Dokumente ohne erfundene Regeln, passend zur Reise, Einbindung). Kein Browser-/iPhone-Test, keine echte Abfrage.');
