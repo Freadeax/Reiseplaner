@@ -67,9 +67,10 @@ Kein neues Speicherfeld, kein Formatwechsel. Ausgaben unterwegs brauchen weiter 
 
 ## 6 · Grenzen und nächste Schritte [Plan]
 
-1. **Geplanten Posten vor Ort bezahlt.** Wer die Therme an der Kasse zahlt und als Ausgabe einträgt, zählt sie doppelt
-   (T4). Heute steht dazu ein Hinweis. Nächster Schritt: in der Schnellerfassung „Das war ein geplanter Posten: …“ mit den
-   heutigen offenen Posten des Bereichs; die Wahl schreibt `ledger[key].paid` (vorhandenes Feld, kein neues Format).
+1. **Geplanten Posten vor Ort bezahlt** – umgesetzt 16.11. abends [Code]: Beim Erfassen „Gehört zu einem geplanten
+   Posten?“ mit den offenen Posten (heute geplante zuerst; ohne Töpfe, Unterkunft, stornierte). Die Wahl bucht die Zahlung
+   im Buchungsbuch (`ledger[key].paid`, Zahler in `paidBy`, falls frei) statt eine Ausgabe anzulegen. Liegt das Bezahlte
+   über dem Planwert, wird es der erfasste Betrag. Vorschau zeigt bisher/danach bezahlt. Kein neues Feld.
 2. **Verknüpfung als Feld** (`expenses[i].plan = <ledgerKey>`) wäre die genaue Lösung, braucht aber Format 5
    (`EXPENSE_FIELDS`). Mit dem Format-5-Thread abstimmen, frühestens nach `F5_WRITE = true`.
 3. **Fremdwährung:** `expenses[i].fx` (Format 5) – die Hochrechnung rechnet nur mit `amount` in Euro; ohne Kurs bleibt

@@ -192,3 +192,39 @@ function v3trip() {
   ok(old.a.budgetSection(t, NACH).includes('data-budget'), 'Budget-Ansicht bleibt');
 }
 console.log('Plan-Ist-Vergleich (istvergleich): ' + n + ' Prüfungen bestanden (T1–T6, Cent, offene Preise, Töpfe, bezahlt über Plan, Anbindung). Node-Test, kein Browser-/iPhone-Test.');
+
+/* ---------- „Das war ein geplanter Posten“ (Schnellerfassung, 16.11. abends) ---------- */
+{
+  const run = app(), A = run.a, G = run.g;
+  const t = A.silvesterTemplate();
+  t.start = '2027-01-01'; t.end = '2027-01-05'; /* läuft am Testtag UNTERWEGS (01.01.) */
+  t.schemaVersion = 3; t.party = [{ id: 'pphil', name: 'Philipp' }, { id: 'ppart', name: 'Partnerin' }]; t.expenses = [];
+  const opts = G('istPlanOptions')(t, UNTERWEGS);
+  ok(opts.length > 0, 'offene geplante Posten werden angeboten');
+  ok(!opts.some(o => o.key === 'anreise'), 'Sprit-Topf wird nicht angeboten');
+  ok(!opts.some(o => o.key === 'stay'), 'Unterkunft läuft über das Angebot');
+  const wb = opts.find(o => o.key === 'act:oj-wbad'); ok(wb, 'Therme wird angeboten');
+  const before = A.cost(t).total, row0 = A.ledgerRows(t).find(r => r.key === 'act:oj-wbad');
+  /* Teilzahlung unter Plan */
+  let next = A.splitCandidate(t, 'expense-add', null, { on: '2027-01-01', amount: '20', cat: 'wellness', paidBy: 'ppart', planKey: 'act:oj-wbad' }, 'exnn1');
+  eq(next.expenses.length, 0, 'keine zusätzliche Ausgabe');
+  eq(next.ledger['act:oj-wbad'].paid, 20); eq(next.ledger['act:oj-wbad'].amount, null, 'unter Plan: Betrag bleibt offen');
+  eq(next.ledger['act:oj-wbad'].paidBy, 'ppart', 'Zahler übernommen');
+  ok(Math.abs(A.cost(next).total - before) < 0.01, 'Gesamtkosten unverändert: nicht doppelt gezählt');
+  eq(t.ledger && t.ledger['act:oj-wbad'], undefined, 'Quelle unverändert');
+  const r1 = G('istResult')(next, UNTERWEGS);
+  eq(r1.areas.find(x => x.key === 'wellness').paid, 20); eq(r1.areas.find(x => x.key === 'wellness').extra, 0);
+  /* über Plan: Betrag wird der tatsächliche Preis */
+  next = A.splitCandidate(t, 'expense-add', null, { on: '2027-01-01', amount: String(Math.round(row0.plan) + 10), cat: 'wellness', paidBy: '', planKey: 'act:oj-wbad' }, 'exnn2');
+  eq(next.ledger['act:oj-wbad'].amount, Math.round(row0.plan) + 10, 'über Plan: Betrag = Bezahltes');
+  ok(Math.abs(A.cost(next).total - (before - row0.plan + Math.round(row0.plan) + 10)) < 0.01, 'Gesamtkosten steigen nur um den Mehrpreis');
+  const pv = A.splitPreview(t, next, { action: 'expense-add', newId: 'exnn2', target: null, fields: { planKey: 'act:oj-wbad' } });
+  ok(/geplanten Posten/.test(pv) && /wird auf/.test(pv), 'Vorschau nennt Posten und neuen Betrag');
+  /* anderer Zahler schon eingetragen → klare Meldung */
+  const t2 = JSON.parse(JSON.stringify(t)); t2.ledger = { 'act:oj-wbad': { status: 'offen', amount: null, paid: 10, due: '', paidBy: 'pphil' } };
+  assert.throws(() => A.splitCandidate(t2, 'expense-add', null, { on: '2027-01-01', amount: '5', cat: 'wellness', paidBy: 'ppart', planKey: 'act:oj-wbad' }, 'exnn3'), /nur einen Zahler/); n++;
+  assert.throws(() => A.splitCandidate(t, 'expense-add', null, { on: '2027-01-01', amount: '5', cat: 'wellness', planKey: 'act:gibtsnicht' }, 'exnn4'), /gibt es nicht mehr/); n++;
+  ok(/name="planKey"/.test(A.splitForm(t, { action: 'expense-add', target: null, fields: {} })), 'Auswahl im Erfassen-Formular');
+  ok(!/name="planKey"/.test(A.splitForm(Object.assign(J(t), { expenses: [{ id: 'exaa9', on: '2027-01-01', label: 'X', amount: 3, cat: 'eigen' }] }), { action: 'expense-edit', target: { id: 'exaa9' }, fields: {} })), 'nicht beim Bearbeiten');
+  console.log('Geplanter Posten vor Ort bezahlt: geprüft (' + n + ' Prüfungen gesamt).');
+}

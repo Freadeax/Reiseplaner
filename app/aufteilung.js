@@ -99,6 +99,8 @@ function splitCandidate(t,action,target,f,newId){
     return v3Candidate(t,c=>{const e=r.get(c);V3S.setPayer(e,pid,c.party||[]);
       if(a.kind==='ledger'&&!pid&&e.status==='offen'&&e.amount==null&&!num(e.paid,0)&&!e.due&&Object.keys(e).every(k=>['status','amount','paid','due'].includes(k)))delete c.ledger[a.key]},r);
   }
+  /* Schnellerfassung „Das war ein geplanter Posten“: Zahlung beim Posten im Buchungsbuch statt zusätzlicher Ausgabe (docs/IST_AUSGABEN.md §6.1) */
+  if(action==='expense-add'&&String(f.planKey==null?'':f.planKey).trim())return istPlanCandidate(t,String(f.planKey).trim(),f);
   return v3Candidate(t,c=>{
     if(action==='person-add')V3S.mutate(c,'person-add',{id:newId,name:f.name});
     else if(action==='person-rename'||action==='person-remove')V3S.mutate(c,action,{id:a.id,name:f.name});
@@ -109,7 +111,9 @@ function splitCandidate(t,action,target,f,newId){
 }
 function splitPreview(t,next,s){
   const before=splitResult(t),after=splitResult(next),a=s.target||{},nm=(x,id)=>esc(splitName(x,id));let what='';
-  if(s.action==='person-add')what='<p>Neue Person: <b>'+nm(next,s.newId)+'</b></p>';
+  const pk=s.action==='expense-add'&&s.fields&&String(s.fields.planKey||'').trim();
+  if(pk)what=istPlanPreview(t,next,pk);
+  else if(s.action==='person-add')what='<p>Neue Person: <b>'+nm(next,s.newId)+'</b></p>';
   else if(s.action==='person-rename')what='<p><b>'+nm(t,a.id)+'</b> heißt danach <b>'+nm(next,a.id)+'</b>. Zahlungen und Anteile bleiben bei der Person.</p>';
   else if(s.action==='person-remove')what='<p><b>'+nm(t,a.id)+'</b> wird aus den Mitreisenden entfernt.</p>';
   else if(s.action==='payer'){const key=JSON.stringify(a),p=splitPostings(t).find(x=>JSON.stringify(x.target)===key),q=splitPostings(next).find(x=>JSON.stringify(x.target)===key)||{entry:(()=>{try{return v3Ref(next,a).entry}catch(e){return null}})()||{}}; /* Zahler danach immer aus dem Kandidaten */
@@ -145,7 +149,7 @@ function splitForm(t,s){
   return '<h2>'+(x?'Ausgabe bearbeiten':'Ausgabe erfassen')+'</h2><div class="form">'+inp('amount','Betrag · €',x?String(x.amount).replace('.',','):'','type="text" inputmode="decimal" maxlength="14" autocomplete="off" required placeholder="z. B. 12,50"'+(x?'':' autofocus'))+inp('on','Datum',x?x.on:splitDefaultDate(t),'type="date" required')+
     inp('label','Wofür (freiwillig)',x?x.label:'','type="text" maxlength="80" autocomplete="off" placeholder="leer = Name der Kategorie"')+
     '<label class="fld"><span>Kategorie</span><select name="cat">'+Object.entries(V3S.CATS).map(([k,l])=>'<option value="'+k+'"'+((x?x.cat:'essen')===k?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select></label>'+
-    '<label class="fld"><span>Bezahlt von</span><select name="paidBy"><option value="">Noch offen / unbekannt</option>'+party.map(p=>'<option value="'+esc(p.id)+'"'+((x?x.paidBy:IST&&IST.lastPayer(t.expenses,party))===p.id?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label></div>'+
+    (x?'':istPlanField(t))+'<label class="fld"><span>Bezahlt von</span><select name="paidBy"><option value="">Noch offen / unbekannt</option>'+party.map(p=>'<option value="'+esc(p.id)+'"'+((x?x.paidBy:IST&&IST.lastPayer(t.expenses,party))===p.id?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label></div>'+
     (party.length?'<fieldset class="panel" style="margin:0 0 12px"><legend><b>Aufteilung</b></legend><label class="fld"><span>Art</span><select name="mode"><option value="equal"'+(mode==='equal'?' selected':'')+'>Gleich auf die Ausgewählten</option><option value="shares"'+(mode==='shares'?' selected':'')+'>Nach Gewichten (z. B. 2 : 1)</option></select></label>'+
       party.map(p=>{const i=sp.among.indexOf(p.id);return '<div class="row"><label class="small"><input type="checkbox" name="in.'+esc(p.id)+'"'+(i>=0?' checked':'')+'> '+esc(p.name)+' ist beteiligt</label><label class="fld" data-split-weight'+(mode==='shares'?'':' hidden')+'><span>Gewicht '+esc(p.name)+'</span><input name="w.'+esc(p.id)+'" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="'+(i>=0?sp.weights[i]:1)+'"></label></div>'}).join('')+
       '<p class="small muted">Gewichte sind ganze Zahlen von 1 bis 100. Restcents gehen an die größten Reste, bei Gleichstand an die zuerst Genannten.</p></fieldset>':'<p class="small muted">Ohne Mitreisende wird die Ausgabe nur gezählt, nicht aufgeteilt.</p>')+
@@ -225,6 +229,44 @@ function istToday(t,now){
   let r;try{r=istResult(t,now)}catch(e){return ''}
   const b=istAddButton(t);if(!b&&!(r.todaySpent>0.004))return '';
   return '<div class="between" data-ist-today><span class="small">Heute ausgegeben: <b class="num">'+istCt(r.todaySpent)+'</b> · bisher '+istCt(r.ist)+(r.budget?' · Hochrechnung '+eur(r.forecast)+' von '+eur(r.budget):'')+'</span>'+b+'</div>';
+}
+/* Geplante, noch nicht voll bezahlte Posten für „Das war ein geplanter Posten“. Ohne Töpfe (Sprit/Verpflegung füllen sich
+   automatisch), ohne Unterkunft (Angebot), ohne stornierte und entfernte Posten. Heute geplante zuerst. */
+function istPlanOptions(t,now){
+  const c=cost(t),ph=tripPhase(t,now),day=ph&&ph.phase==='unterwegs'?ph.day:null,lg=t.ledger||{};
+  const potKey=new Set(c.lines.filter(l=>l.pot&&l.key).map(l=>l.key));
+  const isToday=k=>day!=null&&c.lines.some(l=>l.key===k&&(l.day===day||(l.days||[]).includes(day)||(l.split||[]).some(x=>x.day===day)));
+  return ledgerRows(t).filter(r=>!r.orphan&&!r.cancelled&&!(potKey.has(r.key)&&!(lg[r.key]&&(lg[r.key].amount!=null||lg[r.key].status==='gebucht'||num(lg[r.key].paid,0)>0)))&&(r.unknown||r.open>0.005))
+    .map(r=>({key:r.key,label:r.label,cat:r.cat,open:r.unknown?null:r.open,paid:r.paid,today:isToday(r.key)}))
+    .sort((a,b)=>(b.today-a.today)||a.label.localeCompare(b.label,'de'));
+}
+function istPlanField(t){
+  let o;try{o=istPlanOptions(t)}catch(e){return ''}
+  if(!o.length)return '';
+  return '<label class="fld"><span>Gehört zu einem geplanten Posten?</span><select name="planKey"><option value="">Nein, zusätzliche Ausgabe</option>'+
+   o.map(x=>'<option value="'+esc(x.key)+'">'+esc((x.today?'Heute: ':'')+x.label+' · '+(x.open==null?'Preis offen':'offen '+eur(x.open)))+'</option>').join('')+
+   '</select></label><p class="small muted">Wenn ihr einen geplanten Posten vor Ort bezahlt, wählt ihn hier. Die Zahlung wird dann beim Posten verbucht und nicht doppelt gezählt.</p>';
+}
+/* Kandidat: bezahlt += Betrag beim Posten. Liegt die Summe über dem Planwert und ist kein Betrag erfasst, wird sie der Betrag
+   (der tatsächliche Preis). Zahler nur, wenn der Posten noch keinen anderen hat (ein Zahler je Posten). */
+function istPlanCandidate(t,key,f){
+  if(!istPlanOptions(t).some(x=>x.key===key))throw new Error('Diesen geplanten Posten gibt es nicht mehr oder er ist schon bezahlt.');
+  const amount=V3S.parseAmount(f.amount),r=v3Ref(t,{kind:'ledger',key}),pid=String(f.paidBy==null?'':f.paidBy).trim()||null;
+  const row=ledgerRows(t).find(x=>x.key===key),e0=(t.ledger||{})[key]||{};
+  if(pid&&e0.paidBy&&e0.paidBy!==pid)throw new Error('„'+row.label+'“ hat schon '+splitName(t,e0.paidBy)+' als Zahler. Je Posten gibt es nur einen Zahler: bitte dieselbe Person wählen oder als zusätzliche Ausgabe erfassen.');
+  return v3Candidate(t,c=>{
+    const paid=Math.round((num(e0.paid,0)+amount)*100)/100,limit=row.amount!=null?row.amount:row.planOpen?null:row.plan;
+    if(row.amount==null&&(limit==null||paid>limit+0.005))setLedger(c,key,'amount',String(paid));
+    else if(row.amount!=null&&paid>row.amount+0.005)throw new Error('Damit wäre mehr bezahlt ('+eur(paid)+') als der erfasste Betrag ('+eur(row.amount)+'). Bitte zuerst den Betrag unter „Buchungen & Zahlungen“ anpassen.');
+    setLedger(c,key,'paid',String(paid));
+    if(pid&&(c.party||[]).some(p=>p.id===pid)){const e=r.get(c);if(!e.paidBy)V3S.setPayer(e,pid,c.party||[])}
+  },r);
+}
+function istPlanPreview(t,next,key){
+  const b=ledgerRows(t).find(x=>x.key===key)||{},a=ledgerRows(next).find(x=>x.key===key)||{},e=(next.ledger||{})[key]||{};
+  return '<p>Zahlung für den geplanten Posten <b>'+esc(b.label||key)+'</b></p><dl class="facts"><dt>Bezahlt bisher</dt><dd>'+istCt(b.paid||0)+'</dd><dt>Bezahlt danach</dt><dd><b>'+istCt(a.paid||0)+'</b></dd>'+
+   (b.amount==null&&a.amount!=null?'<dt>Betrag</dt><dd>wird auf '+istCt(a.amount)+' gesetzt (Plan war '+eur(b.plan)+')</dd>':'<dt>Noch offen danach</dt><dd>'+(a.unknown?'unbekannt':istCt(a.open||0))+'</dd>')+
+   '<dt>Bezahlt von</dt><dd>'+(e.paidBy?esc(splitName(next,e.paidBy)):'keine Angabe')+'</dd></dl><p class="small muted">Keine zusätzliche Ausgabe: Die Gesamtkosten steigen nur, wenn der Posten teurer war als geplant.</p>';
 }
 /* ================= Ende Plan-Ist ================= */
 
