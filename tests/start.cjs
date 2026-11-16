@@ -64,7 +64,7 @@ assert(fresh.tCheck(ct).includes('cc-add'));
 assert(!/<label[^>]*class="chk[^>]*>[\s\S]*?<button/.test(fresh.tCheck(ct).split('class="check-row"')[1]?.split('</label>')[0]||''));
 fresh.UI.checkFilter='all';fresh.UI.checkQuery='';
 assert(fresh.tCheck(ct).includes('aria-label="Eigenen Punkt Handtuch einpacken entfernen"'));
-assert.equal((fresh.areaPicker(ct).match(/<option /g)||[]).length,10);
+assert.equal((fresh.areaPicker(ct).match(/<option /g)||[]).length,11); /* 10 Teile + „Buchungen & Tickets“ (app/unterlagen.js) */
 console.log('Module: zehn Bereiche, Checklisten-Suche/Status/Gruppen/Leerzustand und Erhalt der Daten geprüft.');
 
 const x={},y={},z={};
@@ -133,7 +133,7 @@ assert(fresh.vReisen().includes('Keine Reise passt zu dieser Ansicht'));
 fresh.UI.tripQuery='';
 console.log('Reiseregal: Zeitgruppen, laufende Reise, offene/ungültige Daten, Suche, Sortierung und Datenerhalt geprüft.');
 assert.equal(fresh.AREA_GROUPS.length,5); /* fünf Bereiche, pakete/aufbau */
-const areaKeys=Array.from(fresh.AREA_GROUPS).flatMap(g=>Array.from(g[1]));assert.equal(areaKeys.length,10);assert.equal(new Set(areaKeys).size,10);
+const areaKeys=Array.from(fresh.AREA_GROUPS).flatMap(g=>Array.from(g[1]));assert.equal(areaKeys.length,11);assert.equal(new Set(areaKeys).size,11); /* + buchungen (app/unterlagen.js) */
 const dayTrip=fresh.silvesterTemplate(),dayBefore=JSON.stringify(dayTrip);fresh.UI.planDay=999;
 const dayOptions=fresh.planDayPicker(dayTrip);assert.equal((dayOptions.match(/<option /g)||[]).length,5);assert.equal(fresh.UI.planDay,4);
 assert.equal(JSON.stringify(dayTrip),dayBefore);fresh.UI.planDay=0;

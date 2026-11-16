@@ -1,5 +1,9 @@
 # Roadmap
 
+## Buchungen & Tickets · 16.11.2026
+
+Zentraler Speicher für Unterlagen (M11.1/M11.3, `docs/UNTERLAGEN.md`): Tickets, Bestätigungen, Voucher und Codes je Reise, nur auf dem Gerät, offline nutzbar, mit Buchungsüberblick und „Unterlagen für heute“. Als Nächstes: Spiegel nach `t.docs`, Löschen mit der Reise, Sicherung mit Unterlagen auf Wahl; Cloud-Kopie erst nach eigener Entscheidung.
+
 ## Format 5 wird gespeichert · 16.11.2026
 
 Seit 16.11. mittags: Stornobedingungen mit Gebührenvorschau, Zahlungsplan mit Ratenstatus, Fristen erledigt markieren. Als Nächstes: Teilzahlungen einzeln, Stornobedingungen für Buchungsbuch-Posten, Gästekarten-Status (M09.3), eigene Aufgaben (M02.4), Varianten-Vergleich (M05.2).

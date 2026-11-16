@@ -108,7 +108,7 @@ function heuteLinks(t,ph){
  }
  return '<div class="row heute-links" role="group" aria-label="Schnellzugriffe für '+esc(t.title)+'">'+btn('plan','Tagesplan',day)+
   (expense?btn('kosten','Ausgabe erfassen',' data-heute-focus="[data-split-action=&quot;expense-add&quot;]|[data-split] h2"'):btn('kosten','Kosten'))+
-  btn('notiz','Notizen')+journal+btn('check','Checkliste')+'</div>';
+  btn('notiz','Notizen')+journal+btn('check','Checkliste')+(typeof tBuchungen==='function'?btn('buchungen','Tickets'):'')+'</div>';
 }
 function vHeute(now){
  const run=runningTrips(now);
@@ -118,7 +118,7 @@ function vHeute(now){
   return head+'<div class="empty" data-heute-empty><b>Gerade läuft keine Reise.</b>'+(next?'<span>Eure nächste Reise: <b>'+esc(next.t.title)+'</b>, '+esc(rangeText(next.t))+' · '+esc(phaseText(next.ph))+'. Sobald sie beginnt, steht hier, was heute ansteht.</span><button type="button" class="btn" data-go="r-'+esc(next.t.id)+'-ueber">Zur nächsten Reise</button>':'<span>Hier steht während einer Reise mit festem Datum, was heute ansteht. Noch ist keine Reise geplant.</span><button type="button" class="btn" data-go="neu">+ Neue Reise</button>')+'<button type="button" class="btn ghost" data-go="reisen">Alle Reisen</button></div></section>';
  }
  return head+'<p class="small muted">'+(run.length===1?'Eine Reise läuft gerade.':run.length+' Reisen laufen gerade.')+' Angaben aus eurem Plan, keine Live-Daten zu Wetter, Öffnung oder Verkehr.</p></section>'+
-  run.map(({t,ph})=>'<div class="heute-trip" data-heute-trip="'+esc(t.id)+'"><section class="block"><span class="eyebrow">'+esc(rangeText(t))+'</span><h2>'+esc(t.title)+'</h2><p><b>Tag '+(ph.day+1)+' von '+ph.of+'</b></p>'+heuteLinks(t,ph)+'</section>'+todayBlock(t,now)+'</div>').join('');
+  run.map(({t,ph})=>'<div class="heute-trip" data-heute-trip="'+esc(t.id)+'"><section class="block"><span class="eyebrow">'+esc(rangeText(t))+'</span><h2>'+esc(t.title)+'</h2><p><b>Tag '+(ph.day+1)+' von '+ph.of+'</b></p>'+heuteLinks(t,ph)+'</section>'+(typeof untHeuteBlock==='function'?untHeuteBlock(t,now):'')+todayBlock(t,now)+'</div>').join('');
 }
 
 /* ---------- Erinnerungen ---------- */

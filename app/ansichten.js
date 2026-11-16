@@ -642,7 +642,7 @@ function tMappe(t){
 }
 function vReise(){
   const t=cur(); if(!t) return vReisen();
-  const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe}[UI.tab]||tUeber;
+  const body={ueber:tUeber,suche:tSuche,angebote:tAngebote,unterkunft:tUnterkunft,unternehmen:tUnternehmen,plan:tPlan,kosten:tKosten,check:tCheck,notiz:tNotiz,mappe:tMappe,buchungen:typeof tBuchungen==='function'?tBuchungen:tUeber}[UI.tab]||tUeber;
   const notes=unreadableBlock(t)+v3Banner(t)+conflictBlock(t)+(Store.isAccount()&&!Store.canEdit(t.id)?'<section class="block"><div class="note"><b>Nur Leserecht.</b> Änderungen werden nicht gespeichert.</div></section>':'');
   /* Paket 4: am Handy Übersichtsseite (UI.tab null) und Unterseiten mit Zurück statt Bereichsauswahl */
   aufbauMerken(t.id,UI.tab);

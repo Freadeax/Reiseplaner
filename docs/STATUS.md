@@ -36,7 +36,7 @@ Thread „Fixpunkte und Pufferzeiten einplanen“ (Philipps Punktliste 16.11.). 
 - **Fehlende Uhrzeit oder Dauer neben einem Fixpunkt = „nicht sicher“**, nie „passt“ (Projektregel 12).
 - **Realismus je Tag** nach Tempo (ruhig/normal/aktiv, aus `styleOf(t).pace` des Reisestil-Threads, sonst normal): höchstens Programmpunkte, Mindestanteil freier Zeit, freier Halbtag. Zustand als Wort im Tageskopf (Konflikt, überladen, Puffer knapp, voll, nicht sicher, mit Luft, frei).
 - Über die Reise: drei volle Tage hintereinander, kein freier Halbtag, Heimkehrzeit offen, viel Programm am Abreisetag. Je vollem Tag ein Vorschlag (größter verschiebbarer Punkt → Tag mit der meisten Luft); der Knopf öffnet das vorhandene Verschieben-Blatt, nichts wird still geändert.
-- Abschnitt „Fixpunkte & Puffer“ unter dem Tagesplan. Einhängung: drei abgesicherte Stellen in `tPlan` (`app/ansichten.js`), je eine Zeile in `index.html`, `sw.js` (`reiseplaner-v32`), `package.json`.
+- Abschnitt „Fixpunkte & Puffer“ unter dem Tagesplan. Einhängung: drei abgesicherte Stellen in `tPlan` (`app/ansichten.js`), je eine Zeile in `index.html`, `sw.js` (`reiseplaner-v36`), `package.json`.
 - Format 5 wird schon gelesen, falls vorhanden: `items[i].fix` (von Hand fest, nur mit Uhrzeit), `t.keepFree` (bewusst freie Tageszeit), `t.pace`. Aufnahme in SCHEMA_V5/v5logic beim Format-5-Thread angefragt; geschrieben wird erst mit `F5_WRITE = true`.
 
 Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfungen) grün, `test:browser` grün; Tagesplan in Chromium (1280 px, Bewegung reduziert) mit Konflikt- und Volltag angesehen. Nicht getestet: iPhone, Safari.
@@ -44,6 +44,21 @@ Tests (16.11., Cloud-Container): `npm test` (neu `tests/fixpunkte.cjs`, 6 Prüfu
 **Stufe 2 (gleicher Tag, nach `F5_WRITE = true`):** Im Abschnitt je Tag „… als Fixpunkt“ (nur mit Uhrzeit, schreibt `items[i].fix`) und „Tageszeit freihalten“ mit Grund Erholung/Wetter-Reserve/Spontanes (`t.keepFree`), beides über `f5Commit` mit Bestätigung beim Anheben auf Format 5. Uhrzeit entfernen löst die Markierung (`protectedPlanChange`). „Lücken füllen“ (`app/tagesplan.js`, eine Zeile) lässt freigehaltene Tageszeiten aus. Test `tests/fixpunkte-write.cjs` (3 Prüfungen).
 
 Nächster Schritt: Tempo der Reise (`t.pace`) im Eckdaten-Formular wählbar machen (mit dem Reisestil-Thread abstimmen); iPhone-Sichtprüfung.
+
+## Buchungen & Tickets: zentraler Speicher für Unterlagen (Claude, 16.11.)
+
+M11.1 + M11.3, Konzept [`UNTERLAGEN.md`](UNTERLAGEN.md). Neuer Teil **„Tickets“** im Bereich „Unterlagen“ (`#r-<id>-buchungen`).
+- **Ablage `docstore.js` (`window.RPFiles`)**: eigene IndexedDB `rp-files` (getrennt von Fotos), je Konto-Bereich getrennt. PDF/JPEG/PNG (an den Bytes erkannt), höchstens 15 MB je Datei, 200 Einträge und 200 MB je Reise, Dubletten per SHA-256 abgelehnt, Rücklesevergleich, Prüfsumme vor dem Anzeigen („beschädigt“ statt stiller Fehler), Kontingentfehler ohne Teilerfolg.
+- **Oberfläche `app/unterlagen.js`**: Buchungsüberblick aus vorhandenen Daten (aktive Unterkunft, Anreise-Abschnitte mit Status aus dem Zahlungsbuch, gebuchte/angefragte Unternehmungen und Posten), je Buchung die verknüpften Unterlagen und der Hinweis „gebucht, aber noch keine Unterlage“ (eigenes Auto ausgenommen). Unterlage mit Datei oder nur Buchungsnummer/Code, Gültigkeit, Notiz; Ansicht mit verdecktem Code (Anzeigen/Kopieren), PDF öffnen, Datei speichern; Löschen in zwei Schritten. Verknüpfung auf Entferntes bleibt stehen.
+- **Heute**: Knopf „Tickets“ und Block „Unterlagen für heute“ (verknüpfte Buchung am Tag, Hotel am Abreisetag, Gültigkeitsbeginn).
+- **Offline**: App aus dem Service-Worker-Cache, Unterlagen aus IndexedDB; beim ersten Hinzufügen `navigator.storage.persist()`.
+- **Reise-JSON unverändert**: nichts davon steht in `rp-trips`, Sync oder Sicherung, damit auch nicht in Reisemappe, Teilen-Text, `.ics` oder Reisebuch. `RPFiles.toTripDoc` für den Spiegel nach `t.docs` (ohne Code) ist gegen `validateV5` getestet, aber noch nicht verdrahtet.
+- Geteilte Dateien klein: `index.html` (2 Zeilen), `sw.js` (Liste, `reiseplaner-v36`), `app/ansichten.js` (1 Eintrag), `app/navigation.js` (Heute), Build-Listen, Zähler in `tests/start.cjs`, `tests/aufbau.cjs`, `tests/browser.cjs` (10 → 11 Teile).
+
+Tests (16.11., Cloud-Container, nach Rebase auf 3931111): `npm test` grün (neu `tests/unterlagen.cjs`, 16 Prüfungen), `node tests/unterlagen-browser.cjs` grün (Chromium 390 px mit Neuladen ohne Netz über den echten Service Worker, 320 px dunkel, Desktop), `build` + `check:artifact` grün. `node tests/browser.cjs` grün (ganzer Klicktest inkl. Offline-Start). Nicht getestet: Safari/WebKit, echtes iPhone.
+
+Nächster Schritt: Spiegel nach `t.docs` (zweites Gerät sieht „Datei fehlt hier“), Reise löschen fragt nach Unterlagen (`RPFiles.removeTrip`), Sicherung mit Unterlagen nur auf Wahl (M11.5).
+
 
 ## Format 5 speichern: Stornobedingungen, Zahlungsplan, Fristen erledigt (Claude, 16.11. mittags)
 

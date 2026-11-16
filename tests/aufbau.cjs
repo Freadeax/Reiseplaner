@@ -18,7 +18,7 @@ const naechstes = g('naechstes'), naechstesTeilen = g('naechstesTeilen'), naechs
 /* Struktur: fünf Bereiche, jeder der zehn Teile genau einmal, alle alten Adressen gültig */
 assert.deepEqual(BEREICHE.map(b => b.key), ['ueber', 'ziel', 'programm', 'kosten', 'unterlagen']);
 const parts = BEREICHE.flatMap(b => b.parts);
-assert.equal(parts.length, 10); assert.equal(new Set(parts).size, 10);
+assert.equal(parts.length, 11); assert.equal(new Set(parts).size, 11); /* + buchungen (app/unterlagen.js) */
 assert.deepEqual(parts.slice().sort(), g('TABS').map(x => x[0]).sort());
 
 /* Als Nächstes: Beispielreise, 68 Tage vor Abreise */

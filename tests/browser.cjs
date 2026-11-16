@@ -924,7 +924,7 @@ async function layoutStructure(browser,base,name,ctxOpts){
   assert.equal(await p.locator('.sub-group').count(),1);assert.equal(await p.locator('.sub-row').count(),5);
   assert.equal(await p.locator('#trip-area,.tab-links').count(),0);
  }else{
-  assert.equal(await p.locator('#trip-area optgroup').count(),5);assert.equal(await p.locator('#trip-area option').count(),10);
+  assert.equal(await p.locator('#trip-area optgroup').count(),5);assert.equal(await p.locator('#trip-area option').count(),11);
   assert.equal(await p.isVisible('#trip-area'),mobile);assert.equal(await p.isVisible('.tab-links'),!mobile);
  }
  assert.equal(await p.$eval('#dock',e=>getComputedStyle(e).position),'static');
