@@ -599,7 +599,7 @@ async function run(browser, base, name, ctxOpts, now) {
   assert.equal(await p.evaluate(() => window.__app.Store.list().length), 2, name + ': Import hat dupliziert');
   await p.setInputFiles('#import-file', { name: 'b.json', mimeType: 'application/json', buffer: fs.readFileSync(backupFile) });
   await p.click('[data-act="import-copy"]');
-  assert.equal(await p.locator('.card.click').count(), 4, name + ': Import als Kopie');
+  assert.equal(await p.evaluate(() => window.__app.Store.list().length), 4, name + ': Import als Kopie');
   await p.click('[data-go="reisen"] >> nth=0');
   assert.equal(await p.locator('.card.click').count(), 4, name + ': Import als Kopie in der Reiseliste');
 
