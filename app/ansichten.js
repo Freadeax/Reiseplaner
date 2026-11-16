@@ -353,11 +353,16 @@ function tUnternehmen(t){
 function planDayPicker(t){const days=viewDays(t);UI.planDay=Math.max(0,Math.min(days.length-1,Number.isInteger(UI.planDay)?UI.planDay:0));const step=(dir,label,sign)=>'<button type="button" class="lnk plan-step" data-plan-step="'+dir+'" aria-label="'+label+'"'+((dir<0?UI.planDay<=0:UI.planDay>=days.length-1)?' disabled':'')+'>'+sign+'</button>';return '<div class="plan-day-nav noprint">'+step(-1,'Vorheriger Reisetag','‹')+'<label class="plan-day-picker noprint"><span>Reisetag</span><select id="plan-day" aria-label="Reisetag wählen">'+days.map(d=>'<option value="'+d.i+'"'+(UI.planDay===d.i?' selected':'')+'>'+esc(d.label)+'</option>').join('')+'</select></label>'+step(1,'Nächster Reisetag','›')+'</div>'}
 /* Bedienung: Wege und Fixpunkte liegen unter dem Tagesplan in zwei Ebenen, damit die Seite beim Tagesplan bleibt.
    Die Inhalte kommen unverändert aus app/wege.js und app/fixpunkte.js; die Kopfzeile nennt nur, ob etwas zu prüfen ist. */
+/* Kopfzeile der Wege-Ebene: Kurztext aus app/wege.js (reiner Text; fold() maskiert ihn), sonst fester Hinweis. */
+function wegeKurzText(t){
+  try{const x=typeof wegeKurz==='function'?String(wegeKurz(t,UI.planDay)||''):'';if(x)return x.slice(0,120)}catch(e){}
+  return 'Strecken und Zeiten am gewählten Tag';
+}
 function planExtras(t){
   const wege=typeof wegeSection==='function'?wegeSection(t,UI.planDay):'',fix=typeof fixSection==='function'?fixSection(t):'';
   if(!wege&&!fix)return '';
   let bad=0;try{if(fix&&typeof fixTrip==='function'&&typeof fixIsBad==='function')bad=viewDays(t).map(d=>fixTrip(t).days[d.i]).filter(d=>d&&fixIsBad(d.state)).length}catch(e){bad=0}
-  return '<div class="plan-extra">'+(wege?fold('plan-wege','Wege zwischen den Punkten','Strecken und Zeiten am gewählten Tag',wege):'')+
+  return '<div class="plan-extra">'+(wege?fold('plan-wege','Wege zwischen den Punkten',wegeKurzText(t),wege):'')+
    (fix?fold('plan-fix','Fixpunkte & Puffer',bad?'! '+bad+(bad===1?' Tag':' Tage')+' prüfen':'feste Termine und freie Zeit je Tag',fix):'')+'</div>';
 }
 function tPlan(t){
