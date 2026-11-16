@@ -124,6 +124,12 @@ Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-
 Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
+## Bedienung Schritt 2: „Ort & Unterkunft“ kürzer (Claude, 16.11.)
+
+- `tUnterkunft` (app/ansichten.js): Ist ein Ort gewählt, steht nur dessen Karte offen; die übrigen liegen in der Ebene „Anderen Ort wählen“ (`fold('ort-andere')`), die während der Rückfrage „Ort wechseln?“ offen bleibt. Ohne gewählten Ort wie bisher alle Karten. Gleiche Knöpfe und Kennungen.
+- Handy 390 px, Beispielreise: Seitenlänge 5582 px → 4643 px.
+- Geprüft: `npm test` und `npm run test:browser` mit CI-Schrift grün. Kein iPhone-/Safari-Test.
+
 ## Bedienung Schritt 1: „Angebote vergleichen“ entschlackt (Claude, 16.11.)
 
 - `tSuche` (app/ereignisse.js) zeigt nur noch drei Grundfilter (Ort, Höchstpreis, Sortierung). Fahrzeit, Bewertung, Art, Anbieter, Muss/Wunsch-Merkmale und die beiden Häkchen liegen in der Ebene „Weitere Filter“ (`fold('suche-filter')`); sie bleibt offen, solange dort ein Filter aktiv ist (Wünsche zählen nicht als aktiver Filter, stehen aber in der Kopfzeile).
