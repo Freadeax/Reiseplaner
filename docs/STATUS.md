@@ -1,5 +1,12 @@
 # Projektstand · 16.11.2026
 
+## Integrations-Prüfung aller Module (Claude, 16.11.)
+
+Thread „Alle Module prüfen und live bringen“. Bericht: `docs/PRUEFBERICHT_2026-11-16.md`. Geprüft `64bcfbd`: `npm test` grün, Actions-Lauf 150 komplett grün inkl. Deploy, GitHub Pages liefert `64bcfbd61615` (SW-Stand `d9e8175caccb`) aus.
+- **Fehler behoben:** „Reise duplizieren“ einer Format-5-Reise mit Teilzahlungen ergab eine ungültige Reise (`payments` ≠ `paid`); Format-5-Planfelder gingen bei Varianten verloren. `app/varianten.js` korrigiert.
+- **Neu `tests/integration-f5.cjs`:** eine Format-5-Reise mit Angaben aller Module durch Export/Import, Sync-Form, Drei-Wege-Abgleich, Variante, Fristen, Kosten und Reisebuch.
+- Nicht getestet: echte Open-Meteo-/OSM-Abfragen, Produktions-Supabase, iPhone.
+
 ## Check- und Packlisten nach Ziel, Reiseart und Wetter (Claude, 16.11.)
 
 Thread „Check- und Packlisten nach Ziel und Wetter“ (Auftrag Philipp 16.11.), Konzept `docs/CHECK_PACKLISTE.md` (M03/M04).

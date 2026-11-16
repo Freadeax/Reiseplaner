@@ -12,16 +12,19 @@
 const VARIANT_PLAN=['type','dateMode','start','end','month','nights','persons','budget','origin','originGeo','dest','destGeo','place','catalog','tz','legs',
   'travel','km','kmSrc','routeKm','routeMin','routeHomeMin','routeAt','verb','preis','ticket','departTime','checkinTime',
   'stayId','stayQuote','customStays','cardConfirmed','items','customActs','food','puffer','online','extraCosts','customChecks',
-  'packageId','search','searchProfiles','transport','party','schemaVersion'];
+  'packageId','search','searchProfiles','transport','party','schemaVersion',
+  /* Format 5 (SCHEMA_V5 §2): Planangaben. Aufgaben ohne „erledigt“ (variantTasks), Packliste enthält keine Haken. */
+  'checkoutTime','tasks','packing','countries','idDocs','insurance','emergency','assumptions','prosCons','criteria','origin_tpl',
+  'guestCards','stayRef','dayRoutes','keepFree','pace'];
 /* Felder, die die Kopie bewusst neu setzt oder auf Wunsch übernimmt */
-const VARIANT_RESET=['id','title','status','created','updated','check','offers','activeOfferId','notes'];
+const VARIANT_RESET=['id','title','status','created','updated','check','offers','activeOfferId','notes','variant'];
 /* Geschichte und Serverangaben: nie kopiert */
-const VARIANT_HISTORY=['ledger','expenses','journal','ratings','media','books','deadlineAck','members','owner_id','role','deleted'];
+const VARIANT_HISTORY=['ledger','expenses','journal','ratings','media','books','deadlineAck','docs','members','owner_id','role','deleted'];
 const VARIANT_LABELS={ledger:'Buchungsstatus und Zahlungen',expenses:'Ausgaben unterwegs',journal:'Reisetagebuch',ratings:'Bewertungen',media:'Fotos',
-  books:'Reisebücher',deadlineAck:'erledigte Fristen',check:'abgehakte Checkliste',notes:'Notizen',members:'Freigaben',owner_id:'Eigentümer',role:'Rolle',deleted:'Löschvermerk'};
+  books:'Reisebücher',deadlineAck:'erledigte Fristen',docs:'Unterlagen und Buchungscodes',check:'abgehakte Checkliste',notes:'Notizen',members:'Freigaben',owner_id:'Eigentümer',role:'Rolle',deleted:'Löschvermerk'};
 /* Angebot ohne Buchung, Zahlung, Storno und Erstattung; Preis, Gebühren, Kaution und Bedingungen bleiben Planwerte */
 function variantOffer(o){
-  const c=clone(o);c.booked=false;c.paid=0;delete c.paidBy;delete c.refunds;delete c.cancel;return c;
+  const c=clone(o);c.booked=false;c.paid=0;delete c.paidBy;delete c.refunds;delete c.cancel;delete c.payments;return c; /* payments (Format 5): Summe = paid */
 }
 function offerCommitted(t,o){return !!(o&&(o.booked||+o.paid>0||o.cancel||(o.refunds||[]).length||t.check&&t.check.stay))}
 /* activeOfferId (V1): das gewählte Angebot bleibt gewählt, aber nur als bereinigte Kopie ohne Buchung und Zahlung,
@@ -32,6 +35,7 @@ function variantCopy(t,o){
   if(!t||typeof t!=='object'||typeof t.id!=='string')throw new Error('Keine Reise zum Kopieren.');
   const n={};
   VARIANT_PLAN.forEach(k=>{if(t[k]!==undefined)n[k]=clone(t[k])});
+  if(Array.isArray(n.tasks))n.tasks.forEach(x=>{if(x&&typeof x==='object'){x.done=false;delete x.doneAt;delete x.doneBy}});
   const label=String(o.label==null?'':o.label).trim().slice(0,60);
   n.id=uid('t');
   n.title=(label?String(t.title||'Reise').slice(0,80-label.length-3)+' · '+label:String(t.title||'Reise').slice(0,70)+' (Variante)').slice(0,80);
@@ -50,8 +54,9 @@ function variantCopy(t,o){
   const dropped=[];
   VARIANT_HISTORY.forEach(k=>{const v=t[k];if(v==null)return;if(typeof v==='object'&&!Object.keys(v).length)return;dropped.push(VARIANT_LABELS[k]||k)});
   if(t.check&&Object.values(t.check).some(Boolean))dropped.push(VARIANT_LABELS.check);
+  if(Array.isArray(t.tasks)&&t.tasks.some(x=>x&&x.done))dropped.push('erledigte Aufgaben (in der Variante wieder offen)');
   if(o.notes!==true&&typeof t.notes==='string'&&t.notes.trim())dropped.push(VARIANT_LABELS.notes);
-  if(Array.isArray(t.offers)&&t.offers.some(x=>x&&(x.booked||+x.paid>0||x.cancel||x.paidBy!=null||(x.refunds||[]).length)))dropped.push('Buchung und Zahlungen der Angebote');
+  if(Array.isArray(t.offers)&&t.offers.some(x=>x&&(x.booked||+x.paid>0||x.cancel||x.paidBy!=null||(x.refunds||[]).length||(x.payments||[]).length)))dropped.push('Buchung und Zahlungen der Angebote');
   const known=new Set([...VARIANT_PLAN,...VARIANT_RESET,...VARIANT_HISTORY]);
   const unknown=Object.keys(t).filter(k=>!known.has(k)&&t[k]!==undefined);
   return {trip:n,from:t.id,dropped,unknown,notes};
