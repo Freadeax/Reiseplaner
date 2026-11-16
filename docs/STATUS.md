@@ -1,5 +1,15 @@
 # Projektstand · 16.11.2026
 
+
+## Format 5, zweite Runde: Aufgaben, Teilzahlungen, Storno für alle Buchungen, Gästekarte (Claude, 16.11. abends)
+
+Auftrag Philipp 16.11. abends („alle Threads komplett weiterentwickeln“). Alles über den gemeinsamen Schreibweg `f5Commit`.
+- **Eigene Aufgaben (M02.4, neu `app/aufgaben.js`)**: Abschnitt „Aufgaben“ oben in der Checkliste. Titel, optional Datum und Uhrzeit, Zuständigkeit aus den Mitreisenden; abhaken, ändern, entfernen. Datierte Aufgaben erscheinen unter „Als Nächstes“ und im Kalender (`task:<id>`).
+- **Teilzahlungen einzeln (M08.2)**: im Block „Unterkunft: Buchung & Zahlungen“ unter „Zahlungen“: Datum, Betrag, optional wer. „Bereits bezahlt“ ist danach immer die Summe (im Angebotsformular nur noch lesbar). Eine bisher nur als Summe erfasste Zahlung wird mit Datum als erste Zahlung übernommen, nichts geht verloren. Raten im Zahlungsplan folgen automatisch.
+- **Stornobedingungen für gebuchte Buchungsbuch-Posten** (Kurs, Skipass, Anreise …): Knopf je Posten unter „Buchungen & Zahlungen“, Anzeige „Storno heute: …“, Fristen `cancel:<key>:<n>`.
+- **Gästekarte je Unterkunft (M09.3)**: Status enthalten / noch nicht bestätigt / nicht enthalten mit Beleg (Datum, wie bestätigt) ersetzt das Häkchen. Nur „enthalten“ senkt die Kosten (wie bisher über `cardConfirmed`, das gespiegelt wird); „nicht enthalten“ beendet den Hinweis „bestätigen lassen“. `candidate5` erlaubt den Statuswechsel beim Anheben nur diesem Schreibweg (`ctx.allowCardChange`).
+
+Tests (16.11. abends, Cloud-Container): `npm test` (neu `format5-more`, 4 Prüfgruppen), `test:format5-browser` erweitert (Aufgabe, Teilzahlung, Gästekarte, Desktop und 390 px), `test:browser`, `test:format4-browser`, `test:fotos-browser`, `build`, `check:artifact` grün. Nicht getestet: iPhone, Safari. Offen in diesem Bereich: Varianten-Vergleich (M05.2), Kriterien/Obergrenze (M10), Teilzahlungen für Buchungsbuch-Posten.
 ## Wege, Schritt 2: kürzere Reihenfolge, Tagesroute speichern, Reisemappe (Claude, 16.11. abends)
 
 Auftrag Philipp 16.11. abends („komplett weiterentwickeln“). Details `docs/WEGE.md` „Schritt 2“.

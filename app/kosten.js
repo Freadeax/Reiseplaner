@@ -108,8 +108,8 @@ function checks(t){
   if(v3Transport(t))V3.transportTimeline(v3Transport(t),{start:t.start,end:t.end}).checks.forEach(x=>{if(x.level==='warn'||/Folgetag/.test(x.text))out.push([x.level==='warn'?'warn':'info','Anreise: '+x.text,'unterkunft'])});
   if(isV3(t)){const f=financeSummary(t).v3||{};if(f.unknownFee)out.push(['warn',f.unknownFee+'× Stornogebühr noch unbekannt','kosten']);if(f.refundOpen)out.push(['info','Erstattungen offen: '+eur(f.refundOpen),'kosten']);if(f.feeOpen)out.push(['warn','Stornogebühren offen: '+eur(f.feeOpen),'kosten'])}
   if(st&&st.gone) out.push(['warn',st.name+': Inserat war am '+fmtLong(pd(st.gone))+' auf den hinterlegten Portalen nicht mehr auffindbar','unterkunft']);
-  if(st&&st.card==='?'&&!t.cardConfirmed) out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
-  if(st&&st.card&&!t.cardConfirmed)out.push(['warn','Gästekarte für diesen Aufenthalt unbestätigt: keine Rabatte eingerechnet','unterkunft']);
+  if(st&&st.card==='?'&&!t.cardConfirmed&&cardStatusOf(t,st)!=='nicht') out.push(['warn',st.name+': Gästekarte beim Gastgeber bestätigen lassen, sonst kostet der Skipass extra','unterkunft']);
+  if(st&&st.card&&!t.cardConfirmed&&cardStatusOf(t,st)!=='nicht')out.push(['warn','Gästekarte für diesen Aufenthalt unbestätigt: keine Rabatte eingerechnet','unterkunft']);
   out.push(['info','Zeitfenster sind grob: Fahrtzeiten, Check-in und genaue Termine noch prüfen','plan']);
   const items=sortedItems(t);
   items.forEach(it=>{const a=actOf(t,it.act), d=days[it.day];if(!a)return;
