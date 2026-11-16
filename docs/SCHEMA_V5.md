@@ -57,6 +57,8 @@ Vertrags; sie kommen mit den Server-Paketen (Stufe E) bzw. eigenen Gerätemodule
 | `variant` | M05 | `{group, label≤60, state:'offen'\|'gewaehlt'\|'verworfen', from?, at?}` | zwei `gewaehlt` je Gruppe: Hinweis, nie automatisch zurücksetzen (`variantConflicts`) |
 | `assumptions` | M05 | `{fuel/acts/stay:{low,high}\|null, note}` | `low ≤ high`; `fuel` in €/l |
 | `prosCons` | M05 | `{pros,cons,open:[Text≤120] ≤ 10}` | |
+| `keepFree` | Fixpunkte (16.11.) | `[{day:0–365, slot:'morgen'\|'mittag'\|'nachm'\|'abend', why:'erholung'\|'wetter'\|'spontan'}]` ≤ 100 | Tag + Tageszeit eindeutig; bewusst freigehaltene Zeit |
+| `pace` | Fixpunkte (16.11.) | `'ruhig'\|'normal'\|'aktiv'` | Tagesrhythmus, steuert Schwellen für „überladen“ |
 | `criteria` | M10 | `{must,like,avoid:[key], budgetWish, budgetMax, returnBy:{date?,time}, maxDriveMin, cancel:'frei'\|'egal', notes}` | Schlüssel nur in einer Gruppe; Wunsch ≤ Obergrenze; `t.budget` bleibt maßgeblich, `budgetMax` geht vor (`budgetMax()`) |
 | `origin_tpl` | M10 | `{id, version, kind:'builtin'\|'user', at}` | |
 | `guestCards` | M09 | `[{id, cardId?, name, scope:{stayId}\|{offerId}, status:'enthalten'\|'nicht'\|'unbestaetigt', evidence, persons, custom?}]` ≤ 10 | **„enthalten“ braucht einen Beleg**; Bezug genau eine Unterkunft oder ein Angebot |
@@ -81,6 +83,7 @@ Aus D00 §5.x **nicht übernommen**, weil schon vorhanden: `customActs[i].geo` u
 | `transport.out/back[i]` | `terminal`, `baggage`, `who`, `arrActual` | wie M01 §5 | Terminal nur bei `flug` |
 | `party[i]` | `member`, `attend` | Konto-UUID; `{actId: 'ja'\|'vielleicht'\|'nein'}` | ein Konto höchstens einmal je Reise |
 | `expenses[i]` | `fx` | `{cur, orig, rate, on, src:'ecb'\|'manual'}` | `amount` bleibt Euro und führend; ohne Kurs `amount: null` |
+| `items[i]` | `fix` | `true` | von Hand unumstößlich, nur mit `time` (Fixpunkte, 16.11.) |
 | `items[i]` | `ref` | `{type:'spot'\|'place'\|'lodging', id, ver?}` | ergänzt `act` |
 
 ## 3 · Rechenregeln (alle rein, Cent-genau)

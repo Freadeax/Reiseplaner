@@ -24,7 +24,7 @@
     criteriaKeys: 40, guestCards: 10, gcName: 80, gcNote: 300, gcBenefits: 50,
     docs: 200, docTitle: 80, secretLabel: 40, secretValue: 120, docBytes: 15 * 1024 * 1024,
     history: 50, src: 200, payPlan: 12, payLabel: 60, payments: 100,
-    steps: 10, terminal: 20, dayRoutes: 366, routeStops: 30
+    steps: 10, terminal: 20, dayRoutes: 366, routeStops: 30, keepFree: 100
   });
   var MAX_MONEY = 1e9;
 
@@ -95,13 +95,13 @@
 
   /* ---------- Felder (SCHEMA_V5 §2) ---------- */
   var TRIP_FIELDS = ['checkoutTime', 'tasks', 'deadlineAck', 'packing', 'countries', 'idDocs', 'insurance', 'emergency',
-    'variant', 'assumptions', 'prosCons', 'criteria', 'origin_tpl', 'guestCards', 'docs', 'stayRef', 'dayRoutes'];
+    'variant', 'assumptions', 'prosCons', 'criteria', 'origin_tpl', 'guestCards', 'docs', 'stayRef', 'dayRoutes', 'keepFree', 'pace'];
   var OFFER_FIELDS = ['kind', 'ref', 'history', 'minNights', 'board', 'payPlan', 'payments', 'cancelTerms'];
   var LEDGER_FIELDS = ['payments', 'cancelTerms'];
   var SEG_FIELDS = ['terminal', 'baggage', 'who', 'arrActual'];
   var PARTY_FIELDS = ['member', 'attend'];
   var EXPENSE_FIELDS = ['fx'];
-  var ITEM_FIELDS = ['ref'];
+  var ITEM_FIELDS = ['ref', 'fix'];
 
   var nonEmpty = function (v) { return v != null && v !== '' && !(Array.isArray(v) && !v.length) && !(plain(v) && !Object.keys(v).length); };
   function segs(t) { var tr = t && t.transport; return plain(tr) ? [].concat(Array.isArray(tr.out) ? tr.out : [], Array.isArray(tr.back) ? tr.back : []) : []; }
@@ -507,12 +507,32 @@
       oneOf(f.src, ['ecb', 'manual'], w + ' Kursquelle', f.rate == null);
     });
     arr(t.items).forEach(function (x, i) {
-      if (!plain(x) || x.ref == null) return; var w = 'Termin ' + (i + 1), r = x.ref;
+      if (!plain(x)) return; var w = 'Termin ' + (i + 1), r = x.ref;
+      if (x.fix != null) { /* Fixpunkt von Hand (Thread „Fixpunkte und Pufferzeiten“): nur mit Uhrzeit */
+        if (x.fix !== true) fail(w + ': „fix“ nur als true.');
+        if (!(typeof x.time === 'string' && TIME.test(x.time))) fail(w + ': Unumstößlich nur mit Uhrzeit.');
+      }
+      if (r == null) return;
       if (!plain(r)) fail(w + ': Registerverweis ungültig.'); onlyKeys(r, ['type', 'id', 'ver'], w + ' Registerverweis');
       oneOf(r.type, ['spot', 'place', 'lodging'], w + ' Verweisart');
       if (typeof r.id !== 'string' || !REF_ID.test(r.id)) fail(w + ': Verweis-ID ungültig.');
       if (r.ver != null && !int(r.ver, 1, 1e9)) fail(w + ': Katalogversion ungültig.');
     });
+  }
+  /* Tagesrhythmus: bewusst freigehaltene Zeit je Tag und Tageszeit, Tempo (Thread „Fixpunkte und Pufferzeiten“) */
+  function validateRhythm(t) {
+    if (t.keepFree != null) {
+      var seen = Object.create(null);
+      list(t.keepFree, LIMITS.keepFree, 'Freie Zeit').forEach(function (k, i) {
+        var w = 'Freie Zeit ' + (i + 1);
+        if (!plain(k)) fail(w + ': ungültig.'); onlyKeys(k, ['day', 'slot', 'why'], w);
+        if (!int(k.day, 0, 365)) fail(w + ': Tag ungültig.');
+        oneOf(k.slot, ['morgen', 'mittag', 'nachm', 'abend'], w + ' Tageszeit');
+        oneOf(k.why, ['erholung', 'wetter', 'spontan'], w + ' Grund');
+        var key = k.day + '|' + k.slot; if (seen[key]) fail(w + ': Tag und Tageszeit doppelt.'); seen[key] = 1;
+      });
+    }
+    if (t.pace != null) oneOf(t.pace, ['ruhig', 'normal', 'aktiv'], 'Tempo');
   }
   /* v5-Felder prüfen. In Reisen unter Format 5 verboten (leere ausgenommen, die serializeTrip5 entfernt). */
   function validateV5(t) {
@@ -526,6 +546,7 @@
     validateAbroad(t, ids);
     validateVariant(t);
     validateCriteria(t);
+    validateRhythm(t);
     if (t.guestCards != null) validateGuestCards(t.guestCards, t, ids);
     if (t.docs != null) validateDocs(t.docs, ids);
     if (t.stayRef != null) { if (!plain(t.stayRef)) fail('Unterkunft-Verweis ungültig.'); onlyKeys(t.stayRef, ['id', 'ver'], 'Unterkunft-Verweis'); if (typeof t.stayRef.id !== 'string' || !REF_ID.test(t.stayRef.id)) fail('Unterkunft-Verweis: ID ungültig.'); if (t.stayRef.ver != null && !int(t.stayRef.ver, 1, 1e9)) fail('Unterkunft-Verweis: Version ungültig.'); }

@@ -254,4 +254,21 @@ test('U-R1–U-R3', () => {
   throws(() => V5.outputFilter(t, 'irgendwas'), /unbekannter Zweck/);
 });
 
+test('Tagesrhythmus: freie Zeit, Tempo, Fixpunkt von Hand', () => {
+  const t = base(); t.keepFree = [{ day: 1, slot: 'abend', why: 'erholung' }, { day: 2, slot: 'morgen', why: 'wetter' }]; t.pace = 'ruhig';
+  t.items.push({ uid: 'u2', act: 'eigen', day: 2, slot: 'abend', time: '19:30', fix: true });
+  assert.equal(V5.validateV5(t), true);
+  const back = V5.serializeTrip5(JSON.parse(JSON.stringify(t)));
+  assert.deepEqual(back.keepFree, t.keepFree); assert.equal(back.pace, 'ruhig'); assert.equal(back.items[1].fix, true);
+  throws(() => V5.validateV5(Object.assign(base(), { keepFree: [{ day: 1, slot: 'abend', why: 'erholung' }, { day: 1, slot: 'abend', why: 'spontan' }] })), /doppelt/);
+  throws(() => V5.validateV5(Object.assign(base(), { keepFree: [{ day: -1, slot: 'abend', why: 'erholung' }] })), /Tag ungültig/);
+  throws(() => V5.validateV5(Object.assign(base(), { keepFree: [{ day: 1, slot: 'nacht', why: 'erholung' }] })), /Tageszeit/);
+  throws(() => V5.validateV5(Object.assign(base(), { pace: 'schnell' })), /Tempo/);
+  const u = base(); u.items[0].fix = true; throws(() => V5.validateV5(u), /nur mit Uhrzeit/);
+  const v = base(); v.items[0].time = '10:00'; v.items[0].fix = 'ja'; throws(() => V5.validateV5(v), /nur als true/);
+  const old = Object.assign(base(), { schemaVersion: 4 }); ['party', 'transport', 'expenses', 'offers', 'items', 'tasks', 'deadlineAck', 'packing', 'countries', 'idDocs', 'insurance', 'emergency', 'variant', 'assumptions', 'prosCons', 'criteria', 'origin_tpl', 'guestCards', 'docs', 'stayRef', 'dayRoutes', 'checkoutTime', 'ledger'].forEach(k => delete old[k]);
+  old.pace = 'aktiv'; assert.equal(V5.needsV5(old), true, 'Tempo braucht Format 5');
+  throws(() => V5.validateV5(old), /erst ab Format 5/);
+});
+
 console.log('Format 5 (v5logic): ' + n + ' Prüfungen bestanden (Version, Feldtreue, Prüfregeln, R1–R9, O3–O10, V2/V3/V8, G-R10/G-R12, L1–L7, U-R1–U-R4). Reine Funktionen. Kein Browser-/iPhone-Test.');
