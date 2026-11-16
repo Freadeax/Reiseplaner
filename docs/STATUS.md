@@ -11,7 +11,9 @@ SCHEMA_V5 §8 Schritt 3. Die App lädt `v5logic.js` und liest Format-5-Reisen, s
 
 Tests (16.11., Cloud-Container): `npm test` (neu `format5-app`, 6 Prüfungen: Prüfung, Feldtreue beim Bearbeiten, keine Rückstufung, Sicherung/Import, Fotos in v5, älterer Stand, Sync über zwei Geräte), `test:browser`, `test:format4-browser`, `test:fotos-browser`, `build`, `check:artifact` grün. `test:db`/`test:e2e` laufen in CI. Ob die Migration vom 15.11. in Produktion angekommen ist, ist von hier nicht prüfbar (Supabase-Dashboard → Database → Migrations: `20261115190000_trips_schema_v5`). Nicht getestet: iPhone, Safari.
 
-Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Storno-Vorschau (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
+Nachtrag (16.11.): `deadlines()` (app/fristen.js) liest jetzt auch die Format-5-Felder, sobald es sie in einer Reise gibt: Storno-Stufen der gebuchten Unterkunft und gebuchter Buchungsbuch-Posten (`cancel:<key>:<n>`, „Jetzt: noch 11 Tage kostenlos“, „Ab dann: Stornogebühr 30 % = 204,00 €“; vergangene Stufen entfallen), offene Raten aus dem Zahlungsplan (`plan:<angebot>:<rate>`, bezahlt nach Fälligkeit verrechnet, ohne Preis „Betrag noch unbekannt“) und eigene Aufgaben (`task:<id>`, mit Zuständigkeit, erledigt). Fahrplan, „Als Nächstes“ und Kalender zeigen sie damit automatisch. Format 3/4 unverändert. Test `tests/fristen5.cjs` (4 Prüfungen). Eingeben lassen sich die Felder erst mit `F5_WRITE = true`.
+
+Nächster Schritt: nach einigen Tagen ohne Auffälligkeiten `F5_WRITE = true`, dann Eingabe für Stornobedingungen (M02.2), Zahlungsplan (M08.2), Gästekarten-Status (M09.3).
 
 
 ## Oberfläche Schritt 3: Kosten, Tagesplan, Entdecken (Claude, 16.11.)

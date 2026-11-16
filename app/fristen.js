@@ -4,7 +4,7 @@
    Eine Wahrheit für Fahrplan, Kalenderdatei, später Mitteilungen und „Diese Woche fällig“ (M02 §8).
    Nur Fristen aus erfassten Daten; was kein Datum hat, kommt als state 'unknown' ohne erfundenes Datum. */
 "use strict";
-const DEADLINE_KINDS={zahlung:'Zahlung',angebot:'Angebot',checkin:'Check-in',auto:'Auto',packen:'Packen',abfahrt:'Abfahrt',buchen:'Buchen',erstattung:'Erstattung',stornogebuehr:'Stornogebühr'};
+const DEADLINE_KINDS={zahlung:'Zahlung',angebot:'Angebot',checkin:'Check-in',auto:'Auto',packen:'Packen',abfahrt:'Abfahrt',buchen:'Buchen',erstattung:'Erstattung',stornogebuehr:'Stornogebühr',storno:'Storno',rate:'Rate',aufgabe:'Aufgabe'};
 /* Stabile IDs: dieselbe Frist behält ihre ID über Bearbeitungen hinweg (Kalender-UID, „erledigt“-Markierung) */
 function deadlineId(kind,key){return kind+':'+String(key==null?'':key)}
 /* Zeitpunkt einer Frist in ms, oder null wenn nur ein Datum bekannt ist */
@@ -22,6 +22,7 @@ function deadlineState(at,now,ack){
 /* Text statt Farbe (F3): überfällig/heute/morgen/in N Tagen, Datum immer in der Zone der Frist */
 function deadlineWhen(d){
   if(d.state==='unknown')return 'ohne Frist';
+  if(d.state==='done'&&!d.at)return 'erledigt';
   const day=fmtLong(pd(d.at.date)),tm=d.at.time?' '+d.at.time+(d.at.tz?' ('+d.at.tz+')':''):'';
   if(d.state==='done')return 'erledigt · '+day;
   if(d.state==='overdue')return 'überfällig seit '+day+tm;
@@ -35,7 +36,7 @@ function deadlines(t,now){
     const a=at&&pd(at.date)?{date:at.date,time:at.time||null,tz:at.tz||null}:null;
     const d={id,kind,at:a,label,detail:detail||'',go:go||'',amount:amount==null?null:Math.round(amount*100)/100,
       state:deadlineState(a,now,Object.prototype.hasOwnProperty.call(ack,id)),days:a?Math.round((pd(a.date)-today)/864e5):null};
-    d.when=deadlineWhen(d);out.push(d);
+    d.when=deadlineWhen(d);out.push(d);return d;
   };
   /* Zahlungen: offener Restbetrag je Posten mit Fälligkeit; bezahlte Posten haben keine Frist mehr */
   const f=financeSummary(t);
@@ -47,6 +48,7 @@ function deadlines(t,now){
   const tr=v3Transport(t);
   if(tr)[].concat(tr.out||[],tr.back||[]).forEach(sg=>{const ci=sg.checkin&&sg.checkin.opens;if(ci&&pd(ci.date)&&ci.date>=todayIso)
     add(deadlineId('checkin',sg.id),'checkin',ci,'Online-Check-in'+(sg.number?' '+sg.number:'')+(ci.time?' ab '+ci.time+(ci.tz?' ('+ci.tz+')':''):''),sg.checkin.note||'Frist laut Airline','unterkunft')});
+  if(t.schemaVersion===5&&typeof V5!=='undefined'&&V5)deadlines5(t,now,todayIso,o,f,add);
   const g=checklist(t),chk=t.check||{};
   if(start){
     const startIso=iso(start);
@@ -67,6 +69,35 @@ function deadlines(t,now){
   /* Reihenfolge: datiert chronologisch (am selben Tag Abfahrt zuletzt), dann ohne Frist in Erfassungsreihenfolge */
   const rank=d=>d.at?0:1,ms=d=>{const m=deadlineMs(d.at);return m==null?Infinity:m};
   return out.map((d,i)=>[d,i]).sort(([x,i],[y,j])=>rank(x)-rank(y)||(x.at&&y.at?x.at.date.localeCompare(y.at.date)||(x.kind==='abfahrt')-(y.kind==='abfahrt')||ms(x)-ms(y):0)||i-j).map(p=>p[0]);
+}
+/* Format 5 (M02.2, M08.2, M02.4): Storno-Stufen, offene Raten, eigene Aufgaben. Nur lesen; ohne die Felder entsteht nichts.
+   IDs: cancel:<key>:<n> (key 'stay' für die gewählte Unterkunft, sonst der Buchungsbuch-Schlüssel), plan:<offer>:<rate>, task:<id>.
+   Vergangene Storno-Stufen sind keine Aufgabe mehr und entfallen. Unbekannte Beträge bleiben unbekannt (nie 0 €). */
+function deadlines5(t,now,todayIso,o,f,add){
+  const at0=x=>{const m=deadlineMs(x);if(m!=null)return m;const d=pd(x.date);return new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()).getTime()};
+  const cancelOf=(key,terms,amount,label,go)=>{
+    if(!terms)return;
+    V5.cancelDeadlines(key,terms).forEach((c,i)=>{
+      if(!c.at||!pd(c.at.date)||c.at.date<todayIso)return;
+      const n=+c.id.split(':').pop(),fee=n===0?V5.cancelFee(terms,amount,now.getTime()):V5.cancelFee(terms,amount,at0(c.at));
+      add(c.id,'storno',c.at,c.label+': '+label,(n===0?'Jetzt: ':'Ab dann: ')+fee.text,go,fee.fee==null||n===0?null:fee.fee);
+    });
+  };
+  const oa=o?offerAmounts(o):null;
+  if(o&&o.booked&&!o.cancel)cancelOf('stay',o.cancelTerms,oa&&!oa.unknown.length?oa.total:null,o.name,'unterkunft');
+  const l=t.ledger&&typeof t.ledger==='object'?t.ledger:{};
+  f.rows.forEach(r=>{const e=l[r.key];if(e&&e.status==='gebucht'&&!e.cancel&&!r.orphan)cancelOf(r.key,e.cancelTerms,e.amount,r.label,'kosten')});
+  if(o&&!o.cancel&&Array.isArray(o.payPlan)&&o.payPlan.length){
+    const st=V5.payPlanStatus(o.payPlan,oa&&!oa.unknown.length?oa.total:null,num(o.paid,0),todayIso);
+    st.rows.forEach(r=>{if(r.state==='bezahlt')return;
+      add('plan:'+o.id+':'+r.id,'rate',{date:r.due},'Rate fällig: '+r.label+' ('+o.name+')',r.amount==null?'Betrag noch unbekannt (Preis fehlt)':eur(r.open)+' offen'+(r.state==='teilweise'?' von '+eur(r.amount):''),'kosten',r.open)});
+  }
+  (Array.isArray(t.tasks)?t.tasks:[]).forEach(x=>{
+    if(!x||!x.id)return;
+    const who=x.by&&Array.isArray(t.party)?(t.party.find(p=>p.id===x.by)||{}).name:'';
+    const d=add('task:'+x.id,'aufgabe',x.due||null,x.title,who?'zuständig: '+who:'','check');
+    if(x.done){d.state='done';d.when=deadlineWhen(d)}
+  });
 }
 /* Fristen über alle Reisen, z. B. „Diese Woche fällig“ (F11): offen, datiert, bis einschließlich today+days; Überfälliges zuerst */
 function upcomingDeadlines(trips,now,days){

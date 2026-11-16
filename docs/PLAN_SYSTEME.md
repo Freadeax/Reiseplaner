@@ -62,7 +62,7 @@ stabile IDs, Zeitzonen, Sommerzeit. Tagesplan mit Uhrzeiten, Überschneidungen, 
 
 Lücken:
 1. **„Erledigt“-Markierung** (`t.deadlineAck`) wird gelesen, aber nicht geschrieben: der Schreibweg ist ein v5-Feld.
-2. **Storno- und Ratenfristen** fehlen in `deadlines` → nach Format 5: `cancelDeadlines` (`cancel:<key>:<n>`) und offene
+2. **Storno- und Ratenfristen** (seit 16.11. in `deadlines` gelesen, Eingabe folgt mit `F5_WRITE`): `cancelDeadlines` (`cancel:<key>:<n>`) und offene
    Raten (`plan:<offer>:<rate>`) einhängen. IDs sind so gewählt, dass bestehende `pay:`-Fristen nicht wechseln.
 3. **Eigene Aufgaben** (`t.tasks`) mit Zuständigkeit (M02.4/M06).
 4. Mitteilungen gibt es auf der Website nicht; Kalenderdatei bleibt der Weg (M02 §7). Web-Push erst mit gemeinsamen Reisen.
