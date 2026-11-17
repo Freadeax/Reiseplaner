@@ -50,12 +50,21 @@ Lage als ungefährer Ortspunkt. Einträge 16.11.2026 über Websuche geprüft (Do
 selbst waren aus der Cloud nicht abrufbar. Hofgut Hopfenburg: Unterkunftsarten nur laut Magazin, als Hinweis markiert.
 
 Datenfelder: `customStays[i].kind`, `.reg`, `.geo` (optional; customStays werden nicht feldweise geprüft). Bleibt beim
-Auswählen eines Angebots erhalten (`applyOffer`). Speicherort Register: Datei, Entscheidung „Datenbank“ offen.
+Auswählen eines Angebots erhalten (`applyOffer`). Speicherort Register: Datei (Philipp 17.11.).
+
+## Stufe 3 · Reisefinder im Reiter (umgesetzt 17.11.)
+
+Philipp 17.11.: „Ja!“ zum Eingliedern. Der Teil „Angebote vergleichen“ (`suche`) ist kein eigener Bereich mehr:
+
+- `uAngebote(t)` (`app/unterkuenfte.js`) zeigt im Reiter den Abschnitt `#u-angebote` mit Schnelllinks (Booking, Airbnb,
+  FeWo-direkt) und `tSuche(t,{embedded:true})`: Filter, Angebote, Vergleich und „Eure Daten“ (Verlauf), ohne Nummern.
+- `app/aufbau.js`: Ziel-Teile `['unterkunft','angebote']`, Tab `suche` entfernt. Alte Links `#r-…-suche` leitet
+  `go()` (`app/routing.js`) auf `-unterkunft` um und scrollt zu `#u-angebote`.
+- Nächster Schritt in „Eure Unterkunft“ heißt jetzt „Zu den Angeboten“.
 
 ## Nächste Stufen (Vorschlag)
 
-3. **Reisefinder ganz eingliedern:** Filter und Vergleich direkt im Reiter statt im Nachbarteil „Angebote vergleichen“;
-   `stayQuote` als Angebot führen; kürzere Angebotskarte am Handy (Aktionen in einem Menü).
+3. **Feinschliff Angebote:** `stayQuote` als Angebot führen; kürzere Angebotskarte am Handy (Aktionen in einem Menü).
 4. **Register wachsen lassen:** weitere geprüfte Einträge je Art und Region (Quelle Pflicht), Korrektur melden (M07 F7).
 5. **Register in der Datenbank** (M07/D01): Tabellen mit Verlauf und Dublettenschutz, `stayRef`. Braucht eine
    Supabase-Migration und Philipps Freigabe.

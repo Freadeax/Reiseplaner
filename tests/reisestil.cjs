@@ -49,10 +49,10 @@ tag.id = 'tTag';
 assert.equal(aufbauTeile(tag, 'unterkunft'), '', 'nur ein sichtbarer Teil: keine Teilleiste');
 assert(aufbauLeiste(tag, 'ueber').includes('Ziel &amp; Anreise'));
 assert(!aufbauLeiste(a.newTrip({ type: 'stadt' }), 'ueber').includes('Ziel &amp; Anreise'));
-assert(aufbauTeile(tag, 'suche').includes('data-seg="suche"'));
+assert(aufbauTeile(tag, 'angebote').includes('data-seg="angebote"'), 'geöffneter leiser Teil bleibt erreichbar');
 stilAlleSetzen(true);
 assert.equal(stored.get('rp-stil'), '{"alle":true}');
-assert.equal((aufbauTeile(tag, 'unterkunft').match(/data-seg=/g) || []).length, 3);
+assert.equal((aufbauTeile(tag, 'unterkunft').match(/data-seg=/g) || []).length, 2);
 stilAlleSetzen(false);
 assert.equal((aufbauTeile(tag, 'unterkunft').match(/data-seg=/g) || []).length, 0);
 /* Rundreise: Bereichsname */

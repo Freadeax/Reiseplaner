@@ -23,11 +23,11 @@ function uStand(t,now){
   if(!st)return {state:'keine',title:'Noch keine Unterkunft gewählt',text:N>0?'Für '+N+(N===1?' Nacht':' Nächte')+' fehlt eine Unterkunft. Merkt euch unten ein paar Möglichkeiten und wählt eine aus.':'Für eine Tagesreise braucht ihr keine Unterkunft.',next:N>0?{act:'scroll-arten',label:'Unterkunftsarten ansehen'}:null};
   if(o){
     const age=uDaysSince(o.checkedAt,now),a=offerAmounts(o);
-    if(o.cancel)return {state:'storniert',title:o.name,text:'Storno erfasst. Prüft Erstattung und sucht eine neue Unterkunft.',next:{act:'go-suche',label:'Zum Reisefinder'}};
+    if(o.cancel)return {state:'storniert',title:o.name,text:'Storno erfasst. Prüft Erstattung und sucht eine neue Unterkunft.',next:{act:'go-suche',label:'Zu den Angeboten'}};
     if(o.booked)return {state:'gebucht',title:o.name,text:'Gebucht laut eurer Erfassung'+(num(o.paid,0)>0?', '+eur(o.paid)+' bezahlt':'')+'.'+(a.unknown.length?' Noch offen: '+a.unknown.join(', ')+'.':''),next:null};
     if(!offerCurrent(o,t,now&&now.toISOString().slice(0,10))||o.availability==='unavailable')return {state:'pruefen',title:o.name,text:'Das Angebot passt nicht mehr zu Datum, Personen oder Gültigkeit.',next:{act:'stand',id:o.id,label:'Preis neu prüfen'}};
     if(age!=null&&age>U_STALE_DAYS)return {state:'alt',title:o.name,text:'Angebot zuletzt vor '+age+' Tagen geprüft. Preise ändern sich.',next:{act:'stand',id:o.id,label:'Preis neu prüfen'}};
-    return {state:'angebot',title:o.name,text:'Konkretes Angebot: '+eur(a.total)+(a.unknown.length?' + offen: '+a.unknown.join(', '):'')+'. Noch nicht als gebucht erfasst.',next:{act:'go-suche',label:'Buchung im Reisefinder erfassen'}};
+    return {state:'angebot',title:o.name,text:'Konkretes Angebot: '+eur(a.total)+(a.unknown.length?' + offen: '+a.unknown.join(', '):'')+'. Noch nicht als gebucht erfasst.',next:{act:'go-suche',label:'Buchung am Angebot erfassen'}};
   }
   if(num(t.stayQuote,0)>0)return {state:'preis',title:st.name,text:'Euer Angebotspreis gesamt: '+eur(t.stayQuote)+'. Für Gebühren, Storno und Zahlungen ein konkretes Angebot erfassen.',next:{act:'offer-for',id:st.id,label:'Angebot erfassen'}};
   if(st.custom&&st.priceOpen)return {state:'offen',title:st.name,text:'Preis noch unbekannt. Er zählt nicht als 0 €.',next:{act:'offer-for',id:st.id,label:'Angebot erfassen'}};
@@ -59,7 +59,7 @@ function uStatus(t){
   const s=uStand(t),st=stayOf(t);
   const nx=s.next?'<button type="button" class="btn sm" data-u-act="'+esc(s.next.act)+'"'+(s.next.id?' data-value="'+esc(s.next.id)+'"':'')+'>'+esc(s.next.label)+'</button>':'';
   const n=(t.customStays||[]).length+(t.catalog==='allgaeu'&&t.place?STAYS.filter(x=>x.place===t.place).length:0),no=(t.offers||[]).length;
-  return '<section class="block u-stand" data-u-stand="'+esc(s.state)+'"><span class="eyebrow">Eure Unterkunft</span><h2>'+esc(s.title)+'</h2>'+(st?'<div class="badges">'+uKindBadge(st)+'</div>':'')+'<p>'+esc(s.text)+'</p><div class="row">'+nx+(no?'<button type="button" class="btn ghost sm" data-u-act="go-suche">Angebote vergleichen ('+no+')</button>':'')+'</div><p class="small muted">'+n+' auf der Merkliste · '+no+' konkrete '+(no===1?'Angebot':'Angebote')+'. Preise und Verfügbarkeit stammen aus eurer Erfassung, nicht aus einer Live-Abfrage.</p></section>';
+  return '<section class="block u-stand" data-u-stand="'+esc(s.state)+'"><span class="eyebrow">Eure Unterkunft</span><h2>'+esc(s.title)+'</h2>'+(st?'<div class="badges">'+uKindBadge(st)+'</div>':'')+'<p>'+esc(s.text)+'</p><div class="row">'+nx+(no?'<button type="button" class="btn ghost sm" data-u-act="go-suche">Zu den Angeboten ('+no+')</button>':'')+'</div><p class="small muted">'+n+' auf der Merkliste · '+no+' konkrete '+(no===1?'Angebot':'Angebote')+'. Preise und Verfügbarkeit stammen aus eurer Erfassung, nicht aus einer Live-Abfrage.</p></section>';
 }
 /* Ergänzung jeder Unterkunftskarte: Art, Angebote dieser Unterkunft, Angebot erfassen */
 function uStayExtra(t,s){
@@ -92,6 +92,12 @@ function uRegCard(t,x){
    '<p class="small muted">Kein Preis im Register. Quelle: '+lk(e.src.url,{offiziell:'Anbieter-Website',magazin:'Magazin',portal:'Portal'}[e.src.type])+' · geprüft '+esc(fmtLong(pd(e.src.checked)))+'</p>'+
    '<div class="foot">'+(have?'<span class="badge ok">auf der Merkliste</span>':'<button type="button" class="btn sm" data-u-act="reg-add" data-value="'+esc(e.id)+'">Auf die Merkliste</button>')+lk(e.url,'Website')+'</div></div>';
 }
+/* Angebote sammeln und vergleichen: der frühere Teil „Angebote vergleichen“ (tSuche) im Reiter, ohne Wiederholungen */
+function uAngebote(t){
+  if(typeof tSuche!=='function')return '';
+  const quick=LG?LG.PORTALS.filter(p=>p.mode==='search').map(p=>lk(uPortalUrl(p,t),p.name)).join(''):'';
+  return '<section class="block u-angebote-kopf" id="u-angebote"><span class="eyebrow">Angebote</span><h2>Sammeln und vergleichen</h2><p class="small">Erfasst den Preis, den euch ein Anbieter für eure Daten zeigt. Hier stehen Filter, eure Angebote und der Vergleich. Gebuchtes bleibt am jeweiligen Angebot.</p>'+(quick?'<div class="row">'+quick+'</div><p class="small muted">Öffnet mit eurem Ziel, Datum und Personen. Weitere Portale je Unterkunftsart weiter unten.</p>':'')+'</section>'+tSuche(t,{embedded:true});
+}
 /* Formular „Eigene Unterkunft“: Art wählen */
 function uKindSelect(){
   if(!LG)return '';
@@ -105,7 +111,7 @@ if(typeof document!=='undefined')document.addEventListener('click',e=>{
   try{
     if(act==='kind'){UI.uKind=UI.uKind===id?'':id;render();const n=document.getElementById('u-arten');if(n&&n.scrollIntoView)n.scrollIntoView({block:'start'});return}
     if(act==='scroll-arten'){const n=document.getElementById('u-arten');if(n&&n.scrollIntoView)n.scrollIntoView({behavior:'smooth',block:'start'});return}
-    if(act==='go-suche'){go('r-'+t.id+'-suche');return}
+    if(act==='go-suche'){const n=document.getElementById('u-angebote');if(n&&n.scrollIntoView)n.scrollIntoView({behavior:'smooth',block:'start'});else go('r-'+t.id+'-suche');return}
     if(act==='stand'){if(typeof angebotStandSheet!=='function')return;openSheet(angebotStandSheet(t,id));return}
     if(typeof v3CanEdit==='function'&&isV3(t)&&!v3CanEdit(t))throw new Error(typeof V3_LOCK_TXT!=='undefined'?V3_LOCK_TXT:'Diese Reise kann gerade nicht geändert werden.');
     if(act==='offer-for'){const s=STAYS.find(x=>x.id===id)||(t.customStays||[]).find(x=>x.id===id);if(!s)throw new Error('Unterkunft nicht mehr vorhanden.');offerSheet(t,null,uOfferSeed(t,s));return}

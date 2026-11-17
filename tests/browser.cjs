@@ -520,8 +520,8 @@ async function run(browser, base, name, ctxOpts, now) {
   }
 
   /* Suchzentrale: Anbieterlinks, Muss/Wunsch, Profile, Angebot, Vergleich und Zahlungen. */
-  await tripTab(p,'suche');
-  assert((await viewText(p)).includes('Airbnb') && (await viewText(p)).includes('CHECK24'), name + ': Anbieter fehlen');
+  await tripTab(p,'unterkunft');
+  assert((await viewText(p)).includes('Airbnb') && (await viewText(p)).includes('FeWo-direkt'), name + ': Anbieter fehlen (Angebote seit 17.11. in Ort & Unterkunft)');
   await p.fill('[data-search="destination"]', 'Oberjoch');
   await p.press('[data-search="destination"]', 'Tab');
   const booking = await p.getAttribute('a[href*="booking.com/searchresults"]', 'href');
@@ -553,7 +553,7 @@ async function run(browser, base, name, ctxOpts, now) {
   await p.click('[data-search-act="offer-use-yes"]');
   await tripTab(p,'kosten');
   assert((await viewText(p)).includes('Unterkunft: Buchung & Zahlungen') && (await viewText(p)).includes('420 €'), name + ': Zahlungsansicht fehlt');
-  await tripTab(p,'suche');
+  await tripTab(p,'unterkunft');
   await p.click('[data-search-act="history"]');
   assert((await p.textContent('.sheet')).includes('Als Datei herunterladen'), name + ': Sicherungspunkte fehlen');
   await p.click('[data-act="sheet-x"]');
@@ -1023,7 +1023,7 @@ async function v3EditorFlow(browser,base,name,ctxOpts){
  /* Rückfall mit gesperrtem Gate (V3_EDIT=false): gelesene v3-Reisen bleiben auch
     in den alten Such-/Angebotshandlern schreibgeschützt und behalten Version 3. */
  await p.route(/\/app\/v3\.js(\?|$)/,r=>r.fulfill({status:200,contentType:'text/javascript',body:v3src.replace('const V3_EDIT=true;','const V3_EDIT=false;')}));await p.reload();assert.equal(await p.evaluate(()=>window.__app.V3_EDIT),false);
- await tripTab(p,'suche');const lockedRaw=await p.evaluate(()=>localStorage.getItem('rp-trips'));
+ await tripTab(p,'unterkunft');const lockedRaw=await p.evaluate(()=>localStorage.getItem('rp-trips'));
  await p.fill('[data-search="destination"]','Nicht speichern');await p.locator('[data-search="destination"]').press('Tab');
  assert.equal(await p.evaluate(()=>localStorage.getItem('rp-trips')),lockedRaw);
  /* Standard-Suchort kann die Testunterkunft ausfiltern; aktives Angebot über

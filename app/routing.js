@@ -28,6 +28,8 @@ function areaPicker(t){return '<label class="area-picker noprint"><span>Bereich<
    #r-<id> ist dort die Übersichtsseite der Reise (UI.tab null). Am Desktop wie bisher: #r-<id> öffnet den Überblick, nur replaceState. */
 function go(h,keepScroll,opts){
   const pop=!!(opts&&opts.pop),mobile=subMobile(),previousRoute=UI.route||'';
+  /* „Angebote vergleichen“ (#r-<id>-suche) ist seit 17.11. Teil von „Ort & Unterkunft“ (app/unterkuenfte.js); alte Adressen führen dorthin */
+  const toOffers=/^r-[a-z0-9]+-suche$/.test((h||'').replace(/^#/,''));if(toOffers)h=(h||'').replace(/^#/,'').replace(/-suche$/,'-unterkunft');
   h=subResolve((h||'').replace(/^#/,''),mobile);
   if(pop&&previousRoute&&h===previousRoute)return; /* hashchange und popstate melden denselben Schritt */
   const previousTrip=UI.tid,after=UI.navAfter;UI.navAfter=null;UI.heuteTid=null;
@@ -48,6 +50,7 @@ function go(h,keepScroll,opts){
   const restored=pop&&mobile&&subScrollRestore();if(!keepScroll&&!restored)try{window.scrollTo(0,0)}catch(e){}
   if(after&&after.focus&&UI.view==='reise')navFocus(after.focus);
   else{const f=subFocus(previousRoute,target,mobile);if(f)subFocusApply(f,restored)}
+  if(toOffers){const n=typeof document!=='undefined'&&document.getElementById&&document.getElementById('u-angebote');if(n&&n.scrollIntoView)n.scrollIntoView({block:'start'})}
   if(UI.openZiel&&CATX){const z=UI.openZiel;UI.openZiel=null;catOpenById(z).catch(err=>alertMsg(err.message))}
 }
 /* In der Heute-Ansicht die Reise des angeklickten Heute-Blocks (UI.heuteTid, app/navigation.js) */

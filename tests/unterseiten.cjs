@@ -122,18 +122,19 @@ function loadPart() {
   assert(rows.every(i => i.label && i.hint && /^r-t1-[a-z]+$/.test(i.route)), 'Name, Kurzbeschreibung und Adresse je Bereich');
   assert.equal(rows[2].route, 'r-t1-plan', 'Programm mit Terminen öffnet den Tagesplan');
   assert.equal(a.aufbauZiel({ id: 't9', items: [] }, 'programm'), 'unternehmen', 'Programm ohne Termine öffnet die Ideen');
-  a.aufbauMerken('t1', 'suche'); assert.equal(a.aufbauZiel(t, 'ziel'), 'suche', 'zuletzt benutzter Teil');
+  a.aufbauMerken('t1', 'angebote'); assert.equal(a.aufbauZiel(t, 'ziel'), 'angebote', 'zuletzt benutzter Teil');
   a.aufbauMerken('t1', 'unterkunft');
   assert.equal(a.subCount(t, 'programm'), '2 Termine'); assert.equal(a.subCount({ items: [{}] }, 'programm'), '1 Termin'); assert.equal(a.subCount({}, 'programm'), '0 Termine');
   assert.equal(a.subCount(t, 'unterlagen'), '2 von 4 erledigt', 'Zähler mit Wörtern, nicht nur Zahl');
   assert.equal(a.subCount(t, 'ueber'), '');
   /* Neue Namen: Angebotsvergleich und Pakete nicht mehr verwechselbar */
-  assert.deepEqual(['suche', 'angebote', 'unternehmen'].map(k => a.TABS.find(x => x[0] === k)[1]), ['Angebote vergleichen', 'Pakete', 'Ideen']);
+  assert.deepEqual(['angebote', 'unternehmen'].map(k => a.TABS.find(x => x[0] === k)[1]), ['Pakete', 'Ideen']);
+  assert(!a.TABS.some(x => x[0] === 'suche'), 'Angebotsvergleich ist Teil von Ort & Unterkunft (17.11.)');
   /* Teilleiste nur bei mehreren Teilen, aktiver Teil mit aria-current */
   assert.equal(a.aufbauTeile(t, 'kosten'), '');
-  const seg = a.aufbauTeile(t, 'suche');
-  assert.equal((seg.match(/class="seg"/g) || []).length, 3);
-  assert(/data-go="r-t1-suche" data-seg="suche" aria-current="page"/.test(seg) && /aria-label="Teile von Ziel &amp; Unterkunft"/.test(seg));
+  const seg = a.aufbauTeile(t, 'angebote');
+  assert.equal((seg.match(/class="seg"/g) || []).length, 2);
+  assert(/data-go="r-t1-angebote" data-seg="angebote" aria-current="page"/.test(seg) && /aria-label="Teile von Ziel &amp; Unterkunft"/.test(seg));
   /* Desktop-Leiste: fünf Einträge, aktiver Bereich bleibt auf dem aktuellen Teil */
   const bar = a.aufbauLeiste(t, 'mappe');
   assert.equal((bar.match(/class="tab"/g) || []).length, 5);

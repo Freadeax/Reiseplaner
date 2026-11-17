@@ -9,7 +9,7 @@
 "use strict";
 const BEREICHE=[
  {key:'ueber',label:'Überblick',hint:'Wo ihr steht und was als Nächstes dran ist.',parts:['ueber']},
- {key:'ziel',label:'Ziel & Unterkunft',hint:'Ort, Anreise und Unterkunft wählen, Angebote vergleichen.',parts:['unterkunft','suche','angebote']},
+ {key:'ziel',label:'Ziel & Unterkunft',hint:'Ort, Anreise und Unterkunft wählen, Angebote vergleichen.',parts:['unterkunft','angebote']},
  {key:'programm',label:'Programm',hint:'Ideen sammeln und auf die Reisetage verteilen.',parts:['unternehmen','plan']},
  {key:'kosten',label:'Kosten',hint:'Gesamtkosten, Budget, offene Angaben und Zahlungen.',parts:['kosten']},
  {key:'unterlagen',label:'Unterlagen',hint:'Checkliste, Notizen und die Mappe zum Mitnehmen.',parts:['check','notiz','mappe']}
@@ -17,9 +17,12 @@ const BEREICHE=[
 /* Namen der Teile. Bisher „Reisefinder“ (Angebotsvergleich) und „Angebote“ (Pakete) waren leicht zu verwechseln. */
 const TEIL_NAMEN={ueber:'Überblick',unterkunft:'Ort & Unterkunft',suche:'Angebote vergleichen',angebote:'Pakete',unternehmen:'Ideen',plan:'Tagesplan',kosten:'Kosten',check:'Checkliste',notiz:'Notizen',mappe:'Mappe'};
 TABS.forEach(x=>{if(TEIL_NAMEN[x[0]])x[1]=TEIL_NAMEN[x[0]]});
+/* 17.11.: „Angebote vergleichen“ ist Teil von „Ort & Unterkunft“; #r-<id>-suche leitet go() dorthin um (app/routing.js) */
+{const i=TABS.findIndex(x=>x[0]==='suche');if(i>=0)TABS.splice(i,1)}
 AREA_GROUPS.splice(0,AREA_GROUPS.length,...BEREICHE.map(b=>[b.label,b.parts.slice()]));
 if(typeof MODULE_INFO!=='undefined'){
  MODULE_INFO.suche=['Ziel & Unterkunft','Konkrete Angebote sammeln und unter gleichen Bedingungen vergleichen.'];
+ MODULE_INFO.unterkunft=['Ziel & Unterkunft','Unterkünfte merken, Angebote erfassen und unter gleichen Bedingungen vergleichen.'];
  MODULE_INFO.angebote=['Ziel & Unterkunft','Fertige Pakete als Ausgangspunkt übernehmen. Preise sind Schätzwerte.'];
  MODULE_INFO.unternehmen=['Programm','Passende Ideen sammeln, prüfen und in euren Tagesplan übernehmen.'];
 }
