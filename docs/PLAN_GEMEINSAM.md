@@ -159,7 +159,16 @@ Freigabe Philipp 16.11. („Beides nacheinander“).
   Abstimmenden, „+ Neue Abstimmung“) und „Kommentare“ zur Reise mit Liste der Gespräche an Tagen und Unternehmungen; im
   Tagesplan 💬 mit Anzahl im Tageskopf (öffnet das Gespräch zum Tag), im Blatt einer Unternehmung ein eigenes Gespräch.
 
-## 10 · Offene Entscheidungen für Philipp
+## 9d · Nachbesserung `20261117190000_stimmen_echtzeit.sql`
+
+Beim DB-Test gefunden: Supabase Realtime prüft RLS bei DELETE-Ereignissen nicht. Wer eine Stimme zurücknahm, schickte deren
+Primärschlüssel (Idee/Abstimmung, Konto-ID, Antwort) an jedes angemeldete Konto, das `trip_idea_votes`/`trip_poll_votes`
+abonniert hatte (keine Inhalte). Behoben (Freigabe Philipp 17.11.): beide Tabellen verlassen die Publikation; eine Stimme
+berührt stattdessen die Idee (`updated_at`) bzw. die Abstimmung (`votes_at`), deren UPDATE-Ereignisse nur Mitglieder bekommen.
+`cloud.js` abonniert nur noch `trips`, `trip_ideas`, `trip_polls`, `trip_comments`. Regel: Tabellen, aus denen Zeilen hart
+gelöscht werden und deren Schlüssel Personen nennt, nicht in die Realtime-Publikation.
+
+## 10 · Offene Entscheidungen für Philipp## 10 · Offene Entscheidungen für Philipp
 
 1. ~~Migration G2–G5~~ freigegeben 16.11.
 2. ~~Leser: Ideen und Stimmen~~ ja (Philipp 16.11.).

@@ -245,7 +245,8 @@
       if (!sb || !sb.channel) return function () {};
       try { if (sb.realtime && sb.realtime.setAuth) sb.realtime.setAuth(); } catch (e) {}
       var ch = sb.channel('rp-gemeinsam-' + Math.random().toString(36).slice(2));
-      ['trips', 'trip_ideas', 'trip_idea_votes', 'trip_polls', 'trip_poll_votes', 'trip_comments'].forEach(function (table) {
+      /* Stimmen-Tabellen sind nicht in der Publikation (DELETE-Ereignisse ohne RLS); eine Stimme berührt Idee bzw. Abstimmung. */
+      ['trips', 'trip_ideas', 'trip_polls', 'trip_comments'].forEach(function (table) {
         ch = ch.on('postgres_changes', { event: '*', schema: 'public', table: table }, function (p) {
           var row = p && (p.new && Object.keys(p.new).length ? p.new : p.old) || {};
           try { cb({ table: table, id: row.id || row.idea_id || row.poll_id || null, trip: table === 'trips' ? row.id : row.trip_id || null }); } catch (e) { console.error(e); }

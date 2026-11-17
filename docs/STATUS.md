@@ -1,6 +1,11 @@
 # Projektstand · 16.11.2026
 
 
+## Gemeinsam planen: Stimmen ohne eigene Echtzeit-Tabelle (Claude, 17.11.)
+
+Migration `20261117190000_stimmen_echtzeit.sql` (PLAN_GEMEINSAM §9d, Freigabe Philipp 17.11.): Realtime prüft RLS bei DELETE nicht, zurückgenommene Stimmen meldeten Konto-IDs an fremde Abonnenten. Stimmen-Tabellen raus aus der Publikation, Stimme berührt Idee bzw. Abstimmung.
+Tests (17.11., Cloud-Container, lokaler Supabase): `db lint` ohne Befund, `test:db` grün (Fremder erhält keine Ereignisse, Mitglied erhält Stimmen über Idee/Abstimmung), `npm test` grün; `test:e2e` am 16.11. mit derselben Änderung grün. Nicht getestet: iPhone, Safari, Produktion.
+
 ## Startseite für Suchmaschinen und Link-Vorschauen (Claude, 16.11. abends)
 
 Auftrag Philipp 16.11. (SEO und Ladezustand: vorher stand vor dem JavaScript nur „Reiseplaner lädt …“ im Quelltext).

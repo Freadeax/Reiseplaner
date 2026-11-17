@@ -137,14 +137,20 @@ setTimeout(() => { console.error('Zeitüberschreitung im Datenbanktest'); proces
   const sub = async (who, key) => { await who.c.realtime.setAuth((await who.c.auth.getSession()).data.session.access_token);
     return new Promise(res => { const ch = who.c.channel('rp7-' + key + run)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_comments' }, p => got[key].push(p))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_poll_votes' }, p => got[key].push(p))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_polls' }, p => got[key].push(p))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_ideas' }, p => got[key].push(p))
       .subscribe((s, err) => { if (s === 'SUBSCRIBED') res(ch); else if (s !== 'CLOSED') console.error('Realtime', key, s, err && err.message); }); }); };
   await sub(E, 'E'); await sub(X, 'X'); await sleep(3000);
   r = await O.c.from('trip_comments').insert({ trip_id: trip, body: 'Neu von Olga' }); assert.ifError(r.error);
   r = await O.c.rpc('vote_poll', { p_poll: p1.id, p_options: [2] }); assert.ifError(r.error);
-  for (let i = 0; i < 80 && got.E.length < 2; i++) await sleep(250);
+  r = await O.c.from('trip_ideas').insert({ trip_id: trip, body: 'Idee für Stimme' }).select('id').single(); assert.ifError(r.error); const idq = r.data.id;
+  r = await V.c.from('trip_idea_votes').insert({ idea_id: idq }); assert.ifError(r.error);
+  r = await V.c.from('trip_idea_votes').delete().eq('idea_id', idq); assert.ifError(r.error);
+  for (let i = 0; i < 80 && got.E.filter(p => p.table === 'trip_ideas').length < 3; i++) await sleep(250);
   await sleep(500);
-  assert(got.E.some(p => p.table === 'trip_comments'), 'Mitglied erhält Kommentar'); assert(got.E.some(p => p.table === 'trip_poll_votes'), 'Mitglied erhält Stimme');
+  assert(got.E.some(p => p.table === 'trip_comments'), 'Mitglied erhält Kommentar'); assert(got.E.some(p => p.table === 'trip_polls' && p.new && p.new.id === p1.id && p.new.votes_at), 'Mitglied erhält Stimme über die Abstimmung');
+  assert(got.E.filter(p => p.table === 'trip_ideas' && p.eventType === 'UPDATE').length >= 2, 'Stimme auf Idee berührt die Idee');
+  if (got.X.length) console.error('X bekam', JSON.stringify(got.X.map(p => [p.table, p.eventType, p.new, p.old])));
   assert.equal(got.X.length, 0, 'Fremder erhält nichts');
 
   /* Export und Kontolöschung: Stimmen weg, Abstimmung und Kommentar bleiben ohne Autor */
