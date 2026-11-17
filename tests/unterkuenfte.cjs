@@ -23,6 +23,10 @@ assert(/unbestätigt/.test(LG.factText(LG.ENTRIES.find(e => e.id === 'lg-tripsdr
 const bad = JSON.parse(JSON.stringify(LG.ENTRIES[0])); bad.id = 'lg-test'; bad.src = { url: 'https://x.de', type: 'magazin', checked: '2026-11-16' }; bad.price = 99;
 LG.ENTRIES.push(bad); const errs = LG.validate(); LG.ENTRIES.pop();
 assert(errs.some(e => /Keine Preise/.test(e)) && errs.some(e => /offizieller Quelle/.test(e)), 'Preise und „bestätigt“ ohne offizielle Quelle abgelehnt'); n++;
+const tour = JSON.parse(JSON.stringify(LG.ENTRIES[0])); tour.id = 'lg-test2'; tour.src = { url: 'https://x.de', type: 'tourismus', checked: '2026-11-17' };
+LG.ENTRIES.push(tour); const errs2 = LG.validate(); LG.ENTRIES.pop();
+assert(errs2.some(e => /offizieller Quelle/.test(e)) && !errs2.some(e => /Quelle fehlt/.test(e)), 'Tourismusverband erlaubt, aber nicht „bestätigt“'); n++;
+assert(['weinfass', 'heuhotel', 'sonstiges', 'baumhaus'].every(k => LG.find({ kind: k }).length > 0), 'exotische Arten haben Einträge'); n++;
 
 /* 2 · App */
 const base = require('./app-code.cjs')(html).replace("go(location.hash||'reisen',true);", '').replace('if(Store.corruptRaw===null)Store.connect();', '');

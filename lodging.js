@@ -12,7 +12,10 @@
    Speicherort zunächst diese Datei (Entscheidung offen: Datenbank später, D01). */
 (function (root) {
   'use strict';
-  var CHECKED = '2026-11-16';
+  var CHECKED = '2026-11-16', CHECKED2 = '2026-11-17';
+  /* Quellenarten: offiziell = Website des Betriebs; tourismus = Seite des regionalen Tourismusverbands (Merkmale dort
+     bleiben 'unbestaetigt'); magazin; portal. */
+  var SRC_TYPES = { offiziell: 'Anbieter-Website', tourismus: 'Tourismusverband', magazin: 'Magazin', portal: 'Portal' };
   var GROUPS = [
     { id: 'klassisch', name: 'Hotel & Pension' },
     { id: 'wohnen', name: 'Ferienwohnen' },
@@ -110,7 +113,36 @@
     { id: 'lg-hofgut-hopfenburg', name: 'Hofgut Hopfenburg', kinds: ['glamping', 'camping', 'bauernhof'], place: 'Münsingen', region: 'Schwäbische Alb', country: 'DE', lat: 48.41, lon: 9.50,
       url: 'https://www.hopfenburg.de/', summary: 'Hofgut mit Campingplatz und besonderen Unterkünften auf der Schwäbischen Alb; Hofladen und Frühstück laut Website.',
       facts: { fruehstueck: { v: true, st: 'bestaetigt' }, hofladen: { v: true, st: 'bestaetigt' } },
-      src: { url: 'https://www.hopfenburg.de/hof-erleben/essen', type: 'offiziell', checked: CHECKED }, note: 'Art der Unterkünfte (Jurten, Wagen, Zelte) nur laut Magazin promobil, beim Anbieter prüfen.', bookVia: ['direkt'] }
+      src: { url: 'https://www.hopfenburg.de/hof-erleben/essen', type: 'offiziell', checked: CHECKED }, note: 'Art der Unterkünfte (Jurten, Wagen, Zelte) nur laut Magazin promobil, beim Anbieter prüfen.', bookVia: ['direkt'] },
+    /* Ergänzt 17.11.2026 (Philipp „Ja!“ zum Erweitern), geprüft über Websuche: Domain und Seiten sichtbar. */
+    { id: 'lg-schlafen-im-weinfass', name: 'Schlafen im Weinfass', kinds: ['weinfass'], place: 'Sasbachwalden', region: 'Schwarzwald (Ortenau)', country: 'DE', lat: 48.62, lon: 8.13,
+      url: 'https://www.schlafen-im-weinfass.de/', summary: 'Schlaffässer in den Reben über Sasbachwalden; die Gemeinde führt das Angebot auch auf ihrer Website.',
+      facts: {},
+      src: { url: 'https://www.schlafen-im-weinfass.de/', type: 'offiziell', checked: CHECKED2 }, bookVia: ['direkt'] },
+    { id: 'lg-hasenhof-hornberg', name: 'Heuhotel auf dem Hasenhof', kinds: ['heuhotel', 'bauernhof'], place: 'Hornberg', region: 'Schwarzwald', country: 'DE', lat: 48.21, lon: 8.23,
+      url: 'https://www.schwarzwald-tourismus.info/unterkuenfte/heuhotel-auf-dem-hasenhof-94807be499', summary: 'Schlafen im Heu auf einem Schwarzwaldhof bei Hornberg.',
+      facts: {},
+      src: { url: 'https://www.schwarzwald-tourismus.info/unterkuenfte/heuhotel-auf-dem-hasenhof-94807be499', type: 'tourismus', checked: CHECKED2 }, note: 'Nur über den Tourismusverband gefunden; Saison und Ausstattung beim Hof erfragen.', bookVia: ['direkt'] },
+    { id: 'lg-heuferienhof-altkamp', name: 'Heu-Ferienhof Altkamp', kinds: ['heuhotel', 'bauernhof'], place: 'Putbus, OT Altkamp (Rügen)', region: 'Mecklenburg-Vorpommern', country: 'DE', lat: 54.35, lon: 13.47,
+      url: 'https://www.auf-nach-mv.de/reiseziele/a-heuferienhof-gmbh', summary: 'Hof auf Rügen mit Heukojen zum Übernachten.',
+      facts: {},
+      src: { url: 'https://www.auf-nach-mv.de/reiseziele/a-heuferienhof-gmbh', type: 'tourismus', checked: CHECKED2 }, note: 'Heukojen laut Buchungsportalen; beim Hof bestätigen lassen.', bookVia: ['direkt'] },
+    { id: 'lg-ettershaus-baumhaeuser', name: 'Baumhäuser im Sonnenresort Ettershaus', kinds: ['baumhaus', 'hotel'], place: 'Bad Harzburg', region: 'Harz (Niedersachsen)', country: 'DE', lat: 51.88, lon: 10.56,
+      url: 'https://sonnenhotels.de/de/blog/seh-baumhaus-urlaub-harz-ettershaus', summary: 'Resort-Hotel im Harz mit 14 Baumhäusern laut Anbieter.',
+      facts: { sauna: { v: true, st: 'unbestaetigt' } },
+      src: { url: 'https://sonnenhotels.de/de/blog/seh-baumhaus-urlaub-harz-ettershaus', type: 'offiziell', checked: CHECKED2 }, bookVia: ['direkt'] },
+    { id: 'lg-weissenhaeuser-strandkorb', name: 'Schlafstrandkorb am Weissenhäuser Strand', kinds: ['sonstiges'], place: 'Wangels, Weissenhäuser Strand', region: 'Ostsee (Schleswig-Holstein)', country: 'DE', lat: 54.30, lon: 10.82,
+      url: 'https://www.weissenhaeuserstrand.de/en/offers/wicker-beach-bed/', summary: 'Eine Nacht im Schlafstrandkorb am Strand des Ferienparks.',
+      facts: { winter: { v: false, st: 'unbestaetigt' } },
+      src: { url: 'https://www.weissenhaeuserstrand.de/en/offers/wicker-beach-bed/', type: 'offiziell', checked: CHECKED2 }, note: 'Nur in der warmen Saison anzunehmen; Termine beim Anbieter.', bookVia: ['direkt'] },
+    { id: 'lg-huettenpalast-berlin', name: 'Hüttenpalast', kinds: ['sonstiges', 'hostel'], place: 'Berlin-Neukölln', region: 'Berlin', country: 'DE', lat: 52.49, lon: 13.43,
+      url: 'https://huettenpalast.de/', summary: 'Alte Wohnwagen und Holzhütten in einer früheren Fabrikhalle, dazu Zimmer.',
+      facts: {},
+      src: { url: 'https://huettenpalast.de/en/hotel/', type: 'offiziell', checked: CHECKED2 }, bookVia: ['direkt'] },
+    { id: 'lg-hotel-im-wasserturm', name: 'Hotel im Wasserturm', kinds: ['sonstiges', 'hotel'], place: 'Köln', region: 'Nordrhein-Westfalen', country: 'DE', lat: 50.93, lon: 6.95,
+      url: 'https://www.hotel-im-wasserturm.de/', summary: 'Hotel in einem historischen Wasserturm in der Kölner Innenstadt, mit Dachterrasse.',
+      facts: { restaurant: { v: true, st: 'unbestaetigt' } },
+      src: { url: 'https://www.hotel-im-wasserturm.de/', type: 'offiziell', checked: CHECKED2 }, bookVia: ['direkt', 'booking'] }
   ];
 
   var kindById = function (id) { for (var i = 0; i < KINDS.length; i++) if (KINDS[i].id === id) return KINDS[i]; return null; };
@@ -146,7 +178,7 @@
     PORTALS.forEach(function (p) { if (!/^https:\/\//.test(p.home)) errs.push('Portal ohne HTTPS: ' + p.id); p.kinds.forEach(function (k) { if (!kindById(k)) errs.push('Portal ' + p.id + ': Art ' + k); }); });
     ENTRIES.forEach(function (e) {
       if (!/^lg-[a-z0-9-]+$/.test(e.id) || ids[e.id]) errs.push('ID: ' + e.id); ids[e.id] = 1;
-      if (!e.src || !/^https:\/\//.test(e.src.url) || !/^\d{4}-\d{2}-\d{2}$/.test(e.src.checked) || ['offiziell', 'magazin', 'portal'].indexOf(e.src.type) < 0) errs.push('Quelle fehlt: ' + e.id);
+      if (!e.src || !/^https:\/\//.test(e.src.url) || !/^\d{4}-\d{2}-\d{2}$/.test(e.src.checked) || !SRC_TYPES[e.src.type]) errs.push('Quelle fehlt: ' + e.id);
       if (!/^https:\/\//.test(e.url)) errs.push('Link: ' + e.id);
       if (!e.kinds.length || e.kinds.some(function (k) { return !kindById(k); })) errs.push('Art: ' + e.id);
       Object.keys(e.facts || {}).forEach(function (k) { var f = e.facts[k]; if (!FACTS[k] || typeof f.v !== 'boolean' || ['bestaetigt', 'unbestaetigt'].indexOf(f.st) < 0) errs.push('Merkmal ' + k + ': ' + e.id); if (f.st === 'bestaetigt' && e.src.type !== 'offiziell') errs.push('bestätigt nur mit offizieller Quelle: ' + e.id); });
@@ -155,7 +187,7 @@
     });
     return errs;
   }
-  var api = { CHECKED: CHECKED, GROUPS: GROUPS, KINDS: KINDS, PORTALS: PORTALS, FACTS: FACTS, ENTRIES: ENTRIES, kindById: kindById, portalById: portalById, portalsFor: portalsFor, km: km, find: find, factText: factText, validate: validate };
+  var api = { CHECKED: CHECKED, SRC_TYPES: SRC_TYPES, GROUPS: GROUPS, KINDS: KINDS, PORTALS: PORTALS, FACTS: FACTS, ENTRIES: ENTRIES, kindById: kindById, portalById: portalById, portalsFor: portalsFor, km: km, find: find, factText: factText, validate: validate };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.RPLodging = api;
 })(typeof window !== 'undefined' ? window : this);

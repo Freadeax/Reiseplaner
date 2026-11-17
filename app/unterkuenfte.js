@@ -67,7 +67,7 @@ function uStayExtra(t,s){
   const reg=s.reg&&LG?LG.ENTRIES.find(e=>e.id===s.reg):null;
   return '<div class="badges">'+uKindBadge(s)+(reg?'<span class="badge est">Register</span>':'')+'</div>'+
    (offs.length?'<p class="small">'+offs.length+(offs.length===1?' Angebot':' Angebote')+' erfasst'+(known.length?', ab '+eur(Math.min.apply(null,known))+' bekannte Kosten':'')+(offs.some(o=>o.booked)?' · gebucht':'')+'</p>':'')+
-   (reg?'<p class="small muted">Quelle: '+lk(reg.src.url,{offiziell:'Anbieter-Website',magazin:'Magazin',portal:'Portal'}[reg.src.type])+' · geprüft '+esc(fmtLong(pd(reg.src.checked)))+'</p>':'')+
+   (reg?'<p class="small muted">Quelle: '+lk(reg.src.url,((LG&&LG.SRC_TYPES||{})[reg.src.type]||'Quelle'))+' · geprüft '+esc(fmtLong(pd(reg.src.checked)))+'</p>':'')+
    '<div class="row"><button type="button" class="btn ghost sm" data-u-act="offer-for" data-value="'+esc(s.id)+'">Angebot erfassen</button></div>';
 }
 function uArten(t){
@@ -89,7 +89,7 @@ function uRegCard(t,x){
   const facts=Object.keys(e.facts||{}).map(f=>LG.factText(e,f)).filter(Boolean);
   return '<div class="card"><span class="eyebrow">'+esc(e.place)+' · '+esc(e.region)+(x.km!=null?' · ≈ '+x.km+' km Luftlinie':'')+'</span><h3>'+esc(e.name)+'</h3><div class="badges">'+e.kinds.map(id=>{const k=LG.kindById(id);return '<span class="badge">'+k.icon+' '+esc(k.name)+'</span>'}).join('')+'</div><p class="small">'+esc(e.summary)+'</p>'+
    (facts.length?'<ul class="plain small">'+facts.map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul>':'')+(e.note?'<p class="small est-note">'+esc(e.note)+'</p>':'')+
-   '<p class="small muted">Kein Preis im Register. Quelle: '+lk(e.src.url,{offiziell:'Anbieter-Website',magazin:'Magazin',portal:'Portal'}[e.src.type])+' · geprüft '+esc(fmtLong(pd(e.src.checked)))+'</p>'+
+   '<p class="small muted">Kein Preis im Register. Quelle: '+lk(e.src.url,((LG&&LG.SRC_TYPES||{})[e.src.type]||'Quelle'))+' · geprüft '+esc(fmtLong(pd(e.src.checked)))+'</p>'+
    '<div class="foot">'+(have?'<span class="badge ok">auf der Merkliste</span>':'<button type="button" class="btn sm" data-u-act="reg-add" data-value="'+esc(e.id)+'">Auf die Merkliste</button>')+lk(e.url,'Website')+'</div></div>';
 }
 /* Angebote sammeln und vergleichen: der frühere Teil „Angebote vergleichen“ (tSuche) im Reiter, ohne Wiederholungen */

@@ -62,6 +62,12 @@ Philipp 17.11.: „Ja!“ zum Eingliedern. Der Teil „Angebote vergleichen“ (
   `go()` (`app/routing.js`) auf `-unterkunft` um und scrollt zu `#u-angebote`.
 - Nächster Schritt in „Eure Unterkunft“ heißt jetzt „Zu den Angeboten“.
 
+**Register erweitert (17.11.):** 16 Betriebe. Neu: Schlafen im Weinfass (Sasbachwalden), Heuhotel Hasenhof (Hornberg),
+Heu-Ferienhof Altkamp (Rügen), Baumhäuser Sonnenresort Ettershaus (Bad Harzburg), Schlafstrandkorb Weissenhäuser Strand,
+Hüttenpalast (Berlin), Hotel im Wasserturm (Köln). Neue Quellenart `tourismus` (Seite des Tourismusverbands): erlaubt,
+Merkmale bleiben aber „unbestätigt“. Für Leuchtturm, Jurte und Tiny House fand sich noch keine Quelle beim Betrieb
+selbst; dort zeigt der Reiter nur Portale.
+
 ## Nächste Stufen (Vorschlag)
 
 3. **Feinschliff Angebote:** `stayQuote` als Angebot führen; kürzere Angebotskarte am Handy (Aktionen in einem Menü).
